@@ -56,11 +56,9 @@ export const infoData = [
 export default function MapDetails() {
   const params = useParams();
   const id = Number(params?.id);
-  console.log(id);
 
   const marker = markers.find((marker) => marker.id === id);
 
-  console.log(marker);
 
   return (
     <section className="bg-gray-100 py-10">

@@ -1,13 +1,16 @@
 "use client";
 
-"use client";
-
 import { Twitter, Instagram, Globe } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo.png";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname === "/maps") return null;
+
   return (
     <footer className="bg-gray-100 text-gray-600">
       <div className="max-w-360 mx-auto px-4 md:px-6 py-16">

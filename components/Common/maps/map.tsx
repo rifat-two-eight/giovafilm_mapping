@@ -26,7 +26,7 @@ export const markers = [
     name: "Old San Juan Coffee",
     rating: 4.8,
     reviews: 210,
-    type: "Coffee Shop",
+    type: "restaurant",
     image:
       "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800",
     description:
@@ -41,7 +41,7 @@ export const markers = [
     name: "San Juan Grand Hotel",
     rating: 4.5,
     reviews: 150,
-    type: "Hotel",
+    type: "place",
     image:
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
     description:
@@ -56,7 +56,7 @@ export const markers = [
     name: "El Jibarito",
     rating: 4.7,
     reviews: 320,
-    type: "Restaurant",
+    type: "restaurant",
     image:
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800",
     description:
@@ -71,7 +71,7 @@ export const markers = [
     name: "Castillo San Felipe",
     rating: 4.9,
     reviews: 1200,
-    type: "Landmark",
+    type: "place",
     image:
       "https://images.unsplash.com/photo-1589308454676-435948967982?auto=format&fit=crop&q=80&w=800",
     description:
@@ -86,7 +86,7 @@ export const markers = [
     name: "San Juan Medical Center",
     rating: 4.2,
     reviews: 85,
-    type: "Hospital",
+    type: "place",
     image:
       "https://images.unsplash.com/photo-1586773860418-d3b9a8ec817f?auto=format&fit=crop&q=80&w=800",
     description:
@@ -101,7 +101,7 @@ export const markers = [
     name: "Luis Muñoz Marín Int'l",
     rating: 4.4,
     reviews: 5400,
-    type: "Airport",
+    type: "place",
     image:
       "https://images.unsplash.com/photo-1436491865332-7a61a109c0f2?auto=format&fit=crop&q=80&w=800",
     description:
@@ -115,7 +115,7 @@ export default function MapPage() {
   >(null);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="min-h-[calc(100vh-82px)] flex flex-col overflow-hidden">
       <main className="flex-1 relative bg-gray-100">
         {/* Mock Map Background */}
         <div
