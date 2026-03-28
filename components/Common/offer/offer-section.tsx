@@ -11,6 +11,7 @@ import image3 from "@/public/offers-image/The Daily Grind.png";
 import image4 from "@/public/offers-image/L'Escale.png";
 import image5 from "@/public/offers-image/Prime Cut.png";
 import image6 from "@/public/offers-image/Gourmet Garden.png";
+import Link from "next/link";
 
 type Offer = {
   id: number;
@@ -99,46 +100,48 @@ export default function OfferSection() {
             const isFavorite = favorites.includes(offer.id);
 
             return (
-              <div
-                key={offer.id}
-                className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition"
-              >
-                {/* Image */}
-                <div className="relative h-64 w-full">
-                  <Image
-                    src={offer.image}
-                    alt={offer.title}
-                    fill
-                    className="object-cover"
-                  />
-
-                  {/* Favorite Button */}
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    onClick={() => toggleFavorite(offer.id)}
-                    className="absolute right-3 top-3 rounded-full"
-                  >
-                    <Heart
-                      className={`w-4 h-4 ${
-                        isFavorite ? "fill-red-500 text-red-500" : ""
-                      }`}
+              <Link href={`/offer/${offer.id}`}>
+                <div
+                  key={offer.id}
+                  className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition"
+                >
+                  {/* Image */}
+                  <div className="relative h-64 w-full">
+                    <Image
+                      src={offer.image}
+                      alt={offer.title}
+                      fill
+                      className="object-cover"
                     />
-                  </Button>
 
-                  {/* Discount Badge */}
-                  <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md">
-                    {offer.discount}%
+                    {/* Favorite Button */}
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => toggleFavorite(offer.id)}
+                      className="absolute right-3 top-3 rounded-full"
+                    >
+                      <Heart
+                        className={`w-4 h-4 ${
+                          isFavorite ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                    </Button>
+
+                    {/* Discount Badge */}
+                    <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md">
+                      {offer.discount}%
+                    </div>
+                  </div>
+
+                  {/* Text */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg">{offer.title}</h3>
+
+                    <p className="text-sm text-gray-500">{offer.category}</p>
                   </div>
                 </div>
-
-                {/* Text */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg">{offer.title}</h3>
-
-                  <p className="text-sm text-gray-500">{offer.category}</p>
-                </div>
-              </div>
+              </Link>
             );
           })}
         </div>

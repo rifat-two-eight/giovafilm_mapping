@@ -1,10 +1,10 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, Copy, HelpCircle } from "lucide-react";
+import { ChevronRight, HelpCircle, Star } from "lucide-react";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface OfferData {
   id: string;
@@ -97,10 +97,13 @@ const OFFERS_DATA: Record<string, OfferData> = {
 
 export default function RestaurantDetail() {
   const params = useParams();
+  const pathname = usePathname();
   const offerId = params.id as string;
   const offer = OFFERS_DATA[offerId] || OFFERS_DATA["2"];
-  const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(offer.timeLeft || "14:06");
+
+  // Check if the current path is from /maps
+  const isFromMaps = pathname?.startsWith("/maps");
 
   useEffect(() => {
     // Simulate countdown timer
@@ -123,194 +126,203 @@ export default function RestaurantDetail() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(offer.offerCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Link
-              href="/offers"
-              className="text-blue-600 hover:underline font-medium"
-            >
-              Offers
-            </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-700 font-medium">{offer.place}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Section - Image and Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Hero Image with Rating */}
-            <div className="relative rounded-2xl overflow-hidden h-96 bg-gray-200">
-              <img
-                src={offer.image}
-                alt={offer.place}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-              {/* Rating Badge */}
-              <div className="absolute top-4 right-4 bg-white rounded-full px-3 py-2 flex items-center gap-1 shadow-md">
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold text-gray-900">
-                  {offer.rating} ({offer.reviews} reviews)
-                </span>
-              </div>
+    <div className="bg-gray-50 py-4 sm:py-6 md:py-8 pb-10 sm:pb-12 md:pb-14">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        {!isFromMaps && (
+          <div className="mb-4 sm:mb-5 md:mb-6">
+            <div className="flex items-center gap-2 text-xs sm:text-sm">
+              <Link
+                href="/offers"
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Offers
+              </Link>
+              <span className="text-gray-400">/</span>
+              <span className="text-gray-700 font-medium line-clamp-1">
+                {offer.place}
+              </span>
             </div>
+          </div>
+        )}
 
-            {/* Restaurant Name and Discount */}
-            <div className="space-y-2">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h1 className="text-4xl font-bold text-gray-900">
-                    {offer.place}
-                  </h1>
-                  <p className="text-gray-600 flex items-center gap-2">
-                    <span>📍</span> {offer.location}
+        {/* Main Content */}
+        <div className="">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            {/* Left Section - Image and Details */}
+            <div className="bg-white lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 rounded-xl sm:rounded-2xl overflow-hidden">
+              {/* Hero Image with Rating */}
+              <div className="relative rounded-t-xl sm:rounded-t-2xl overflow-hidden h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-200">
+                <img
+                  src={offer.image}
+                  alt={offer.place}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Rating Badge */}
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1 shadow-md">
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                    {offer.rating} ({offer.reviews} reviews)
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4 sm:space-y-5 md:space-y-6 p-4 sm:p-5 md:p-6 pt-2 sm:pt-2 md:pt-2">
+                {/* Restaurant Name and Discount */}
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                    <div className="space-y-1 sm:space-y-2">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
+                        {offer.place}
+                      </h1>
+                      <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 break-words">
+                        <span>📍</span> {offer.location}
+                      </p>
+                    </div>
+                    <div className="bg-yellow-100 text-gray-900 font-bold px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full text-base sm:text-lg md:text-xl inline-block w-fit">
+                      {offer.discount} {offer.discountType}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="">
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                    {offer.description}
                   </p>
                 </div>
-                <div className="bg-yellow-100 text-gray-900 font-bold px-6 py-3 rounded-full text-xl">
-                  {offer.discount} {offer.discountType}
-                </div>
-              </div>
-            </div>
 
-            {/* Description */}
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <p className="text-gray-700 leading-relaxed">
-                {offer.description}
-              </p>
-            </div>
-
-            {/* Validity and Rules Section */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Validity Period */}
-              <div className="bg-white rounded-lg p-6 border border-gray-200 space-y-4">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Validity Period
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl">📅</div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase">FROM</p>
-                      <p className="font-semibold text-gray-900">
-                        {offer.validFrom}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl">📅</div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase">UNTIL</p>
-                      <p className="font-semibold text-gray-900">
-                        {offer.validUntil}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Redemption Rules */}
-              <div className="bg-white rounded-lg p-6 border border-gray-200 space-y-4">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                  Redemption Rules
-                </h3>
-                <div className="space-y-3">
-                  {offer.redemptionRules.map((rule, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="text-yellow-500 text-lg mt-0.5">✓</div>
-                      <p className="text-gray-700">{rule}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section - Redemption Status */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-              {/* Redemption Status Header */}
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
-                  Redemption Status
-                </h2>
-
-                {/* Timer Circle */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-40 h-40 rounded-full border-8 border-yellow-400 flex items-center justify-center bg-gray-50">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-gray-900">
-                        {timeLeft}
+                {/* Validity and Rules Section */}
+                <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 p-4 sm:p-5 md:p-6 bg-gray-100/80 rounded-lg">
+                  {/* Validity Period */}
+                  <div className="space-y-3 sm:space-y-4">
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                      Validity Period
+                    </h3>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="text-xl sm:text-2xl">📅</div>
+                        <div>
+                          <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                            FROM
+                          </p>
+                          <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+                            {offer.validFrom}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 uppercase tracking-wide">
-                        Time Left
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="text-xl sm:text-2xl">📅</div>
+                        <div>
+                          <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                            UNTIL
+                          </p>
+                          <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+                            {offer.validUntil}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Redemption Rules */}
+                  <div className="mt-3 sm:mt-0">
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
+                      Redemption Rules
+                    </h3>
+                    <div className="space-y-2 sm:space-y-3">
+                      {offer.redemptionRules.map((rule, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-2 sm:gap-3"
+                        >
+                          <div className="text-yellow-500 text-base sm:text-lg mt-0.5">
+                            ✓
+                          </div>
+                          <p className="text-xs sm:text-sm text-gray-700 break-words">
+                            {rule}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section - Redemption Status */}
+            <div className="lg:col-span-1 space-y-4 sm:space-y-5 md:space-y-6">
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/50 shadow-md p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
+                {/* Redemption Status Header */}
+                <div>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-5 md:mb-6">
+                    Redemption Status
+                  </h2>
+
+                  {/* Timer Circle */}
+                  <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 sm:border-6 md:border-8 border-yellow-400 flex items-center justify-center bg-gray-50">
+                      <div className="text-center">
+                        <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+                          {timeLeft}
+                        </div>
+                        <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
+                          Time Left
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Instructions */}
+                  <div className="p-3 sm:p-4 bg-gray-50 rounded-lg text-center">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Present this screen to the staff member at{" "}
+                      <span className="font-semibold break-words">
+                        {offer.place}
+                      </span>{" "}
+                      to validate your redemption.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Instructions */}
-                <p className="text-sm text-gray-600 text-center mb-6">
-                  Present this screen to the staff member at{" "}
-                  <span className="font-semibold">{offer.place}</span> to
-                  validate your redemption.
-                </p>
-              </div>
+                {/* Redeem Button */}
+                <Button className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20">
+                  REDEEM OFFER
+                </Button>
 
-              {/* Redeem Button */}
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 text-base rounded-lg">
-                REDEEM OFFER
-              </Button>
-
-              {/* Offer Code */}
-              <div className="border-t border-gray-200 pt-6">
-                <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">
-                  Offer Code
-                </p>
-                <div className="flex items-center gap-3">
-                  <code className="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm font-mono text-gray-900">
+                {/* Offer Code */}
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                    Offer Code:
+                  </p>
+                  <code className="text-xs sm:text-sm break-all text-center">
                     {offer.offerCode}
                   </code>
-                  <button
-                    onClick={handleCopyCode}
-                    className="p-2 hover:bg-gray-100 rounded transition-colors"
-                    aria-label="Copy code"
-                  >
-                    <Copy className="w-5 h-5 text-gray-600" />
-                  </button>
                 </div>
-                {copied && (
-                  <p className="text-xs text-green-600 mt-2">
-                    Copied to clipboard!
-                  </p>
-                )}
-              </div>
 
-              {/* Help Section */}
-              <div className="border-t border-gray-200 pt-6">
-                <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded transition-colors">
-                  <div className="flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-gray-600" />
-                    <span className="font-medium text-gray-900">
-                      Need help?
-                    </span>
+                {/* Help Section */}
+                <div className="border rounded-lg bg-gray-100/50 border-gray-200 p-3 sm:p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="">
+                      <button className="w-full">
+                        <div className="flex items-center gap-2">
+                          <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                          <span className="text-sm sm:text-base font-medium text-gray-900">
+                            Need help?
+                          </span>
+                        </div>
+                      </button>
+                      <p className="text-[10px] sm:text-xs text-gray-500 px-2 sm:px-3">
+                        Contact support
+                      </p>
+                    </div>
+                    <div className="">
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
                   </div>
-                  <span className="text-gray-400">›</span>
-                </button>
-                <p className="text-xs text-gray-500 px-3">Contact support</p>
+                </div>
               </div>
             </div>
           </div>

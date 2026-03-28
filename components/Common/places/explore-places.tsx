@@ -91,7 +91,7 @@ const filters = [
 export default function ExplorePlaces() {
   return (
     <section className="bg-gray-50 py-16">
-      <div className=" max-w-360 mx-auto px-4 md:px-6">
+      <div className="max-w-360 mx-auto px-4 md:px-6">
         {/* Title */}
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 leading-14">
