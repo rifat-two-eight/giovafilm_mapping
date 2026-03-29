@@ -224,6 +224,19 @@ export default function Header() {
                   className="w-64 p-0 overflow-hidden rounded-xl shadow-lg"
                 >
                   <div className="py-2">
+                    <Link href={"/dashboard"}>
+                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Grid2x2 className="mr-3 size-5" />
+                        Dashoard
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link href={"/profile"}>
+                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Grid2x2 className="mr-3 size-5" />
+                        Profile
+                      </DropdownMenuItem>
+                    </Link>
+
                     <Link href={"/profile/favorite-places"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Heart className="mr-3 size-5" />

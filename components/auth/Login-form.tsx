@@ -9,14 +9,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-
-
 type FormValues = {
   email: string;
   password: string;
 };
 
-export const Login = () => {
+export const LoginForm = () => {
   const { register, handleSubmit } = useForm<FormValues>();
 
   const onSubmit = (data: FormValues) => {
@@ -102,7 +100,7 @@ export const Login = () => {
       <div className="text-sm text-center mt-6">
         <span className="text-[#0A0A0A]">Don't have an account? </span>
         <Link
-          href="/signup"
+          href="/register"
           className="text-base font-semibold text-primary font-public-sans cursor-pointer hover:underline"
         >
           Create an account
