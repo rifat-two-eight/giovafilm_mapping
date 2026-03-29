@@ -115,23 +115,23 @@ export const RegisterForm = () => {
         </div>
 
         {/* Terms */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3 py-2">
           <Checkbox
             onCheckedChange={(checked) => setValue("terms", Boolean(checked))}
-            className="mt-1 w-5 h-5 border-[#E0E0E0] data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            className="w-5 h-5 border-[#E0E0E0] data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
           <p className="text-sm text-[#757575]">
             I agree to the{" "}
             <Link
-              href={"/terms-conditions"}
-              className="font-semibold text-[#1A1A1A]"
+              href={"/terms-of-service"}
+              className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"
             >
-              Terms & Conditions
+              Terms & Service
             </Link>{" "}
             and{" "}
             <Link
               href={"/privacy-policy"}
-              className="font-semibold text-[#1A1A1A]"
+              className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"
             >
               Privacy Policy
             </Link>
