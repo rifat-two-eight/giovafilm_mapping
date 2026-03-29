@@ -23,13 +23,13 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <div className="flex flex-col justify-center space-y-6 ml-28 text-white">
           {/* Logo */}
           <div className="shrink-0">
-            <Link href="/">
+            <Link href="/maps">
               <Image
                 src={require("@/public/white-logo.png")}
                 alt="Dashboard Logo"
-                height={200}
-                width={200}
-                className="w-48 h-auto"
+                height={500}
+                width={500}
+                className="w-96 h-auto"
               />
             </Link>
           </div>

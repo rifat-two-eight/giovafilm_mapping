@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Edit2, Share2 } from "lucide-react";
+import { Edit2, Link, Share2 } from "lucide-react";
 
 interface MilestonesData {
   distanceTraveled: string;
@@ -69,6 +69,13 @@ export function ProfileSidebar({ data }: ProfileProps) {
             <Share2 size={18} />
             Share Profile
           </Button>
+          <Link
+            href="/profile/awards"
+            className="w-full rounded flex items-center justify-center gap-2 border-gray-200"
+          >
+            <Share2 size={18} />
+            Share Profile
+          </Link>
         </div>
       </div>
 

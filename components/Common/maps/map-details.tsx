@@ -4,9 +4,11 @@ import {
   BarChart3,
   Building2,
   Clock,
+  CloudCog,
   Heart,
   MapPin,
   MessageSquare,
+  Phone,
   Send,
   Share2,
   Star,
@@ -28,6 +30,7 @@ import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { markers } from "./map";
 import InfoCard from "./info-card";
+import Link from "next/link";
 
 export const infoData = [
   {
@@ -52,13 +55,27 @@ export const infoData = [
     value: "~ 3.5 Hours",
   },
 ];
+export const restaurantData = [
+  {
+    icon: Clock,
+    label: "SCHEDULES",
+    value: "09:00 AM - 11:00 PM",
+  },
+  {
+    icon: Ticket,
+    label: "Atmosphere:",
+    value: "Cozy & Romantic",
+  },
+];
 
 export default function MapDetails() {
   const params = useParams();
   const id = Number(params?.id);
 
   const marker = markers.find((marker) => marker.id === id);
-
+  const dataToRender =
+    marker?.type === "restaurant" ? restaurantData : infoData;
+  console.log(marker?.type);
 
   return (
     <section className="bg-gray-100 py-10">
@@ -108,7 +125,7 @@ export default function MapDetails() {
           <div className="space-y-4 flex flex-col justify-between">
             {/* grid cards */}
             <div className="grid grid-cols-2 gap-4">
-              {infoData.map((item, index) => {
+              {dataToRender.map((item, index) => {
                 const Icon = item.icon;
 
                 return (
@@ -117,17 +134,45 @@ export default function MapDetails() {
                     icon={<Icon size={18} />}
                     label={item.label}
                     value={item.value}
-                    highlight={item.highlight}
+                    highlight={(item as any)?.highlight}
                   />
                 );
               })}
             </div>
 
             {/* directions button */}
-            <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base rounded-xl">
-              <Send size={18} className="mr-2" />
-              DIRECTIONS
-            </Button>
+            {marker?.type !== "restaurant" && (
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
+                <Send size={18} className="mr-2" />
+                DIRECTIONS
+              </Button>
+            )}
+
+            {marker?.type === "restaurant" && (
+              <div className="">
+                {marker?.type === "restaurant" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <Button className="flex-1 w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
+                        <Send size={18} className="mr-2" />
+                        DIRECTIONS
+                      </Button>
+                      <Button className="flex-1 w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
+                        <Phone size={18} className="mr-2" />
+                        Call
+                      </Button>
+                    </div>
+
+                    <Link href={`/maps/${marker?.id}/${marker?.id}`}>
+                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
+                        <Ticket size={18} className="mr-2" />
+                        Discounts
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -140,9 +185,10 @@ export default function MapDetails() {
             className="space-y-4"
           >
             {/* ACCESS */}
+
             <AccordionItem value="access" className="border rounded-xl">
               <AccordionTrigger className="font-semibold">
-                ACCESS
+                {marker?.type === "restaurant" ? "Menu" : "ACCESS"}
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground space-y-4 pb-6">
@@ -169,80 +215,84 @@ export default function MapDetails() {
             </AccordionItem>
 
             {/* RECOMMENDATIONS */}
-            <AccordionItem
-              value="recommendations"
-              className="border rounded-xl"
-            >
-              <AccordionTrigger className="font-semibold">
-                RECOMMENDATIONS
-              </AccordionTrigger>
+            {marker?.type !== "restaurant" && (
+              <AccordionItem
+                value="recommendations"
+                className="border rounded-xl"
+              >
+                <AccordionTrigger className="font-semibold">
+                  RECOMMENDATIONS
+                </AccordionTrigger>
 
-              <AccordionContent className="pb-6 space-y-5">
-                <p className="text-muted-foreground">
-                  Bring a reusable water bottle, comfortable shoes, and light
-                  clothing. Don't forget your camera to capture the spectacular
-                  scenery!
-                </p>
+                <AccordionContent className="pb-6 space-y-5">
+                  <p className="text-muted-foreground">
+                    Bring a reusable water bottle, comfortable shoes, and light
+                    clothing. Don't forget your camera to capture the
+                    spectacular scenery!
+                  </p>
 
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    "Mosquito repellent",
-                    "Hiking boots",
-                    "Flashlight",
-                    "Sunscreen",
-                    "Rain jacket",
-                  ].map((item) => (
-                    <span
-                      key={item}
-                      className="text-sm bg-orange-50 text-orange-600 px-4 py-1.5 rounded-full border border-orange-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      "Mosquito repellent",
+                      "Hiking boots",
+                      "Flashlight",
+                      "Sunscreen",
+                      "Rain jacket",
+                    ].map((item) => (
+                      <span
+                        key={item}
+                        className="text-sm bg-orange-50 text-orange-600 px-4 py-1.5 rounded-full border border-orange-200"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             {/* SERVICES */}
-            <AccordionItem value="services" className="border rounded-xl">
-              <AccordionTrigger className="font-semibold">
-                SERVICES
-              </AccordionTrigger>
+            {marker?.type !== "restaurant" && (
+              <AccordionItem value="services" className="border rounded-xl">
+                <AccordionTrigger className="font-semibold">
+                  SERVICES
+                </AccordionTrigger>
 
-              <AccordionContent className="pb-8">
-                <div className="grid grid-cols-3 gap-8 text-center">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="bg-gray-100 p-4 rounded-full">
-                      <Toilet size={22} />
+                <AccordionContent className="pb-8">
+                  <div className="grid grid-cols-3 gap-8 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="bg-gray-100 p-4 rounded-full">
+                        <Toilet size={22} />
+                      </div>
+
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        RESTROOMS
+                      </p>
                     </div>
 
-                    <p className="text-sm font-semibold text-muted-foreground">
-                      RESTROOMS
-                    </p>
-                  </div>
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="bg-gray-100 p-4 rounded-full">
+                        <Building2 size={22} />
+                      </div>
 
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="bg-gray-100 p-4 rounded-full">
-                      <Building2 size={22} />
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        VISITOR CENTER
+                      </p>
                     </div>
 
-                    <p className="text-sm font-semibold text-muted-foreground">
-                      VISITOR CENTER
-                    </p>
-                  </div>
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="bg-gray-100 p-4 rounded-full">
+                        <Utensils size={22} />
+                      </div>
 
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="bg-gray-100 p-4 rounded-full">
-                      <Utensils size={22} />
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        CAFETERIA
+                      </p>
                     </div>
-
-                    <p className="text-sm font-semibold text-muted-foreground">
-                      CAFETERIA
-                    </p>
                   </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             {/* REVIEWS */}
             <AccordionItem
@@ -342,7 +392,7 @@ export default function MapDetails() {
                 </div>
 
                 {/* Button */}
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 rounded-xl mt-6">
+                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 rounded-xl mt-6">
                   <MessageSquare size={18} className="mr-2" />
                   WRITE A REVIEW
                 </Button>
@@ -350,6 +400,61 @@ export default function MapDetails() {
             </AccordionItem>
           </Accordion>
         </div>
+
+        {marker?.type === "restaurant" && (
+          <div className="px-2 mt-6">
+            <h3 className="font-bold uppercase">Online</h3>
+            <div className="mt-4 space-y-4">
+              {/* WEBSITE */}
+              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-100 p-3 rounded-lg">🌐</div>
+
+                  <div>
+                    <p className="text-xs text-muted-foreground">WEBSITE</p>
+                    <p className="font-semibold">latrattoriadelporto.com</p>
+                  </div>
+                </div>
+
+                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
+                  VISIT
+                </button>
+              </div>
+
+              {/* INSTAGRAM */}
+              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-100 p-3 rounded-lg">📸</div>
+
+                  <div>
+                    <p className="text-xs text-muted-foreground">INSTAGRAM</p>
+                    <p className="font-semibold">@latrattoriadelporto</p>
+                  </div>
+                </div>
+
+                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
+                  VIEW
+                </button>
+              </div>
+
+              {/* FACEBOOK */}
+              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-100 p-3 rounded-lg">👍</div>
+
+                  <div>
+                    <p className="text-xs text-muted-foreground">FACEBOOK</p>
+                    <p className="font-semibold">La Trattoria del Porto</p>
+                  </div>
+                </div>
+
+                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
+                  VIEW
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

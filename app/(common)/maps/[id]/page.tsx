@@ -18,7 +18,7 @@ export default function page() {
 
   return (
     <div>
-      {marker.type === "restaurant" ? <RestaurantDetail /> : <MapDetails />}
+      <MapDetails />
     </div>
   );
 }
