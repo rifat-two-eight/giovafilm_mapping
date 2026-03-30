@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Edit2, Link, Share2 } from "lucide-react";
+import { Edit2, Grid2x2, Heart, Map, Share2, Star, Trophy } from "lucide-react";
+import Link from "next/link";
 
 interface MilestonesData {
   distanceTraveled: string;
@@ -27,54 +28,104 @@ export function ProfileSidebar({ data }: ProfileProps) {
   return (
     <div className="space-y-6">
       {/* Profile Card */}
-      <div className="bg-white rounded-lg p-6 border border-gray-200/70 text-center">
-        {/* Avatar with Achievement Badge */}
-        <div className="relative w-32 h-32 mx-auto mb-6">
-          <Image
-            src={data?.avatar}
-            alt={data?.name}
-            fill
-            className="rounded-lg object-cover"
-          />
-          <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
-            ⭐
+      <div className="bg-white rounded-lg p-3 border border-gray-200/70 text-center space-y-3">
+        <div className="border p-3 rounded-md ">
+          {/* Avatar with Achievement Badge */}
+          <div className="relative w-32 h-32 mx-auto mb-4">
+            <Image
+              src={data?.avatar}
+              alt={data?.name}
+              fill
+              className="rounded-lg object-cover"
+            />
+            <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
+              ⭐
+            </div>
+          </div>
+
+          {/* User Name */}
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {data?.name}
+          </h2>
+
+          {/* Level Badge */}
+          <div className="inline-block bg-yellow-50 px-3 py-1 rounded-full mb-2">
+            <span className="text-yellow-500 font-semibold text-sm">
+              {data?.level}
+            </span>
+          </div>
+
+          {/* Join Date */}
+          <p className="text-gray-500 text-sm flex items-center justify-center gap-1 mb-6">
+            📅 Joined {data?.joinDate}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
+              <Edit2 size={18} />
+              Edit Profile
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Share2 size={18} />
+              Share Profile
+            </Button>
           </div>
         </div>
 
-        {/* User Name */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{data?.name}</h2>
+        <div className="flex flex-col gap-3">
+          <Link href={"/dashboard"}>
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Grid2x2 size={18} />
+              Dashoard
+            </Button>
+          </Link>
 
-        {/* Level Badge */}
-        <div className="inline-block bg-yellow-50 px-3 py-1 rounded-full mb-2">
-          <span className="text-yellow-500 font-semibold text-sm">
-            {data?.level}
-          </span>
-        </div>
+          <Link href={"/profile/favorite-places"}>
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Heart size={18} />
+              Favorites
+            </Button>
+          </Link>
 
-        {/* Join Date */}
-        <p className="text-gray-500 text-sm flex items-center justify-center gap-1 mb-8">
-          📅 Joined {data?.joinDate}
-        </p>
+          <Link href={"/profile/purchased-maps"}>
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Map size={18} />
+              Purchased Maps
+            </Button>
+          </Link>
 
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2">
-            <Edit2 size={18} />
-            Edit Profile
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full rounded flex items-center justify-center gap-2 border-gray-200"
-          >
-            <Share2 size={18} />
-            Share Profile
-          </Button>
-          <Link
-            href="/profile/awards"
-            className="w-full rounded flex items-center justify-center gap-2 border-gray-200"
-          >
-            <Share2 size={18} />
-            Share Profile
+          <Link href={"/profile/contributions-reviews"}>
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Star size={18} />
+              Contributions
+            </Button>
+          </Link>
+
+          <Link href={"/profile/awards"}>
+            <Button
+              variant="outline"
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+            >
+              <Trophy size={18} />
+              Awards
+            </Button>
           </Link>
         </div>
       </div>

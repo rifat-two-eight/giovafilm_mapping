@@ -3,24 +3,24 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
-  Search,
+  Grid2x2,
   Heart,
   Map,
+  Menu,
+  Search,
   Star,
   Trophy,
   User,
-  Menu,
   X,
-  Grid2x2,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -136,12 +136,6 @@ export default function Header() {
                   className="w-72 p-0 overflow-hidden rounded-xl shadow-lg"
                 >
                   <div className="py-2">
-                    <Link href={"/dashboard"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Grid2x2 className="mr-3 size-5" />
-                        Dashoard
-                      </DropdownMenuItem>
-                    </Link>
                     <Link href={"/profile"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Grid2x2 className="mr-3 size-5" />
@@ -149,6 +143,12 @@ export default function Header() {
                       </DropdownMenuItem>
                     </Link>
 
+                    <Link href={"/dashboard"}>
+                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Grid2x2 className="mr-3 size-5" />
+                        Dashoard
+                      </DropdownMenuItem>
+                    </Link>
                     <Link href={"/profile/favorite-places"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Heart className="mr-3 size-5" />
@@ -224,12 +224,6 @@ export default function Header() {
                   className="w-64 p-0 overflow-hidden rounded-xl shadow-lg"
                 >
                   <div className="py-2">
-                    <Link href={"/dashboard"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Grid2x2 className="mr-3 size-5" />
-                        Dashoard
-                      </DropdownMenuItem>
-                    </Link>
                     <Link href={"/profile"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Grid2x2 className="mr-3 size-5" />
@@ -237,6 +231,12 @@ export default function Header() {
                       </DropdownMenuItem>
                     </Link>
 
+                    <Link href={"/dashboard"}>
+                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Grid2x2 className="mr-3 size-5" />
+                        Dashoard
+                      </DropdownMenuItem>
+                    </Link>
                     <Link href={"/profile/favorite-places"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Heart className="mr-3 size-5" />
@@ -254,7 +254,7 @@ export default function Header() {
                     <Link href={"/profile/contributions-reviews"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Star className="mr-3 size-5" />
-                        Contributions
+                        Contributions & Reviews
                       </DropdownMenuItem>
                     </Link>
 
