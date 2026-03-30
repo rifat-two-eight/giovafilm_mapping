@@ -12,11 +12,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
+  Edit2,
   Grid2x2,
   Heart,
   Map,
   Menu,
   Search,
+  Share2,
   Star,
   Trophy,
   User,
@@ -133,8 +135,45 @@ export default function Header() {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-72 p-0 overflow-hidden rounded-xl shadow-lg"
+                  className="w-72 2overflow-hidden rounded-xl shadow-lg "
                 >
+                  <div className="border p-3 rounded-md text-center">
+                    {/* Avatar with Achievement Badge */}
+                    <div className="relative w-32 h-32 mx-auto mb-4">
+                      <Image
+                        src={
+                          "https://images.unsplash.com/photo-1774028156721-706b219614b2?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        }
+                        alt={"Logo"}
+                        fill
+                        className="rounded-lg object-cover"
+                      />
+                      <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
+                        ⭐
+                      </div>
+                    </div>
+
+                    {/* User Name */}
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      User
+                    </h2>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
+                        <Edit2 size={18} />
+                        Edit Profile
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+                      >
+                        <Share2 size={18} />
+                        Share Profile
+                      </Button>
+                    </div>
+                  </div>
                   <div className="py-2">
                     <Link href={"/profile"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
