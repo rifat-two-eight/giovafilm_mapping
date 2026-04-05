@@ -10,19 +10,16 @@ export const authApi = baseApi.injectEndpoints({
         credentials: "include",
       }),
     }),
-    signup: builder.mutation({
-      query: (userData: {
-        email: string;
-        password: string;
-        firstName: string;
-        lastName: string;
-        role: string;
-      }) => ({
+
+    // create new user
+    register: builder.mutation({
+      query: (userData) => ({
         url: "/auth/signup",
         method: "POST",
         body: userData,
       }),
     }),
+
     verifyAccount: builder.mutation({
       query: (data: { email: string; oneTimeCode: string }) => ({
         url: "/auth/verify-account",
@@ -68,7 +65,7 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useLoginMutation,
-  useSignupMutation,
+  useRegisterMutation,
   useVerifyAccountMutation,
   useResendOtpMutation,
   useGetProfileQuery,

@@ -4,11 +4,14 @@ import { Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
 import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
   fullName: string;
@@ -19,10 +22,35 @@ type FormValues = {
 };
 
 export const RegisterForm = () => {
+  const router = useRouter();
   const { register, handleSubmit, setValue } = useForm<FormValues>();
+  const [registerUser, { isLoading }] = useRegisterMutation();
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     console.log("Form Data:", data);
+    try {
+      const res = await registerUser({
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+      });
+
+      console.log(res);
+
+      // ✅ Check nested email
+      if (res?.data?.data?.email) {
+        // ✅ Show success toast
+        toast.success(res.data.message || "User created successfully!");
+
+        // ✅ Redirect to OTP page (optionally pass email)
+        router.push(`/otp-verify?email=${res.data.data.email}`);
+      }
+    } catch (error: any) {
+      console.log(error);
+
+      // ❌ Error toast
+      toast.error(error?.data?.message || "Something went wrong");
+    }
   };
 
   return (
