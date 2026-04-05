@@ -4,6 +4,8 @@ import {
   useResendOtpMutation,
   useVerifyAccountMutation,
 } from "@/redux/features/auth/authApi";
+import { setUser } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hook";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -11,11 +13,10 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
 export default function OtpVerify() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-
-  const email = searchParams.get("email") ?? "";
-  const authType = searchParams.get("authType") ?? "verifyAccount";
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
+  const authType = searchParams.get("authType") || "";
 
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [countdown, setCountdown] = useState(60);
@@ -24,6 +25,14 @@ export default function OtpVerify() {
   const [verifyAccount, { isLoading: isVerifying }] =
     useVerifyAccountMutation();
   const [resendOtp, { isLoading: isResending }] = useResendOtpMutation();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!email) {
+      toast.error("No email provided");
+      router.push("/login");
+    }
+  }, [email, router]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -53,13 +62,11 @@ export default function OtpVerify() {
     if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
-
     if (value.length > 1) {
       value
         .slice(0, 6 - index)
         .split("")
         .forEach((v, i) => (newOtp[index + i] = v));
-
       setOtp(newOtp);
       inputRefs.current[Math.min(index + value.length, 5)]?.focus();
       return;
@@ -67,7 +74,6 @@ export default function OtpVerify() {
 
     newOtp[index] = value;
     setOtp(newOtp);
-
     if (value && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
@@ -78,27 +84,102 @@ export default function OtpVerify() {
   };
 
   const handleVerify = async () => {
-    const oneTimeCode = otp.join("");
+    const otpCode = otp.join("");
+
+    if (otpCode.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
+      return;
+    }
+
+    const toastId = toast.loading("Verifying OTP...");
+
     try {
-      await verifyAccount({ email, oneTimeCode }).unwrap();
-      toast.success("Account verified successfully!");
-      router.push("/login");
-    } catch (err: any) {
-      toast.error(
-        err?.data?.message ?? "Verification failed. Please try again.",
-      );
+      const response = await verifyAccount({
+        email: email,
+        oneTimeCode: otpCode,
+      });
+
+      console.log(response);
+
+      if (response.data?.success) {
+        const userData = response.data.data;
+
+        console.log(userData);
+
+        if (userData?.accessToken) {
+          dispatch(
+            setUser({
+              user: userData.user,
+              accessToken: userData.accessToken,
+            }),
+          );
+
+          // Set accessToken in cookies
+          document.cookie = `accessToken=${userData.accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
+        }
+
+        toast.success("Account verified successfully!", {
+          id: toastId,
+          description: "Your account is now active.",
+        });
+
+        if (authType === "forget-password") {
+          setTimeout(() => {
+            router.push(`/reset-password?token=${userData.token}`);
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            router.push("/business-details");
+          }, 1000);
+        }
+      } else {
+        const errorData = (response.error as any)?.data;
+
+        const errorMessage =
+          errorData?.message ||
+          response.data?.message ||
+          "Verification failed. Please try again.";
+
+        toast.error(errorMessage, { id: toastId });
+      }
+    } catch (err) {
+      console.error("Verification error:", err);
+      toast.error("Verification failed. Please try again.", { id: toastId });
     }
   };
 
   const handleResend = async () => {
+    const toastId = toast.loading("Resending OTP...");
+
     try {
-      await resendOtp({ email, authType }).unwrap();
-      toast.success("OTP resent! Please check your email.");
-      setOtp(Array(6).fill(""));
-      setCountdown(60);
-      inputRefs.current[0]?.focus();
+      const response = await resendOtp({
+        email: email,
+        authType: "createAccount",
+      }).unwrap();
+
+      if (response.success) {
+        toast.success("OTP resent successfully!", {
+          id: toastId,
+          description: "Please check your email.",
+        });
+
+        setOtp(Array(6).fill(""));
+        setCountdown(60);
+        inputRefs.current[0]?.focus();
+      } else {
+        toast.error(response.message || "Failed to resend OTP", {
+          id: toastId,
+        });
+      }
     } catch (err: any) {
-      toast.error(err?.data?.message ?? "Failed to resend OTP. Try again.");
+      console.error("Resend failed:", err);
+
+      const errorMessage =
+        err?.data?.message ||
+        err?.data?.error ||
+        "Failed to resend OTP. Please try again.";
+
+      toast.error(errorMessage, { id: toastId });
     }
   };
 
@@ -159,7 +240,7 @@ export default function OtpVerify() {
       ) : (
         <div className="text-center">
           <p className="text-sm text-[#757575] mb-2">
-            Didn’t receive the code?
+            Didn't receive the code?
           </p>
           <button
             onClick={handleResend}
@@ -173,3 +254,4 @@ export default function OtpVerify() {
     </div>
   );
 }
+

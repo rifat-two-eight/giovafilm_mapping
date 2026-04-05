@@ -1,10 +1,12 @@
 "use client";
 
 import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { setUser } from "@/redux/features/auth/authSlice";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 import SocialLogin from "../shared/social-login/social-login";
@@ -18,8 +20,19 @@ type FormValues = {
   rememberMe: boolean;
 };
 
+// Decode a JWT payload (client-side only, no verification)
+function decodeJwtPayload(token: string) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
 export const LoginForm = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
   const { register, handleSubmit } = useForm<FormValues>({
@@ -28,12 +41,33 @@ export const LoginForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      await login({
+      const res = await login({
         email: data.email,
         password: data.password,
         rememberMe: data.rememberMe,
       }).unwrap();
-      toast.success("Logged in successfully!");
+
+      // Extract tokens from API response
+      const { accessToken } = res.data;
+
+      // Decode JWT to get user info
+      const decoded = decodeJwtPayload(accessToken);
+
+      // Dispatch to Redux → persists to localStorage + cookies
+      dispatch(
+        setUser({
+          user: {
+            id: decoded?.authId ?? "",
+            name: decoded?.name ?? "",
+            email: decoded?.email ?? "",
+            role: decoded?.role ?? "user",
+            image: "",
+          },
+          accessToken,
+        }),
+      );
+
+      toast.success(res.message || "Logged in successfully!");
       router.push("/dashboard");
     } catch (err: any) {
       toast.error(err?.data?.message ?? "Login failed. Please try again.");

@@ -1,22 +1,42 @@
 "use client";
 
-import { Mail } from "lucide-react";
+import { Loader, Mail } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type FormValues = {
   email: string;
 };
 
 export const ForgotPasswordForm = () => {
+  const router = useRouter();
   const { register, handleSubmit } = useForm<FormValues>();
 
-  const onSubmit = (data: FormValues) => {
+  const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
+
+  const onSubmit = async (data: FormValues) => {
     console.log("Reset email sent to:", data.email);
+    try {
+      const res = await forgetPassword({ email: data?.email });
+
+      if (res?.data?.success) {
+        // ✅ Show success toast
+        toast.success(res.data.message || "Reset OTP sent successfully!");
+
+        // ✅ Redirect to OTP page (optionally pass email)
+        router.push(`/otp-verify?email=${data.email}`);
+      }
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -54,7 +74,7 @@ export const ForgotPasswordForm = () => {
           type="submit"
           className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
         >
-          Send Reset Link
+          {isLoading ? <Loader /> : "Send Reset Link"}
         </Button>
       </form>
 

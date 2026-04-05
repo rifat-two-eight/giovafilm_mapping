@@ -26,6 +26,18 @@ const initialState: AuthState = {
   accessToken: null,
 };
 
+// ── Cookie helpers (client-side only) ──────────────────────────────
+function setCookie(name: string, value: string, days = 10) {
+  if (typeof document === "undefined") return;
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function removeCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+}
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -39,13 +51,17 @@ const authSlice = createSlice({
     ) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
+      // Sync token to cookie
+      setCookie("accessToken", action.payload.accessToken);
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
+      setCookie("accessToken", action.payload);
     },
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
+      removeCookie("accessToken");
     },
   },
 });
