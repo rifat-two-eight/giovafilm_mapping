@@ -49,7 +49,7 @@ export default function Header() {
     image: "", // if image exists it will show
   };
 
-  const isLoggedIn = true; // change this according to auth logic
+  const isLoggedIn = false; // change this according to auth logic
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -225,7 +225,7 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/dashboard">
+              <Link href="/login">
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-8 py-6 text-base shadow-none">
                   Log In
                 </Button>
@@ -313,7 +313,7 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/dashboard">
+              <Link href="/login">
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-4 py-2 text-sm shadow-none">
                   Log In
                 </Button>

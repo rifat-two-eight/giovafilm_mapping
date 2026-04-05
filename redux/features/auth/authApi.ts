@@ -3,7 +3,7 @@ import { baseApi } from "@/redux/api/baseApi";
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
-      query: (credentials: { email: string; password: string }) => ({
+      query: (credentials) => ({
         url: "/auth/login",
         method: "POST",
         body: credentials,
@@ -20,9 +20,19 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
+    // OTP Verify
     verifyAccount: builder.mutation({
       query: (data: { email: string; oneTimeCode: string }) => ({
         url: "/auth/verify-account",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    // resend OTP
+    resendOtp: builder.mutation({
+      query: (data: { email: string; authType: string }) => ({
+        url: "/auth/resend-otp",
         method: "POST",
         body: data,
       }),
@@ -36,16 +46,10 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    resendOtp: builder.mutation({
-      query: (data: { email: string; authType: string }) => ({
-        url: "/auth/resend-otp",
-        method: "POST",
-        body: data,
-      }),
-    }),
     getProfile: builder.query({
       query: () => "/profile",
     }),
+
     resetPassword: builder.mutation({
       query: ({
         token,
@@ -56,6 +60,14 @@ export const authApi = baseApi.injectEndpoints({
         confirmPassword: string;
       }) => ({
         url: `/auth/reset-password?token=${token}`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    googleLogin: builder.mutation({
+      query: (data: { token: string }) => ({
+        url: "/auth/google",
         method: "POST",
         body: data,
       }),
@@ -71,4 +83,5 @@ export const {
   useGetProfileQuery,
   useForgetPasswordMutation,
   useResetPasswordMutation,
+  useGoogleLoginMutation,
 } = authApi;

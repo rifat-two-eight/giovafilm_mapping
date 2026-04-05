@@ -1,8 +1,11 @@
 "use client";
 
+import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
@@ -12,13 +15,29 @@ import { Label } from "../ui/label";
 type FormValues = {
   email: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export const LoginForm = () => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const router = useRouter();
+  const [login, { isLoading }] = useLoginMutation();
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form Data:", data);
+  const { register, handleSubmit } = useForm<FormValues>({
+    defaultValues: { rememberMe: false },
+  });
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await login({
+        email: data.email,
+        password: data.password,
+        rememberMe: data.rememberMe,
+      }).unwrap();
+      toast.success("Logged in successfully!");
+      router.push("/dashboard");
+    } catch (err: any) {
+      toast.error(err?.data?.message ?? "Login failed. Please try again.");
+    }
   };
 
   return (
@@ -43,8 +62,8 @@ export const LoginForm = () => {
             <Input
               type="email"
               placeholder="your@email.com"
-              {...register("email")}
-              className="w-full pl-12 pr-4 py-6  bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
+              {...register("email", { required: true })}
+              className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
         </div>
@@ -59,17 +78,25 @@ export const LoginForm = () => {
             <Input
               type="password"
               placeholder="••••••••"
-              {...register("password")}
-              className="w-full pl-12 pr-4 py-6  bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
+              {...register("password", { required: true })}
+              className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
         </div>
 
-        {/* Forgot Password */}
-        <div className="text-right">
+        {/* Remember Me & Forgot Password */}
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              {...register("rememberMe")}
+              className="w-4 h-4 accent-[#FFC107] rounded"
+            />
+            <span className="text-sm text-[#757575]">Remember me</span>
+          </label>
           <Link
-            href={"/"}
-            className="font-semibold text-primary font-public-sans cursor-pointer hover:underline"
+            href="/forgot-password"
+            className="font-semibold text-primary font-public-sans cursor-pointer hover:underline text-sm"
           >
             Forgot Password?
           </Link>
@@ -78,9 +105,10 @@ export const LoginForm = () => {
         {/* Login Button */}
         <Button
           type="submit"
-          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
+          disabled={isLoading}
+          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 disabled:opacity-70"
         >
-          Login
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
       </form>
 

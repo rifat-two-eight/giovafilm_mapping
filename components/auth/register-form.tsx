@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 type FormValues = {
   fullName: string;
