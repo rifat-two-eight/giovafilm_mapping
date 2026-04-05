@@ -46,10 +46,6 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    getProfile: builder.query({
-      query: () => "/profile",
-    }),
-
     resetPassword: builder.mutation({
       query: ({
         token,
@@ -72,6 +68,13 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+
+    logout: builder.mutation({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -80,8 +83,8 @@ export const {
   useRegisterMutation,
   useVerifyAccountMutation,
   useResendOtpMutation,
-  useGetProfileQuery,
   useForgetPasswordMutation,
   useResetPasswordMutation,
   useGoogleLoginMutation,
+  useLogoutMutation,
 } = authApi;
