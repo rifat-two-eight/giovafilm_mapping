@@ -10,9 +10,8 @@ import {
   useMap,
 } from "@vis.gl/react-google-maps";
 
-// ১. কাস্টম লোকেশন বাটন কম্পোনেন্ট
 const CustomLocationButton = () => {
-  const map = useMap(); // ম্যাপের ইন্সট্যান্স নেয়ার জন্য
+  const map = useMap();
 
   const handleLocationClick = useCallback(() => {
     if (navigator.geolocation) {
@@ -33,7 +32,6 @@ const CustomLocationButton = () => {
         className="m-3 p-3 bg-white rounded-md shadow-lg hover:bg-gray-100 transition-all flex items-center justify-center border border-gray-300"
         title="Show my location"
       >
-        {/* লোকেশন ডিটেক্টর আইকন (SVG) */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -58,10 +56,9 @@ const CustomLocationButton = () => {
 };
 
 export default function MapPage() {
-  const defaultPosition = { lat: 23.8103, lng: 90.4125 }; 
+  const defaultPosition = { lat: 23.8103, lng: 90.4125 };
   const [currentPos, setCurrentPos] = useState(defaultPosition);
 
-  
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
@@ -84,10 +81,8 @@ export default function MapPage() {
             disableDefaultUI={false}
             mapId="YOUR_MAP_ID"
           >
-            {/* কাস্টম লোকেশন বাটনটি ম্যাপের ভেতরে দেখাবে */}
             <CustomLocationButton />
 
-            {/* কারেন্ট লোকেশন মার্কার */}
             <AdvancedMarker position={currentPos} />
           </Map>
         </APIProvider>
