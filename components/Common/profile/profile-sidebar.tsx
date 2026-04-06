@@ -4,6 +4,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Edit2, Grid2x2, Heart, Map, Share2, Star, Trophy } from "lucide-react";
 import Link from "next/link";
+import ProfileUpdateModal from "./profile-update-modal";
+import { useState } from "react";
+import { formatDate, getImageUrl } from "@/lib/utils";
 
 interface MilestonesData {
   distanceTraveled: string;
@@ -24,6 +27,8 @@ interface ProfileProps {
 }
 
 export function ProfileSidebar({ data }: ProfileProps) {
+  const [open, setOpen] = useState(false);
+
   console.log(data);
   return (
     <div className="space-y-6">
@@ -33,9 +38,11 @@ export function ProfileSidebar({ data }: ProfileProps) {
           {/* Avatar with Achievement Badge */}
           <div className="relative w-32 h-32 mx-auto mb-4">
             <Image
-              src={data?.avatar}
-              alt={data?.name}
-              fill
+              src={getImageUrl(data?.profile)}
+              alt={"profile"}
+              width={500}
+              height={500}
+              unoptimized
               className="rounded-lg object-cover"
             />
             <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
@@ -51,18 +58,21 @@ export function ProfileSidebar({ data }: ProfileProps) {
           {/* Level Badge */}
           <div className="inline-block bg-yellow-50 px-3 py-1 rounded-full mb-2">
             <span className="text-yellow-500 font-semibold text-sm">
-              {data?.level}
+              {data?.role}
             </span>
           </div>
 
           {/* Join Date */}
           <p className="text-gray-500 text-sm flex items-center justify-center gap-1 mb-6">
-            📅 Joined {data?.joinDate}
+            📅 Joined {formatDate(data?.createdAt)}
           </p>
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
+            <Button
+              onClick={() => setOpen(true)}
+              className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2"
+            >
               <Edit2 size={18} />
               Edit Profile
             </Button>
@@ -140,28 +150,23 @@ export function ProfileSidebar({ data }: ProfileProps) {
           {/* Distance Traveled */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Distance Traveled</p>
-            <p className="text-yellow-400 font-bold">
-              {data?.milestones.distanceTraveled}
-            </p>
+            <p className="text-yellow-400 font-bold">12,450 km</p>
           </div>
 
           {/* Places Visited */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Places Visited</p>
-            <p className="text-yellow-400 font-bold">
-              {data?.milestones.placesVisited}
-            </p>
+            <p className="text-yellow-400 font-bold">48</p>
           </div>
 
           {/* Trips Planned */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Trips Planned</p>
-            <p className="text-yellow-400 font-bold">
-              {data?.milestones.tripsPlanned}
-            </p>
+            <p className="text-yellow-400 font-bold">12</p>
           </div>
         </div>
       </div>
+      <ProfileUpdateModal open={open} onOpenChange={setOpen} data={data} />
     </div>
   );
 }

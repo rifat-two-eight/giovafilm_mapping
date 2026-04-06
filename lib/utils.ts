@@ -13,3 +13,10 @@ export const getImageUrl = (path?: string) => {
   // Prevent double slashes
   return `${baseURL}${path}`;
 };
+
+
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("en-GB");
+};

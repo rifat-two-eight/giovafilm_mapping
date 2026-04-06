@@ -182,7 +182,7 @@ export default function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
-                    <Avatar className="h-10 w-10 cursor-pointer">
+                    <Avatar className="h-10 w-10 cursor-pointer border">
                       {user2?.profile ? (
                         <AvatarImage
                           src={getImageUrl(user2.profile)}
@@ -205,7 +205,7 @@ export default function Header() {
                 >
                   <div className="border p-3 rounded-md text-center">
                     {/* Avatar with Achievement Badge */}
-                    <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg ">
+                    <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg border">
                       <Image
                         src={getImageUrl(user2?.profile)}
                         alt={"Logo"}
@@ -256,7 +256,7 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                     )}
-                    
+
                     <Link href={"/profile/favorite-places"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Heart className="mr-3 size-5" />
@@ -490,7 +490,7 @@ export default function Header() {
 
                   {/* ✅ Logout in hamburger menu */}
                   <button
-                    onClick={handleLogout}
+                    onClick={() => handleLogout()}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors text-left"
                   >
                     <span>Log Out</span>
