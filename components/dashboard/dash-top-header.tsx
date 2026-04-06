@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
@@ -11,9 +13,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useLogoutMutation } from "@/redux/features/auth/authApi";
+import { getImageUrl } from "@/lib/utils";
 
 export default function DashTopHeader() {
-  const profileImage = ""; // put image url here
+  const { data: user } = useGetProfileQuery({});
+  const [logoutApi] = useLogoutMutation();
+
+  console.log(user);
 
   return (
     <div className="p-4 px-8 border-b border-gray-300/50">
@@ -23,21 +31,14 @@ export default function DashTopHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
             <Avatar className="w-10 h-10 cursor-pointer">
-              {profileImage && (
-                <AvatarImage asChild>
-                  <Image
-                    src={profileImage}
-                    alt="Profile"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </AvatarImage>
-              )}
-
-              <AvatarFallback>
-                <User className="w-5 h-5" />
-              </AvatarFallback>
+              <Image
+                src={getImageUrl(user?.profile)}
+                alt="Profile"
+                width={40}
+                height={40}
+                unoptimized
+                className="object-cover"
+              />
             </Avatar>
           </DropdownMenuTrigger>
 
