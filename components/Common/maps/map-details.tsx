@@ -28,9 +28,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { markers } from "./map";
+
 import InfoCard from "./info-card";
 import Link from "next/link";
+import { markers } from "./map copy";
 
 export const infoData = [
   {
