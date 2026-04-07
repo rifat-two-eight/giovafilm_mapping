@@ -200,7 +200,6 @@
 // --------------------------------------------
 
 // Google Resule
-
 "use client";
 
 import { CustomLocationButton } from "@/components/Common/maps/map";
@@ -210,6 +209,7 @@ import {
   APIProvider,
   Map,
   InfoWindow,
+  useMap,
 } from "@vis.gl/react-google-maps";
 import {
   Car,
@@ -246,11 +246,25 @@ const categories = [
   { name: "Parking & Services", icon: ParkingCircle, count: 0 },
 ];
 
+// ─── Inner component: pans to user's location once on mount ───────────────────
+// Must live inside <APIProvider> so useMap() works.
+function GeolocationOnLoad() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+    });
+  }, [map]);
+
+  return null;
+}
+
 export default function CreateMapPage() {
   const [selectedCategory, setSelectedCategory] = useState("Food & Drinks");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
-  const [currentPos, setCurrentPos] = useState(defaultPosition);
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -258,18 +272,10 @@ export default function CreateMapPage() {
     lat: number;
     lng: number;
   } | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<any | null>(null); // ক্লিক করা মার্কারের ডাটা রাখার জন্য
+  const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
   const [savedPlaces, setSavedPlaces] = useState<any[]>([]);
   const [formData, setFormData] = useState({ name: "", description: "" });
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setCurrentPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      });
-    }
-  }, []);
 
   const handleMapClick = (e: any) => {
     if (!isAddingMarker) return;
@@ -353,7 +359,7 @@ export default function CreateMapPage() {
             </div>
           </div>
 
-          {/* Categories List (Restored) */}
+          {/* Categories List */}
           <div className="flex-1 overflow-y-auto px-2">
             <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
               Categories
@@ -406,17 +412,19 @@ export default function CreateMapPage() {
           <div className="w-full h-full bg-gray-200">
             <Map
               defaultCenter={defaultPosition}
-              center={currentPos}
               defaultZoom={13}
-              gestureHandling={"greedy"} // এটি প্যানিং এবং জুমিং দুটিই এনাবেল রাখবে
+              gestureHandling={"greedy"}
               disableDefaultUI={false}
               mapId="YOUR_MAP_ID"
               onClick={handleMapClick}
               style={{ cursor: isAddingMarker ? "crosshair" : "grab" }}
             >
+              {/* Pans to user's geolocation once on mount — no controlled center prop */}
+              <GeolocationOnLoad />
+
               <CustomLocationButton />
 
-              {/* সেভ করা মার্কারগুলো */}
+              {/* Saved markers */}
               {savedPlaces.map((place) => (
                 <AdvancedMarker
                   key={place.id}
@@ -431,7 +439,7 @@ export default function CreateMapPage() {
                 />
               ))}
 
-              {/* নতুন ড্রপ করা টেম্পোরারি মার্কার */}
+              {/* Temporary marker (not yet saved) */}
               {tempMarker && (
                 <AdvancedMarker
                   position={tempMarker}
@@ -441,7 +449,7 @@ export default function CreateMapPage() {
                 />
               )}
 
-              {/* মডাল/ইনফো-উইন্ডো লজিক */}
+              {/* InfoWindow for new or existing place */}
               {selectedPlace && (
                 <InfoWindow
                   position={selectedPlace.position}
@@ -454,7 +462,7 @@ export default function CreateMapPage() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       placeholder="Place Name"
-                      readOnly={!selectedPlace.isNew} // সেভ করা থাকলে শুধু রিড-অনলি (চাইলে এডিট লজিক দিতে পারেন)
+                      readOnly={!selectedPlace.isNew}
                       className="text-lg font-bold border-b border-gray-200 focus:outline-none focus:border-blue-500 w-full py-1 text-black mb-2"
                     />
                     <textarea
@@ -495,6 +503,7 @@ export default function CreateMapPage() {
             </Map>
           </div>
         </div>
+
         <AddCategoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
       </div>
     </APIProvider>

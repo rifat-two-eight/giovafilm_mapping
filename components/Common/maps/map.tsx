@@ -55,17 +55,31 @@ export const CustomLocationButton = () => {
   );
 };
 
-export default function MapPage() {
-  const defaultPosition = { lat: 23.8103, lng: 90.4125 };
-  const [currentPos, setCurrentPos] = useState(defaultPosition);
+// Pans to user's geolocation once on mount and places a marker there.
+// Must be inside <APIProvider> so useMap() works.
+function GeolocationOnLoad({
+  onLocation,
+}: {
+  onLocation: (pos: { lat: number; lng: number }) => void;
+}) {
+  const map = useMap();
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setCurrentPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      });
-    }
-  }, []);
+    if (!map || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      map.panTo(location);
+      onLocation(location);
+    });
+  }, [map]);
+
+  return null;
+}
+
+export default function MapPage() {
+  const defaultPosition = { lat: 23.8103, lng: 90.4125 };
+  // Used only for the marker position, not for controlling the map viewport
+  const [markerPos, setMarkerPos] = useState(defaultPosition);
 
   return (
     <div className="min-h-screen">
@@ -75,15 +89,17 @@ export default function MapPage() {
         >
           <Map
             defaultCenter={defaultPosition}
-            center={currentPos}
             defaultZoom={13}
             gestureHandling={"greedy"}
             disableDefaultUI={false}
             mapId="YOUR_MAP_ID"
           >
+            {/* Pans once on mount — no controlled center prop needed */}
+            <GeolocationOnLoad onLocation={setMarkerPos} />
+
             <CustomLocationButton />
 
-            <AdvancedMarker position={currentPos} />
+            <AdvancedMarker position={markerPos} />
           </Map>
         </APIProvider>
       </div>
