@@ -10,7 +10,7 @@ import {
   useMap,
 } from "@vis.gl/react-google-maps";
 
-const CustomLocationButton = () => {
+export const CustomLocationButton = () => {
   const map = useMap();
 
   const handleLocationClick = useCallback(() => {
