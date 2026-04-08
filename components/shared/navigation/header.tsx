@@ -224,6 +224,13 @@ export default function Header() {
                       {user2?.name}
                     </h2>
 
+                    {/* Level Badge */}
+                    <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
+                      <span className="text-primary font-semibold capitalize">
+                        {user2?.role}
+                      </span>
+                    </div>
+
                     {/* Action Buttons */}
                     <div className="space-y-3">
                       {/* <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">

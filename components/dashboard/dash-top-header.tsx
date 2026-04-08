@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
 
@@ -16,12 +16,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { getImageUrl } from "@/lib/utils";
+import ProfileUpdateModal from "../Common/profile/profile-update-modal";
 
 export default function DashTopHeader() {
+  const [open, setOpen] = useState(false);
   const { data: user } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
 
-  console.log(user);
+  // console.log(user);
 
   return (
     <div className="p-4 px-8 border-b border-gray-300/50">
@@ -46,11 +48,16 @@ export default function DashTopHeader() {
             <DropdownMenuItem>{user?.name}</DropdownMenuItem>
             <DropdownMenuItem>{user?.email}</DropdownMenuItem>
             <DropdownMenuItem>{user?.role}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              Edit Profile
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-500">Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <ProfileUpdateModal open={open} onOpenChange={setOpen} data={user} />
     </div>
   );
 }

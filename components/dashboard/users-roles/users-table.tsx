@@ -2,20 +2,30 @@
 
 import { Trash2, Search, Filter } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useGetAllUsersQuery, useDeleteUserMutation } from "@/redux/features/user/userApi";
+import {
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+} from "@/redux/features/user/userApi";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
-const userTableHeaders = ["Name", "Email", "Role", "Status", "Joined", "Actions"];
+const userTableHeaders = [
+  "Name",
+  "Email",
+  "Role",
+  "Status",
+  "Joined",
+  "Actions",
+];
 
 export function UsersTable(): React.ReactElement {
   const [page, setPage] = useState(1);
@@ -33,7 +43,11 @@ export function UsersTable(): React.ReactElement {
   if (status !== "all") queryParams.status = status;
   if (searchTerm) queryParams.searchTerm = searchTerm;
 
-  const { data: response, isLoading, isError } = useGetAllUsersQuery(queryParams);
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useGetAllUsersQuery(queryParams);
   const [deleteUser] = useDeleteUserMutation();
 
   const users = response?.data || [];
@@ -127,19 +141,28 @@ export function UsersTable(): React.ReactElement {
             <tbody className="divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
                     Loading users...
                   </td>
                 </tr>
               ) : isError ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-red-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-red-500"
+                  >
                     Failed to load users.
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
                     No users found.
                   </td>
                 </tr>
@@ -164,9 +187,13 @@ export function UsersTable(): React.ReactElement {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-block ${
-                        user.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                      }`}>
+                      <div
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-block ${
+                          user.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
                         {user.status}
                       </div>
                     </td>
@@ -175,13 +202,16 @@ export function UsersTable(): React.ReactElement {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => handleDelete(user._id)}
-                          className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded"
-                          aria-label="Delete user"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        {user.role !== "admin" &&
+                          user.role !== "super_admin" && (
+                            <button
+                              onClick={() => handleDelete(user._id)}
+                              className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded"
+                              aria-label="Delete user"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -195,19 +225,24 @@ export function UsersTable(): React.ReactElement {
         {meta && meta.totalPages > 1 && (
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(page * limit, meta.total)}</span> of <span className="font-medium">{meta.total}</span> results
+              Showing{" "}
+              <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
+              <span className="font-medium">
+                {Math.min(page * limit, meta.total)}
+              </span>{" "}
+              of <span className="font-medium">{meta.total}</span> results
             </div>
             <div className="flex gap-2">
               <button
                 disabled={page === 1}
-                onClick={() => setPage(p => p - 1)}
+                onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1 border border-gray-300 rounded bg-white text-sm disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 disabled={page === meta.totalPages}
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1 border border-gray-300 rounded bg-white text-sm disabled:opacity-50"
               >
                 Next
@@ -219,4 +254,3 @@ export function UsersTable(): React.ReactElement {
     </div>
   );
 }
-

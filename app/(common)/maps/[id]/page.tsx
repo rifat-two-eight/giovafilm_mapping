@@ -1,8 +1,7 @@
 "use client";
 
-import { markers } from "@/components/Common/maps/map";
+import { markers } from "@/components/Common/maps/map copy";
 import MapDetails from "@/components/Common/maps/map-details";
-import RestaurantDetail from "@/components/Common/maps/restaurant-detail";
 import { useParams } from "next/navigation";
 
 export default function page() {

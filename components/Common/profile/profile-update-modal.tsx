@@ -149,6 +149,8 @@ export default function ProfileUpdateModal({
     }
   };
 
+  console.log(data);
+
   const handleRemoveImage = () => {
     setPreview(null);
     setImageFile(null);
@@ -163,11 +165,10 @@ export default function ProfileUpdateModal({
       formData.append("images", imageFile);
     }
 
-
     try {
       const res = await updateProfile(formData).unwrap();
       console.log("Profile updated successfully:", res);
-      // onOpenChange(false);
+      onOpenChange(false);
     } catch (err) {
       console.error("Profile update failed:", err);
     }
