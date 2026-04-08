@@ -13,22 +13,13 @@ import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { decodeJwtPayload } from "@/lib/utils";
 
 type FormValues = {
   email: string;
   password: string;
   rememberMe: boolean;
 };
-
-// Decode a JWT payload (client-side only, no verification)
-function decodeJwtPayload(token: string) {
-  try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
-  }
-}
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -46,6 +37,8 @@ export const LoginForm = () => {
         password: data.password,
         rememberMe: data.rememberMe,
       }).unwrap();
+
+      console.log(res);
 
       // Extract tokens from API response
       const { accessToken } = res.data;
@@ -68,7 +61,12 @@ export const LoginForm = () => {
       );
 
       toast.success(res.message || "Logged in successfully!");
-      router.push("/dashboard");
+
+      if (decoded?.role === "user") {
+        router.push("/profile");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: any) {
       toast.error(err?.data?.message ?? "Login failed. Please try again.");
     }

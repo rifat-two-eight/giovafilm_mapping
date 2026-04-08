@@ -226,10 +226,10 @@ export default function Header() {
 
                     {/* Action Buttons */}
                     <div className="space-y-3">
-                      <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
+                      {/* <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
                         <Edit2 size={18} />
                         Edit Profile
-                      </Button>
+                      </Button> */}
 
                       <Button
                         variant="outline"

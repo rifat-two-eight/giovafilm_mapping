@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { decodeJwtPayload } from "@/lib/utils";
 
 export default function OtpVerify() {
   const router = useRouter();
@@ -107,9 +108,23 @@ export default function OtpVerify() {
         console.log(userData);
 
         if (userData?.accessToken) {
+          // Robustly get user data
+          let currentUser = userData.user;
+
+          if (!currentUser) {
+            const decoded = decodeJwtPayload(userData.accessToken);
+            currentUser = {
+              id: decoded?.authId ?? "",
+              name: decoded?.name ?? "",
+              email: decoded?.email ?? "",
+              role: decoded?.role ?? "user",
+              image: "",
+            };
+          }
+
           dispatch(
             setUser({
-              user: userData.user,
+              user: currentUser,
               accessToken: userData.accessToken,
             }),
           );
@@ -128,9 +143,19 @@ export default function OtpVerify() {
             router.push(`/reset-password?token=${userData.token}`);
           }, 1000);
         } else {
-          setTimeout(() => {
-            router.push("/business-details");
-          }, 1000);
+          // Robustly get user data (from userData.user or decode from accessToken)
+          let userRole = userData?.user?.role;
+
+          if (!userRole && userData?.accessToken) {
+            const decoded = decodeJwtPayload(userData.accessToken);
+            userRole = decoded?.role;
+          }
+
+          if (userRole === "user") {
+            router.push("/profile");
+          } else {
+            router.push("/dashboard");
+          }
         }
       } else {
         const errorData = (response.error as any)?.data;
@@ -254,4 +279,3 @@ export default function OtpVerify() {
     </div>
   );
 }
-
