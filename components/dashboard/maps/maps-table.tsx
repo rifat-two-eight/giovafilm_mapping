@@ -3,6 +3,7 @@
 import { Edit, Copy, Eye, EyeOff, Trash2, Search } from "lucide-react";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { useGetMapsQuery, useDeleteMapMutation } from "@/redux/features/map/mapApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,10 +43,10 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
       if (result.isConfirmed) {
         try {
           await deleteMap(id).unwrap();
-          Swal.fire("Deleted!", "Your map has been deleted.", "success");
-        } catch (error) {
+          toast.success("Map deleted successfully");
+        } catch (error: any) {
+          toast.error(error?.data?.message || error?.message || "Failed to delete map");
           console.error("Failed to delete map:", error);
-          Swal.fire("Error!", "Could not delete map.", "error");
         }
       }
     });

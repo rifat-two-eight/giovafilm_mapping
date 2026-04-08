@@ -7,6 +7,7 @@ import {
 } from "@/redux/features/category/categoryApi";
 import { useState, useEffect } from "react";
 import EmojiPicker from "emoji-picker-react";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -115,11 +116,14 @@ export function AddCategoryDialog({
 
       if (isEditing) {
         await updateCategory({ id: initialData._id, data: payload }).unwrap();
+        toast.success("Category updated successfully");
       } else {
         await createCategory(payload).unwrap();
+        toast.success("Category created successfully");
       }
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error?.data?.message || error?.message || `Failed to ${isEditing ? "update" : "create"} category`);
       console.error(
         `Failed to ${isEditing ? "update" : "create"} category:`,
         error,

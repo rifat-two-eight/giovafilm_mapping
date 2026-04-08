@@ -3,6 +3,7 @@
 import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { useGetCategoriesQuery, useDeleteCategoryMutation } from "@/redux/features/category/categoryApi";
 import { Button } from "@/components/ui/button";
 
@@ -42,10 +43,10 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
       if (result.isConfirmed) {
         try {
           await deleteCategory(id).unwrap();
-          Swal.fire("Deleted!", "Your category has been deleted.", "success");
-        } catch (error) {
+          toast.success("Category deleted successfully");
+        } catch (error: any) {
+          toast.error(error?.data?.message || error?.message || "Failed to delete category");
           console.error("Failed to delete category:", error);
-          Swal.fire("Error!", "Could not delete category.", "error");
         }
       }
     });

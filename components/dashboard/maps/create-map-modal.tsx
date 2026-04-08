@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, FileText, MapPin, UploadCloud, X } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
+import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { useCreateMapMutation, useUpdateMapMutation } from "@/redux/features/map/mapApi";
@@ -94,13 +95,16 @@ export default function CreateMapModal({
     try {
       if (isEditing) {
         await updateMap({ id: initialData._id, data: formData }).unwrap();
+        toast.success("Map updated successfully");
       } else {
         await createMap(formData).unwrap();
+        toast.success("Map created successfully");
       }
       reset();
       setPreview(null);
       setOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error?.data?.message || error?.message || `Failed to ${isEditing ? 'update' : 'create'} map`);
       console.error(`Failed to ${isEditing ? 'update' : 'create'} map:`, error);
     }
   };

@@ -1,5 +1,11 @@
 import { baseApi } from "@/redux/api/baseApi";
 
+type GetMapsArgs = {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+};
+
 const mapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createMap: builder.mutation({
@@ -10,7 +16,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
-    getMaps: builder.query({
+    getMaps: builder.query<any, GetMapsArgs>({
       query: ({ page = 1, limit = 10, searchTerm = "" } = {}) => ({
         url: `/map?page=${page}&limit=${limit}&searchTerm=${searchTerm}`,
         method: "GET",
@@ -18,7 +24,7 @@ const mapApi = baseApi.injectEndpoints({
       providesTags: ["Map"],
     }),
     updateMap: builder.mutation({
-      query: ({ id, data }) => ({
+      query: ({ id, data }: { id: string; data: any }) => ({
         url: `/map/${id}`,
         method: "PATCH",
         body: data,
@@ -26,7 +32,7 @@ const mapApi = baseApi.injectEndpoints({
       invalidatesTags: ["Map"],
     }),
     deleteMap: builder.mutation({
-      query: (id) => ({
+      query: (id: string) => ({
         url: `/map/${id}`,
         method: "DELETE",
       }),
