@@ -2,7 +2,8 @@
 
 import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import Swal from "sweetalert2";
+import { useGetCategoriesQuery, useDeleteCategoryMutation } from "@/redux/features/category/categoryApi";
 import { Button } from "@/components/ui/button";
 
 interface Category {
@@ -13,13 +14,42 @@ interface Category {
   status: "Active" | "Hidden" | string;
 }
 
-export function CategoryTable() {
+interface CategoryTableProps {
+  onEdit?: (category: Category) => void;
+  onView?: (category: Category) => void;
+}
+
+export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const { data: response, isLoading } = useGetCategoriesQuery({ page, limit });
+  const [deleteCategory] = useDeleteCategoryMutation();
+
   const categories: Category[] = response?.data || [];
   const meta = response?.meta;
+
+  const handleDelete = async (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this category deletion!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteCategory(id).unwrap();
+          Swal.fire("Deleted!", "Your category has been deleted.", "success");
+        } catch (error) {
+          console.error("Failed to delete category:", error);
+          Swal.fire("Error!", "Could not delete category.", "error");
+        }
+      }
+    });
+  };
 
   const getStatusColor = (status: string) => {
     return status === "Active"
@@ -112,6 +142,7 @@ export function CategoryTable() {
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-3">
                       <button
+                        onClick={() => onEdit && onEdit(category)}
                         className="text-blue-500 hover:text-blue-700 transition-colors"
                         aria-label="Edit category"
                       >
@@ -119,21 +150,15 @@ export function CategoryTable() {
                       </button>
 
                       <button
+                        onClick={() => onView && onView(category)}
                         className="text-orange-500 hover:text-orange-700 transition-colors"
-                        aria-label={
-                          category.status === "Active"
-                            ? "Hide category"
-                            : "Show category"
-                        }
+                        aria-label="View category"
                       >
-                        {category.status === "Active" ? (
-                          <Eye size={18} />
-                        ) : (
-                          <EyeOff size={18} />
-                        )}
+                        <Eye size={18} />
                       </button>
 
                       <button
+                        onClick={() => handleDelete(category._id)}
                         className="text-red-500 hover:text-red-700 transition-colors"
                         aria-label="Delete category"
                       >

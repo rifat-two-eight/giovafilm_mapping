@@ -1,7 +1,12 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useCreateCategoryMutation } from "@/redux/features/category/categoryApi";
+import {
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from "@/redux/features/category/categoryApi";
+import { useState, useEffect } from "react";
+import EmojiPicker from "emoji-picker-react";
 
 import {
   Dialog,
@@ -17,6 +22,8 @@ import { Label } from "@/components/ui/label";
 interface AddCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialData?: any;
+  isView?: boolean;
 }
 
 interface FormData {
@@ -58,6 +65,8 @@ const colorPalette = [
 export function AddCategoryDialog({
   open,
   onOpenChange,
+  initialData,
+  isView = false,
 }: AddCategoryDialogProps) {
   const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
     defaultValues: {
@@ -66,31 +75,70 @@ export function AddCategoryDialog({
     },
   });
 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const selectedColor = watch("color");
-  const [createCategory, { isLoading }] = useCreateCategoryMutation();
+  const selectedIcon = watch("icon");
+
+  const [createCategory, { isLoading: isCreating }] =
+    useCreateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateCategoryMutation();
+
+  const isEditing = !!initialData;
+  const isLoading = isCreating || isUpdating;
+
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        reset({
+          categoryName: initialData.name,
+          color: initialData.color,
+          icon: initialData.icon,
+        });
+      } else {
+        reset({ categoryName: "", color: "#3b82f6", icon: "🔘" });
+      }
+      setShowEmojiPicker(false);
+    }
+  }, [open, initialData, reset]);
 
   const onSubmit = async (data: FormData) => {
+    if (isView) return; // Prevent submission in View Mode
+
     try {
       const payload = {
         name: data.categoryName,
         color: data.color,
         icon: data.icon,
-        status: "Active"
+        status: initialData?.status || "Active",
       };
-      await createCategory(payload).unwrap();
+
+      if (isEditing) {
+        await updateCategory({ id: initialData._id, data: payload }).unwrap();
+      } else {
+        await createCategory(payload).unwrap();
+      }
       onOpenChange(false);
-      reset();
     } catch (error) {
-      console.error("Failed to create category:", error);
+      console.error(
+        `Failed to ${isEditing ? "update" : "create"} category:`,
+        error,
+      );
     }
+  };
+
+  const getDialogTitle = () => {
+    if (isView) return "View Category";
+    if (isEditing) return "Update Category";
+    return "Add New Category";
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md overflow-visible">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Add New Category
+            {getDialogTitle()}
           </DialogTitle>
         </DialogHeader>
 
@@ -102,7 +150,8 @@ export function AddCategoryDialog({
             </Label>
             <Input
               placeholder="e.g., Parks & Nature"
-              className="mt-1"
+              className="mt-1 disabled:opacity-80 disabled:cursor-not-allowed"
+              disabled={isView}
               {...register("categoryName", { required: true })}
             />
           </div>
@@ -119,44 +168,77 @@ export function AddCategoryDialog({
                 className="w-10 h-10 rounded-md border border-gray-300"
                 style={{ backgroundColor: selectedColor }}
               />
-              <Input className="flex-1 font-mono" {...register("color")} />
+              <Input
+                className="flex-1 font-mono disabled:opacity-80 disabled:cursor-not-allowed"
+                disabled={isView}
+                {...register("color")}
+              />
             </div>
 
             {/* Color Palette */}
-            <div className="grid grid-cols-12 gap-1">
-              {colorPalette.map((color) => (
-                <div
-                  key={color}
-                  onClick={() => setValue("color", color)}
-                  className={`w-6 h-6 cursor-pointer border 
-                  ${
-                    selectedColor === color
-                      ? "border-black ring-2 ring-gray-400"
-                      : "border-gray-200"
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
+            {!isView && (
+              <div className="grid grid-cols-12 gap-1">
+                {colorPalette.map((color) => (
+                  <div
+                    key={color}
+                    onClick={() => setValue("color", color)}
+                    className={`w-6 h-6 cursor-pointer border 
+                    ${
+                      selectedColor === color
+                        ? "border-black ring-2 ring-gray-400"
+                        : "border-gray-200"
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Icon */}
-          <div>
+          <div className="relative">
             <Label className="text-sm font-medium text-gray-700">
               Icon (emoji)
             </Label>
 
             <div className="flex items-center gap-2 mt-1">
-              <div className="w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center text-xl">
-                {watch("icon")}
+              <div
+                className={`w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center text-xl ${!isView && "cursor-pointer hover:bg-gray-50"}`}
+                onClick={() => !isView && setShowEmojiPicker(!showEmojiPicker)}
+              >
+                {selectedIcon}
               </div>
 
-              <Input className="flex-1" {...register("icon")} />
+              <Input
+                className="flex-1 disabled:opacity-80 disabled:cursor-not-allowed"
+                disabled={isView}
+                {...register("icon")}
+              />
             </div>
 
-            <p className="text-xs text-gray-500 mt-1">
-              You can paste any emoji here
-            </p>
+            {/* Emoji Picker Component */}
+            {showEmojiPicker && !isView && (
+              <div className="absolute top-16 left-0 z-50">
+                <div
+                  className="fixed inset-0"
+                  onClick={() => setShowEmojiPicker(false)}
+                />
+                <div className="relative shadow-xl">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData) => {
+                      setValue("icon", emojiData.emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {!isView && (
+              <p className="text-xs text-gray-500 mt-1">
+                Click the icon box to pick an emoji, or paste one
+              </p>
+            )}
           </div>
 
           {/* Buttons */}
@@ -167,16 +249,22 @@ export function AddCategoryDialog({
               onClick={() => onOpenChange(false)}
               className="border-gray-300"
             >
-              Cancel
+              {isView ? "Close" : "Cancel"}
             </Button>
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              {isLoading ? "Adding..." : "Add Category"}
-            </Button>
+            {!isView && (
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {isLoading
+                  ? "Saving..."
+                  : isEditing
+                    ? "Update Category"
+                    : "Add Category"}
+              </Button>
+            )}
           </div>
         </form>
       </DialogContent>
