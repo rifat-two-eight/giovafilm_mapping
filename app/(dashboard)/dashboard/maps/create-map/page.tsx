@@ -1,9 +1,0 @@
-import CreateMapPage from "@/components/shared/maps-area/create-map-page";
-
-export default function page() {
-  return (
-    <div>
-      <CreateMapPage />
-    </div>
-  );
-}
