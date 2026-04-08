@@ -1,11 +1,11 @@
 "use client";
 
-import { Edit, Eye, EyeOff, Trash2 } from "lucide-react";
-import { useState } from "react";
-import Swal from "sweetalert2";
-import { toast } from "sonner";
-import { useGetCategoriesQuery, useDeleteCategoryMutation } from "@/redux/features/category/categoryApi";
 import { Button } from "@/components/ui/button";
+import { useDeleteCategoryMutation, useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { Edit, Eye, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 interface Category {
   _id: string;
