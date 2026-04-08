@@ -10,7 +10,14 @@ const categoryApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Category"],
     }),
+    getCategories: builder.query({
+      query: ({ page = 1, limit = 10 } = {}) => ({
+        url: `/category?page=${page}&limit=${limit}`,
+        method: "GET",
+      }),
+      providesTags: ["Category"],
+    }),
   }),
 });
 
-export const { useCreateCategoryMutation } = categoryApi;
+export const { useCreateCategoryMutation, useGetCategoriesQuery } = categoryApi;

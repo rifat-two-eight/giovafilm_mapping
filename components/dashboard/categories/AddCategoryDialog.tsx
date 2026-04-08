@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useCreateCategoryMutation } from "@/redux/features/category/categoryApi";
 
 import {
   Dialog,
@@ -66,11 +67,22 @@ export function AddCategoryDialog({
   });
 
   const selectedColor = watch("color");
+  const [createCategory, { isLoading }] = useCreateCategoryMutation();
 
-  const onSubmit = (data: FormData) => {
-    console.log("Saving category:", data);
-    onOpenChange(false);
-    reset();
+  const onSubmit = async (data: FormData) => {
+    try {
+      const payload = {
+        name: data.categoryName,
+        color: data.color,
+        icon: data.icon,
+        status: "Active"
+      };
+      await createCategory(payload).unwrap();
+      onOpenChange(false);
+      reset();
+    } catch (error) {
+      console.error("Failed to create category:", error);
+    }
   };
 
   return (
@@ -160,9 +172,10 @@ export function AddCategoryDialog({
 
             <Button
               type="submit"
+              disabled={isLoading}
               className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              Add Category
+              {isLoading ? "Adding..." : "Add Category"}
             </Button>
           </div>
         </form>

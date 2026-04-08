@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, FileText, MapPin, UploadCloud, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useCreateMapMutation } from "@/redux/features/map/mapApi";
 
 type FormValues = {
   name: string;
@@ -32,18 +33,36 @@ export default function CreateMapModal({
   const { register, handleSubmit, reset } = useForm<FormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [createMap, { isLoading }] = useCreateMapMutation();
 
-  const onSubmit = (data: FormValues) => {
-    const formattedData = {
-      ...data,
-      features: data.features.split(",").map((f) => f.trim()),
+  const onSubmit = async (data: FormValues) => {
+    const mapData = {
+      name: data.name,
+      description: data.description,
+      price: Number(data.price) || 0,
+      features: data.features.split(",").map((f) => f.trim()).filter(Boolean),
+      places: [], 
+      status: "Published",
+      isPaid: true,
+      rating: 4.5,
+      totalReview: 120
     };
 
-    console.log(formattedData);
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(mapData));
+    
+    if (data.image && data.image.length > 0) {
+      formData.append("images", data.image[0]);
+    }
 
-    // setOpen(false);
-    reset();
-    setPreview(null);
+    try {
+      await createMap(formData).unwrap();
+      reset();
+      setPreview(null);
+      setOpen(false);
+    } catch (error) {
+      console.error("Failed to create map:", error);
+    }
   };
 
   const handleImageChange = (file: File) => {
@@ -121,7 +140,9 @@ export default function CreateMapModal({
 
           {/* Image upload - updated field */}
           <div className="space-y-2">
-            <Label className="ml-1">Offer Photo</Label>
+            <Label className="ml-1">
+              Offer Photo <span className="text-red-500">*</span>
+            </Label>
 
             <div
               onClick={() => fileRef.current?.click()}
@@ -150,12 +171,13 @@ export default function CreateMapModal({
               type="file"
               accept="image/png, image/jpeg"
               className="hidden"
-              {...register("image")}
+              {...register("image", { required: true })}
               ref={(e) => {
-                register("image").ref(e);
+                register("image", { required: true }).ref(e);
                 fileRef.current = e;
               }}
               onChange={(e) => {
+                register("image", { required: true }).onChange(e);
                 const file = e.target.files?.[0];
                 if (file) handleImageChange(file);
               }}
@@ -178,9 +200,10 @@ export default function CreateMapModal({
           {/* Submit */}
           <Button
             type="submit"
+            disabled={isLoading}
             className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold h-12"
           >
-            Create Map
+            {isLoading ? "Creating..." : "Create Map"}
           </Button>
         </form>
       </DialogContent>
