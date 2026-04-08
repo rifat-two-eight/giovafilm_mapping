@@ -7,6 +7,16 @@ const userApi = baseApi.injectEndpoints({
       providesTags: ["User"],
       transformResponse: (response: any) => response.data,
     }),
+
+    getAllUsers: builder.query({
+      query: (params) => ({
+        url: "/user",
+        method: "GET",
+        params: params,
+      }),
+      providesTags: ["User"],
+    }),
+
     updateProfile: builder.mutation({
       query: (data) => ({
         url: "/user/profile",
@@ -15,7 +25,21 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/user/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } = userApi;
+export const {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+} = userApi;
+

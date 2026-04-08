@@ -42,9 +42,10 @@ export default function DashTopHeader() {
             </Avatar>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem>My Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem>{user?.name}</DropdownMenuItem>
+            <DropdownMenuItem>{user?.email}</DropdownMenuItem>
+            <DropdownMenuItem>{user?.role}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-500">Logout</DropdownMenuItem>
           </DropdownMenuContent>
