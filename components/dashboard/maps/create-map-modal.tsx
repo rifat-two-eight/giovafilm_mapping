@@ -11,41 +11,77 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, FileText, MapPin, UploadCloud, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { getImageUrl } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useCreateMapMutation } from "@/redux/features/map/mapApi";
+import { useCreateMapMutation, useUpdateMapMutation } from "@/redux/features/map/mapApi";
 
 type FormValues = {
   name: string;
   description: string;
   price: number;
   features: string;
-  image: FileList;
+  image?: FileList;
 };
 
 export default function CreateMapModal({
   open,
   setOpen,
+  initialData,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
+  initialData?: any;
 }) {
   const { register, handleSubmit, reset } = useForm<FormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const [createMap, { isLoading }] = useCreateMapMutation();
+  
+  const [createMap, { isLoading: isCreating }] = useCreateMapMutation();
+  const [updateMap, { isLoading: isUpdating }] = useUpdateMapMutation();
+
+  const isEditing = !!initialData;
+  const isLoading = isCreating || isUpdating;
+
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        reset({
+          name: initialData.name,
+          description: initialData.description,
+          price: initialData.price,
+          features: initialData.features?.join(", "),
+        });
+
+        // Resolve Image URL
+        let imagePath = null;
+        if (initialData.images && Array.isArray(initialData.images) && initialData.images.length > 0) {
+          imagePath = initialData.images[0];
+        } else if (typeof initialData.images === 'string') {
+          imagePath = initialData.images;
+        } else if (initialData.image) {
+          imagePath = initialData.image;
+        }
+        
+        setPreview(imagePath ? getImageUrl(imagePath) : null);
+      } else {
+        reset({ name: "", description: "", price: 0, features: "" });
+        setPreview(null);
+      }
+    }
+  }, [open, initialData, reset]);
 
   const onSubmit = async (data: FormValues) => {
     const mapData = {
       name: data.name,
       description: data.description,
       price: Number(data.price) || 0,
-      features: data.features.split(",").map((f) => f.trim()).filter(Boolean),
-      places: [], 
-      status: "Published",
+      features: data.features ? data.features.split(",").map((f) => f.trim()).filter(Boolean) : [],
+      places: initialData?.places ? initialData.places.map((p: any) => (typeof p === 'string' ? p : p._id)) : [], 
+      status: initialData?.status || "Published",
       isPaid: true,
-      rating: 4.5,
-      totalReview: 120
+      rating: initialData?.rating || 4.5,
+      totalReview: initialData?.totalReview || 120
     };
 
     const formData = new FormData();
@@ -56,12 +92,16 @@ export default function CreateMapModal({
     }
 
     try {
-      await createMap(formData).unwrap();
+      if (isEditing) {
+        await updateMap({ id: initialData._id, data: formData }).unwrap();
+      } else {
+        await createMap(formData).unwrap();
+      }
       reset();
       setPreview(null);
       setOpen(false);
     } catch (error) {
-      console.error("Failed to create map:", error);
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} map:`, error);
     }
   };
 
@@ -82,7 +122,7 @@ export default function CreateMapModal({
       <DialogContent className="min-w-3xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            Create New Map
+            {isEditing ? "Update Map" : "Create New Map"}
           </DialogTitle>
         </DialogHeader>
 
@@ -141,7 +181,7 @@ export default function CreateMapModal({
           {/* Image upload - updated field */}
           <div className="space-y-2">
             <Label className="ml-1">
-              Offer Photo <span className="text-red-500">*</span>
+              Offer Photo {!isEditing && <span className="text-red-500">*</span>}
             </Label>
 
             <div
@@ -171,13 +211,13 @@ export default function CreateMapModal({
               type="file"
               accept="image/png, image/jpeg"
               className="hidden"
-              {...register("image", { required: true })}
+              {...register("image", { required: !isEditing })}
               ref={(e) => {
-                register("image", { required: true }).ref(e);
+                register("image", { required: !isEditing }).ref(e);
                 fileRef.current = e;
               }}
               onChange={(e) => {
-                register("image", { required: true }).onChange(e);
+                register("image", { required: !isEditing }).onChange(e);
                 const file = e.target.files?.[0];
                 if (file) handleImageChange(file);
               }}
@@ -203,7 +243,7 @@ export default function CreateMapModal({
             disabled={isLoading}
             className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold h-12"
           >
-            {isLoading ? "Creating..." : "Create Map"}
+            {isLoading ? "Saving..." : (isEditing ? "Update Map" : "Create Map")}
           </Button>
         </form>
       </DialogContent>
