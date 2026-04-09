@@ -17,6 +17,13 @@ const placeApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Place"],
     }),
+    getPlaceDetails: builder.query<any, string>({
+      query: (id) => ({
+        url: `/place/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Place", id }],
+    }),
     createPlace: builder.mutation({
       query: (data) => ({
         url: "/place",
@@ -35,4 +42,4 @@ const placeApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetPlacesQuery, useCreatePlaceMutation, useDeletePlaceMutation } = placeApi;
+export const { useGetPlacesQuery, useGetPlaceDetailsQuery, useCreatePlaceMutation, useDeletePlaceMutation } = placeApi;

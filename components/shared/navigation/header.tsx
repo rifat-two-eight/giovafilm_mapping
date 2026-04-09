@@ -90,7 +90,7 @@ export default function Header() {
   const { data: user2 } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
 
-  console.log(user2);
+  // console.log(user2);
   // Example user data
   const user = {
     name: "John Doe",

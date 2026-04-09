@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { getImageUrl } from "@/lib/utils";
 import { Heart, Star, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 type Marker = {
@@ -23,6 +25,8 @@ export default function LocationDialog({
 }) {
   if (!location) return null;
 
+  console.log("modal", location);
+
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
       <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative">
@@ -36,9 +40,11 @@ export default function LocationDialog({
 
         {/* Image */}
         <div className="h-48 overflow-hidden">
-          <img
-            src={location.image}
+          <Image
+            src={getImageUrl(location.image)}
             alt={location.name}
+            width={500}
+            height={500}
             className="w-full h-full object-cover"
           />
         </div>

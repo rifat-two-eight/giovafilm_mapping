@@ -1,10 +1,13 @@
 "use client";
 
 import {
+  Baby,
   BarChart3,
   Building2,
+  Car,
   Clock,
   CloudCog,
+  Dog,
   Heart,
   MapPin,
   MessageSquare,
@@ -15,7 +18,9 @@ import {
   Ticket,
   Timer,
   Toilet,
+  User2,
   Utensils,
+  Wifi,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -31,7 +36,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import InfoCard from "./info-card";
 import Link from "next/link";
-import { markers } from "./map copy";
+import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
+import { getImageUrl } from "@/lib/utils";
 
 export const infoData = [
   {
@@ -71,12 +77,52 @@ export const restaurantData = [
 
 export default function MapDetails() {
   const params = useParams();
-  const id = Number(params?.id);
+  const id = params?.id as string;
 
-  const marker = markers.find((marker) => marker.id === id);
-  const dataToRender =
-    marker?.type === "restaurant" ? restaurantData : infoData;
-  console.log(marker?.type);
+  const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
+    skip: !id,
+  });
+  const placeData = placeRes?.data;
+
+  console.log("placeData", placeData);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-medium">Loading place details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!placeData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <p className="text-xl font-bold text-gray-800">Place not found</p>
+          <Link href="/maps">
+            <Button variant="outline">Back to Map</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const isRestaurant =
+    placeData?.category?.name?.toLowerCase() === "restaurant";
+  const dataToRender = isRestaurant ? restaurantData : infoData;
+
+  const servicesMap: Record<string, any> = {
+    Parking: { icon: Car, label: "PARKING" },
+    Restrooms: { icon: Toilet, label: "RESTROOMS" },
+    "Food Nearby": { icon: Utensils, label: "FOOD NEARBY" },
+    "Guided Tour": { icon: MapPin, label: "GUIDED TOUR" },
+    "Family Friendly": { icon: User2, label: "FAMILY FRIENDLY" },
+    Wifi: { icon: Wifi, label: "WIFI" },
+    "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
+  };
 
   return (
     <section className="bg-gray-100 py-10">
@@ -87,11 +133,11 @@ export default function MapDetails() {
           <div className="lg:col-span-2 relative rounded-xl overflow-hidden">
             <div className="h-100 object-cover">
               <Image
-                src={marker?.image || "/placeholder-image.jpg"} // Add a default image
-                alt={marker?.name || "Image"} // Also provide fallback for alt
+                src={getImageUrl(placeData?.media?.[0])}
+                alt={placeData?.name || "Place Image"}
                 width={1000}
                 height={1000}
-                className="object-cover w-full! h-full"
+                className="object-cover w-full h-full"
               />
             </div>
 
@@ -111,13 +157,13 @@ export default function MapDetails() {
 
             {/* title */}
             <div className="absolute bottom-6 left-6 text-white">
-              <h1 className="text-5xl font-bold font-public-sans">
-                {marker?.name}
+              <h1 className="text-5xl font-bold font-public-sans drop-shadow-lg">
+                {placeData?.name}
               </h1>
 
-              <div className="flex items-center gap-2 mt-2 text-lg">
+              <div className="flex items-center gap-2 mt-2 text-lg drop-shadow-md">
                 <MapPin size={16} className="text-[#EC5B13]" />
-                {marker?.type}
+                {placeData?.category?.name} • {placeData?.address}
               </div>
             </div>
           </div>
@@ -142,36 +188,32 @@ export default function MapDetails() {
             </div>
 
             {/* directions button */}
-            {marker?.type !== "restaurant" && (
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
+            {!isRestaurant && (
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
                 <Send size={18} className="mr-2" />
                 DIRECTIONS
               </Button>
             )}
 
-            {marker?.type === "restaurant" && (
-              <div className="">
-                {marker?.type === "restaurant" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <Button className="flex-1 w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
-                        <Send size={18} className="mr-2" />
-                        DIRECTIONS
-                      </Button>
-                      <Button className="flex-1 w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
-                        <Phone size={18} className="mr-2" />
-                        Call
-                      </Button>
-                    </div>
+            {isRestaurant && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <Button className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                    <Send size={18} className="mr-2" />
+                    DIRECTIONS
+                  </Button>
+                  <Button className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                    <Phone size={18} className="mr-2" />
+                    Call
+                  </Button>
+                </div>
 
-                    <Link href={`/maps/${marker?.id}/${marker?.id}`}>
-                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl">
-                        <Ticket size={18} className="mr-2" />
-                        Discounts
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                <Link href={`/discounts/${id}`} className="block">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                    <Ticket size={18} className="mr-2" />
+                    Discounts
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
@@ -187,109 +229,105 @@ export default function MapDetails() {
           >
             {/* ACCESS */}
 
-            <AccordionItem value="access" className="border rounded-xl">
-              <AccordionTrigger className="font-semibold">
-                {marker?.type === "restaurant" ? "Menu" : "ACCESS"}
+            <AccordionItem
+              value="access"
+              className="border rounded-xl bg-white"
+            >
+              <AccordionTrigger className="font-semibold px-6 hover:no-underline">
+                {isRestaurant ? "DESCRIPTION & ACCESS" : "ACCESS"}
               </AccordionTrigger>
 
-              <AccordionContent className="text-muted-foreground space-y-4 pb-6">
-                <p>
-                  Arrival: Reach the trail using the main entrance of Glacier
-                  National Park. The trail head is located near the North
-                  visitor center, approximately 15 minutes from the entrance
-                  gate.
+              <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
+                <p className="leading-relaxed">
+                  {placeData?.description ||
+                    "No specific access details available for this location."}
                 </p>
-
-                <p>
-                  Accessibility: The trail is primarily dirt and gravel. While
-                  the first 0.5 miles are relatively flat and ADA accessible,
-                  the remaining portion involves steep inclines and rocky
-                  terrain.
-                </p>
-
-                <p>
-                  Parking: A dedicated parking lot is available at the
-                  trailhead. During peak summer months, it is recommended to
-                  arrive before 8:00 AM as parking fills up quickly.
-                </p>
+                {placeData?.details?.access && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <p className="font-semibold text-gray-800 mb-1">
+                      Getting Here:
+                    </p>
+                    <p>{placeData.details.access}</p>
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
 
             {/* RECOMMENDATIONS */}
-            {marker?.type !== "restaurant" && (
+            {!isRestaurant && (
               <AccordionItem
                 value="recommendations"
-                className="border rounded-xl"
+                className="border rounded-xl bg-white"
               >
-                <AccordionTrigger className="font-semibold">
+                <AccordionTrigger className="font-semibold px-6 hover:no-underline">
                   RECOMMENDATIONS
                 </AccordionTrigger>
 
-                <AccordionContent className="pb-6 space-y-5">
-                  <p className="text-muted-foreground">
-                    Bring a reusable water bottle, comfortable shoes, and light
-                    clothing. Don't forget your camera to capture the
-                    spectacular scenery!
+                <AccordionContent className="px-6 pb-6 space-y-5">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {placeData?.details?.recommendations ||
+                      "No specific recommendations available for this place."}
                   </p>
 
-                  <div className="flex flex-wrap gap-3">
-                    {[
-                      "Mosquito repellent",
-                      "Hiking boots",
-                      "Flashlight",
-                      "Sunscreen",
-                      "Rain jacket",
-                    ].map((item) => (
-                      <span
-                        key={item}
-                        className="text-sm bg-orange-50 text-orange-600 px-4 py-1.5 rounded-full border border-orange-200"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
+                  {placeData?.accessibility?.features?.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                        Accessibility Features
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {placeData.accessibility.features.map(
+                          (feature: string) => (
+                            <span
+                              key={feature}
+                              className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 capitalize"
+                            >
+                              {feature}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                      {placeData.accessibility.notes && (
+                        <p className="text-sm italic text-gray-500">
+                          {placeData.accessibility.notes}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </AccordionContent>
               </AccordionItem>
             )}
 
             {/* SERVICES */}
-            {marker?.type !== "restaurant" && (
-              <AccordionItem value="services" className="border rounded-xl">
-                <AccordionTrigger className="font-semibold">
-                  SERVICES
+            {!isRestaurant && placeData?.services?.length > 0 && (
+              <AccordionItem
+                value="services"
+                className="border rounded-xl bg-white"
+              >
+                <AccordionTrigger className="font-semibold px-6 hover:no-underline">
+                  SERVICES AVAILABLE
                 </AccordionTrigger>
 
-                <AccordionContent className="pb-8">
-                  <div className="grid grid-cols-3 gap-8 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="bg-gray-100 p-4 rounded-full">
-                        <Toilet size={22} />
-                      </div>
+                <AccordionContent className="px-6 pb-8">
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-6 text-center">
+                    {placeData.services.map((serviceName: string) => {
+                      const serviceInfo = servicesMap[serviceName];
+                      if (!serviceInfo) return null;
+                      const Icon = serviceInfo.icon;
 
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        RESTROOMS
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="bg-gray-100 p-4 rounded-full">
-                        <Building2 size={22} />
-                      </div>
-
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        VISITOR CENTER
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="bg-gray-100 p-4 rounded-full">
-                        <Utensils size={22} />
-                      </div>
-
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        CAFETERIA
-                      </p>
-                    </div>
+                      return (
+                        <div
+                          key={serviceName}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 group-hover:bg-yellow-50 transition-colors">
+                            <Icon size={22} className="text-gray-600" />
+                          </div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                            {serviceInfo.label}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -402,54 +440,44 @@ export default function MapDetails() {
           </Accordion>
         </div>
 
-        {marker?.type === "restaurant" && (
-          <div className="px-2 mt-6">
-            <h3 className="font-bold uppercase">Online</h3>
-            <div className="mt-4 space-y-4">
-              {/* WEBSITE */}
-              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
+        {isRestaurant && (
+          <div className="px-2 mt-10">
+            <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-6">
+              Online Presence
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* WEBSITE placeholder or real data if available in details */}
+              <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-gray-100 p-3 rounded-lg">🌐</div>
-
+                  <div className="bg-blue-50 p-3 rounded-xl">🌐</div>
                   <div>
-                    <p className="text-xs text-muted-foreground">WEBSITE</p>
-                    <p className="font-semibold">latrattoriadelporto.com</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      WEBSITE
+                    </p>
+                    <p className="font-bold text-gray-900 truncate max-w-[150px]">
+                      Official Site
+                    </p>
                   </div>
                 </div>
-
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
                   VISIT
                 </button>
               </div>
 
-              {/* INSTAGRAM */}
-              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
+              {/* SOCIAL placeholder */}
+              <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-gray-100 p-3 rounded-lg">📸</div>
-
+                  <div className="bg-pink-50 p-3 rounded-xl">📸</div>
                   <div>
-                    <p className="text-xs text-muted-foreground">INSTAGRAM</p>
-                    <p className="font-semibold">@latrattoriadelporto</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      INSTAGRAM
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      @visit_{placeData.name.toLowerCase().replace(/\s+/g, "_")}
+                    </p>
                   </div>
                 </div>
-
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
-                  VIEW
-                </button>
-              </div>
-
-              {/* FACEBOOK */}
-              <div className="flex items-center justify-between p-4 border rounded-xl bg-white">
-                <div className="flex items-center gap-4">
-                  <div className="bg-gray-100 p-3 rounded-lg">👍</div>
-
-                  <div>
-                    <p className="text-xs text-muted-foreground">FACEBOOK</p>
-                    <p className="font-semibold">La Trattoria del Porto</p>
-                  </div>
-                </div>
-
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold">
+                <button className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
                   VIEW
                 </button>
               </div>
