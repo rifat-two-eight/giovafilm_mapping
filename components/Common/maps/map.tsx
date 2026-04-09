@@ -3,6 +3,8 @@
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { getImageUrl } from "@/lib/utils";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import {
   AdvancedMarker,
   APIProvider,
@@ -21,8 +23,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
-import { getImageUrl } from "@/lib/utils";
 import LocationDialog from "./location-dialog";
 
 // ─── Category data ────────────────────────────────────────────────────────────
