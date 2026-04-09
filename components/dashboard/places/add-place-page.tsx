@@ -227,6 +227,8 @@ import {
   Plus,
   Search
 } from "lucide-react";
+import { useCreatePlaceMutation, useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
@@ -255,9 +257,14 @@ export default function AddPlacePage() {
   // --- API Fetches ---
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
+  const { data: placesRes } = useGetPlacesQuery(
+    { map: selectedMapId || "" },
+    { skip: !selectedMapId }
+  );
 
   const maps = mapsRes?.data || [];
   const categories = categoriesRes?.data || [];
+  const fetchedPlaces = placesRes?.data || [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);
 
   // --- States for Marker Management ---
@@ -271,10 +278,12 @@ export default function AddPlacePage() {
   const [savedPlaces, setSavedPlaces] = useState<any[]>([]);
   const [formData, setFormData] = useState({ name: "", description: "" });
 
+  const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
+
   const handleMapClick = (e: any) => {
     if (!isAddingMarker) return;
     if (!selectedMapId) {
-      alert("Please select a map first!");
+      toast.error("Please select a map first!");
       setIsAddingMarker(false);
       return;
     }
@@ -287,21 +296,42 @@ export default function AddPlacePage() {
     setIsAddingMarker(false);
   };
 
-  const handleSavePlace = () => {
-    if (!tempMarker) return;
+  const handleSavePlace = async () => {
+    if (!tempMarker || !selectedMapId) return;
 
-    const newPlace = {
-      id: Date.now(),
-      position: tempMarker,
-      name: formData.name || "Untitled Place",
-      description: formData.description,
-      categoryId: selectedCategoryId,
-      mapId: selectedMapId,
-    };
+    if (!selectedCategoryId) {
+      toast.error("Please select a category first!");
+      return;
+    }
 
-    setSavedPlaces([...savedPlaces, newPlace]);
-    setSelectedPlace(null);
-    setTempMarker(null);
+    try {
+      const payload = {
+        name: formData.name || "Untitled Place",
+        map: selectedMapId,
+        category: selectedCategoryId,
+        description: formData.description,
+        location: {
+          type: "Point",
+          coordinates: [tempMarker.lng, tempMarker.lat],
+        },
+        address: "New Address", // Placeholder or from reverse geocoding if implemented
+        status: "Published",
+        // Additional fields from api reference
+        media: [],
+        services: [],
+        accessibility: { features: [] },
+      };
+
+      await createPlace(payload).unwrap();
+      toast.success("Place saved successfully!");
+      
+      setSelectedPlace(null);
+      setTempMarker(null);
+      setFormData({ name: "", description: "" });
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to save place");
+      console.error("Failed to save place:", error);
+    }
   };
 
   return (
@@ -449,20 +479,29 @@ export default function AddPlacePage() {
 
               <CustomLocationButton />
 
-              {/* Saved markers */}
-              {savedPlaces.map((place) => (
-                <AdvancedMarker
-                  key={place.id}
-                  position={place.position}
-                  onClick={() => {
-                    setSelectedPlace(place);
-                    setFormData({
-                      name: place.name,
-                      description: place.description,
-                    });
-                  }}
-                />
-              ))}
+              {/* Saved markers from server */}
+              {fetchedPlaces.map((place: any) => {
+                const position = {
+                  lat: place.location.coordinates[1],
+                  lng: place.location.coordinates[0],
+                };
+                return (
+                  <AdvancedMarker
+                    key={place._id}
+                    position={position}
+                    onClick={() => {
+                      setSelectedPlace({ ...place, position, isNew: false });
+                      setFormData({
+                        name: place.name,
+                        description: place.description || "",
+                      });
+                      // If category is an object, get its ID, otherwise it's already the ID string
+                      const catId = typeof place.category === 'object' ? place.category?._id : place.category;
+                      setSelectedCategoryId(catId || null);
+                    }}
+                  />
+                );
+              })}
 
               {/* Temporary marker (not yet saved) */}
               {tempMarker && (
@@ -490,6 +529,31 @@ export default function AddPlacePage() {
                       readOnly={!selectedPlace.isNew}
                       className="text-lg font-bold border-b border-gray-200 focus:outline-none focus:border-blue-500 w-full py-1 text-black mb-2"
                     />
+
+                    {/* Category Selection in Modal */}
+                    <div className="mb-3">
+                      <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">
+                        Category
+                      </Label>
+                      <Select 
+                        value={selectedCategoryId || ""} 
+                        onValueChange={setSelectedCategoryId}
+                        disabled={!selectedPlace.isNew}
+                      >
+                        <SelectTrigger className="w-full h-9 bg-gray-50 border-gray-200 text-black">
+                          <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[9999]">
+                          {categories.map((cat: any) => (
+                            <SelectItem key={cat._id} value={cat._id}>
+                              <span className="mr-2">{cat.icon}</span>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <textarea
                       value={formData.description}
                       onChange={(e) =>
@@ -516,9 +580,10 @@ export default function AddPlacePage() {
                         </button>
                         <button
                           onClick={handleSavePlace}
-                          className="px-4 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                          disabled={isCreating}
+                          className="px-4 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Save
+                          {isCreating ? "Saving..." : "Save"}
                         </button>
                       </div>
                     )}
