@@ -1,10 +1,9 @@
-import CreateMapPage from "@/components/shared/maps-area/create-map-page";
-import React from "react";
+import AddPlacePage from "@/components/dashboard/places/add-place-page";
 
 export default function page() {
   return (
     <div>
-      <CreateMapPage />
+      <AddPlacePage />
     </div>
   );
 }

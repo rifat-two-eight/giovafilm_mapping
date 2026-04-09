@@ -204,47 +204,30 @@
 
 import { CustomLocationButton } from "@/components/Common/maps/map";
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
   AdvancedMarker,
   APIProvider,
-  Map,
   InfoWindow,
+  Map,
   useMap,
 } from "@vis.gl/react-google-maps";
 import {
-  Car,
   ChevronRight,
-  Edit2,
-  History,
-  Hotel,
-  Moon,
-  Palmtree,
-  ParkingCircle,
+  Map as MapIcon,
   Plus,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  Star,
-  Target,
-  Trees,
-  Utensils,
+  Search
 } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const categories = [
-  { name: "Featured", icon: Star, count: 0 },
-  { name: "Food & Drinks", icon: Utensils, count: 4 },
-  { name: "Beaches", icon: Palmtree, count: 1 },
-  { name: "Nature & Views", icon: Trees, count: 1 },
-  { name: "Activities", icon: Target, count: 1 },
-  { name: "History & Culture", icon: History, count: 1 },
-  { name: "Shopping & Markets", icon: ShoppingBag, count: 0 },
-  { name: "Nightlife", icon: Moon, count: 0 },
-  { name: "Hidden Gems", icon: Sparkles, count: 0 },
-  { name: "Roadside Stops", icon: Car, count: 0 },
-  { name: "Hotels & Stays", icon: Hotel, count: 0 },
-  { name: "Parking & Services", icon: ParkingCircle, count: 0 },
-];
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
 // Must live inside <APIProvider> so useMap() works.
@@ -261,10 +244,21 @@ function GeolocationOnLoad() {
   return null;
 }
 
-export default function CreateMapPage() {
-  const [selectedCategory, setSelectedCategory] = useState("Food & Drinks");
+export default function AddPlacePage() {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
+  const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
+
+  // --- API Fetches ---
+  const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
+  const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
+
+  const maps = mapsRes?.data || [];
+  const categories = categoriesRes?.data || [];
+  const selectedMap = maps.find((m: any) => m._id === selectedMapId);
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -279,6 +273,11 @@ export default function CreateMapPage() {
 
   const handleMapClick = (e: any) => {
     if (!isAddingMarker) return;
+    if (!selectedMapId) {
+      alert("Please select a map first!");
+      setIsAddingMarker(false);
+      return;
+    }
     const newLat = e.detail.latLng.lat;
     const newLng = e.detail.latLng.lng;
 
@@ -296,7 +295,8 @@ export default function CreateMapPage() {
       position: tempMarker,
       name: formData.name || "Untitled Place",
       description: formData.description,
-      category: selectedCategory,
+      categoryId: selectedCategoryId,
+      mapId: selectedMapId,
     };
 
     setSavedPlaces([...savedPlaces, newPlace]);
@@ -310,25 +310,51 @@ export default function CreateMapPage() {
         {/* Sidebar */}
         <div className="w-80 flex flex-col border-r border-gray-200 bg-white z-20 shadow-sm">
           <div className="p-6 space-y-4">
-            <div className="space-y-1">
-              <h1 className="text-xl font-black tracking-tight text-gray-900 uppercase">
-                Map Title
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>Roadtripeado Maps 9.0</span>
-                <Edit2
-                  size={14}
-                  className="cursor-pointer hover:text-blue-600"
-                />
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <h1 className="text-xl font-black tracking-tight text-gray-900 uppercase">
+                  {selectedMap?.name || "Select a Map"}
+                </h1>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>Roadtripeado Maps 9.0</span>
+                </div>
               </div>
-              <p className="text-xs text-gray-400">
-                Admin can manage pins & categories
-              </p>
+
+              {/* Map Selector */}
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Active Map
+                </Label>
+                <Select
+                  value={selectedMapId || ""}
+                  onValueChange={setSelectedMapId}
+                >
+                  <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                    <SelectValue placeholder="Choose a map..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maps.map((map: any) => (
+                      <SelectItem key={map._id} value={map._id}>
+                        <div className="flex items-center gap-2">
+                          <MapIcon size={14} className="text-blue-500" />
+                          <span className="truncate">{map.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
               <button
-                onClick={() => setIsAddingMarker(true)}
+                onClick={() => {
+                  if (!selectedMapId) {
+                    alert("Please select a map before adding a place.");
+                    return;
+                  }
+                  setIsAddingMarker(true);
+                }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
                   isAddingMarker
                     ? "bg-blue-600 text-white border-blue-600 shadow-md"
@@ -365,13 +391,13 @@ export default function CreateMapPage() {
               Categories
             </div>
             <div className="space-y-0.5">
-              {categories.map((cat) => (
+              {categories.map((cat: any) => (
                 <button
-                  key={cat.name}
-                  onClick={() => setSelectedCategory(cat.name)}
+                  key={cat._id}
+                  onClick={() => setSelectedCategoryId(cat._id)}
                   className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                    selectedCategory === cat.name
-                      ? "bg-blue-50 text-blue-700"
+                    selectedCategoryId === cat._id
+                      ? "bg-blue-50 text-blue-700 font-semibold"
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
@@ -379,15 +405,14 @@ export default function CreateMapPage() {
                     <ChevronRight
                       size={14}
                       className={
-                        selectedCategory === cat.name
+                        selectedCategoryId === cat._id
                           ? "text-blue-500"
                           : "text-gray-300"
                       }
                     />
-                    <cat.icon size={18} />
-                    <span className="font-medium">{cat.name}</span>
+                    <span className="text-lg">{cat.icon}</span>
+                    <span className="truncate">{cat.name}</span>
                   </div>
-                  <span className="text-xs text-gray-400">({cat.count})</span>
                 </button>
               ))}
             </div>
@@ -403,7 +428,7 @@ export default function CreateMapPage() {
           </div>
 
           <div className="bg-gray-100 p-3 text-[10px] font-bold text-gray-500 uppercase">
-            Selected: {selectedCategory}
+            Selected Map: {selectedMap?.name || "None"}
           </div>
         </div>
 
