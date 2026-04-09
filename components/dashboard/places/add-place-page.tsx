@@ -24,6 +24,7 @@ import {
   useCreatePlaceMutation,
   useGetPlacesQuery,
 } from "@/redux/features/place/placeApi";
+import { PlaceInfoWindow } from "./PlaceInfoWindow";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
@@ -92,38 +93,69 @@ export default function AddPlacePage() {
     setIsAddingMarker(false);
   };
 
-  const handleSavePlace = async () => {
-    if (!tempMarker || !selectedMapId) return;
+  const handleSavePlace = async (data?: any) => {
+    // data comes from PlaceInfoWindow for new places
+    const finalData = data || formData;
+    const saveMarker =
+      tempMarker || (selectedPlace?.isNew ? selectedPlace.position : null);
 
-    if (!selectedCategoryId) {
+    if (!saveMarker || !selectedMapId) return;
+
+    if (!finalData.category && !selectedCategoryId) {
       toast.error("Please select a category first!");
       return;
     }
 
     try {
-      const payload = {
-        name: formData.name || "Untitled Place",
+      const placeData = {
+        name: finalData.name || "Untitled Place",
         map: selectedMapId,
-        category: selectedCategoryId,
-        description: formData.description,
+        category: finalData.category || selectedCategoryId,
+        description: finalData.description,
         location: {
           type: "Point",
-          coordinates: [tempMarker.lng, tempMarker.lat],
+          coordinates: [saveMarker.lng, saveMarker.lat],
         },
-        address: "New Address", // Placeholder or from reverse geocoding if implemented
-        status: "Published",
-        // Additional fields from api reference
-        media: [],
-        services: [],
-        accessibility: { features: [] },
+        address: finalData.address || "New Address",
+        status: finalData.status || "Published",
+        services: finalData.services || [],
+        accessibility: {
+          features: finalData.accessibility
+            ? Object.entries(finalData.accessibility)
+                .filter(([k, v]) => v === true && k !== "notes")
+                .map(([k]) => k)
+            : [],
+          notes: finalData.accessibility?.notes || "",
+        },
+        details: {
+          access: finalData.accessDescription || "",
+          recommendations: finalData.recommendations || "",
+        },
       };
 
+      let payload: any = placeData;
+
+      // If there are media files, we must use FormData
+      if (finalData.mediaFiles && finalData.mediaFiles.length > 0) {
+        const formDataPayload = new FormData();
+        formDataPayload.append("data", JSON.stringify(placeData));
+
+        finalData.mediaFiles.forEach((file: File) => {
+          formDataPayload.append("images", file);
+        });
+
+        payload = formDataPayload;
+      }
+
       await createPlace(payload).unwrap();
-      toast.success("Place saved successfully!");
+      toast.success(
+        `Place ${finalData.status === "Published" ? "published" : "saved as draft"} successfully!`,
+      );
 
       setSelectedPlace(null);
       setTempMarker(null);
       setFormData({ name: "", description: "" });
+      setSelectedCategoryId(null);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to save place");
       console.error("Failed to save place:", error);
@@ -176,7 +208,7 @@ export default function AddPlacePage() {
               <button
                 onClick={() => {
                   if (!selectedMapId) {
-                    alert("Please select a map before adding a place.");
+                    toast.error("Please select a map before adding a place.");
                     return;
                   }
                   setIsAddingMarker(true);
@@ -314,80 +346,19 @@ export default function AddPlacePage() {
 
               {/* InfoWindow for new or existing place */}
               {selectedPlace && (
-                <InfoWindow
+                <PlaceInfoWindow
                   position={selectedPlace.position}
-                  onCloseClick={() => setSelectedPlace(null)}
-                >
-                  <div className="p-3 min-w-[280px] bg-white rounded-lg font-sans shadow-none">
-                    <input
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      placeholder="Place Name"
-                      readOnly={!selectedPlace.isNew}
-                      className="text-lg font-bold border-b border-gray-200 focus:outline-none focus:border-blue-500 w-full py-1 text-black mb-2"
-                    />
-
-                    {/* Category Selection in Modal */}
-                    <div className="mb-3">
-                      <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">
-                        Category
-                      </Label>
-                      <Select
-                        value={selectedCategoryId || ""}
-                        onValueChange={setSelectedCategoryId}
-                        disabled={!selectedPlace.isNew}
-                      >
-                        <SelectTrigger className="w-full h-9 bg-gray-50 border-gray-200 text-black">
-                          <SelectValue placeholder="Select Category" />
-                        </SelectTrigger>
-                        <SelectContent className="z-[9999]">
-                          {categories.map((cat: any) => (
-                            <SelectItem key={cat._id} value={cat._id}>
-                              <span className="mr-2">{cat.icon}</span>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          description: e.target.value,
-                        })
-                      }
-                      placeholder="Add description..."
-                      readOnly={!selectedPlace.isNew}
-                      className="w-full h-20 p-2 border border-gray-100 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 mb-4 text-black resize-none"
-                    />
-
-                    {selectedPlace.isNew && (
-                      <div className="flex gap-2 justify-end">
-                        <button
-                          onClick={() => {
-                            setSelectedPlace(null);
-                            setTempMarker(null);
-                          }}
-                          className="px-4 py-1.5 rounded-md text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSavePlace}
-                          disabled={isCreating}
-                          className="px-4 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isCreating ? "Saving..." : "Save"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </InfoWindow>
+                  onClose={() => setSelectedPlace(null)}
+                  categories={categories}
+                  onSave={handleSavePlace}
+                  isSaving={isCreating}
+                  initialData={{
+                    name: selectedPlace.name || "",
+                    description: selectedPlace.description || "",
+                    category: selectedCategoryId || "",
+                    isNew: selectedPlace.isNew,
+                  }}
+                />
               )}
             </Map>
           </div>
