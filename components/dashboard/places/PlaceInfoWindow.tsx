@@ -48,7 +48,6 @@ const TABS = [
   "Accessibility",
   "Recommendations",
   "Services",
-  "Reviews",
 ];
 
 export const PlaceInfoWindow = ({
@@ -145,7 +144,7 @@ export const PlaceInfoWindow = ({
 
   return (
     <InfoWindow position={position} onCloseClick={onClose} headerDisabled>
-      <div className="min-w-[500px]! bg-gray-50 rounded-2xl overflow-hidden shadow-2xl border border-gray-200 font-sans flex flex-col animate-in fade-in duration-300">
+      <div className="w-[500px] max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300 font-arial">
         {/* Navigation Header */}
         <div className="bg-white border-b border-gray-200 px-2 overflow-x-auto no-scrollbar">
           <div className="flex items-center min-w-max">
@@ -153,10 +152,10 @@ export const PlaceInfoWindow = ({
               <button
                 key={tab}
                 onClick={() => setActiveTab(index)}
-                className={`px-4 py-4 text-[11px] font-bold uppercase tracking-widest transition-all relative min-w-[100px] ${
+                className={`px-4 py-4 text-sm tracking-wider transition-all relative min-w-[100px] ${
                   activeTab === index
-                    ? "text-yellow-600"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "text-primary font-semibold"
+                    : "text-black hover:text-gray-600 font-medium"
                 }`}
               >
                 {tab}
@@ -173,30 +172,26 @@ export const PlaceInfoWindow = ({
           {activeTab === 0 && (
             <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Place Name
-                  </Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Place Name</Label>
                   <Input
                     placeholder="e.g., Golden Gate Park"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="bg-white border-gray-200 rounded-lg h-10 text-sm italic"
+                    className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                    Category
-                  </Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Category</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(val) =>
                       setFormData({ ...formData, category: val })
                     }
                   >
-                    <SelectTrigger className="h-10 bg-white border-gray-200 rounded-lg text-sm italic">
+                    <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
                       <SelectValue placeholder="Choose a category" />
                     </SelectTrigger>
                     <SelectContent className="z-[9999]">
@@ -210,10 +205,8 @@ export const PlaceInfoWindow = ({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Short Description
-                </Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Short Description</Label>
                 <Textarea
                   placeholder="Brief description of this place..."
                   value={formData.description}
@@ -224,10 +217,8 @@ export const PlaceInfoWindow = ({
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Media
-                </Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Media</Label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-gray-200 rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 group hover:border-blue-400 transition-all cursor-pointer"
@@ -239,7 +230,7 @@ export const PlaceInfoWindow = ({
                     <p className="text-xs font-bold text-gray-700">
                       Click to upload or drag and drop
                     </p>
-                    <p className="text-[9px] text-gray-400 uppercase font-bold tracking-tight">
+                    <p className="text-[9px] text-gray-400 tracking-tight">
                       (Images, videos up to 10MB)
                     </p>
                   </div>
@@ -281,10 +272,8 @@ export const PlaceInfoWindow = ({
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Address
-                </Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Address</Label>
                 <div className="relative">
                   <MapPin
                     size={14}
@@ -334,7 +323,7 @@ export const PlaceInfoWindow = ({
             <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
               <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-6">
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       id="wheelchair"
                       checked={formData.accessibility.wheelchair}
@@ -346,10 +335,10 @@ export const PlaceInfoWindow = ({
                       htmlFor="wheelchair"
                       className="text-sm font-medium text-gray-700 flex items-center gap-2"
                     >
-                      <MapPin size={14} /> Wheelchair Access
+                      Wheelchair Access
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       id="children"
                       checked={formData.accessibility.children}
@@ -361,10 +350,10 @@ export const PlaceInfoWindow = ({
                       htmlFor="children"
                       className="text-sm font-medium text-gray-700 flex items-center gap-2"
                     >
-                      <Baby size={14} /> Children
+                      Children
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       id="pets"
                       checked={formData.accessibility.pets}
@@ -376,10 +365,10 @@ export const PlaceInfoWindow = ({
                       htmlFor="pets"
                       className="text-sm font-medium text-gray-700 flex items-center gap-2"
                     >
-                      <Dog size={14} /> Pets
+                      Pets
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       id="senior"
                       checked={formData.accessibility.senior}
@@ -391,7 +380,7 @@ export const PlaceInfoWindow = ({
                       htmlFor="senior"
                       className="text-sm font-medium text-gray-700 flex items-center gap-2"
                     >
-                      <Users size={14} /> Senior Access
+                      Senior Access
                     </Label>
                   </div>
                 </div>
@@ -405,7 +394,7 @@ export const PlaceInfoWindow = ({
                 </Button>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  <Label className="text-sm font-medium">
                     Notes (optional)
                   </Label>
                   <Textarea
@@ -428,7 +417,7 @@ export const PlaceInfoWindow = ({
                   <Label className="text-sm font-bold text-gray-800">
                     What to Take / Tips
                   </Label>
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-sm font-medium">
                     Water, comfortable shoes, sunscreen, light jacket...
                   </p>
                 </div>
@@ -449,8 +438,8 @@ export const PlaceInfoWindow = ({
 
           {activeTab === 4 && (
             <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
-              <div className="space-y-1 mb-2">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+              <div className="space-y-1 mb-3">
+                <p className="text-sm font-semibold">
                   Services will appear in a compact grid.
                 </p>
               </div>
@@ -459,7 +448,7 @@ export const PlaceInfoWindow = ({
                   <div
                     key={service.id}
                     onClick={() => toggleService(service.id)}
-                    className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${
+                    className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
                       formData.services.includes(service.id)
                         ? "bg-blue-50 border-blue-200"
                         : "bg-white border-gray-100 hover:border-gray-200"
@@ -469,11 +458,9 @@ export const PlaceInfoWindow = ({
                       checked={formData.services.includes(service.id)}
                       className="rounded-full"
                     />
-                    <div className="space-y-0.5">
-                      <div className="text-gray-400">{service.icon}</div>
-                      <p className="text-[10px] font-bold text-gray-700 leading-tight">
-                        {service.id}
-                      </p>
+                    <div className="space-y-1">
+                      <div className="">{service.icon}</div>
+                      <p className="text-xs  leading-tight">{service.id}</p>
                     </div>
                   </div>
                 ))}
@@ -484,7 +471,7 @@ export const PlaceInfoWindow = ({
             </div>
           )}
 
-          {activeTab === 5 && (
+          {/* {activeTab === 5 && (
             <div className="h-[200px] flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-500">
               <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-400">
                 <Music size={32} />
@@ -498,15 +485,15 @@ export const PlaceInfoWindow = ({
                 </p>
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Footer Actions */}
         <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between sticky bottom-0">
           <Button
-            variant="ghost"
+            variant="destructive"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 font-bold text-xs uppercase tracking-widest px-0"
+            className="px-6 h-10 bg-red-500  font-bold text-xs uppercase tracking-widest rounded-xl"
           >
             Cancel
           </Button>
@@ -514,14 +501,14 @@ export const PlaceInfoWindow = ({
             <Button
               onClick={() => handleSave(false)}
               disabled={isSaving}
-              className=" font-bold text-xs px-6 h-10 rounded-lg shadow-md transition-transform active:scale-95"
+              className="px-6 h-10 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100"
             >
               Save
             </Button>
             <Button
               onClick={() => handleSave(true)}
               disabled={isSaving}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-6 h-10 rounded-lg shadow-md transition-transform active:scale-95"
+              className="px-6 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100"
             >
               Save & Publish
             </Button>
@@ -544,6 +531,8 @@ export const PlaceInfoWindow = ({
           padding: 0 !important;
           border-radius: 20px !important;
           background: white !important;
+          max-width: 800px !important;
+          overflow: auto !important;
         }
         .gm-style-iw-tc::after {
           background: white !important;

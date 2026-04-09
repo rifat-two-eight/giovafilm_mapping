@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import LocationDialog from "./location-dialog";
 
 export const markers = [
   {
@@ -149,64 +150,12 @@ export default function MapPage2() {
         </div>
 
         {/* Location Dialog/Card */}
+        {/* Dialog */}
         {selectedLocation && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-            <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto transform animate-in fade-in zoom-in duration-300 relative">
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedLocation(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-900 hover:bg-white transition-colors shadow-lg"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={selectedLocation.image}
-                  alt={selectedLocation.name}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-
-              <div className="p-8">
-                <h2 className="text-2xl font-black text-gray-900 mb-2">
-                  {selectedLocation.name}
-                </h2>
-
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="flex items-center text-black font-bold text-sm">
-                    <Star size={14} className="fill-black mr-1" />
-                    {selectedLocation.rating}
-                  </div>
-                  <span className="text-gray-400 text-sm font-medium">
-                    ({selectedLocation.reviews} reviews) {selectedLocation.type}
-                  </span>
-                </div>
-
-                <p className="text-sm text-gray-600 leading-relaxed mb-8 font-medium">
-                  {selectedLocation.description}
-                </p>
-
-                <div className="flex items-center gap-3">
-                  <Link
-                    className="flex-1"
-                    href={`/maps/${selectedLocation.id}`}
-                  >
-                    <Button className=" w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12 shadow-none cursor-pointer">
-                      View Details
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    className="w-12 h-12 p-0 rounded-xl border-gray-200 hover:bg-gray-50"
-                  >
-                    <Heart size={20} className="text-gray-400" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <LocationDialog
+            location={selectedLocation}
+            onClose={() => setSelectedLocation(null)}
+          />
         )}
       </main>
     </div>
