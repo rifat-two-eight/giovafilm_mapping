@@ -21,6 +21,9 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { getImageUrl } from "@/lib/utils";
+import LocationDialog from "./location-dialog";
 
 // ─── Category data ────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -184,6 +187,26 @@ export default function MapPage() {
     setShowCategories(false);
   };
 
+  // --- API Fetches ---
+  const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
+  const fetchedPlaces = placesRes?.data || [];
+
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+
+  // Filter places based on enabled categories (matching place.category.name to cat.label)
+  const displayPlaces = fetchedPlaces.filter((place: any) => {
+    const categoryName = place.category?.name?.toLowerCase();
+    if (!categoryName) return true; // Show if no category info
+
+    // Find the category id that matches this place's category name
+    const categoryMatch = CATEGORIES.find(
+      (cat) => cat.label.toLowerCase() === categoryName,
+    );
+
+    if (!categoryMatch) return true; // Show if category name doesn't match our UI list
+    return enabledCategories[categoryMatch.id] ?? true;
+  });
+
   return (
     <div className="min-h-screen">
       <div style={{ height: "calc(100vh - 100px)", width: "100%" }}>
@@ -208,6 +231,33 @@ export default function MapPage() {
 
             <AdvancedMarker position={markerPos} />
 
+            {/* Render all fetched places as markers */}
+            {displayPlaces.map((place: any) => {
+              const position = {
+                lat: place.location.coordinates[1],
+                lng: place.location.coordinates[0],
+              };
+
+              return (
+                <AdvancedMarker
+                  key={place._id}
+                  position={position}
+                  onClick={() => {
+                    setSelectedLocation({
+                      id: place._id,
+                      name: place.name,
+                      rating: place.rating || 0,
+                      reviews: place.totalReview || 0,
+                      type: place.category?.name || "Point of Interest",
+                      image: getImageUrl(place.images?.[0]),
+                      description:
+                        place.description || "No description available.",
+                    });
+                  }}
+                />
+              );
+            })}
+
             {/* Categories panel — top-left overlay via MapControl */}
             <MapControl position={ControlPosition.TOP_LEFT}>
               <div className="m-3">
@@ -231,6 +281,14 @@ export default function MapPage() {
             </MapControl>
           </Map>
         </APIProvider>
+
+        {/* Location Dialog Overlay */}
+        {selectedLocation && (
+          <LocationDialog
+            location={selectedLocation}
+            onClose={() => setSelectedLocation(null)}
+          />
+        )}
       </div>
     </div>
   );

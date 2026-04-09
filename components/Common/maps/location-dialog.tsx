@@ -5,7 +5,7 @@ import { Heart, Star, X } from "lucide-react";
 import Link from "next/link";
 
 type Marker = {
-  id: number;
+  id: string;
   name: string;
   rating: number;
   reviews: number;
