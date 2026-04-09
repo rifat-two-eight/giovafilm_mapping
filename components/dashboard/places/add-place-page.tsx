@@ -1,6 +1,5 @@
 "use client";
 
-
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,6 +26,7 @@ import {
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
 // Must live inside <APIProvider> so useMap() works.

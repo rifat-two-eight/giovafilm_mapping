@@ -144,7 +144,7 @@ export const PlaceInfoWindow = ({
 
   return (
     <InfoWindow position={position} onCloseClick={onClose} headerDisabled>
-      <div className="w-[500px] max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300 font-arial">
+      <div className="w-[650px] max-w-[650px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300 font-arial">
         {/* Navigation Header */}
         <div className="bg-white border-b border-gray-200 px-2 overflow-x-auto no-scrollbar">
           <div className="flex items-center min-w-max">
@@ -470,22 +470,6 @@ export const PlaceInfoWindow = ({
               </Button>
             </div>
           )}
-
-          {/* {activeTab === 5 && (
-            <div className="h-[200px] flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-500">
-              <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-400">
-                <Music size={32} />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-gray-800">
-                  Review Management
-                </p>
-                <p className="text-xs text-gray-400">
-                  Placeholder for review management system UI
-                </p>
-              </div>
-            </div>
-          )} */}
         </div>
 
         {/* Footer Actions */}
@@ -531,7 +515,7 @@ export const PlaceInfoWindow = ({
           padding: 0 !important;
           border-radius: 20px !important;
           background: white !important;
-          max-width: 800px !important;
+          max-width: 650px !important;
           overflow: auto !important;
         }
         .gm-style-iw-tc::after {
