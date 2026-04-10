@@ -21,6 +21,14 @@ const offerApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Offer"],
     }),
+    updateOffer: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/offer/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Offer"],
+    }),
   }),
 });
 
@@ -28,4 +36,5 @@ export const {
   useGetOffersQuery,
   useCreateOfferMutation,
   useDeleteOfferMutation,
+  useUpdateOfferMutation,
 } = offerApi;

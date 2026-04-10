@@ -5,7 +5,7 @@ import { useDeleteOfferMutation, useGetOffersQuery } from "@/redux/features/offe
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 
-export function OffersTable() {
+export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const [deleteOffer] = useDeleteOfferMutation();
 
@@ -144,6 +144,7 @@ export function OffersTable() {
                     <div className="flex items-center gap-3">
                       {/* Edit */}
                       <button
+                        onClick={() => onEdit?.(offer)}
                         className="text-blue-500 hover:text-blue-700 transition-colors"
                         aria-label="Edit offer"
                       >

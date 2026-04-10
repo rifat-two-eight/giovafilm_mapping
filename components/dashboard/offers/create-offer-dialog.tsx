@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
+import { useCreateOfferMutation, useUpdateOfferMutation } from "@/redux/features/offer/offerApi";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { toast } from "sonner";
+import { getImageUrl } from "@/lib/utils";
 
 interface CreateOfferDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialData?: any;
 }
 
 interface FormData {
@@ -31,21 +36,50 @@ interface FormData {
   photo: FileList;
 }
 
-import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
-import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
-import { toast } from "sonner";
-
 export function CreateOfferDialog({
   open,
   onOpenChange,
+  initialData,
 }: CreateOfferDialogProps) {
-  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>();
-  const [createOffer, { isLoading }] = useCreateOfferMutation();
+  const isEdit = !!initialData;
+  const { register, handleSubmit, reset, setValue } = useForm<FormData>();
+  const [createOffer, { isLoading: isCreating }] = useCreateOfferMutation();
+  const [updateOffer, { isLoading: isUpdating }] = useUpdateOfferMutation();
   const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
   const places = placesRes?.data || [];
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        title: initialData.title,
+        place: initialData.place?._id || initialData.place,
+        description: initialData.description,
+        discountType: initialData.discountType,
+        discountValue: initialData.discountValue.toString(),
+        validFrom: initialData.validFrom ? new Date(initialData.validFrom).toISOString().split('T')[0] : "",
+        validUntil: initialData.validUntil ? new Date(initialData.validUntil).toISOString().split('T')[0] : "",
+        redemptionRules: initialData.redemptionRules,
+        buttonLabel: initialData.buttonLabel,
+      });
+      setPreview(getImageUrl(initialData.photo));
+    } else {
+      reset({
+        title: "",
+        place: "",
+        description: "",
+        discountType: "",
+        discountValue: "",
+        validFrom: "",
+        validUntil: "",
+        redemptionRules: "",
+        buttonLabel: "",
+      });
+      setPreview(null);
+    }
+  }, [initialData, reset, open]);
 
   const openFileWindow = () => {
     fileRef.current?.click();
@@ -83,7 +117,7 @@ export function CreateOfferDialog({
         redemptionRules: data.redemptionRules,
         buttonLabel: data.buttonLabel,
         status: "Active",
-        redemptionsCount: 0,
+        redemptionsCount: isEdit ? initialData.redemptionsCount : 0,
       };
 
       const formDataPayload = new FormData();
@@ -93,24 +127,31 @@ export function CreateOfferDialog({
         formDataPayload.append("images", data.photo[0]);
       }
 
-      await createOffer(formDataPayload).unwrap();
+      if (isEdit) {
+        await updateOffer({ id: initialData._id, data: formDataPayload }).unwrap();
+        toast.success("Offer updated successfully!");
+      } else {
+        await createOffer(formDataPayload).unwrap();
+        toast.success("Offer created successfully!");
+      }
       
-      toast.success("Offer created successfully!");
       onOpenChange(false);
       reset();
       setPreview(null);
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to create offer");
-      console.error("Failed to create offer:", error);
+      toast.error(error?.data?.message || `Failed to ${isEdit ? 'update' : 'create'} offer`);
+      console.error(`Failed to ${isEdit ? 'update' : 'create'} offer:`, error);
     }
   };
+
+  const isLoading = isCreating || isUpdating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Create New Offer
+            {isEdit ? "Update Offer" : "Create New Offer"}
           </DialogTitle>
         </DialogHeader>
 
@@ -177,7 +218,7 @@ export function CreateOfferDialog({
               id="title"
               placeholder="e.g., 20% off Coffee"
               className="mt-1"
-              {...register("title")}
+              {...register("title", { required: "Title is required" })}
             />
           </div>
 
@@ -214,9 +255,9 @@ export function CreateOfferDialog({
             <textarea
               id="description"
               placeholder="Describe the offer..."
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
               rows={4}
-              {...register("description")}
+              {...register("description", { required: "Description is required" })}
             />
           </div>
 
@@ -232,7 +273,7 @@ export function CreateOfferDialog({
               <select
                 id="discountType"
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register("discountType")}
+                {...register("discountType", { required: "Type is required" })}
               >
                 <option value="">Select discount type</option>
                 <option value="Percentage">Percentage</option>
@@ -251,9 +292,17 @@ export function CreateOfferDialog({
               </Label>
               <Input
                 id="discountValue"
+                type="number"
+                min={0}
                 placeholder="20"
                 className="mt-1"
-                {...register("discountValue")}
+                {...register("discountValue", {
+                  required: "Discount value is required",
+                  min: {
+                    value: 0,
+                    message: "Discount cannot be negative",
+                  },
+                })}
               />
             </div>
           </div>
@@ -271,7 +320,7 @@ export function CreateOfferDialog({
                 id="validFrom"
                 type="date"
                 className="mt-1"
-                {...register("validFrom")}
+                {...register("validFrom", { required: "Start date is required" })}
               />
             </div>
 
@@ -286,7 +335,7 @@ export function CreateOfferDialog({
                 id="validUntil"
                 type="date"
                 className="mt-1"
-                {...register("validUntil")}
+                {...register("validUntil", { required: "End date is required" })}
               />
             </div>
           </div>
@@ -302,7 +351,7 @@ export function CreateOfferDialog({
             <textarea
               id="redemptionRules"
               placeholder="e.g., One per user..."
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
               rows={3}
               {...register("redemptionRules")}
             />
@@ -343,7 +392,7 @@ export function CreateOfferDialog({
               {isLoading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               )}
-              {isLoading ? "Saving..." : "Save Offer"}
+              {isLoading ? "Saving..." : isEdit ? "Update Offer" : "Save Offer"}
             </Button>
           </div>
         </form>

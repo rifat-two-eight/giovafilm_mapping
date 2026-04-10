@@ -8,6 +8,18 @@ import { useState } from "react";
 
 export default function page() {
   const [open, setOpen] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+
+  const handleOpenCreate = () => {
+    setEditData(null);
+    setOpen(true);
+  };
+
+  const handleOpenEdit = (offer: any) => {
+    setEditData(offer);
+    setOpen(true);
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen ">
       {/* Header */}
@@ -15,7 +27,7 @@ export default function page() {
         <h1 className="text-2xl font-semibold text-gray-800">Offers</h1>
 
         <Button
-          onClick={() => setOpen(true)}
+          onClick={handleOpenCreate}
           className="bg-primary/80 hover:bg-primary text-black flex items-center gap-2"
         >
           <Plus size={20} />
@@ -24,10 +36,14 @@ export default function page() {
       </div>
 
       {/* Table */}
-      <OffersTable />
+      <OffersTable onEdit={handleOpenEdit} />
 
-      {/* Create Offer Dialog */}
-      <CreateOfferDialog open={open} onOpenChange={setOpen} />
+      {/* Create / Edit Offer Dialog */}
+      <CreateOfferDialog
+        open={open}
+        onOpenChange={setOpen}
+        initialData={editData}
+      />
     </div>
   );
 }
