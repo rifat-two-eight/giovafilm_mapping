@@ -31,11 +31,18 @@ interface FormData {
   photo: FileList;
 }
 
+import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { toast } from "sonner";
+
 export function CreateOfferDialog({
   open,
   onOpenChange,
 }: CreateOfferDialogProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormData>();
+  const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>();
+  const [createOffer, { isLoading }] = useCreateOfferMutation();
+  const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
+  const places = placesRes?.data || [];
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -63,16 +70,39 @@ export function CreateOfferDialog({
     }
   };
 
-  const onSubmit = (data: FormData) => {
-    console.log("Saving offer:", data);
+  const onSubmit = async (data: FormData) => {
+    try {
+      const offerData = {
+        title: data.title,
+        place: data.place,
+        description: data.description,
+        discountType: data.discountType,
+        discountValue: Number(data.discountValue) || 0,
+        validFrom: new Date(data.validFrom).toISOString(),
+        validUntil: new Date(data.validUntil).toISOString(),
+        redemptionRules: data.redemptionRules,
+        buttonLabel: data.buttonLabel,
+        status: "Active",
+        redemptionsCount: 0,
+      };
 
-    if (data.photo && data.photo.length > 0) {
-      console.log("Uploaded file:", data.photo[0]);
+      const formDataPayload = new FormData();
+      formDataPayload.append("data", JSON.stringify(offerData));
+
+      if (data.photo && data.photo.length > 0) {
+        formDataPayload.append("images", data.photo[0]);
+      }
+
+      await createOffer(formDataPayload).unwrap();
+      
+      toast.success("Offer created successfully!");
+      onOpenChange(false);
+      reset();
+      setPreview(null);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to create offer");
+      console.error("Failed to create offer:", error);
     }
-
-    onOpenChange(false);
-    reset();
-    setPreview(null);
   };
 
   return (
@@ -159,12 +189,18 @@ export function CreateOfferDialog({
             >
               Place
             </Label>
-            <Input
+            <select
               id="place"
-              placeholder="Select or enter place name"
-              className="mt-1"
-              {...register("place")}
-            />
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              {...register("place", { required: "Place is required" })}
+            >
+              <option value="">Select a place</option>
+              {places.map((p: any) => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Offer Description */}
@@ -199,10 +235,10 @@ export function CreateOfferDialog({
                 {...register("discountType")}
               >
                 <option value="">Select discount type</option>
-                <option value="percentage">Percentage</option>
-                <option value="fixed">Fixed Amount</option>
-                <option value="bogo">Buy One Get One</option>
-                <option value="free">Free Item</option>
+                <option value="Percentage">Percentage</option>
+                <option value="Flat">Flat Amount</option>
+                <option value="BOGO">Buy One Get One (BOGO)</option>
+                <option value="Free item">Free Item</option>
               </select>
             </div>
 
@@ -301,9 +337,13 @@ export function CreateOfferDialog({
 
             <Button
               type="submit"
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={isLoading}
+              className="bg-purple-600 hover:bg-purple-700 text-white min-w-32 flex items-center justify-center gap-2"
             >
-              Save Offer
+              {isLoading && (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+              {isLoading ? "Saving..." : "Save Offer"}
             </Button>
           </div>
         </form>

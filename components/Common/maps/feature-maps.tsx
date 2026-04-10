@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { getImageUrl } from "@/lib/utils";
 
 export const MAP_CARDS = [
   {
@@ -57,6 +59,9 @@ export const MAP_CARDS = [
 ];
 
 export default function FeaturedMaps() {
+  const { data: mapsRes, isLoading } = useGetMapsQuery({ limit: 4 });
+  const maps = mapsRes?.data || [];
+
   return (
     <div className="bg-gray-50 py-10 font-inter">
       <div className="max-w-360 mx-auto px-4 md:px-6">
@@ -70,55 +75,66 @@ export default function FeaturedMaps() {
                 Explore the best walking tours curated by professionals.
               </p>
             </div>
-            <button className="text-black font-bold flex justify-between items-center">
-              View All <ArrowRight />
-            </button>
+            <Link href="/catalog">
+              <button className="text-black font-bold flex justify-between items-center bg-transparent border-none cursor-pointer">
+                View All <ArrowRight className="ml-2" />
+              </button>
+            </Link>
           </div>
 
           <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7`}
           >
-            {MAP_CARDS?.map((card) => (
-              <motion.div
-                key={card.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: card.id * 0.05 }}
-                //   onClick={() => onNavigate("details")}
-                className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
-              >
-                {/* Image Container */}
-                <div className="relative h-64 mb-2">
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                  <button className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
-                    <Heart className="w-4 h-4 text-[#FFC107]" />
-                  </button>
-                </div>
-
-                {/* Card Details */}
-                <div className="p-3 flex flex-col flex-1">
-                  <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-[#9E9E9E] mb-2">{card.subtitle}</p>
-                  <div className="mt-auto">
-                    <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
-                      {card.price}
-                    </span>
-                    <Link href={`/catalog/${card.id}`}>
-                      <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer">
-                        Buy Now
-                      </Button>
-                    </Link>
+            {isLoading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-2xl" />
+              ))
+            ) : maps.length === 0 ? (
+              <p className="col-span-full text-center text-gray-500 py-10">No featured maps found.</p>
+            ) : (
+              maps.map((map: any) => (
+                <motion.div
+                  key={map._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
+                >
+                  {/* Image Container */}
+                  <div className="relative h-64 mb-2">
+                    <img
+                      src={getImageUrl(map.images?.[0])}
+                      alt={map.name}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
+                      <Heart className="w-4 h-4 text-[#FFC107]" />
+                    </button>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* Card Details */}
+                  <div className="p-3 flex flex-col flex-1">
+                    <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
+                      {map.name}
+                    </h3>
+                    <p className="text-sm text-[#9E9E9E] mb-2 line-clamp-2">
+                      {map.description || "Explore the best of the city with this curated guide."}
+                    </p>
+                    <div className="mt-auto">
+                      <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
+                        ${map.price || "0.00"}
+                      </span>
+                      <Link href={`/catalog/${map._id}`}>
+                        <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
+                          Buy Now
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </div>

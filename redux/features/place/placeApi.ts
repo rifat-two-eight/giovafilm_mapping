@@ -11,7 +11,13 @@ type GetPlacesArgs = {
 const placeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPlaces: builder.query<any, GetPlacesArgs>({
-      query: ({ page = 1, limit = 10, searchTerm = "", status = "", map = "" }) => ({
+      query: ({
+        page = 1,
+        limit = 10,
+        searchTerm = "",
+        status = "",
+        map = "",
+      }) => ({
         url: `/place?page=${page}&limit=${limit}&searchTerm=${searchTerm}&status=${status}&map=${map}`,
         method: "GET",
       }),
@@ -42,4 +48,9 @@ const placeApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetPlacesQuery, useGetPlaceDetailsQuery, useCreatePlaceMutation, useDeletePlaceMutation } = placeApi;
+export const {
+  useGetPlacesQuery,
+  useGetPlaceDetailsQuery,
+  useCreatePlaceMutation,
+  useDeletePlaceMutation,
+} = placeApi;

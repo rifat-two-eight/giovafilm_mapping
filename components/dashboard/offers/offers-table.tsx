@@ -1,58 +1,43 @@
 "use client";
 
 import { Edit, Pause, Play, Trash2 } from "lucide-react";
-
-interface Offer {
-  id: string;
-  title: string;
-  place: string;
-  discount: string;
-  validUntil: string;
-  status: "Active" | "Paused" | "Expired";
-  redemptions: number;
-}
-
-const offersData: Offer[] = [
-  {
-    id: "1",
-    title: "20% off Coffee",
-    place: "Cafe Mocha",
-    discount: "20%",
-    validUntil: "2026-03-15",
-    status: "Active",
-    redemptions: 42,
-  },
-  {
-    id: "2",
-    title: "Free Dessert",
-    place: "Bella Italia",
-    discount: "Free item",
-    validUntil: "2026-02-28",
-    status: "Active",
-    redemptions: 18,
-  },
-  {
-    id: "3",
-    title: "$5 off Entry",
-    place: "Modern Art Museum",
-    discount: "$5",
-    validUntil: "2026-01-31",
-    status: "Expired",
-    redemptions: 156,
-  },
-  {
-    id: "4",
-    title: "Buy 1 Get 1 Free",
-    place: "Pizza Paradise",
-    discount: "BOGO",
-    validUntil: "2026-04-30",
-    status: "Paused",
-    redemptions: 8,
-  },
-];
+import { useDeleteOfferMutation, useGetOffersQuery } from "@/redux/features/offer/offerApi";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 export function OffersTable() {
-  const getStatusColor = (status: Offer["status"]) => {
+  const { data: offersRes, isLoading } = useGetOffersQuery({});
+  const [deleteOffer] = useDeleteOfferMutation();
+
+  const offersData = offersRes?.data || [];
+
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteOffer(id).unwrap();
+          Swal.fire({
+            title: "Deleted!",
+            text: "The offer has been deleted.",
+            icon: "success",
+            confirmButtonColor: "#A855F7",
+          });
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Failed to delete offer");
+        }
+      }
+    });
+  };
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
         return "bg-green-100 text-green-800";
@@ -60,6 +45,8 @@ export function OffersTable() {
         return "bg-yellow-100 text-yellow-800";
       case "Expired":
         return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   };
 
@@ -96,86 +83,105 @@ export function OffersTable() {
 
           {/* Body */}
           <tbody>
-            {offersData.map((offer, index) => (
-              <tr
-                key={offer.id}
-                className={`${
-                  index !== offersData.length - 1
-                    ? "border-b border-gray-100"
-                    : ""
-                } hover:bg-gray-50 transition-colors`}
-              >
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                  {offer.title}
-                </td>
-
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {offer.place}
-                </td>
-
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {offer.discount}
-                </td>
-
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {offer.validUntil}
-                </td>
-
-                <td className="px-6 py-4 text-sm">
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      offer.status,
-                    )}`}
-                  >
-                    {offer.status}
-                  </span>
-                </td>
-
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {offer.redemptions}
-                </td>
-
-                {/* Actions */}
-                <td className="px-6 py-4 text-sm">
-                  <div className="flex items-center gap-3">
-                    {/* Edit */}
-                    <button
-                      className="text-blue-500 hover:text-blue-700 transition-colors"
-                      aria-label="Edit offer"
-                    >
-                      <Edit size={18} />
-                    </button>
-
-                    {/* Pause / Resume */}
-                    {offer.status === "Active" && (
-                      <button
-                        className="text-orange-500 hover:text-orange-700"
-                        aria-label="Pause offer"
-                      >
-                        <Pause size={18} />
-                      </button>
-                    )}
-
-                    {offer.status === "Paused" && (
-                      <button
-                        className="text-green-600 hover:text-green-700"
-                        aria-label="Resume offer"
-                      >
-                        <Play size={18} />
-                      </button>
-                    )}
-
-                    {/* Delete */}
-                    <button
-                      className="text-red-500 hover:text-red-700 transition-colors"
-                      aria-label="Delete offer"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+            {isLoading ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-10 text-center text-gray-400">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    Loading offers...
                   </div>
                 </td>
               </tr>
-            ))}
+            ) : offersData.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                  No offers found. Create one to get started!
+                </td>
+              </tr>
+            ) : (
+              offersData.map((offer: any, index: number) => (
+                <tr
+                  key={offer._id}
+                  className={`${
+                    index !== offersData.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
+                  } hover:bg-gray-50 transition-colors`}
+                >
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    {offer.title}
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {offer.place?.name || "N/A"}
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {offer.discountValue}
+                    {offer.discountType === "Percentage" ? "%" : ""}
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {new Date(offer.validUntil).toLocaleDateString()}
+                  </td>
+
+                  <td className="px-6 py-4 text-sm">
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        offer.status,
+                      )}`}
+                    >
+                      {offer.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {offer.redemptionsCount || 0}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-4 text-sm">
+                    <div className="flex items-center gap-3">
+                      {/* Edit */}
+                      <button
+                        className="text-blue-500 hover:text-blue-700 transition-colors"
+                        aria-label="Edit offer"
+                      >
+                        <Edit size={18} />
+                      </button>
+
+                      {/* Pause / Resume */}
+                      {offer.status === "Active" && (
+                        <button
+                          className="text-orange-500 hover:text-orange-700"
+                          aria-label="Pause offer"
+                        >
+                          <Pause size={18} />
+                        </button>
+                      )}
+
+                      {offer.status === "Paused" && (
+                        <button
+                          className="text-green-600 hover:text-green-700"
+                          aria-label="Resume offer"
+                        >
+                          <Play size={18} />
+                        </button>
+                      )}
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => handleDelete(offer._id)}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        aria-label="Delete offer"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
