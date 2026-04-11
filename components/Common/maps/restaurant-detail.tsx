@@ -5,107 +5,29 @@ import { ChevronRight, HelpCircle, Star } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface OfferData {
-  id: string;
-  title: string;
-  place: string;
-  location: string;
-  discount: string;
-  discountType: string;
-  description: string;
-  image: string;
-  rating: number;
-  reviews: number;
-  validFrom: string;
-  validUntil: string;
-  redemptionRules: string[];
-  offerCode: string;
-  timeLeft?: string;
-}
-
-const OFFERS_DATA: Record<string, OfferData> = {
-  "1": {
-    id: "1",
-    title: "20% off Coffee",
-    place: "Cafe Mocha",
-    location: "Downtown, City",
-    discount: "20%",
-    discountType: "OFF",
-    description:
-      "Enjoy a 20% discount on your entire bill when you visit us. Experience premium coffee with freshly roasted beans and artisan pastries in a cozy café setting.",
-    image:
-      "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=500&fit=crop",
-    rating: 4.5,
-    reviews: 87,
-    validFrom: "Jan 15, 2024",
-    validUntil: "Mar 15, 2026",
-    redemptionRules: [
-      "One redemption per user",
-      "Valid for all days",
-      "Cannot combine with other promotions",
-    ],
-    offerCode: "CAFE-MC-2024",
-    timeLeft: "14:06",
-  },
-  "2": {
-    id: "2",
-    title: "10% OFF",
-    place: "Gourmet Garden Bistro",
-    location: "Old San Juan, Puerto Rico",
-    discount: "10%",
-    discountType: "OFF",
-    description:
-      "Enjoy a 10% discount on your entire bill when you dine with us. Experience the best of local ingredients in a beautiful garden setting, where modern culinary techniques meet traditional Puerto Rican flavors.",
-    image:
-      "https://images.unsplash.com/photo-1517457373614-b7152f800fd1?w=800&h=500&fit=crop",
-    rating: 4.8,
-    reviews: 120,
-    validFrom: "Oct 01, 2023",
-    validUntil: "Dec 31, 2023",
-    redemptionRules: [
-      "One redemption per user",
-      "Valid for weekdays only (Mon-Fri)",
-      "Cannot combine with other promotions",
-    ],
-    offerCode: "RDTR-Q6-1023",
-    timeLeft: "14:06",
-  },
-  "3": {
-    id: "3",
-    title: "Free Dessert",
-    place: "Bella Italia",
-    location: "Historic District",
-    discount: "Free item",
-    discountType: "FREE",
-    description:
-      "Get a complimentary dessert with any main course purchase. Enjoy authentic Italian cuisine with house-made pasta and traditional recipes passed down through generations.",
-    image:
-      "https://images.unsplash.com/photo-1414235077418-8ea6b8f0c9f9?w=800&h=500&fit=crop",
-    rating: 4.6,
-    reviews: 203,
-    validFrom: "Feb 01, 2024",
-    validUntil: "Feb 28, 2026",
-    redemptionRules: [
-      "One redemption per user",
-      "Valid for weekdays and weekends",
-      "Cannot combine with other promotions",
-    ],
-    offerCode: "BELLA-IT-2024",
-  },
-};
+import { useGetSingleOfferQuery } from "@/redux/features/offer/offerApi";
+import { getImageUrl } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RestaurantDetail() {
   const params = useParams();
   const pathname = usePathname();
   const offerId = params.id as string;
-  const offer = OFFERS_DATA[offerId] || OFFERS_DATA["2"];
-  const [timeLeft, setTimeLeft] = useState(offer.timeLeft || "14:06");
+
+  const { data: offerRes, isLoading } = useGetSingleOfferQuery(offerId, {
+    skip: !offerId,
+  });
+  const offer = offerRes?.data;
+
+  console.log("offer", offer);
+
+  const [timeLeft, setTimeLeft] = useState("14:06");
 
   // Check if the current path is from /maps
   const isFromMaps = pathname?.startsWith("/maps");
 
   useEffect(() => {
+    if (!offer) return;
     // Simulate countdown timer
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -124,7 +46,41 @@ export default function RestaurantDetail() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [offer]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <Skeleton className="h-8 w-48 mb-6" />
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-96 w-full rounded-2xl" />
+              <Skeleton className="h-20 w-3/4" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+            <div className="space-y-6">
+              <Skeleton className="h-80 w-full rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!offer) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-bold">Offer not found</p>
+      </div>
+    );
+  }
+
+  const redemptionRules = offer.redemptionRules || [
+    "One redemption per user",
+    "Valid for all days",
+    "Cannot combine with other promotions",
+  ];
 
   return (
     <div className="bg-gray-50 py-4 sm:py-6 md:py-8 pb-10 sm:pb-12 md:pb-14">
@@ -141,7 +97,7 @@ export default function RestaurantDetail() {
               </Link>
               <span className="text-gray-400">/</span>
               <span className="text-gray-700 font-medium line-clamp-1">
-                {offer.place}
+                {offer.place?.name}
               </span>
             </div>
           </div>
@@ -155,8 +111,8 @@ export default function RestaurantDetail() {
               {/* Hero Image with Rating */}
               <div className="relative rounded-t-xl sm:rounded-t-2xl overflow-hidden h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-200">
                 <img
-                  src={offer.image}
-                  alt={offer.place}
+                  src={getImageUrl(offer.media?.[0])}
+                  alt={offer.place?.name}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -164,7 +120,7 @@ export default function RestaurantDetail() {
                 <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1 shadow-md">
                   <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs sm:text-sm font-semibold text-gray-900">
-                    {offer.rating} ({offer.reviews} reviews)
+                    4.5 (87 reviews)
                   </span>
                 </div>
               </div>
@@ -175,14 +131,16 @@ export default function RestaurantDetail() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="space-y-1 sm:space-y-2">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
-                        {offer.place}
+                        {offer.place?.name}
                       </h1>
                       <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 break-words">
-                        <span>📍</span> {offer.location}
+                        <span>📍</span>{" "}
+                        {offer.place?.address || "Location not specified"}
                       </p>
                     </div>
                     <div className="bg-yellow-100 text-gray-900 font-bold px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full text-base sm:text-lg md:text-xl inline-block w-fit">
-                      {offer.discount} {offer.discountType}
+                      {offer.discountValue}
+                      {offer.discountType === "Percentage" ? "%" : ""} OFF
                     </div>
                   </div>
                 </div>
@@ -209,7 +167,7 @@ export default function RestaurantDetail() {
                             FROM
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
-                            {offer.validFrom}
+                            {new Date(offer.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -220,7 +178,7 @@ export default function RestaurantDetail() {
                             UNTIL
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
-                            {offer.validUntil}
+                            {new Date(offer.validUntil).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -233,7 +191,7 @@ export default function RestaurantDetail() {
                       Redemption Rules
                     </h3>
                     <div className="space-y-2 sm:space-y-3">
-                      {offer.redemptionRules.map((rule, idx) => (
+                      {/* {redemptionRules.map((rule: string, idx: number) => (
                         <div
                           key={idx}
                           className="flex items-start gap-2 sm:gap-3"
@@ -245,7 +203,7 @@ export default function RestaurantDetail() {
                             {rule}
                           </p>
                         </div>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                 </div>
@@ -280,7 +238,7 @@ export default function RestaurantDetail() {
                     <p className="text-xs sm:text-sm text-gray-600">
                       Present this screen to the staff member at{" "}
                       <span className="font-semibold break-words">
-                        {offer.place}
+                        {offer.place?.name}
                       </span>{" "}
                       to validate your redemption.
                     </p>
