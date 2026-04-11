@@ -11,8 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
-import { useCreateOfferMutation, useUpdateOfferMutation } from "@/redux/features/offer/offerApi";
+import { Upload, X } from "lucide-react";
+import {
+  useCreateOfferMutation,
+  useUpdateOfferMutation,
+} from "@/redux/features/offer/offerApi";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
@@ -31,9 +34,7 @@ interface FormData {
   discountValue: string;
   validFrom: string;
   validUntil: string;
-  redemptionRules: string;
   buttonLabel: string;
-  photo: FileList;
 }
 
 export function CreateOfferDialog({
@@ -42,15 +43,38 @@ export function CreateOfferDialog({
   initialData,
 }: CreateOfferDialogProps) {
   const isEdit = !!initialData;
-  const { register, handleSubmit, reset, setValue } = useForm<FormData>();
+  const { register, handleSubmit, reset } = useForm<FormData>();
   const [createOffer, { isLoading: isCreating }] = useCreateOfferMutation();
   const [updateOffer, { isLoading: isUpdating }] = useUpdateOfferMutation();
   const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
   const places = placesRes?.data || [];
 
+  // ── Image state — managed manually, NOT via register ─────────────────────
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
+  // ── Redemption rules state ────────────────────────────────────────────────
+  const [ruleInput, setRuleInput] = useState("");
+  const [ruleError, setRuleError] = useState("");
+  const [rules, setRules] = useState<string[]>([]);
+
+  const handleAddRule = () => {
+    const trimmed = ruleInput.trim();
+    if (!trimmed) {
+      setRuleError("Please enter a redemption rule before adding.");
+      return;
+    }
+    setRules((prev) => [...prev, trimmed]);
+    setRuleInput("");
+    setRuleError("");
+  };
+
+  const handleRemoveRule = (index: number) => {
+    setRules((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ── Populate form when editing ────────────────────────────────────────────
   useEffect(() => {
     if (initialData) {
       reset({
@@ -59,12 +83,23 @@ export function CreateOfferDialog({
         description: initialData.description,
         discountType: initialData.discountType,
         discountValue: initialData.discountValue.toString(),
-        validFrom: initialData.validFrom ? new Date(initialData.validFrom).toISOString().split('T')[0] : "",
-        validUntil: initialData.validUntil ? new Date(initialData.validUntil).toISOString().split('T')[0] : "",
-        redemptionRules: initialData.redemptionRules,
+        validFrom: initialData.validFrom
+          ? new Date(initialData.validFrom).toISOString().split("T")[0]
+          : "",
+        validUntil: initialData.validUntil
+          ? new Date(initialData.validUntil).toISOString().split("T")[0]
+          : "",
         buttonLabel: initialData.buttonLabel,
       });
       setPreview(getImageUrl(initialData.photo));
+      setPhotoFile(null);
+      setRules(
+        Array.isArray(initialData.redemptionRules)
+          ? initialData.redemptionRules
+          : initialData.redemptionRules
+            ? [initialData.redemptionRules]
+            : [],
+      );
     } else {
       reset({
         title: "",
@@ -74,34 +109,32 @@ export function CreateOfferDialog({
         discountValue: "",
         validFrom: "",
         validUntil: "",
-        redemptionRules: "",
         buttonLabel: "",
       });
       setPreview(null);
+      setPhotoFile(null);
+      setRules([]);
+      setRuleInput("");
+      setRuleError("");
     }
   }, [initialData, reset, open]);
 
-  const openFileWindow = () => {
-    fileRef.current?.click();
-  };
+  const openFileWindow = () => fileRef.current?.click();
 
+  // Store the actual File object in state so it's always available in onSubmit
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (file) {
+      setPhotoFile(file);
       setPreview(URL.createObjectURL(file));
-      setValue("photo", e.target.files as FileList);
     }
   };
 
   const removePhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPreview(null);
-    setValue("photo", undefined as any);
-
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
+    setPhotoFile(null);
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   const onSubmit = async (data: FormData) => {
@@ -114,7 +147,7 @@ export function CreateOfferDialog({
         discountValue: Number(data.discountValue) || 0,
         validFrom: new Date(data.validFrom).toISOString(),
         validUntil: new Date(data.validUntil).toISOString(),
-        redemptionRules: data.redemptionRules,
+        redemptionRules: rules,
         buttonLabel: data.buttonLabel,
         status: "Active",
         redemptionsCount: isEdit ? initialData.redemptionsCount : 0,
@@ -123,24 +156,35 @@ export function CreateOfferDialog({
       const formDataPayload = new FormData();
       formDataPayload.append("data", JSON.stringify(offerData));
 
-      if (data.photo && data.photo.length > 0) {
-        formDataPayload.append("images", data.photo[0]);
+      // Append the file directly from state — not from react-hook-form
+      if (photoFile) {
+        formDataPayload.append("images", photoFile);
       }
 
       if (isEdit) {
-        await updateOffer({ id: initialData._id, data: formDataPayload }).unwrap();
+        await updateOffer({
+          id: initialData._id,
+          data: formDataPayload,
+        }).unwrap();
         toast.success("Offer updated successfully!");
       } else {
-        await createOffer(formDataPayload).unwrap();
+        const res = await createOffer(formDataPayload).unwrap();
         toast.success("Offer created successfully!");
+        console.log("create offer response", res);
       }
-      
+
       onOpenChange(false);
       reset();
       setPreview(null);
+      setPhotoFile(null);
+      setRules([]);
+      setRuleInput("");
     } catch (error: any) {
-      toast.error(error?.data?.message || `Failed to ${isEdit ? 'update' : 'create'} offer`);
-      console.error(`Failed to ${isEdit ? 'update' : 'create'} offer:`, error);
+      toast.error(
+        error?.data?.message ||
+          `Failed to ${isEdit ? "update" : "create"} offer`,
+      );
+      console.error(`Failed to ${isEdit ? "update" : "create"} offer:`, error);
     }
   };
 
@@ -173,7 +217,6 @@ export function CreateOfferDialog({
                     alt="preview"
                     className="mx-auto max-h-48 rounded-md"
                   />
-
                   <button
                     type="button"
                     onClick={removePhoto}
@@ -192,15 +235,12 @@ export function CreateOfferDialog({
                 </>
               )}
 
+              {/* Plain file input — no register() spread to avoid ref/onChange conflicts */}
               <input
                 type="file"
                 className="hidden"
                 accept="image/*"
-                {...register("photo")}
-                ref={(e) => {
-                  register("photo").ref(e);
-                  fileRef.current = e;
-                }}
+                ref={fileRef}
                 onChange={handleFileChange}
               />
             </div>
@@ -257,7 +297,9 @@ export function CreateOfferDialog({
               placeholder="Describe the offer..."
               className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
               rows={4}
-              {...register("description", { required: "Description is required" })}
+              {...register("description", {
+                required: "Description is required",
+              })}
             />
           </div>
 
@@ -298,10 +340,7 @@ export function CreateOfferDialog({
                 className="mt-1"
                 {...register("discountValue", {
                   required: "Discount value is required",
-                  min: {
-                    value: 0,
-                    message: "Discount cannot be negative",
-                  },
+                  min: { value: 0, message: "Discount cannot be negative" },
                 })}
               />
             </div>
@@ -320,7 +359,9 @@ export function CreateOfferDialog({
                 id="validFrom"
                 type="date"
                 className="mt-1"
-                {...register("validFrom", { required: "Start date is required" })}
+                {...register("validFrom", {
+                  required: "Start date is required",
+                })}
               />
             </div>
 
@@ -335,7 +376,9 @@ export function CreateOfferDialog({
                 id="validUntil"
                 type="date"
                 className="mt-1"
-                {...register("validUntil", { required: "End date is required" })}
+                {...register("validUntil", {
+                  required: "End date is required",
+                })}
               />
             </div>
           </div>
@@ -348,13 +391,59 @@ export function CreateOfferDialog({
             >
               Redemption Rules
             </Label>
-            <textarea
-              id="redemptionRules"
-              placeholder="e.g., One per user..."
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
-              rows={3}
-              {...register("redemptionRules")}
-            />
+
+            {/* Input row */}
+            <div className="flex gap-2 mt-1">
+              <textarea
+                id="redemptionRules"
+                value={ruleInput}
+                onChange={(e) => {
+                  setRuleInput(e.target.value);
+                  if (e.target.value.trim()) setRuleError("");
+                }}
+                placeholder="e.g., One per user per visit"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                rows={2}
+              />
+              <Button
+                type="button"
+                onClick={handleAddRule}
+                className="self-start bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 h-auto"
+              >
+                Add
+              </Button>
+            </div>
+
+            {/* Inline error */}
+            {ruleError && (
+              <p className="text-sm text-red-500 mt-1">{ruleError}</p>
+            )}
+
+            {/* Added rules list */}
+            {rules.length > 0 && (
+              <ul className="mt-3 space-y-2">
+                {rules.map((rule, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start justify-between gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-2"
+                  >
+                    <span className="text-sm text-gray-700 leading-snug">
+                      <span className="font-medium text-gray-400 mr-2">
+                        {index + 1}.
+                      </span>
+                      {rule}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveRule(index)}
+                      className="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors mt-0.5"
+                    >
+                      <X size={15} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Button Label */}

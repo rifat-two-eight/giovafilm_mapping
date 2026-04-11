@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ChevronRight, HelpCircle, Star } from "lucide-react";
+import {
+  Check,
+  CheckCheckIcon,
+  CheckCircle2,
+  ChevronRight,
+  HelpCircle,
+  Star,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,7 +26,7 @@ export default function RestaurantDetail() {
   });
   const offer = offerRes?.data;
 
-  console.log("offer", offer);
+  console.log("offer", offer?.photo);
 
   const [timeLeft, setTimeLeft] = useState("14:06");
 
@@ -111,7 +118,7 @@ export default function RestaurantDetail() {
               {/* Hero Image with Rating */}
               <div className="relative rounded-t-xl sm:rounded-t-2xl overflow-hidden h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-200">
                 <img
-                  src={getImageUrl(offer.media?.[0])}
+                  src={getImageUrl(offer.photo)}
                   alt={offer.place?.name}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -191,19 +198,18 @@ export default function RestaurantDetail() {
                       Redemption Rules
                     </h3>
                     <div className="space-y-2 sm:space-y-3">
-                      {/* {redemptionRules.map((rule: string, idx: number) => (
+                      {redemptionRules.map((rule: string, idx: number) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-2 sm:gap-3"
+                          className="flex  items-center gap-2 sm:gap-3"
                         >
-                          <div className="text-yellow-500 text-base sm:text-lg mt-0.5">
-                            ✓
-                          </div>
-                          <p className="text-xs sm:text-sm text-gray-700 break-words">
+                          <CheckCircle2 className="size-5 text-yellow-500" />
+
+                          <p className="text-sm sm:text-base text-gray-700">
                             {rule}
                           </p>
                         </div>
-                      ))} */}
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -1,21 +1,15 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Heart, SlidersHorizontal } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
-import { Heart, SlidersHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-import image1 from "@/public/offers-image/Bella Cucina.png";
-import image2 from "@/public/offers-image/Urban Threads.png";
-import image3 from "@/public/offers-image/The Daily Grind.png";
-import image4 from "@/public/offers-image/L'Escale.png";
-import image5 from "@/public/offers-image/Prime Cut.png";
-import image6 from "@/public/offers-image/Gourmet Garden.png";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
-import { getImageUrl } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getImageUrl } from "@/lib/utils";
+import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
+import Link from "next/link";
 
 type Offer = {
   id: number;
@@ -32,6 +26,8 @@ export default function OfferSection() {
 
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
+
+  console.log("offersData", offersData[0].photo);
 
   const filters = ["All", "Near me", "Popular", "New", "Trending", "Favorites"];
 
@@ -121,9 +117,10 @@ export default function OfferSection() {
                   {/* Image */}
                   <div className="relative h-64 w-full">
                     <Image
-                      src={getImageUrl(offer.media?.[0])}
+                      src={getImageUrl(offer?.photo)}
                       alt={offer.title}
-                      fill
+                      width={500}
+                      height={500}
                       className="object-cover"
                     />
 
