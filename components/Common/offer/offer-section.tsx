@@ -27,7 +27,7 @@ export default function OfferSection() {
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
 
-  console.log("offersData", offersData[0].photo);
+  console.log(offersData);
 
   const filters = ["All", "Near me", "Popular", "New", "Trending", "Favorites"];
 
@@ -110,18 +110,20 @@ export default function OfferSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
             const isFavorite = favorites.includes(offer._id);
+            const imageUrl = getImageUrl(offer?.photo);
 
             return (
               <Link key={offer._id} href={`/offer/${offer._id}`}>
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
-                  <div className="relative h-64 w-full">
+                  <div className="relative h-72 w-full">
                     <Image
-                      src={getImageUrl(offer?.photo)}
+                      src={imageUrl}
                       alt={offer.title}
                       width={500}
                       height={500}
-                      className="object-cover"
+                      unoptimized
+                      className="object-cover h-72 w-full"
                     />
 
                     {/* Favorite Button */}
