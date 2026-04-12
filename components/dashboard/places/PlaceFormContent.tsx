@@ -42,6 +42,7 @@ interface PlaceFormContentProps {
     recommendations?: string;
     services?: string[];
     accessibility?: any;
+    images?: string[];
     isNew: boolean;
   };
 }
@@ -64,6 +65,9 @@ export const PlaceFormContent = ({
   const [activeTab, setActiveTab] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(
+    initialData?.images || [],
+  );
   const [previews, setPreviews] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
@@ -101,6 +105,10 @@ export const PlaceFormContent = ({
     });
   };
 
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   useEffect(() => {
     return () => {
       previews.forEach((url) => URL.revokeObjectURL(url));
@@ -112,6 +120,7 @@ export const PlaceFormContent = ({
       ...formData,
       status: publish ? "Published" : "Draft",
       mediaFiles,
+      existingImages,
     });
   };
 
@@ -237,19 +246,45 @@ export const PlaceFormContent = ({
                 </div>
               </div>
 
+              {/* Existing Images (from Server) */}
+              {existingImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  {existingImages.map((url, index) => (
+                    <div
+                      key={`existing-${index}`}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                    >
+                      <img
+                        src={getImageUrl(url)}
+                        alt={`existing-${index}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeExistingImage(index);
+                        }}
+                        className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <CloseIcon size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* New Upload Previews (Blob URLs) */}
               {previews.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {previews.map((url, index) => (
                     <div
-                      key={index}
+                      key={`new-${index}`}
                       className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
                     >
-                      <Image
-                        src={getImageUrl(url)}
+                      <img
+                        src={url} // Raw blob URL
                         alt={`preview-${index}`}
                         className="w-full h-full object-cover"
-                        width={100}
-                        height={100}
                       />
                       <button
                         onClick={(e) => {
