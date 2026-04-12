@@ -2,11 +2,16 @@
 
 import { Edit, Eye, EyeOff, Trash2, Search } from "lucide-react";
 import { useState } from "react";
-import { useGetPlacesQuery, useDeletePlaceMutation } from "@/redux/features/place/placeApi";
+import {
+  useGetPlacesQuery,
+  useDeletePlaceMutation,
+} from "@/redux/features/place/placeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { ViewPlaceModal } from "./view-place-modal";
 
 interface Place {
   _id: string;
@@ -25,16 +30,20 @@ interface Place {
 }
 
 export function PlacesTable() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("");
 
-  const { data: response, isLoading } = useGetPlacesQuery({ 
-    page, 
-    limit, 
-    searchTerm, 
-    status 
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+
+  const { data: response, isLoading } = useGetPlacesQuery({
+    page,
+    limit,
+    searchTerm,
+    status,
   });
   const [deletePlace] = useDeletePlaceMutation();
 
@@ -49,14 +58,16 @@ export function PlacesTable() {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deletePlace(id).unwrap();
           toast.success("Place deleted successfully");
         } catch (error: any) {
-          toast.error(error?.data?.message || error?.message || "Failed to delete place");
+          toast.error(
+            error?.data?.message || error?.message || "Failed to delete place",
+          );
           console.error("Failed to delete place:", error);
         }
       }
@@ -84,7 +95,7 @@ export function PlacesTable() {
       <div className="p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 bg-white">
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input 
+          <Input
             type="text"
             placeholder="Search places..."
             className="pl-9 h-9"
@@ -155,7 +166,9 @@ export function PlacesTable() {
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <div className="flex flex-col">
                       <span>{place.name}</span>
-                      <span className="text-xs text-gray-400 truncate max-w-[200px]">{place.address}</span>
+                      <span className="text-xs text-gray-400 truncate max-w-[200px]">
+                        {place.address}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
@@ -176,30 +189,33 @@ export function PlacesTable() {
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <span>⭐ {place.rating || 0}</span>
-                      <span className="text-gray-400">({place.totalReview || 0})</span>
+                      <span className="text-gray-400">
+                        ({place.totalReview || 0})
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-3">
                       <button
+                        onClick={() =>
+                          router.push(
+                            `/dashboard/places/add-place?editId=${place._id}`,
+                          )
+                        }
                         className="text-blue-500 hover:text-blue-700 transition-colors"
                         aria-label="Edit place"
                       >
                         <Edit size={18} />
                       </button>
                       <button
-                        className="text-orange-500 hover:text-orange-700 transition-colors"
-                        aria-label={
-                          place.status === "Published" || place.status === "Active" 
-                            ? "Hide place" 
-                            : "Show place"
-                        }
+                        onClick={() => {
+                          setSelectedPlaceId(place._id);
+                          setIsViewModalOpen(true);
+                        }}
+                        className="text-green-500 hover:text-green-700 transition-colors"
+                        aria-label="View place"
                       >
-                        {place.status === "Published" || place.status === "Active" ? (
-                          <Eye size={18} />
-                        ) : (
-                          <EyeOff size={18} />
-                        )}
+                        <Eye size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(place._id)}
@@ -236,7 +252,7 @@ export function PlacesTable() {
               <option value={50}>50</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
               Page {meta.page} of {meta.totalPage || 1}
@@ -262,6 +278,12 @@ export function PlacesTable() {
           </div>
         </div>
       )}
+
+      <ViewPlaceModal
+        open={isViewModalOpen}
+        onOpenChange={setIsViewModalOpen}
+        placeId={selectedPlaceId}
+      />
     </div>
   );
 }
