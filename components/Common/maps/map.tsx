@@ -245,13 +245,6 @@ export default function MapPage() {
                   onClick={() => {
                     setSelectedLocation({
                       id: place._id,
-                      name: place.name,
-                      rating: place.rating || 0,
-                      reviews: place.totalReview || 0,
-                      type: place.category?.name || "Point of Interest",
-                      image: getImageUrl(place.images?.[0]),
-                      description:
-                        place.description || "No description available.",
                     });
                   }}
                 />
@@ -285,7 +278,7 @@ export default function MapPage() {
         {/* Location Dialog Overlay */}
         {selectedLocation && (
           <LocationDialog
-            location={selectedLocation}
+            id={selectedLocation}
             onClose={() => setSelectedLocation(null)}
           />
         )}
