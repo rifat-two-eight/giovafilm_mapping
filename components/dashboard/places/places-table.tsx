@@ -1,16 +1,17 @@
 "use client";
 
-import { Edit, Eye, EyeOff, Trash2, Search } from "lucide-react";
-import { useState } from "react";
-import {
-  useGetPlacesQuery,
-  useDeletePlaceMutation,
-} from "@/redux/features/place/placeApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Swal from "sweetalert2";
-import { toast } from "sonner";
+import {
+  useDeletePlaceMutation,
+  useGetPlacesQuery,
+} from "@/redux/features/place/placeApi";
+import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
+import { UpdatePlaceModal } from "./UpdatePlaceModal";
 import { ViewPlaceModal } from "./view-place-modal";
 
 interface Place {
@@ -30,13 +31,13 @@ interface Place {
 }
 
 export function PlacesTable() {
-  const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const { data: response, isLoading } = useGetPlacesQuery({
@@ -49,6 +50,8 @@ export function PlacesTable() {
 
   const places: Place[] = response?.data || [];
   const meta = response?.meta;
+
+  console.log("All places", places);
 
   const handleDelete = async (id: string) => {
     Swal.fire({
@@ -197,11 +200,10 @@ export function PlacesTable() {
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() =>
-                          router.push(
-                            `/dashboard/places/add-place?editId=${place._id}`,
-                          )
-                        }
+                        onClick={() => {
+                          setSelectedPlaceId(place._id);
+                          setIsUpdateModalOpen(true);
+                        }}
                         className="text-blue-500 hover:text-blue-700 transition-colors"
                         aria-label="Edit place"
                       >
@@ -282,6 +284,12 @@ export function PlacesTable() {
       <ViewPlaceModal
         open={isViewModalOpen}
         onOpenChange={setIsViewModalOpen}
+        placeId={selectedPlaceId}
+      />
+
+      <UpdatePlaceModal
+        open={isUpdateModalOpen}
+        onOpenChange={setIsUpdateModalOpen}
         placeId={selectedPlaceId}
       />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
+import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -12,21 +13,19 @@ import {
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
+  useCreatePlaceMutation,
+  useGetPlacesQuery,
+} from "@/redux/features/place/placeApi";
+import {
   AdvancedMarker,
   APIProvider,
-  InfoWindow,
   Map,
   useMap,
 } from "@vis.gl/react-google-maps";
 import { ChevronRight, Map as MapIcon, Plus, Search } from "lucide-react";
-import {
-  useCreatePlaceMutation,
-  useGetPlacesQuery,
-} from "@/redux/features/place/placeApi";
-import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
+import { toast } from "sonner";
+import { PlaceInfoWindow } from "./PlaceInfoWindow";
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
 // Must live inside <APIProvider> so useMap() works.
@@ -72,7 +71,6 @@ export default function AddPlacePage() {
   } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
-  const [savedPlaces, setSavedPlaces] = useState<any[]>([]);
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();

@@ -38,6 +38,14 @@ const placeApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Place"],
     }),
+    updatePlace: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/place/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Place", "Map"],
+    }),
     deletePlace: builder.mutation({
       query: (id) => ({
         url: `/place/${id}`,
@@ -52,5 +60,6 @@ export const {
   useGetPlacesQuery,
   useGetPlaceDetailsQuery,
   useCreatePlaceMutation,
+  useUpdatePlaceMutation,
   useDeletePlaceMutation,
 } = placeApi;
