@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { useGetSingleOfferQuery } from "@/redux/features/offer/offerApi";
 import { getImageUrl } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 export default function RestaurantDetail() {
   const params = useParams();
@@ -26,7 +27,7 @@ export default function RestaurantDetail() {
   });
   const offer = offerRes?.data;
 
-  console.log("offer", offer?.photo);
+  console.log("offer", offer);
 
   const [timeLeft, setTimeLeft] = useState("14:06");
 
@@ -104,7 +105,7 @@ export default function RestaurantDetail() {
               </Link>
               <span className="text-gray-400">/</span>
               <span className="text-gray-700 font-medium line-clamp-1">
-                {offer.place?.name}
+                {offer?.title}
               </span>
             </div>
           </div>
@@ -117,9 +118,12 @@ export default function RestaurantDetail() {
             <div className="bg-white lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 rounded-xl sm:rounded-2xl overflow-hidden">
               {/* Hero Image with Rating */}
               <div className="relative rounded-t-xl sm:rounded-t-2xl overflow-hidden h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-200">
-                <img
+                <Image
                   src={getImageUrl(offer.photo)}
-                  alt={offer.place?.name}
+                  alt={offer?.title}
+                  width={500}
+                  height={500}
+                  unoptimized
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -127,7 +131,8 @@ export default function RestaurantDetail() {
                 <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1 shadow-md">
                   <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs sm:text-sm font-semibold text-gray-900">
-                    4.5 (87 reviews)
+                    {offer?.place?.rating || 0} (
+                    {offer?.place?.totalReview || 0} reviews)
                   </span>
                 </div>
               </div>
@@ -138,7 +143,7 @@ export default function RestaurantDetail() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="space-y-1 sm:space-y-2">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
-                        {offer.place?.name}
+                        {offer?.title}
                       </h1>
                       <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 break-words">
                         <span>📍</span>{" "}

@@ -1,29 +1,28 @@
 import Image, { StaticImageData } from "next/image";
 import { MapPin, Star } from "lucide-react";
 import Link from "next/link";
+import { NoImage } from "@/lib/others/others";
+import { getImageUrl } from "@/lib/utils";
+import { TPlace } from "@/lib/types/place/place";
 
-export type PlaceCardProps = {
-  id: number;
-  image: StaticImageData | string;
-  title: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  category: string;
-};
-
-export function PlaceCard({ data }: { data: PlaceCardProps }) {
+export function PlaceCard({ data }: { data: TPlace }) {
+  console.log(data);
   return (
     <Link href={`/places/${data?.id}`}>
       <div className="rounded-xl overflow-hidden bg-white border hover:shadow-lg transition">
         {/* Image Section */}
         <div className="relative h-64 w-full">
-          <Image
-            src={data?.image}
-            alt={data?.title}
-            fill
-            className="object-cover"
-          />
+          {data?.media?.length > 0 ? (
+            <Image
+              src={getImageUrl(data?.media[0])}
+              alt={data?.name}
+              unoptimized
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <NoImage />
+          )}
 
           {/* Rating Badge */}
           <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full flex items-center gap-1 text-sm font-medium shadow">
@@ -34,15 +33,15 @@ export function PlaceCard({ data }: { data: PlaceCardProps }) {
 
         {/* Content */}
         <div className="p-4">
-          <h3 className="font-semibold text-lg">{data?.title}</h3>
+          <h3 className="font-semibold text-lg">{data?.name}</h3>
 
           <div className="flex items-center text-gray-500 text-sm mt-1 gap-1">
             <MapPin size={14} />
-            {data?.location}
+            {data?.address}
           </div>
 
           <p className="text-gray-400 text-sm mt-1">
-            {data?.reviews} reviews • {data?.category}
+            {data?.totalReview} Reviews • {data?.category?.name}
           </p>
         </div>
       </div>

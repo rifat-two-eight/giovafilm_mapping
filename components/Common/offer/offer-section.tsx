@@ -109,16 +109,15 @@ export default function OfferSection() {
         {/* Offer Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
-            const isFavorite = favorites.includes(offer._id);
-            const imageUrl = getImageUrl(offer?.photo);
+            const isFavorite = favorites.includes(offer?._id);
 
             return (
-              <Link key={offer._id} href={`/offer/${offer._id}`}>
+              <Link key={offer._id} href={`/offer/${offer?._id}`}>
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
                   <div className="relative h-72 w-full">
                     <Image
-                      src={imageUrl}
+                      src={getImageUrl(offer?.photo)}
                       alt={offer.title}
                       width={500}
                       height={500}
@@ -146,7 +145,7 @@ export default function OfferSection() {
                     {/* Discount Badge */}
                     <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">
                       {offer.discountValue}
-                      {offer.discountType === "Percentage" ? "%" : ""} OFF
+                    {offer.discountType === "Percentage" ? "%" : ""}%   OFF
                     </div>
                   </div>
 

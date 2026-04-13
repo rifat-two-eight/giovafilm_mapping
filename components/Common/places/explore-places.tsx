@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, SlidersHorizontal, Flame, Sparkles } from "lucide-react";
-import { PlaceCard } from "./place-card";
-import { useState } from "react";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
-import { getImageUrl } from "@/lib/utils";
+import {
+  Flame,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react";
+import { useState } from "react";
+import { PlaceCard } from "./place-card";
 
 const filters = [
   {
@@ -151,18 +156,7 @@ export default function ExplorePlaces() {
             </div>
           ) : (
             places.map((place: any) => (
-              <PlaceCard
-                key={place._id}
-                data={{
-                  id: place._id,
-                  title: place.name,
-                  location: place.address,
-                  reviews: place.totalReview || 0,
-                  category: place.category?.name || "General",
-                  rating: place.rating || 0,
-                  image: getImageUrl(place.media?.[0]),
-                }}
-              />
+              <PlaceCard key={place._id} data={place} />
             ))
           )}
         </div>
