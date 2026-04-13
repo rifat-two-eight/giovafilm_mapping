@@ -59,7 +59,7 @@ export const MAP_CARDS = [
 ];
 
 export default function FeaturedMaps() {
-  const { data: mapsRes, isLoading } = useGetMapsQuery({ limit: 4 });
+  const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
   return (
@@ -87,10 +87,15 @@ export default function FeaturedMaps() {
           >
             {isLoading ? (
               [1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-2xl" />
+                <div
+                  key={i}
+                  className="h-96 bg-gray-200 animate-pulse rounded-2xl"
+                />
               ))
             ) : maps.length === 0 ? (
-              <p className="col-span-full text-center text-gray-500 py-10">No featured maps found.</p>
+              <p className="col-span-full text-center text-gray-500 py-10">
+                No featured maps found.
+              </p>
             ) : (
               maps.map((map: any) => (
                 <motion.div
@@ -119,7 +124,8 @@ export default function FeaturedMaps() {
                       {map.name}
                     </h3>
                     <p className="text-sm text-[#9E9E9E] mb-2 line-clamp-2">
-                      {map.description || "Explore the best of the city with this curated guide."}
+                      {map.description ||
+                        "Explore the best of the city with this curated guide."}
                     </p>
                     <div className="mt-auto">
                       <span className="text-xl font-bold text-[#1A1A1A] block mb-2">

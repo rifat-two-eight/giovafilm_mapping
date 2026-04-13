@@ -23,6 +23,13 @@ const mapApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Map"],
     }),
+    getMapById: builder.query<any, string>({
+      query: (id: string) => ({
+        url: `/map/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Map"],
+    }),
     updateMap: builder.mutation({
       query: ({ id, data }: { id: string; data: any }) => ({
         url: `/map/${id}`,
@@ -44,6 +51,7 @@ const mapApi = baseApi.injectEndpoints({
 export const {
   useCreateMapMutation,
   useGetMapsQuery,
+  useGetMapByIdQuery,
   useUpdateMapMutation,
   useDeleteMapMutation,
 } = mapApi;
