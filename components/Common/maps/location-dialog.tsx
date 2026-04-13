@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 
 import { getImageUrl } from "@/lib/utils";
@@ -10,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 type Props = {
-  id: string;
+  id: { id: string };
   onClose: () => void;
 };
 
@@ -41,14 +42,18 @@ export default function LocationDialog({ id, onClose }: Props) {
 
         {/* Image */}
         <div className="h-48 overflow-hidden">
-          <Image
-            src={getImageUrl(location.media[0])}
-            alt={location.name}
-            unoptimized
-            width={500}
-            height={500}
-            className="w-full h-full object-cover"
-          />
+          {location?.media.length > 0 ? (
+            <Image
+              src={getImageUrl(location.media[0])}
+              alt={location.name}
+              unoptimized
+              width={500}
+              height={500}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <NoImage />
+          )}
         </div>
 
         {/* Content */}

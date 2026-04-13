@@ -38,6 +38,7 @@ import InfoCard from "./info-card";
 import Link from "next/link";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { getImageUrl } from "@/lib/utils";
+import { NoImage } from "@/lib/others/others";
 
 export const infoData = [
   {
@@ -132,13 +133,18 @@ export default function MapDetails() {
           {/* LEFT HERO CARD */}
           <div className="lg:col-span-2 relative rounded-xl overflow-hidden">
             <div className="h-100 object-cover">
-              <Image
-                src={getImageUrl(placeData?.media?.[0])}
-                alt={placeData?.name || "Place Image"}
-                width={1000}
-                height={1000}
-                className="object-cover w-full h-full"
-              />
+              {placeData?.media.length > 0 ? (
+                <Image
+                  src={getImageUrl(placeData?.media?.[0])}
+                  alt={placeData?.name || "Place Image"}
+                  width={1000}
+                  height={1000}
+                  unoptimized
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <NoImage />
+              )}
             </div>
 
             {/* overlay */}

@@ -5,15 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getImageUrl = (path?: string) => {
-  if (!path) return "/placeholder.png";
+export const getImageUrl = (media?: File | string) => {
+  if (!media) return "/placeholder.png";
 
   const baseURL = process.env.NEXT_PUBLIC_BASEURL as string;
 
   // Prevent double slashes
-  return `${baseURL}${path}`;
+  return `${baseURL}${media}`;
 };
-
 
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
