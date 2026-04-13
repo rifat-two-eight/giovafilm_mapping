@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Clock, Earth, Mail, MapPin } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { Clock, MapPin, Mail, AlertCircle, Earth } from "lucide-react";
 
 interface BusinessFormStep1Props {
   form: UseFormReturn<any>;
@@ -268,12 +268,12 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           />
         </div>
 
-        <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+        {/* <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
           <div className="text-center">
             <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm text-gray-500">CLICK TO SET PIN LOCATION</p>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Hours Section */}
