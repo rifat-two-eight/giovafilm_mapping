@@ -11,16 +11,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const chartData = [
-  { month: "Jan", "Total Sales": 400, Taxes: 50, "Net Revenue": 350 },
-  { month: "Feb", "Total Sales": 300, Taxes: 30, "Net Revenue": 270 },
-  { month: "Mar", "Total Sales": 500, Taxes: 40, "Net Revenue": 460 },
-  { month: "Apr", "Total Sales": 600, Taxes: 80, "Net Revenue": 520 },
-  { month: "May", "Total Sales": 550, Taxes: 60, "Net Revenue": 490 },
-  { month: "Jun", "Total Sales": 700, Taxes: 50, "Net Revenue": 650 },
-];
+export function SalesTaxesChart({ data = [] }: { data?: any[] }) {
+  // Map API keys to human readable labels if preferred, 
+  // but here we'll just use the raw keys for simplicity or map them.
+  const chartData = data.map(item => ({
+    month: item.month,
+    "Total Sales": item.totalSales,
+    "Taxes": item.taxes,
+    "Net Revenue": item.netRevenue
+  }));
 
-export function SalesTaxesChart() {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
@@ -28,12 +28,14 @@ export function SalesTaxesChart() {
         margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis dataKey="month" stroke="#6b7280" />
-        <YAxis stroke="#6b7280" />
+        <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+        <YAxis stroke="#6b7280" fontSize={12} />
         <Tooltip
           contentStyle={{
             backgroundColor: "#fff",
             border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
           }}
           cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
         />

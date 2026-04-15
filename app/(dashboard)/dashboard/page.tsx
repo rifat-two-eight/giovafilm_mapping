@@ -1,6 +1,9 @@
+"use client";
+
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { useGetDashboardStatsQuery } from "@/redux/features/stats/statsApi";
 import {
   Calculator,
   DollarSign,
@@ -8,58 +11,80 @@ import {
   LayoutGrid,
   MapPin,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 
 export default function Page() {
+  const { data: response, isLoading, isError } = useGetDashboardStatsQuery();
+  
+  const stats = response?.data?.stats;
+  const recentActivity = response?.data?.recentActivity || [];
+
   const statsData = [
     {
       label: "Total Maps",
-      value: "48",
+      value: stats?.totalMaps?.toString() || "0",
       icon: <LayoutGrid size={24} />,
       iconBgColor: "bg-blue-500",
     },
     {
       label: "Total Places",
-      value: "342",
+      value: stats?.totalPlaces?.toString() || "0",
       icon: <MapPin size={24} />,
       iconBgColor: "bg-green-500",
     },
     {
       label: "Active Offers",
-      value: "27",
+      value: stats?.activeOffers?.toString() || "0",
       icon: <Gift size={24} />,
       iconBgColor: "bg-purple-500",
     },
     {
       label: "Total Sales",
-      value: "$12,450",
+      value: stats?.totalSales ? `$${stats.totalSales.toLocaleString()}` : "$0",
       icon: <DollarSign size={24} />,
       iconBgColor: "bg-yellow-500",
     },
     {
       label: "This Month Revenue",
-      value: "$3,280",
+      value: stats?.thisMonthRevenue ? `$${stats.thisMonthRevenue.toLocaleString()}` : "$0",
       icon: <TrendingUp size={24} />,
       iconBgColor: "bg-pink-500",
     },
     {
       label: "Taxes Collected",
-      value: "$820",
+      value: stats?.taxesCollected ? `$${stats.taxesCollected.toLocaleString()}` : "$0",
       icon: <Calculator size={24} />,
       iconBgColor: "bg-indigo-500",
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center text-red-500 font-medium">
+        Failed to load dashboard statistics.
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold font-arial pb-6">Dashboard Overview</h1>
       <StatCard data={statsData} />
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
           <QuickActions />
         </div>
-        <div className="col-span-2">
-          <RecentActivity />
+        <div className="lg:col-span-2">
+          <RecentActivity activities={recentActivity} />
         </div>
       </div>
     </div>
