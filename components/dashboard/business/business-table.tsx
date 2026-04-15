@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MoreHorizontal, RotateCcw, Loader2 } from "lucide-react";
-import { useGetBusinessesQuery } from "@/redux/features/business/businessApi";
+import {
+  useGetBusinessesQuery,
+  useUpdateBusinessStatusMutation,
+} from "@/redux/features/business/businessApi";
 import {
   Select,
   SelectContent,
@@ -11,7 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/utils";
+import { toast } from "sonner";
 
 const businessTableHeaders = [
   "",
@@ -33,6 +43,9 @@ export function BusinessTable() {
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
   const limit = 10;
+
+  const [updateStatus, { isLoading: isUpdating }] =
+    useUpdateBusinessStatusMutation();
 
   // Simple debounce for search
   useEffect(() => {
@@ -63,6 +76,37 @@ export function BusinessTable() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
+  };
+
+  const handleBulkStatusUpdate = async (newStatus: string) => {
+    if (selected.length === 0) return;
+
+    const promise = Promise.all(
+      selected.map((id) => updateStatus({ id, status: newStatus }).unwrap()),
+    );
+
+    toast.promise(promise, {
+      loading: `Updating ${selected.length} businesses...`,
+      success: `Successfully updated to ${newStatus}`,
+      error: "Failed to update some businesses.",
+    });
+
+    try {
+      await promise;
+      setSelected([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      await updateStatus({ id, status: newStatus }).unwrap();
+      toast.success(`Business ${newStatus} successfully!`);
+    } catch (err) {
+      toast.error("Failed to update business status.");
+      console.error(err);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -136,10 +180,18 @@ export function BusinessTable() {
             {selected.length} businesses selected
           </p>
           <div className="flex gap-2">
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm transition-colors">
+            <button
+              disabled={isUpdating}
+              onClick={() => handleBulkStatusUpdate("Approved")}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
+            >
               Approve
             </button>
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded text-sm transition-colors">
+            <button
+              disabled={isUpdating}
+              onClick={() => handleBulkStatusUpdate("Rejected")}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
+            >
               Reject
             </button>
           </div>
@@ -232,9 +284,31 @@ export function BusinessTable() {
                       className="px-6 py-4"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-1.5 rounded-lg transition-all">
-                        <MoreHorizontal size={18} />
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-1.5 rounded-lg transition-all">
+                            <MoreHorizontal size={18} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleStatusUpdate(business._id, "Approved")
+                            }
+                            className="text-green-600 font-medium"
+                          >
+                            Approve
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleStatusUpdate(business._id, "Rejected")
+                            }
+                            className="text-red-600 font-medium"
+                          >
+                            Reject
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </tr>
                 ))

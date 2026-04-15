@@ -24,7 +24,19 @@ const businessApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Business"],
     }),
+    updateBusinessStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/business/${id}`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Business"],
+    }),
   }),
 });
 
-export const { useGetBusinessesQuery, useAddBusinessMutation } = businessApi;
+export const {
+  useGetBusinessesQuery,
+  useAddBusinessMutation,
+  useUpdateBusinessStatusMutation,
+} = businessApi;
