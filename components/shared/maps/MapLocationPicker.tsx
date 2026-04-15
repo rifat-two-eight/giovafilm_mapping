@@ -1,6 +1,11 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  useMap,
+} from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import { CustomLocationButton } from "./CustomLocationButton";
 
@@ -9,7 +14,11 @@ interface MapLocationPickerProps {
   onLocationSelect: (location: { lat: number; lng: number }) => void;
 }
 
-function GeolocationOnLoad({ onLocation }: { onLocation: (pos: { lat: number; lng: number }) => void }) {
+function GeolocationOnLoad({
+  onLocation,
+}: {
+  onLocation: (pos: { lat: number; lng: number }) => void;
+}) {
   const map = useMap();
 
   useEffect(() => {
@@ -24,7 +33,10 @@ function GeolocationOnLoad({ onLocation }: { onLocation: (pos: { lat: number; ln
   return null;
 }
 
-export function MapLocationPicker({ initialLocation, onLocationSelect }: MapLocationPickerProps) {
+export function MapLocationPicker({
+  initialLocation,
+  onLocationSelect,
+}: MapLocationPickerProps) {
   const defaultPosition = initialLocation || { lat: 23.8103, lng: 90.4125 };
   const [markerPos, setMarkerPos] = useState(defaultPosition);
 
@@ -38,7 +50,9 @@ export function MapLocationPicker({ initialLocation, onLocationSelect }: MapLoca
 
   return (
     <div className="w-full h-full min-h-[400px] relative rounded-lg overflow-hidden border border-gray-200">
-      <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}>
+      <APIProvider
+        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
+      >
         <Map
           defaultCenter={defaultPosition}
           defaultZoom={13}
@@ -48,18 +62,26 @@ export function MapLocationPicker({ initialLocation, onLocationSelect }: MapLoca
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}
         >
-          {!initialLocation && <GeolocationOnLoad onLocation={(pos) => {
-             setMarkerPos(pos);
-             onLocationSelect(pos);
-          }} />}
+          {!initialLocation && (
+            <GeolocationOnLoad
+              onLocation={(pos) => {
+                setMarkerPos(pos);
+                onLocationSelect(pos);
+              }}
+            />
+          )}
           <CustomLocationButton />
-          <AdvancedMarker position={markerPos} draggable={true} onDragEnd={(e: any) => {
-            if (e.latLng) {
-               const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-               setMarkerPos(newPos);
-               onLocationSelect(newPos);
-            }
-          }} />
+          <AdvancedMarker
+            position={markerPos}
+            draggable={true}
+            onDragEnd={(e: any) => {
+              if (e.latLng) {
+                const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+                setMarkerPos(newPos);
+                onLocationSelect(newPos);
+              }
+            }}
+          />
         </Map>
       </APIProvider>
     </div>

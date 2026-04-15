@@ -17,9 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
-import { CheckCircle2, Clock, Earth, Mail, MapPin } from "lucide-react";
+import { Clock, Earth, Mail, MapPin } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { LocationPickerModal } from "./location-picker-modal";
 
 interface BusinessFormStep1Props {
   form: UseFormReturn<any>;
@@ -28,8 +27,6 @@ interface BusinessFormStep1Props {
 export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
   const { data: categoriesRes, isLoading: isLoadingCats } = useGetCategoriesQuery({ limit: 100 });
   const categories = categoriesRes?.data || [];
-
-  const mapLocation = form.watch("mapLocation");
 
   return (
     <div className="space-y-6">
@@ -260,48 +257,6 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 <FormMessage />
               </FormItem>
             )}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <FormLabel className="text-gray-900 font-semibold">
-            Map Location
-          </FormLabel>
-
-          <LocationPickerModal
-            initialLocation={mapLocation}
-            onSelect={(loc) => form.setValue("mapLocation", loc)}
-            trigger={
-              <button
-                type="button"
-                className={`w-full h-48 rounded-lg border-2 border-dashed transition-all flex items-center justify-center ${
-                  mapLocation
-                    ? "border-green-400 bg-green-50"
-                    : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                }`}
-              >
-                <div className="text-center">
-                  {mapLocation ? (
-                    <>
-                      <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 font-bold uppercase">
-                        Location Set
-                      </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {mapLocation.lat.toFixed(6)}, {mapLocation.lng.toFixed(6)}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 font-semibold uppercase">
-                        CLICK TO SET PIN LOCATION
-                      </p>
-                    </>
-                  )}
-                </div>
-              </button>
-            }
           />
         </div>
       </div>
