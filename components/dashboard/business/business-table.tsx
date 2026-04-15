@@ -6,6 +6,7 @@ import { Search, MoreHorizontal, RotateCcw, Loader2 } from "lucide-react";
 import {
   useGetBusinessesQuery,
   useUpdateBusinessStatusMutation,
+  useDeleteBusinessMutation,
 } from "@/redux/features/business/businessApi";
 import {
   Select,
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 const businessTableHeaders = [
   "",
@@ -46,6 +48,7 @@ export function BusinessTable() {
 
   const [updateStatus, { isLoading: isUpdating }] =
     useUpdateBusinessStatusMutation();
+  const [deleteBusiness] = useDeleteBusinessMutation();
 
   // Simple debounce for search
   useEffect(() => {
@@ -106,6 +109,29 @@ export function BusinessTable() {
     } catch (err) {
       toast.error("Failed to update business status.");
       console.error(err);
+    }
+  };
+
+  const handleDeleteSingle = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      background: "#fff",
+      color: "#1a1a1a",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteBusiness(id).unwrap();
+        toast.success("Business deleted successfully!");
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Failed to delete business");
+      }
     }
   };
 
@@ -306,6 +332,13 @@ export function BusinessTable() {
                             className="text-red-600 font-medium"
                           >
                             Reject
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteSingle(business._id)}
+                            className="text-red-600 font-bold focus:bg-red-50"
+                          >
+                            Delete Business
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

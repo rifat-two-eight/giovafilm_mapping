@@ -26,7 +26,7 @@ export default function PublicContactLinks({ contact }: any) {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Public Email
           </p>
-          <p className="text-gray-900 font-medium mt-2">{contact.email}</p>
+          <p className="text-gray-900 font-medium mt-2">{contact.contactEmail}</p>
         </div>
 
         <div className="col-span-2">
@@ -34,7 +34,7 @@ export default function PublicContactLinks({ contact }: any) {
             Social Profiles
           </p>
 
-          <div className="flex gap-3">
+          {/* <div className="flex gap-3">
             {contact.socialProfiles.map((profile: string) => (
               <span
                 key={profile}
@@ -43,7 +43,7 @@ export default function PublicContactLinks({ contact }: any) {
                 {profile}
               </span>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

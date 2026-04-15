@@ -24,11 +24,25 @@ const businessApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Business"],
     }),
+
+    getSingleBusiness: builder.query<any, string>({
+      query: (id) => `/business/${id}`,
+      providesTags: ["Business"],
+    }),
+
     updateBusinessStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/business/${id}`,
         method: "PATCH",
         body: { status },
+      }),
+      invalidatesTags: ["Business"],
+    }),
+
+    deleteBusiness: builder.mutation({
+      query: (id) => ({
+        url: `/business/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["Business"],
     }),
@@ -38,5 +52,7 @@ const businessApi = baseApi.injectEndpoints({
 export const {
   useGetBusinessesQuery,
   useAddBusinessMutation,
+  useGetSingleBusinessQuery,
   useUpdateBusinessStatusMutation,
+  useDeleteBusinessMutation,
 } = businessApi;
