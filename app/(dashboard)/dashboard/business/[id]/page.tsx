@@ -16,6 +16,9 @@ import { Loader2, ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import Image from "next/image";
+import { getImageUrl } from "@/lib/utils";
+import { NoImage } from "@/lib/others/others";
 
 export default function BusinessDetailPage() {
   const router = useRouter();
@@ -31,8 +34,6 @@ export default function BusinessDetailPage() {
   const [deleteBusiness] = useDeleteBusinessMutation();
 
   const business = response?.data;
-
-  console.log(business);
 
   const handleStatusUpdate = async (newStatus: string) => {
     try {
@@ -181,22 +182,22 @@ export default function BusinessDetailPage() {
               {business.media?.photos?.map((photo: string, idx: number) => (
                 <div
                   key={idx}
-                  className="bg-gray-50 rounded-xl aspect-square overflow-hidden group relative border border-gray-100 shadow-inner"
+                  className="rounded-xl aspect-square overflow-hidden group relative"
                 >
-                  <img
-                    src={photo}
-                    alt=""
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  {photo ? (
+                    <Image
+                      src={getImageUrl(photo)}
+                      alt=""
+                      width={100}
+                      height={100}
+                      unoptimized
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <NoImage />
+                  )}
                 </div>
               ))}
-              {!business.media?.photos?.length && (
-                <div className="col-span-full py-16 text-center text-gray-400 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/30">
-                  <p className="font-medium">
-                    No photos uploaded for this business.
-                  </p>
-                </div>
-              )}
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-gray-100 gap-6">

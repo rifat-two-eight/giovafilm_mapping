@@ -59,11 +59,11 @@ const menuItems = [
     url: "/dashboard/users-roles",
     icon: Users,
   },
-  {
-    title: "Notification",
-    url: "/dashboard/notification",
-    icon: Bell,
-  },
+  // {
+  //   title: "Notification",
+  //   url: "/dashboard/notification",
+  //   icon: Bell,
+  // },
   {
     title: "Business",
     url: "/dashboard/business",
