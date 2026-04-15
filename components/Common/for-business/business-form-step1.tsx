@@ -16,27 +16,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Clock, Earth, Mail, MapPin } from "lucide-react";
+import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { CheckCircle2, Clock, Earth, Mail, MapPin } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { LocationPickerModal } from "./location-picker-modal";
 
 interface BusinessFormStep1Props {
   form: UseFormReturn<any>;
 }
 
-const categories = [
-  "Restaurant",
-  "Hotel",
-  "Shopping",
-  "Entertainment",
-  "Museum",
-  "Park",
-  "Cafe",
-  "Bookstore",
-  "Gym",
-  "Salon",
-];
-
 export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
+  const { data: categoriesRes, isLoading: isLoadingCats } = useGetCategoriesQuery({ limit: 100 });
+  const categories = categoriesRes?.data || [];
+
+  const mapLocation = form.watch("mapLocation");
+
   return (
     <div className="space-y-6">
       {/* Public Information Section */}
@@ -82,16 +76,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isLoadingCats}
                 >
                   <FormControl className="w-full">
                     <SelectTrigger className="bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder={isLoadingCats ? "Loading categories..." : "Select a category"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                    {categories.map((cat: any) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -145,7 +140,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <Input
                     placeholder="+1 (555) 000-0000"
                     {...field}
-                    type="number"
+                    type="tel"
                     className="bg-gray-50 border-gray-200"
                   />
                 </FormControl>
@@ -268,11 +263,46 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           />
         </div>
 
-        <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-          <div className="text-center">
-            <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">CLICK TO SET PIN LOCATION</p>
-          </div>
+        <div className="space-y-2">
+          <FormLabel className="text-gray-900 font-semibold">
+            Map Location
+          </FormLabel>
+
+          <LocationPickerModal
+            initialLocation={mapLocation}
+            onSelect={(loc) => form.setValue("mapLocation", loc)}
+            trigger={
+              <button
+                type="button"
+                className={`w-full h-48 rounded-lg border-2 border-dashed transition-all flex items-center justify-center ${
+                  mapLocation
+                    ? "border-green-400 bg-green-50"
+                    : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                }`}
+              >
+                <div className="text-center">
+                  {mapLocation ? (
+                    <>
+                      <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm text-green-700 font-bold uppercase">
+                        Location Set
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {mapLocation.lat.toFixed(6)}, {mapLocation.lng.toFixed(6)}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500 font-semibold uppercase">
+                        CLICK TO SET PIN LOCATION
+                      </p>
+                    </>
+                  )}
+                </div>
+              </button>
+            }
+          />
         </div>
       </div>
 

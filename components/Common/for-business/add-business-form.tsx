@@ -9,12 +9,17 @@ import { BusinessFormStep2 } from "./business-form-step2";
 import { BusinessFormStep3 } from "./business-form-step3";
 import { BusinessFormStep4 } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
+import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function AddBusinessForm() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [businessPhotos, setBusinessPhotos] = useState<File[]>([]);
   const [menuFile, setMenuFile] = useState<File | null>(null);
+  const router = useRouter();
+
+  const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
 
   const form = useForm({
     defaultValues: {
@@ -27,6 +32,7 @@ export function AddBusinessForm() {
       streetAddress: "",
       city: "",
       country: "",
+      mapLocation: null as { lat: number; lng: number } | null,
       hoursMonFriStart: "09:00",
       hoursMonFriEnd: "18:00",
       hoursSatSunStart: "10:00",
@@ -41,17 +47,76 @@ export function AddBusinessForm() {
     },
   });
 
-  const onSubmit = async (data: any) => {
-    if (currentStep === 4) {
-      setIsSubmitting(true);
-      try {
-        console.log("BUSINESS FORM SUBMISSION", data);
+  const onSubmit = async (values: any) => {
+    try {
+      // 1. Prepare the nested business data object
+      const businessData = {
+        name: values.businessName,
+        category: values.category,
+        description: values.businessDescription,
+        contact: {
+          phone: values.phoneNumber,
+          website: values.website,
+          instagram: values.instagram,
+        },
+        location: {
+          address: values.streetAddress,
+          city: values.city,
+          country: values.country,
+          mapLocation: values.mapLocation ? {
+            type: "Point",
+            coordinates: [values.mapLocation.lng, values.mapLocation.lat], // [longitude, latitude]
+          } : undefined,
+        },
+        hours: {
+          customHours: true,
+          schedule: [
+            ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(day => ({
+              days: day,
+              openTime: values.hoursMonFriStart,
+              closeTime: values.hoursMonFriEnd,
+            })),
+            ...["Saturday", "Sunday"].map(day => ({
+              days: day,
+              openTime: values.hoursSatSunStart,
+              closeTime: values.hoursSatSunEnd,
+            })),
+          ],
+        },
+        privateInfo: {
+          ownerPhone: values.ownerPhone,
+          contactEmail: values.invoicingEmail,
+        },
+        plan: values.selectedPlan,
+        // Offer related fields if needed by API
+        offer: values.offerTitle ? {
+          title: values.offerTitle,
+          description: values.offerDescription,
+          discount: values.offerDiscount,
+          validUntil: values.offerValidUntil,
+        } : undefined,
+      };
 
-        // Here you would typically send data to a backend API
-        alert("Business submitted successfully! Check console for details.");
-      } finally {
-        setIsSubmitting(false);
+      // 2. Build FormData
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(businessData));
+      
+      businessPhotos.forEach((photo) => {
+        formData.append("photos", photo);
+      });
+
+      if (menuFile) {
+        formData.append("menu", menuFile);
       }
+
+      // 3. Submit to API
+      await addBusiness(formData).unwrap();
+      
+      toast.success("Business added successfully!");
+      router.push("/dashboard/business"); // Adjust destination as needed
+    } catch (error: any) {
+      console.error("Failed to add business:", error);
+      toast.error(error?.data?.message || "Failed to add business. Please try again.");
     }
   };
 
@@ -74,7 +139,7 @@ export function AddBusinessForm() {
               </p>
             </div>
             <p className="text-sm font-semibold text-primary">
-              Step {currentStep} of 5 ({progressPercentage.toFixed(0)}%)
+              Step {currentStep} of {currentStep === 5 ? "5 (Plan Selected)" : "5"} ({progressPercentage.toFixed(0)}%)
             </p>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -112,6 +177,7 @@ export function AddBusinessForm() {
                   variant="outline"
                   onClick={() => setCurrentStep(currentStep - 1)}
                   className="flex-1 py-6 text-base font-semibold"
+                  disabled={isSubmitting}
                 >
                   Back
                 </Button>
@@ -131,6 +197,7 @@ export function AddBusinessForm() {
                         "streetAddress",
                         "city",
                         "country",
+                        "mapLocation",
                       ],
                       2: [],
                       3: [],
@@ -145,6 +212,10 @@ export function AddBusinessForm() {
 
                     if (isValid || currentStep === 2 || currentStep === 3) {
                       setCurrentStep(currentStep + 1);
+                    } else {
+                      if (currentStep === 1 && !form.getValues("mapLocation")) {
+                        toast.error("Please set a map location pin.");
+                      }
                     }
                   }}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
@@ -154,7 +225,7 @@ export function AddBusinessForm() {
               ) : (
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !form.getValues("selectedPlan")}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
                   {isSubmitting ? "Submitting..." : "Submit and Finish"}
