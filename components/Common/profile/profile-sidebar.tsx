@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { formatDate, getImageUrl } from "@/lib/utils";
-import { Edit2, Grid2x2, Heart, Map, Share2, Star, Trophy } from "lucide-react";
+import { Edit2, Heart, Map, Share2, Star, Trophy } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -33,9 +33,9 @@ const profileLinks = [
 
 interface ProfileSidebar {
   name: string;
-  level: string;
-  joinDate: string;
-  avatar: string;
+  role: string;
+  createdAt: string;
+  profile: string;
 }
 
 interface ProfileProps {
@@ -58,7 +58,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
               width={500}
               height={500}
               unoptimized
-              className="object-cover"
+              className="object-cover h-full"
             />
             <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
               ⭐
@@ -72,7 +72,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
 
           {/* Level Badge */}
           <div className="inline-block bg-yellow-50 px-3 py-1 rounded-full mb-2">
-            <span className="text-yellow-500 font-semibold text-sm">
+            <span className="text-yellow-500 font-semibold text-sm capitalize">
               {data?.role}
             </span>
           </div>

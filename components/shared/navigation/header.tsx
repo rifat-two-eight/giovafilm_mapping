@@ -212,7 +212,7 @@ export default function Header() {
                         width={500}
                         height={500}
                         unoptimized
-                        className="object-cover"
+                        className="object-cover h-full"
                       />
                       <div className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
                         ⭐

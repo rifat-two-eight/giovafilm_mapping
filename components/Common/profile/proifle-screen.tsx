@@ -12,7 +12,6 @@ export default function ProfilePage() {
 
   const { data } = useGetProfileQuery({});
 
-  
   return (
     <main className="bg-gray-50 min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
