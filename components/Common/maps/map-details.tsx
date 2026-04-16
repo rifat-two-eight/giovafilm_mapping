@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Baby,
   BarChart3,
@@ -39,6 +40,7 @@ import Link from "next/link";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
+import { ReviewModal } from "./review-modal";
 
 export const infoData = [
   {
@@ -79,6 +81,7 @@ export const restaurantData = [
 export default function MapDetails() {
   const params = useParams();
   const id = params?.id as string;
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
     skip: !id,
@@ -459,7 +462,10 @@ export default function MapDetails() {
                 </div>
 
                 {/* Button */}
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 rounded-xl mt-6">
+                <Button 
+                  onClick={() => setIsReviewOpen(true)}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 rounded-xl mt-6"
+                >
                   <MessageSquare size={18} className="mr-2" />
                   WRITE A REVIEW
                 </Button>
@@ -513,6 +519,11 @@ export default function MapDetails() {
           </div>
         )}
       </div>
+      <ReviewModal 
+        isOpen={isReviewOpen} 
+        onClose={() => setIsReviewOpen(false)} 
+        placeId={placeData?._id}
+      />
     </section>
   );
 }
