@@ -33,6 +33,15 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    inviteUser: builder.mutation({
+      query: (data) => ({
+        url: "/user/invite",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -41,5 +50,6 @@ export const {
   useUpdateProfileMutation,
   useGetAllUsersQuery,
   useDeleteUserMutation,
+  useInviteUserMutation,
 } = userApi;
 

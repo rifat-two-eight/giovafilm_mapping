@@ -14,9 +14,9 @@ const actions: QuickAction[] = [
 
 export function QuickActions() {
   return (
-    <Card className="bg-white p-6 rounded-xl border-0 shadow-sm">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
-      <div className="space-y-3">
+    <Card className="bg-white gap-3 p-6 rounded-xl border-0 shadow-sm">
+      <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
+      <div className="space-y-2">
         {actions.map((action) => (
           <a
             key={action.label}

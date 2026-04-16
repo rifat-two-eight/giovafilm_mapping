@@ -18,7 +18,7 @@ export function StatCard({ data }: StatCardProps) {
       {data?.map((stat, index) => (
         <Card
           key={index}
-          className="bg-white p-7 py-8 rounded-xl border-0 shadow-sm hover:shadow-md transition-shadow font-arial"
+          className="bg-white p-7 py-6 rounded-xl border-0 shadow-sm hover:shadow-md transition-shadow font-arial"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col">

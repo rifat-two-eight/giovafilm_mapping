@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useInviteUserMutation } from "@/redux/features/user/userApi";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface FormData {
   email: string;
@@ -13,8 +16,10 @@ interface FormData {
 export function InviteUserForm(): React.ReactElement {
   const [formData, setFormData] = useState<FormData>({
     email: "",
-    role: "",
+    role: "user",
   });
+
+  const [inviteUser, { isLoading }] = useInviteUserMutation();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -26,20 +31,27 @@ export function InviteUserForm(): React.ReactElement {
     }));
   };
 
-  const handleSubmit = () => {
-    if (formData.email && formData.role) {
-      console.log("Invitation sent to:", formData);
-      // Reset form
-      setFormData({ email: "", role: "" });
+  const handleSubmit = async () => {
+    if (!formData.email || !formData.role) {
+      toast.error("Please provide both email and role.");
+      return;
+    }
+
+    try {
+      await inviteUser(formData).unwrap();
+      toast.success("Invitation sent successfully!");
+      setFormData({ email: "", role: "user" });
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to send invitation");
     }
   };
 
   const handleCancel = () => {
-    setFormData({ email: "", role: "" });
+    setFormData({ email: "", role: "user" });
   };
 
   return (
-    <Card className="p-6 bg-white border border-gray-200 gap-0">
+    <Card className="p-6 bg-white border border-gray-200">
       <h2 className="text-xl font-bold text-gray-900 mb-6">Invite New User</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -55,6 +67,7 @@ export function InviteUserForm(): React.ReactElement {
             value={formData.email}
             onChange={handleInputChange}
             className="w-full"
+            disabled={isLoading}
           />
         </div>
 
@@ -68,25 +81,38 @@ export function InviteUserForm(): React.ReactElement {
             value={formData.role}
             onChange={handleInputChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-white"
+            disabled={isLoading}
           >
-            <option value="">Select a role</option>
-            <option value="owner">Owner</option>
-            <option value="administrator">Administrator</option>
-            <option value="map-editor">Map Editor</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="super_admin">Super Admin</option>
           </select>
         </div>
       </div>
 
       {/* Buttons */}
       <div className="flex justify-end gap-3">
-        <Button onClick={handleCancel} variant="outline" className="px-6">
+        <Button 
+          onClick={handleCancel} 
+          variant="outline" 
+          className="px-6" 
+          disabled={isLoading}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
-          className="bg-primary/80 hover:bg-primary text-black px-6"
+          className="bg-primary/80 hover:bg-primary text-black px-6 min-w-[140px]"
+          disabled={isLoading}
         >
-          Send Invitation
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send Invitation"
+          )}
         </Button>
       </div>
     </Card>
