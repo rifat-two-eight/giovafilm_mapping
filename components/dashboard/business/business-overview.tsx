@@ -12,9 +12,9 @@ export default function BusinessOverview({ businessData }: any) {
             Business Overview
           </h2>
         </div>
-        <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+        {/* <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
           Edit Details
-        </button>
+        </button> */}
       </div>
 
       <div className="space-y-6">

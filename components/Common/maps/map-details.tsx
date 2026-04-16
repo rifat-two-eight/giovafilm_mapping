@@ -85,6 +85,22 @@ export default function MapDetails() {
   });
   const placeData = placeRes?.data;
 
+  const coordinates = placeData?.location?.coordinates;
+
+  const lat = coordinates?.[1];
+  const lng = coordinates?.[0];
+
+  const handleDirections = () => {
+    if (!lat || !lng) {
+      console.error("Invalid coordinates");
+      return;
+    }
+
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
+    window.open(url, "_blank");
+  };
+
   console.log("placeData", placeData);
 
   if (isLoading) {
@@ -195,7 +211,10 @@ export default function MapDetails() {
 
             {/* directions button */}
             {!isRestaurant && (
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+              <Button
+                onClick={handleDirections}
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
+              >
                 <Send size={18} className="mr-2" />
                 DIRECTIONS
               </Button>
@@ -204,7 +223,10 @@ export default function MapDetails() {
             {isRestaurant && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
-                  <Button className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                  <Button
+                    onClick={handleDirections}
+                    className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
+                  >
                     <Send size={18} className="mr-2" />
                     DIRECTIONS
                   </Button>

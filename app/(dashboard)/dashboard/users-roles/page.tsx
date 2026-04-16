@@ -6,15 +6,10 @@ import { Plus } from "lucide-react";
 
 export default function page() {
   return (
-    <div className="bg-gray-100 min-h-screen ">
+    <div className=" min-h-screen ">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Users & Roles</h1>
-
-        <Button className="bg-primary/80 hover:bg-primary/80 text-black flex items-center gap-2">
-          <Plus size={16} />
-          Invite User
-        </Button>
       </div>
 
       <div className="space-y-6">

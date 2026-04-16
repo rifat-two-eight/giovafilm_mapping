@@ -29,7 +29,7 @@ export function ReviewsSection({ reviews, reviewCount }: ReviewsSectionProps) {
           My Reviews ({reviewCount})
         </h2>
         <Link
-          href="/profile/reviews"
+          href="/profile/contributions-reviews"
           className="text-green-600 font-semibold text-sm hover:text-green-700 transition-colors"
         >
           View All →

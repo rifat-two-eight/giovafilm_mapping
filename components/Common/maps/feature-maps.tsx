@@ -75,11 +75,11 @@ export default function FeaturedMaps() {
                 Explore the best walking tours curated by professionals.
               </p>
             </div>
-            <Link href="/catalog">
+            {/* <Link href="/catalog">
               <button className="text-black font-bold flex justify-between items-center bg-transparent border-none cursor-pointer">
                 View All <ArrowRight className="ml-2" />
               </button>
-            </Link>
+            </Link> */}
           </div>
 
           <div
