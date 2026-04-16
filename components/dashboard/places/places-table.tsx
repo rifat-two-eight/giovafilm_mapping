@@ -6,11 +6,11 @@ import {
   useDeletePlaceMutation,
   useGetPlacesQuery,
 } from "@/redux/features/place/placeApi";
-import { Edit, Eye, Search, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Edit, Eye, MessageSquare, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { ReviewModal } from "../../Common/maps/review-modal";
 import { UpdatePlaceModal } from "./UpdatePlaceModal";
 import { ViewPlaceModal } from "./view-place-modal";
 
@@ -38,6 +38,7 @@ export function PlacesTable() {
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const { data: response, isLoading } = useGetPlacesQuery({
@@ -220,6 +221,17 @@ export function PlacesTable() {
                         <Eye size={18} />
                       </button>
                       <button
+                        onClick={() => {
+                          setSelectedPlaceId(place._id);
+                          setIsReviewModalOpen(true);
+                        }}
+                        className="text-yellow-500 hover:text-yellow-700 transition-colors flex items-center gap-2 border rounded-full px-2"
+                        aria-label="Add review"
+                      >
+                        Review
+                        <MessageSquare size={18} />
+                      </button>
+                      <button
                         onClick={() => handleDelete(place._id)}
                         className="text-red-500 hover:text-red-700 transition-colors"
                         aria-label="Delete place"
@@ -291,6 +303,12 @@ export function PlacesTable() {
         open={isUpdateModalOpen}
         onOpenChange={setIsUpdateModalOpen}
         placeId={selectedPlaceId}
+      />
+
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        placeId={selectedPlaceId || undefined}
       />
     </div>
   );

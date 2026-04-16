@@ -10,71 +10,38 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
+import { useGetSubscriptionPlansQuery } from "@/redux/features/subscription/subscriptionApi";
+import { PricingCard, Plan } from "../pricing/PricingCard";
+
 interface BusinessFormStep6Props {
   form: UseFormReturn<any>;
 }
 
-interface PlanDetails {
-  id: string;
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  highlighted: boolean;
-  badge?: string;
-  features: string[];
-  buttonText: string;
-}
-
-const plans: PlanDetails[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "$0",
-    period: "/month",
-    description: "Perfect for small local spots getting started.",
-    highlighted: false,
-    features: [
-      "Basic business listing",
-      "1 Professional photo",
-      "Standard map pin",
-    ],
-    buttonText: "Select Plan",
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "$29",
-    period: "/month",
-    description: "Maximize visibility and drive more customers.",
-    highlighted: true,
-    badge: "MOST POPULAR",
-    features: [
-      "Featured listing status",
-      "Up to 10 photos",
-      "Custom offer integration",
-      "Priority in search results",
-    ],
-    buttonText: "Select Plan",
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "Scalable solutions for multiple locations.",
-    highlighted: false,
-    features: [
-      "Unlimited locations",
-      "Dedicated account manager",
-      "Advanced analytics dashboard",
-    ],
-    buttonText: "Select Plan",
-  },
-];
-
 export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
+  const { data: plansRes, isLoading, error } = useGetSubscriptionPlansQuery();
   const selectedPlan = form.watch("selectedPlan");
+
+  const plans: Plan[] = plansRes?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-500 font-medium">Loading subscription plans...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 space-y-4">
+        <p className="text-red-500 font-medium">Failed to load subscription plans.</p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -99,99 +66,15 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-6 pt-4">
                 {plans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    onClick={() => field.onChange(plan.id)}
-                    className={`relative rounded-2xl p-6 cursor-pointer transition-all duration-200 ${
-                      plan.highlighted
-                        ? "border-2 border-yellow-400 bg-white shadow-lg scale-105"
-                        : selectedPlan === plan.id
-                          ? "border-2 border-yellow-400 bg-white"
-                          : "border-2 border-gray-200 bg-white hover:border-gray-300"
-                    } ${plan.id === "enterprise" ? "bg-gray-900! border-black! text-white" : ""}`}
-                  >
-                    {/* Badge */}
-                    {plan.badge && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full">
-                          {plan.badge}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Plan Header */}
-                    <div className="space-y-2 mb-4">
-                      <h3
-                        className={`text-xl font-bold ${plan.id === "enterprise" ? "text-white" : "text-gray-900"}`}
-                      >
-                        {plan.name}
-                      </h3>
-                      <div className="flex items-baseline gap-1">
-                        <span
-                          className={`text-3xl font-bold ${plan.id === "enterprise" ? "text-yellow-400" : "text-gray-900"}`}
-                        >
-                          {plan.price}
-                        </span>
-                        {plan.period && (
-                          <span
-                            className={`text-sm ${plan.id === "enterprise" ? "text-gray-300" : "text-gray-600"}`}
-                          >
-                            {plan.period}
-                          </span>
-                        )}
-                      </div>
-                      <p
-                        className={`text-sm ${plan.id === "enterprise" ? "text-gray-300" : "text-gray-600"}`}
-                      >
-                        {plan.description}
-                      </p>
-                    </div>
-
-                    {/* Button */}
-                    <Button
-                      type="button"
-                      onClick={() => field.onChange(plan.id)}
-                      className={`w-full py-2 mb-6 font-semibold rounded-lg transition-all ${
-                        selectedPlan === plan.id
-                          ? plan.id === "enterprise"
-                            ? "bg-white text-black hover:bg-gray-100"
-                            : "bg-yellow-400 text-black hover:bg-yellow-500"
-                          : plan.id === "enterprise"
-                            ? "bg-white text-black hover:bg-gray-100"
-                            : plan.id === "pro"
-                              ? "bg-yellow-400 text-black hover:bg-yellow-500"
-                              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                      }`}
-                    >
-                      {plan.buttonText}
-                    </Button>
-
-                    {/* Features */}
-                    <div className="space-y-3">
-                      {plan.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
-                          <Check
-                            className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                              plan.id === "enterprise"
-                                ? "text-yellow-400"
-                                : "text-green-500"
-                            }`}
-                          />
-                          <span
-                            className={`text-sm ${
-                              plan.id === "enterprise"
-                                ? "text-gray-200"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {feature}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <PricingCard
+                    key={plan._id}
+                    plan={plan}
+                    isSelected={selectedPlan === plan._id}
+                    onSelect={(id) => field.onChange(id)}
+                    isFormStep={true}
+                  />
                 ))}
               </div>
             </FormControl>
@@ -213,3 +96,4 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
     </div>
   );
 }
+
