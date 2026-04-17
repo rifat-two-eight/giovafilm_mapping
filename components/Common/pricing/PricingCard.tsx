@@ -1,7 +1,9 @@
 "use client";
 
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 export interface Plan {
   _id: string;
@@ -29,15 +31,37 @@ export function PricingCard({
 }: PricingCardProps) {
   const isEnterprise = plan.name.toLowerCase() === "enterprise";
   const isPro = plan.name.toLowerCase() === "pro";
+  const [createCheckoutSession, { isLoading }] =
+    useCreateCheckoutSessionMutation();
 
   const formatPrice = (price: number, name: string) => {
     if (name.toLowerCase() === "enterprise") return "Custom";
     return `$${price}`;
   };
 
-  const handleClick = () => {
-    if (onSelect) {
-      onSelect(plan._id);
+  const handleClick = async () => {
+    if (isFormStep) {
+      if (onSelect) {
+        onSelect(plan._id);
+      }
+    } else {
+      try {
+        const res = await createCheckoutSession({
+          planId: plan._id,
+          successUrl: `${window.location.origin}/success`,
+          cancelUrl: `${window.location.origin}/cancel`,
+        }).unwrap();
+
+        if (res.data?.url) {
+          window.location.href = res.data.url;
+        } else {
+          toast.error("Failed to initiate payment. Please try again.");
+        }
+      } catch (err: any) {
+        toast.error(
+          err?.data?.message || "Something went wrong. Please try again.",
+        );
+      }
     }
   };
 
@@ -45,17 +69,17 @@ export function PricingCard({
     <div
       onClick={handleClick}
       className={`relative rounded-2xl p-6 cursor-pointer transition-all duration-200 h-full flex flex-col ${
-        isPro && isFormStep
-          ? "border-2 border-yellow-400 bg-white shadow-lg scale-105"
+        isPro && isFormStep && !isSelected
+          ? "border-2 border-yellow-400 bg-white shadow-lg scale-102"
           : isSelected
-            ? "border-2 border-yellow-400 bg-white"
+            ? "border-2 border-yellow-400 bg-white ring-2 ring-yellow-400/20"
             : "border-2 border-gray-200 bg-white hover:border-gray-300"
-      } ${isEnterprise ? "bg-gray-900! border-black! text-white" : ""}`}
+      } ${isEnterprise ? "!bg-gray-900 !border-black !text-white" : ""}`}
     >
       {/* Badge */}
       {isPro && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+          <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
             MOST POPULAR
           </span>
         </div>
@@ -63,20 +87,28 @@ export function PricingCard({
 
       {/* Plan Header */}
       <div className="space-y-2 mb-4">
-        <h3 className={`text-xl font-bold ${isEnterprise ? "text-white" : "text-gray-900"}`}>
+        <h3
+          className={`text-xl font-bold ${isEnterprise ? "text-white" : "text-gray-900"}`}
+        >
           {plan.name}
         </h3>
         <div className="flex items-baseline gap-1">
-          <span className={`text-3xl font-bold ${isEnterprise ? "text-yellow-400" : "text-gray-900"}`}>
+          <span
+            className={`text-3xl font-bold ${isEnterprise ? "text-yellow-400" : "text-gray-900"}`}
+          >
             {formatPrice(plan.price, plan.name)}
           </span>
           {plan.interval && plan.name.toLowerCase() !== "enterprise" && (
-            <span className={`text-sm ${isEnterprise ? "text-gray-300" : "text-gray-600"}`}>
+            <span
+              className={`text-sm ${isEnterprise ? "text-gray-300" : "text-gray-600"}`}
+            >
               /{plan.interval}
             </span>
           )}
         </div>
-        <p className={`text-sm ${isEnterprise ? "text-gray-300" : "text-gray-600"}`}>
+        <p
+          className={`text-sm ${isEnterprise ? "text-gray-300" : "text-gray-600"}`}
+        >
           {plan.description}
         </p>
       </div>
@@ -84,6 +116,7 @@ export function PricingCard({
       {/* Select Button */}
       <Button
         type="button"
+        disabled={isLoading}
         onClick={(e) => {
           e.stopPropagation();
           handleClick();
@@ -100,7 +133,11 @@ export function PricingCard({
                 : "bg-gray-100 text-gray-900 hover:bg-gray-200"
         }`}
       >
-        {isFormStep ? "Select Plan" : "Get Started"}
+        {isFormStep
+          ? isSelected ? "Plan Selected" : "Select Plan"
+          : isLoading
+            ? "Processing..."
+            : "Get Started"}
       </Button>
 
       {/* Features */}

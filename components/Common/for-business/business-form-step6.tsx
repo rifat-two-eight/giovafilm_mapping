@@ -27,16 +27,16 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-medium">Loading subscription plans...</p>
+        <p className="text-gray-500 font-medium font-public-sans text-xl">Loading subscription plans...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-20 space-y-4">
-        <p className="text-red-500 font-medium">Failed to load subscription plans.</p>
-        <Button onClick={() => window.location.reload()} variant="outline">
+      <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 space-y-4">
+        <p className="text-red-500 font-medium text-lg">Failed to load subscription plans.</p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
           Try Again
         </Button>
       </div>
@@ -82,18 +82,8 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
           </FormItem>
         )}
       />
-
-      {/* Submit Button */}
-      <div className="flex gap-3 pt-6">
-        <Button
-          type="button"
-          disabled={!selectedPlan}
-          className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-black font-semibold py-6 text-base rounded-lg"
-        >
-          Submit and Finish
-        </Button>
-      </div>
     </div>
   );
 }
+
 

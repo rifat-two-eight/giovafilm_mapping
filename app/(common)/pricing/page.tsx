@@ -26,12 +26,20 @@ export default function PricingPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-500 font-medium font-public-sans text-xl">Loading pricing plans...</p>
+            <p className="text-gray-500 font-medium font-public-sans text-xl">
+              Loading pricing plans...
+            </p>
           </div>
         ) : error ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 space-y-4">
-            <p className="text-red-500 font-medium text-lg">Failed to load subscription plans.</p>
-            <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+            <p className="text-red-500 font-medium text-lg">
+              Failed to load subscription plans.
+            </p>
+            <Button
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="rounded-xl"
+            >
               Try Again
             </Button>
           </div>
@@ -39,22 +47,19 @@ export default function PricingPage() {
           /* Pricing Grid */
           <div className="grid md:grid-cols-3 gap-8 items-stretch pt-8">
             {plans.map((plan) => (
-              <PricingCard
-                key={plan._id}
-                plan={plan}
-              />
+              <PricingCard key={plan._id} plan={plan} />
             ))}
           </div>
         )}
 
         {/* FAQ Preview or Footer */}
-        <div className="text-center space-y-4 pt-12">
+        <div className="text-center mt-6">
           <p className="text-gray-500 font-medium">
             Need a custom solution for your enterprise?
           </p>
-          <Button variant="link" className="text-blue-600 font-bold text-lg hover:text-blue-700">
+          {/* <Button variant="link" className="text-blue-600 font-bold text-lg hover:text-blue-700">
             Contact our sales team →
-          </Button>
+          </Button> */}
         </div>
       </div>
     </main>

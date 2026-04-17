@@ -83,7 +83,9 @@ export default function Footer() {
               <li className="hover:text-black cursor-pointer">
                 Partner Dashboard
               </li>
-              <li className="hover:text-black cursor-pointer">Advertising</li>
+              <li className="hover:text-black cursor-pointer">
+                <Link href={"/pricing"}>Pricing Plan</Link>
+              </li>
               <li className="hover:text-black cursor-pointer">
                 Success Stories
               </li>

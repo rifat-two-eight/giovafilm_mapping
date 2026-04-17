@@ -264,6 +264,7 @@ import { BusinessFormStep4 } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
 import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
+import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -275,6 +276,8 @@ export function AddBusinessForm() {
   const router = useRouter();
 
   const [addBusiness, { isLoading: isCreating }] = useAddBusinessMutation();
+  const [createCheckoutSession, { isLoading: isSubmitting }] =
+    useCreateCheckoutSessionMutation();
 
   const form = useForm({
     defaultValues: {
@@ -358,7 +361,6 @@ export function AddBusinessForm() {
           ownerPhone: values.ownerPhone,
           contactEmail: values.invoicingEmail,
         },
-        plan: "67da01c2b9876543210fedcb",
         // Only include offer if title is provided
         ...(values.offerTitle
           ? {
@@ -377,14 +379,11 @@ export function AddBusinessForm() {
       // ✅ "data" must match exactly what your backend expects (e.g. upload.fields + body parser)
       formData.append("data", JSON.stringify(businessData));
 
-      // ✅ "photos" — append each photo individually under the SAME field name
-      // Make sure your backend Multer config has: { name: 'photos', maxCount: 10 }
+      // ✅ "images" — append each photo individually under the SAME field name
       businessPhotos.forEach((photo) => {
         formData.append("images", photo);
       });
 
-      // ✅ Only append "menu" if a file was actually selected AND your backend supports it
-      // If your backend Multer config does NOT include { name: 'menu' }, comment this out
       if (menuFile) {
         formData.append("images", menuFile);
       }
@@ -411,10 +410,21 @@ export function AddBusinessForm() {
     }
 
     try {
-      toast.success("Package purchased successfully!");
-      router.push("/dashboard/business");
-    } catch (err) {
-      toast.error("Failed to process purchase.");
+      const res = await createCheckoutSession({
+        planId: values.selectedPlan,
+        successUrl: `${window.location.origin}/success`,
+        cancelUrl: `${window.location.origin}/cancel`,
+      }).unwrap();
+
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Failed to initiate payment. Please try again.");
+      }
+    } catch (err: any) {
+      toast.error(
+        err?.data?.message || "Something went wrong. Please try again.",
+      );
     }
   };
 
@@ -518,9 +528,17 @@ export function AddBusinessForm() {
               {currentStep === 6 && (
                 <Button
                   type="submit"
+                  disabled={isSubmitting}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
-                  Purchase and Finish
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    "Purchase and Finish"
+                  )}
                 </Button>
               )}
             </div>

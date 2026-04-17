@@ -9,7 +9,15 @@ const subscriptionApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Subscription"],
     }),
+    createCheckoutSession: builder.mutation({
+      query: (data) => ({
+        url: "/subscription/checkout-session",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useGetSubscriptionPlansQuery } = subscriptionApi;
+export const { useGetSubscriptionPlansQuery, useCreateCheckoutSessionMutation } =
+  subscriptionApi;
