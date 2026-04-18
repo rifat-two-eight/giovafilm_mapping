@@ -1,13 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Baby,
   BarChart3,
-  Building2,
   Car,
   Clock,
-  CloudCog,
   Dog,
   Heart,
   MapPin,
@@ -24,6 +20,7 @@ import {
   Wifi,
 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 import {
   Accordion,
@@ -35,11 +32,16 @@ import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
-import InfoCard from "./info-card";
-import Link from "next/link";
-import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
-import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
+import { getImageUrl } from "@/lib/utils";
+import {
+  useAddToFavouriteMutation,
+  useGetFavouritesQuery,
+} from "@/redux/features/favourite/favouriteApi";
+import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
+import Link from "next/link";
+import { toast } from "sonner";
+import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
 
 export const infoData = [
@@ -65,6 +67,7 @@ export const infoData = [
     value: "~ 3.5 Hours",
   },
 ];
+
 export const restaurantData = [
   {
     icon: Clock,
@@ -83,15 +86,46 @@ export default function MapDetails() {
   const id = params?.id as string;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
+  const [addToFavourite, { isLoading: isFavouriteLoading }] =
+    useAddToFavouriteMutation();
+
   const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
     skip: !id,
   });
-  const placeData = placeRes?.data;
 
+  // Fetch the user's full favourites list from the backend
+  const { data: favouritesRes } = useGetFavouritesQuery();
+  const favouritesList: any[] = favouritesRes?.data || [];
+
+  const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
 
   const lat = coordinates?.[1];
   const lng = coordinates?.[0];
+
+  // Derive isFavourite from the real API list — persists across reloads
+  const mapId = placeData?.map?._id;
+  const isFavourite = favouritesList.some(
+    (fav: any) =>
+      (typeof fav.map === "string" ? fav.map : fav.map?._id) === mapId,
+  );
+
+  const isRestaurant =
+    placeData?.category?.name?.toLowerCase() === "restaurant";
+  const dataToRender = isRestaurant ? restaurantData : infoData;
+
+  const servicesMap: Record<string, any> = {
+    Parking: { icon: Car, label: "PARKING" },
+    Restrooms: { icon: Toilet, label: "RESTROOMS" },
+    "Food Nearby": { icon: Utensils, label: "FOOD NEARBY" },
+    "Guided Tour": { icon: MapPin, label: "GUIDED TOUR" },
+    "Family Friendly": { icon: User2, label: "FAMILY FRIENDLY" },
+    Wifi: { icon: Wifi, label: "WIFI" },
+    "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
+  };
+
+  // ✅ Must be before any early returns — Rules of Hooks
+  // isFavourite is now derived from server data — no useEffect needed
 
   const handleDirections = () => {
     if (!lat || !lng) {
@@ -104,7 +138,22 @@ export default function MapDetails() {
     window.open(url, "_blank");
   };
 
-  console.log("placeData", placeData);
+  // ✅ Toggle favourite (POST acts as toggle on backend)
+  const handleFavourite = async () => {
+    if (!mapId) return;
+    try {
+      await addToFavourite({
+        type: "Map",
+        map: mapId,
+      }).unwrap();
+
+      toast.success(
+        isFavourite ? "Removed from favourites" : "Added to favourites",
+      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update favourites");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -129,20 +178,6 @@ export default function MapDetails() {
       </div>
     );
   }
-
-  const isRestaurant =
-    placeData?.category?.name?.toLowerCase() === "restaurant";
-  const dataToRender = isRestaurant ? restaurantData : infoData;
-
-  const servicesMap: Record<string, any> = {
-    Parking: { icon: Car, label: "PARKING" },
-    Restrooms: { icon: Toilet, label: "RESTROOMS" },
-    "Food Nearby": { icon: Utensils, label: "FOOD NEARBY" },
-    "Guided Tour": { icon: MapPin, label: "GUIDED TOUR" },
-    "Family Friendly": { icon: User2, label: "FAMILY FRIENDLY" },
-    Wifi: { icon: Wifi, label: "WIFI" },
-    "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
-  };
 
   return (
     <section className="bg-gray-100 py-10">
@@ -170,8 +205,20 @@ export default function MapDetails() {
             <div className="absolute inset-0 bg-black/40"></div>
 
             {/* favorite */}
-            <button className="absolute top-5 left-5 bg-white/40 backdrop-blur p-4 rounded-lg">
-              <Heart className="size-6" />
+            <button
+              onClick={handleFavourite}
+              className="absolute top-5 left-5 bg-white/40 backdrop-blur p-4 rounded-lg"
+            >
+              <Heart
+                size={20}
+                className={
+                  isFavourite
+                    ? "text-red-500 fill-red-500"
+                    : isFavouriteLoading
+                      ? "animate-pulse"
+                      : "text-gray-400"
+                }
+              />
             </button>
 
             {/* share */}
@@ -462,7 +509,7 @@ export default function MapDetails() {
                 </div>
 
                 {/* Button */}
-                <Button 
+                <Button
                   onClick={() => setIsReviewOpen(true)}
                   className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 rounded-xl mt-6"
                 >
@@ -519,9 +566,9 @@ export default function MapDetails() {
           </div>
         )}
       </div>
-      <ReviewModal 
-        isOpen={isReviewOpen} 
-        onClose={() => setIsReviewOpen(false)} 
+      <ReviewModal
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
         placeId={placeData?._id}
       />
     </section>

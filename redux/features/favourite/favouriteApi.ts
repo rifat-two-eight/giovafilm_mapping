@@ -8,8 +8,18 @@ const favouriteApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Favourite"],
+    }),
+
+    getFavourites: builder.query<any, void>({
+      query: () => ({
+        url: `/favourite`,
+        method: "GET",
+      }),
+      providesTags: ["Favourite"],
     }),
   }),
 });
 
-export const { useAddToFavouriteMutation } = favouriteApi;
+export const { useAddToFavouriteMutation, useGetFavouritesQuery } =
+  favouriteApi;

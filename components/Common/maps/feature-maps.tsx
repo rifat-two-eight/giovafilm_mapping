@@ -6,6 +6,11 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { getImageUrl } from "@/lib/utils";
+import {
+  useAddToFavouriteMutation,
+  useGetFavouritesQuery,
+} from "@/redux/features/favourite/favouriteApi";
+import { toast } from "sonner";
 
 export const MAP_CARDS = [
   {
@@ -62,6 +67,35 @@ export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
+  const [addToFavourite, { isLoading: isFavouriteLoading }] =
+    useAddToFavouriteMutation();
+
+  // Fetch the user's full favourites list — persists across reloads
+  const { data: favouritesRes } = useGetFavouritesQuery();
+  const favouritesList: any[] = favouritesRes?.data || [];
+
+  const isFavourited = (mapId: string) =>
+    favouritesList.some(
+      (fav: any) =>
+        (typeof fav.map === "string" ? fav.map : fav.map?._id) === mapId,
+    );
+
+  const handleFavourite = async (
+    e: React.MouseEvent,
+    mapId: string,
+    currentlyFavourited: boolean,
+  ) => {
+    e.preventDefault();
+    try {
+      await addToFavourite({ type: "Map", map: mapId }).unwrap();
+      toast.success(
+        currentlyFavourited ? "Removed from favourites" : "Added to favourites",
+      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update favourites");
+    }
+  };
+
   return (
     <div className="bg-gray-50 py-10 font-inter">
       <div className="max-w-360 mx-auto px-4 md:px-6">
@@ -97,49 +131,62 @@ export default function FeaturedMaps() {
                 No featured maps found.
               </p>
             ) : (
-              maps.map((map: any) => (
-                <motion.div
-                  key={map._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
-                >
-                  {/* Image Container */}
-                  <div className="relative h-64 mb-2">
-                    <img
-                      src={getImageUrl(map.images?.[0])}
-                      alt={map.name}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <button className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
-                      <Heart className="w-4 h-4 text-[#FFC107]" />
-                    </button>
-                  </div>
-
-                  {/* Card Details */}
-                  <div className="p-3 flex flex-col flex-1">
-                    <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
-                      {map.name}
-                    </h3>
-                    <p className="text-sm text-[#9E9E9E] mb-2 line-clamp-2">
-                      {map.description ||
-                        "Explore the best of the city with this curated guide."}
-                    </p>
-                    <div className="mt-auto">
-                      <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
-                        ${map.price || "0.00"}
-                      </span>
-                      <Link href={`/catalog/${map._id}`}>
-                        <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
-                          Buy Now
-                        </Button>
-                      </Link>
+              maps.map((map: any) => {
+                const favourited = isFavourited(map._id);
+                return (
+                  <motion.div
+                    key={map._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
+                  >
+                    {/* Image Container */}
+                    <div className="relative h-64 mb-2">
+                      <img
+                        src={getImageUrl(map.images?.[0])}
+                        alt={map.name}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                      <button
+                        onClick={(e) => handleFavourite(e, map._id, favourited)}
+                        disabled={isFavouriteLoading}
+                        className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110"
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-colors ${
+                            favourited
+                              ? "fill-red-500 text-red-500"
+                              : "text-[#FFC107]"
+                          }`}
+                        />
+                      </button>
                     </div>
-                  </div>
-                </motion.div>
-              ))
+
+                    {/* Card Details */}
+                    <div className="p-3 flex flex-col flex-1">
+                      <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
+                        {map.name}
+                      </h3>
+                      <p className="text-sm text-[#9E9E9E] mb-2 line-clamp-2">
+                        {map.description ||
+                          "Explore the best of the city with this curated guide."}
+                      </p>
+                      <div className="mt-auto">
+                        <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
+                          ${map.price || "0.00"}
+                        </span>
+                        <Link href={`/catalog/${map._id}`}>
+                          <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
+                            Buy Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })
             )}
           </div>
         </div>

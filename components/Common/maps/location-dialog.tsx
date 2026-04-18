@@ -5,7 +5,10 @@ import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 
 import { getImageUrl } from "@/lib/utils";
-import { useAddToFavouriteMutation } from "@/redux/features/favourite/favouriteApi";
+import {
+  useAddToFavouriteMutation,
+  useGetFavouritesQuery,
+} from "@/redux/features/favourite/favouriteApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { Heart, Star, X } from "lucide-react";
 import Image from "next/image";
@@ -28,23 +31,39 @@ export default function LocationDialog({ id, onClose }: Props) {
   const [addToFavourite, { isLoading: isFavouriteLoading }] =
     useAddToFavouriteMutation();
 
+  // Fetch the user's full favourites list — persists across reloads
+  const { data: favouritesRes } = useGetFavouritesQuery();
+  const favouritesList: any[] = favouritesRes?.data || [];
+
   if (!data) return null;
 
   const location: TPlace = (data as PlaceDetailsResponse).data;
 
+  const mapId =
+    typeof location.map === "string" ? location.map : location.map?._id;
+
+  // Derive isFavourite from server data — no local state needed
+  const isFavourite = favouritesList.some(
+    (fav: any) =>
+      (typeof fav.map === "string" ? fav.map : fav.map?._id) === mapId,
+  );
+
   const handleFavourite = async () => {
+    if (!mapId) return;
     try {
       await addToFavourite({
         type: "Map",
-        map: location.map._id,
+        map: mapId,
       }).unwrap();
-      toast.success("Added to favourites");
+
+      toast.success(
+        isFavourite ? "Removed from favourites" : "Added to favourites",
+      );
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to add to favourites");
+      toast.error(error?.data?.message || "Failed to update favourites");
     }
   };
 
-  console.log("placeId", location);
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
       <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative">
@@ -58,7 +77,8 @@ export default function LocationDialog({ id, onClose }: Props) {
 
         {/* Image */}
         <div className="h-48 overflow-hidden">
-          {location?.media.length > 0 ? (
+          {location?.media?.length > 0 &&
+          typeof location.media[0] === "string" ? (
             <Image
               src={getImageUrl(location.media[0])}
               alt={location.name}
@@ -81,8 +101,9 @@ export default function LocationDialog({ id, onClose }: Props) {
               <Star size={14} className="fill-black mr-1" />
               {location.rating}
             </div>
+
             <span className="text-gray-400 text-sm">
-              ({location.rating} reviews) {location.map.name}
+              ({location.totalReview} reviews) {location.map?.name}
             </span>
           </div>
 
@@ -103,7 +124,13 @@ export default function LocationDialog({ id, onClose }: Props) {
             >
               <Heart
                 size={20}
-                className={isFavouriteLoading ? "animate-pulse" : "text-gray-400"}
+                className={
+                  isFavourite
+                    ? "text-red-500 fill-red-500"
+                    : isFavouriteLoading
+                      ? "animate-pulse"
+                      : "text-gray-400"
+                }
               />
             </Button>
           </div>

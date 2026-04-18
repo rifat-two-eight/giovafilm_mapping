@@ -8,8 +8,13 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
+import {
+  useAddToFavouriteMutation,
+  useGetFavouritesQuery,
+} from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Offer = {
   id: number;
@@ -22,19 +27,41 @@ type Offer = {
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [favorites, setFavorites] = useState<string[]>([]);
 
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
 
-  console.log(offersData);
+  const [addToFavourite, { isLoading: isFavouriteLoading }] =
+    useAddToFavouriteMutation();
+
+  // Fetch the user's full favourites list — persists across reloads
+  const { data: favouritesRes } = useGetFavouritesQuery();
+  const favouritesList: any[] = favouritesRes?.data || [];
 
   const filters = ["All", "Near me", "Popular", "New", "Trending", "Favorites"];
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+  // Derive if an offer is favourited from the server list
+  const isOfferFavourited = (offerId: string) =>
+    favouritesList.some(
+      (fav: any) =>
+        (typeof fav.offer === "string" ? fav.offer : fav.offer?._id) ===
+        offerId,
     );
+
+  const handleFavourite = async (
+    e: React.MouseEvent,
+    offerId: string,
+    currentlyFavourited: boolean,
+  ) => {
+    e.preventDefault();
+    try {
+      await addToFavourite({ type: "Offer", offer: offerId }).unwrap();
+      toast.success(
+        currentlyFavourited ? "Removed from favourites" : "Added to favourites",
+      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update favourites");
+    }
   };
 
   const filteredOffers = offersData.filter((offer: any) => {
@@ -43,7 +70,7 @@ export default function OfferSection() {
       .includes(searchTerm.toLowerCase());
     const matchesFilter =
       activeFilter === "All" ||
-      (activeFilter === "Favorites" && favorites.includes(offer._id)) ||
+      (activeFilter === "Favorites" && isOfferFavourited(offer._id)) ||
       (activeFilter !== "Favorites" && activeFilter !== "All"); // Others are placeholders for now
 
     return matchesSearch && matchesFilter;
@@ -109,7 +136,7 @@ export default function OfferSection() {
         {/* Offer Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
-            const isFavorite = favorites.includes(offer?._id);
+            const favourited = isOfferFavourited(offer._id);
 
             return (
               <Link key={offer._id} href={`/offer/${offer?._id}`}>
@@ -129,15 +156,15 @@ export default function OfferSection() {
                     <Button
                       size="icon"
                       variant="secondary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleFavorite(offer._id);
-                      }}
+                      onClick={(e) =>
+                        handleFavourite(e, offer._id, favourited)
+                      }
+                      disabled={isFavouriteLoading}
                       className="absolute right-3 top-3 rounded-full"
                     >
                       <Heart
-                        className={`w-4 h-4 ${
-                          isFavorite ? "fill-red-500 text-red-500" : ""
+                        className={`w-4 h-4 transition-colors ${
+                          favourited ? "fill-red-500 text-red-500" : ""
                         }`}
                       />
                     </Button>
@@ -145,7 +172,7 @@ export default function OfferSection() {
                     {/* Discount Badge */}
                     <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">
                       {offer.discountValue}
-                    {offer.discountType === "Percentage" ? "%" : ""}%   OFF
+                      {offer.discountType === "Percentage" ? "%" : ""}% OFF
                     </div>
                   </div>
 
