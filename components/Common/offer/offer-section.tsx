@@ -1,20 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
 
+import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
 import {
-  useAddToFavouriteMutation,
-  useGetFavouritesQuery,
+  useGetFavouritesQuery
 } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
-import { toast } from "sonner";
 
 type Offer = {
   id: number;
@@ -31,9 +30,6 @@ export default function OfferSection() {
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
 
-  const [addToFavourite, { isLoading: isFavouriteLoading }] =
-    useAddToFavouriteMutation();
-
   // Fetch the user's full favourites list — persists across reloads
   const { data: favouritesRes } = useGetFavouritesQuery();
   const favouritesList: any[] = favouritesRes?.data || [];
@@ -44,25 +40,10 @@ export default function OfferSection() {
   const isOfferFavourited = (offerId: string) =>
     favouritesList.some(
       (fav: any) =>
+        fav.type === "Offer" &&
         (typeof fav.offer === "string" ? fav.offer : fav.offer?._id) ===
         offerId,
     );
-
-  const handleFavourite = async (
-    e: React.MouseEvent,
-    offerId: string,
-    currentlyFavourited: boolean,
-  ) => {
-    e.preventDefault();
-    try {
-      await addToFavourite({ type: "Offer", offer: offerId }).unwrap();
-      toast.success(
-        currentlyFavourited ? "Removed from favourites" : "Added to favourites",
-      );
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update favourites");
-    }
-  };
 
   const filteredOffers = offersData.filter((offer: any) => {
     const matchesSearch = offer.title
@@ -153,21 +134,13 @@ export default function OfferSection() {
                     />
 
                     {/* Favorite Button */}
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={(e) =>
-                        handleFavourite(e, offer._id, favourited)
-                      }
-                      disabled={isFavouriteLoading}
-                      className="absolute right-3 top-3 rounded-full"
-                    >
-                      <Heart
-                        className={`w-4 h-4 transition-colors ${
-                          favourited ? "fill-red-500 text-red-500" : ""
-                        }`}
+                    <div className="absolute right-3 top-3">
+                      <FavouriteButton 
+                        placeId={offer._id} 
+                        type="Offer" 
+                        Style="rounded-full w-10 h-10 border-none bg-secondary hover:bg-secondary/80 p-0 shadow-sm"
                       />
-                    </Button>
+                    </div>
 
                     {/* Discount Badge */}
                     <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">

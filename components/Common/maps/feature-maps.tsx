@@ -1,16 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { getImageUrl } from "@/lib/utils";
-import {
-  useAddToFavouriteMutation,
-  useGetFavouritesQuery,
-} from "@/redux/features/favourite/favouriteApi";
-import { toast } from "sonner";
+import { FavouriteButton } from "@/components/shared/favourite-button";
 
 export const MAP_CARDS = [
   {
@@ -67,34 +63,7 @@ export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
-  const [addToFavourite, { isLoading: isFavouriteLoading }] =
-    useAddToFavouriteMutation();
 
-  // Fetch the user's full favourites list — persists across reloads
-  const { data: favouritesRes } = useGetFavouritesQuery();
-  const favouritesList: any[] = favouritesRes?.data || [];
-
-  const isFavourited = (mapId: string) =>
-    favouritesList.some(
-      (fav: any) =>
-        (typeof fav.map === "string" ? fav.map : fav.map?._id) === mapId,
-    );
-
-  const handleFavourite = async (
-    e: React.MouseEvent,
-    mapId: string,
-    currentlyFavourited: boolean,
-  ) => {
-    e.preventDefault();
-    try {
-      await addToFavourite({ type: "Map", map: mapId }).unwrap();
-      toast.success(
-        currentlyFavourited ? "Removed from favourites" : "Added to favourites",
-      );
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update favourites");
-    }
-  };
 
   return (
     <div className="bg-gray-50 py-10 font-inter">
@@ -132,7 +101,6 @@ export default function FeaturedMaps() {
               </p>
             ) : (
               maps.map((map: any) => {
-                const favourited = isFavourited(map._id);
                 return (
                   <motion.div
                     key={map._id}
@@ -149,19 +117,14 @@ export default function FeaturedMaps() {
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
-                      <button
-                        onClick={(e) => handleFavourite(e, map._id, favourited)}
-                        disabled={isFavouriteLoading}
-                        className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110"
-                      >
-                        <Heart
-                          className={`w-4 h-4 transition-colors ${
-                            favourited
-                              ? "fill-red-500 text-red-500"
-                              : "text-[#FFC107]"
-                          }`}
+                      
+                      <div className="absolute top-2 right-2">
+                        <FavouriteButton 
+                          placeId={map._id} 
+                          type="Map" 
+                          Style="w-8 h-8 p-0 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110 border-none"
                         />
-                      </button>
+                      </div>
                     </div>
 
                     {/* Card Details */}

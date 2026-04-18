@@ -3,6 +3,7 @@
 import { Zap } from "lucide-react";
 import { Button } from "../../ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function HeroBanner() {
   return (
@@ -64,12 +65,14 @@ export default function HeroBanner() {
             <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
               Explore Maps
             </Button>
-            <Button
-              variant="outline"
-              className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5"
-            >
-              Browse Catalog
-            </Button>
+            <Link href={"/catalog"}>
+              <Button
+                variant="outline"
+                className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5"
+              >
+                Browse Catalog
+              </Button>
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">

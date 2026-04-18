@@ -34,15 +34,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
-import {
-  useAddToFavouriteMutation,
-  useGetFavouritesQuery,
-} from "@/redux/features/favourite/favouriteApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import Link from "next/link";
-import { toast } from "sonner";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
+import { FavouriteButton } from "@/components/shared/favourite-button";
 
 export const infoData = [
   {
@@ -86,29 +82,15 @@ export default function MapDetails() {
   const id = params?.id as string;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  const [addToFavourite, { isLoading: isFavouriteLoading }] =
-    useAddToFavouriteMutation();
-
   const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
     skip: !id,
   });
-
-  // Fetch the user's full favourites list from the backend
-  const { data: favouritesRes } = useGetFavouritesQuery();
-  const favouritesList: any[] = favouritesRes?.data || [];
 
   const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
 
   const lat = coordinates?.[1];
   const lng = coordinates?.[0];
-
-  // Derive isFavourite from the real API list — persists across reloads
-  const mapId = placeData?.map?._id;
-  const isFavourite = favouritesList.some(
-    (fav: any) =>
-      (typeof fav.map === "string" ? fav.map : fav.map?._id) === mapId,
-  );
 
   const isRestaurant =
     placeData?.category?.name?.toLowerCase() === "restaurant";
@@ -124,9 +106,6 @@ export default function MapDetails() {
     "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
   };
 
-  // ✅ Must be before any early returns — Rules of Hooks
-  // isFavourite is now derived from server data — no useEffect needed
-
   const handleDirections = () => {
     if (!lat || !lng) {
       console.error("Invalid coordinates");
@@ -136,23 +115,6 @@ export default function MapDetails() {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
     window.open(url, "_blank");
-  };
-
-  // ✅ Toggle favourite (POST acts as toggle on backend)
-  const handleFavourite = async () => {
-    if (!mapId) return;
-    try {
-      await addToFavourite({
-        type: "Map",
-        map: mapId,
-      }).unwrap();
-
-      toast.success(
-        isFavourite ? "Removed from favourites" : "Added to favourites",
-      );
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update favourites");
-    }
   };
 
   if (isLoading) {
@@ -205,10 +167,7 @@ export default function MapDetails() {
             <div className="absolute inset-0 bg-black/40"></div>
 
             {/* favorite */}
-            <button
-              onClick={handleFavourite}
-              className="absolute top-5 left-5 bg-white/40 backdrop-blur p-4 rounded-lg"
-            >
+            {/* <button className="absolute top-5 left-5 bg-white/40 backdrop-blur p-4 rounded-lg">
               <Heart
                 size={20}
                 className={
@@ -219,7 +178,12 @@ export default function MapDetails() {
                       : "text-gray-400"
                 }
               />
-            </button>
+            </button> */}
+            <FavouriteButton
+              placeId={id}
+              type="Place"
+              Style="absolute top-5 left-5 w-12 h-12 border-none bg-white/40 backdrop-blur p-4 rounded-lg"
+            />
 
             {/* share */}
             <button className="absolute top-5 right-5 text-yellow-400 flex items-center gap-2 font-semibold">
