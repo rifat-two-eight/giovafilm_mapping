@@ -5,10 +5,12 @@ import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 
 import { getImageUrl } from "@/lib/utils";
+import { useAddToFavouriteMutation } from "@/redux/features/favourite/favouriteApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { Heart, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Props = {
   id: { id: string };
@@ -23,10 +25,24 @@ export default function LocationDialog({ id, onClose }: Props) {
   const placeId = id?.id;
 
   const { data } = useGetPlaceDetailsQuery(placeId);
+  const [addToFavourite, { isLoading: isFavouriteLoading }] =
+    useAddToFavouriteMutation();
 
   if (!data) return null;
 
   const location: TPlace = (data as PlaceDetailsResponse).data;
+
+  const handleFavourite = async () => {
+    try {
+      await addToFavourite({
+        type: "Map",
+        map: location.map._id,
+      }).unwrap();
+      toast.success("Added to favourites");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to add to favourites");
+    }
+  };
 
   console.log("placeId", location);
   return (
@@ -79,8 +95,16 @@ export default function LocationDialog({ id, onClose }: Props) {
               </Button>
             </Link>
 
-            <Button variant="outline" className="w-12 h-12 rounded-xl">
-              <Heart size={20} className="text-gray-400" />
+            <Button
+              variant="outline"
+              className="w-12 h-12 rounded-xl"
+              onClick={handleFavourite}
+              disabled={isFavouriteLoading}
+            >
+              <Heart
+                size={20}
+                className={isFavouriteLoading ? "animate-pulse" : "text-gray-400"}
+              />
             </Button>
           </div>
         </div>
