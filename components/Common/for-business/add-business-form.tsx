@@ -490,14 +490,14 @@ export function AddBusinessForm() {
                 <Button
                   type="button"
                   onClick={async () => {
-                    const validationKeys: Record<number, string[]> = {
+                    const validationKeys: Record<number, any[]> = {
                       1: ["businessName", "category", "phoneNumber"],
                       2: ["mapLocation"],
                       3: [],
                       4: [],
                     };
                     const isValid = await form.trigger(
-                      validationKeys[currentStep] || [],
+                      (validationKeys[currentStep] || []) as any,
                     );
                     if (isValid) {
                       setCurrentStep(currentStep + 1);
