@@ -31,14 +31,9 @@ const getAwardIcon = (type: string) => {
 };
 
 const getAwardImage = (type: string) => {
-  // Note: Backend might not return image URL right now, so we fall back to a default graphic.
   return unlockImage;
 };
 
-/*
-  Awards Page
-  Displays user achievements with progress.
-*/
 
 export default function AwardsPage() {
   const [page, setPage] = useState(1);
