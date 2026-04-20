@@ -9,9 +9,7 @@ import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
-import {
-  useGetFavouritesQuery
-} from "@/redux/features/favourite/favouriteApi";
+import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
 
@@ -34,7 +32,7 @@ export default function OfferSection() {
   const { data: favouritesRes } = useGetFavouritesQuery();
   const favouritesList: any[] = favouritesRes?.data || [];
 
-  const filters = ["All", "Near me", "Popular", "New", "Trending", "Favorites"];
+  const filters = ["All", "Near me", "Popular", "New", "Trending"];
 
   // Derive if an offer is favourited from the server list
   const isOfferFavourited = (offerId: string) =>
@@ -42,7 +40,7 @@ export default function OfferSection() {
       (fav: any) =>
         fav.type === "Offer" &&
         (typeof fav.offer === "string" ? fav.offer : fav.offer?._id) ===
-        offerId,
+          offerId,
     );
 
   const filteredOffers = offersData.filter((offer: any) => {
@@ -83,10 +81,10 @@ export default function OfferSection() {
         {/* Filters and Search */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-8">
           <div className="flex gap-3 flex-wrap">
-            <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
+            {/* <Button className="text-black ">
               <SlidersHorizontal className="w-4 h-4 mr-2" />
               Filter
-            </Button>
+            </Button> */}
 
             {filters.map((filter) => (
               <Button
@@ -135,9 +133,9 @@ export default function OfferSection() {
 
                     {/* Favorite Button */}
                     <div className="absolute right-3 top-3">
-                      <FavouriteButton 
-                        placeId={offer._id} 
-                        type="Offer" 
+                      <FavouriteButton
+                        placeId={offer._id}
+                        type="Offer"
                         Style="rounded-full w-10 h-10 border-none bg-secondary hover:bg-secondary/80 p-0 shadow-sm"
                       />
                     </div>
