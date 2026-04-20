@@ -1,4 +1,4 @@
-
+import { BaseDocument, Status } from "./common";
 
 export interface MapLocation extends BaseDocument {
   id: string;
