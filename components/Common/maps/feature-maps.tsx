@@ -8,62 +8,11 @@ import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { getImageUrl } from "@/lib/utils";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 
-export const MAP_CARDS = [
-  {
-    id: 1,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    id: 2,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1772289935663-80aa987be656?q=80&w=1170",
-  },
-  {
-    id: 3,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1693707994429-95caaceab2a4?q=80&w=1074",
-  },
-  {
-    id: 4,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1772289935663-80aa987be656?q=80&w=1170",
-  },
-  {
-    id: 5,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    id: 6,
-    title: "Rome Historic Center Walking Tour",
-    subtitle: "Professional Guide",
-    price: "$9.99",
-    image:
-      "https://images.unsplash.com/photo-1693707994429-95caaceab2a4?q=80&w=1074",
-  },
-];
-
 export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
-
+  console.log(maps);
 
   return (
     <div className="bg-gray-50 py-10 font-inter">
@@ -117,11 +66,11 @@ export default function FeaturedMaps() {
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
-                      
+
                       <div className="absolute top-2 right-2">
-                        <FavouriteButton 
-                          placeId={map._id} 
-                          type="Map" 
+                        <FavouriteButton
+                          placeId={map._id}
+                          type="Map"
                           Style="w-8 h-8 p-0 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110 border-none"
                         />
                       </div>

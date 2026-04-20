@@ -39,9 +39,9 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
     try {
       // POST /favourite acts as a toggle on the backend
       const payload =
-        type === "Map" 
-          ? { type, map: placeId } 
-          : type === "Place" 
+        type === "Map"
+          ? { type, map: placeId }
+          : type === "Place"
             ? { type, place: placeId }
             : { type, offer: placeId };
 

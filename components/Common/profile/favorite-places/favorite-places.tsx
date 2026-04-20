@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, MapPin, Map, Tag, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Map,
+  Tag,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
@@ -27,7 +34,8 @@ export default function FavoritePlaces() {
   const [page, setPage] = useState(1);
 
   const { data: favouritesRes, isLoading } = useGetFavouritesQuery();
-  const [addToFavourite, { isLoading: isRemoving }] = useAddToFavouriteMutation();
+  const [addToFavourite, { isLoading: isRemoving }] =
+    useAddToFavouriteMutation();
 
   const allFavourites: any[] = favouritesRes?.data || [];
 
@@ -45,8 +53,7 @@ export default function FavoritePlaces() {
     const q = search.toLowerCase().trim();
     if (!q) return byType;
     return byType.filter((fav) => {
-      const name =
-        fav.place?.name || fav.map?.name || fav.offer?.title || "";
+      const name = fav.place?.name || fav.map?.name || fav.offer?.title || "";
       return name.toLowerCase().includes(q);
     });
   }, [byType, search]);
@@ -69,8 +76,7 @@ export default function FavoritePlaces() {
   const handleRemove = async (fav: any) => {
     const key =
       fav.type === "Map" ? "map" : fav.type === "Offer" ? "offer" : "place";
-    const refId =
-      typeof fav[key] === "string" ? fav[key] : fav[key]?._id;
+    const refId = typeof fav[key] === "string" ? fav[key] : fav[key]?._id;
     if (!refId) return;
     try {
       await addToFavourite({ type: fav.type, [key]: refId }).unwrap();
@@ -155,7 +161,10 @@ export default function FavoritePlaces() {
       {isLoading && (
         <div className="grid md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-80 bg-gray-100 animate-pulse rounded-xl" />
+            <div
+              key={i}
+              className="h-80 bg-gray-100 animate-pulse rounded-xl"
+            />
           ))}
         </div>
       )}
