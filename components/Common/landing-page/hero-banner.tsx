@@ -62,9 +62,11 @@ export default function HeroBanner() {
           </p>
 
           <div className="flex flex-wrap gap-4 mb-12">
-            <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
-              Explore Maps
-            </Button>
+            <Link href={"/places"}>
+              <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
+                Explore Maps
+              </Button>
+            </Link>
             <Link href={"/catalog"}>
               <Button
                 variant="outline"

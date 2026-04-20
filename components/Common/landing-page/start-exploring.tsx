@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 import bgImg from "@/public/exploring-today.jpg";
+import Link from "next/link";
 
 export default function StartExploring() {
   return (
@@ -28,9 +29,11 @@ export default function StartExploring() {
           </p>
 
           <div className="flex flex-col md:flex-row items-center gap-4">
-            <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-5 rounded-xl">
-              Browse Maps
-            </Button>
+            <Link href={"/catalog"}>
+              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-5 rounded-xl">
+                Browse Maps
+              </Button>
+            </Link>
 
             <span className="text-sm text-gray-300">
               No subscription required.

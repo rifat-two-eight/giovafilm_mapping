@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Feature = {
   title: string;
@@ -53,9 +54,11 @@ export default function PromoteBusiness() {
           </div>
 
           {/* CTA Button */}
-          <Button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 rounded-xl">
-            Add Your Business
-          </Button>
+          <Link href={"/for-business"}>
+            <Button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 rounded-xl">
+              Add Your Business
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
