@@ -298,12 +298,11 @@
 "use client";
 
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
-
+import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { getImageUrl } from "@/lib/utils";
-import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import {
   AdvancedMarker,
   APIProvider,
@@ -314,17 +313,16 @@ import {
 } from "@vis.gl/react-google-maps";
 import {
   Landmark,
+  MapPin,
   MountainSnow,
   Trees,
   Umbrella,
   Utensils,
   Waves,
   X,
-  MapPin,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import LocationDialog from "./location-dialog";
-import { CategoryMarker } from "@/components/shared/maps/category-marker";
 
 // --- Dynamic Category Icons & Colors ---
 const PREDEFINED_CATEGORIES: Record<string, { icon: any; color: string }> = {

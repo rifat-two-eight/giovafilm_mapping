@@ -37,6 +37,8 @@ export default function FavoritePlaces() {
   const [addToFavourite, { isLoading: isRemoving }] =
     useAddToFavouriteMutation();
 
+  console.log("favouritesRes", favouritesRes);
+
   const allFavourites: any[] = favouritesRes?.data || [];
 
   // --- Filter by type ---

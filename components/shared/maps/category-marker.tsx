@@ -33,8 +33,8 @@ export function CategoryMarker({
       {/* Pin Head */}
       <div
         style={{
-          width: 40,
-          height: 40,
+          width: 38,
+          height: 38,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
           background: bgColor,
@@ -43,14 +43,16 @@ export function CategoryMarker({
           alignItems: "center",
           justifyContent: "center",
           boxSizing: "border-box",
+          overflow: "hidden",
         }}
       >
         <span
           style={{
             transform: "rotate(45deg)",
-            fontSize: 18,
+            fontSize: 23,
             lineHeight: 1,
             userSelect: "none",
+            
           }}
         >
           {icon}
