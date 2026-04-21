@@ -90,9 +90,6 @@ export default function Header() {
   const { data: user2 } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
 
-  console.log(user2);
-
-  // console.log(user2);
   // Example user data
   const user = {
     name: "John Doe",
@@ -258,41 +255,42 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                     ) : (
-                      <Link href={"/profile"}>
-                        <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                          <Grid2x2 className="mr-3 size-5" />
-                          Profile
-                        </DropdownMenuItem>
-                      </Link>
+                      <div className="">
+                        <Link href={"/profile"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Grid2x2 className="mr-3 size-5" />
+                            Profile
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link href={"/profile/favorite-places"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Heart className="mr-3 size-5" />
+                            Favorites
+                          </DropdownMenuItem>
+                        </Link>
+
+                        <Link href={"/profile/purchased-maps"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Map className="mr-3 size-5" />
+                            Purchased Maps
+                          </DropdownMenuItem>
+                        </Link>
+
+                        <Link href={"/profile/contributions-reviews"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Star className="mr-3 size-5" />
+                            Contributions & Reviews
+                          </DropdownMenuItem>
+                        </Link>
+
+                        <Link href={"/profile/awards"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Trophy className="mr-3 size-5" />
+                            Awards
+                          </DropdownMenuItem>
+                        </Link>
+                      </div>
                     )}
-
-                    <Link href={"/profile/favorite-places"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Heart className="mr-3 size-5" />
-                        Favorites
-                      </DropdownMenuItem>
-                    </Link>
-
-                    <Link href={"/profile/purchased-maps"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Map className="mr-3 size-5" />
-                        Purchased Maps
-                      </DropdownMenuItem>
-                    </Link>
-
-                    <Link href={"/profile/contributions-reviews"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Star className="mr-3 size-5" />
-                        Contributions & Reviews
-                      </DropdownMenuItem>
-                    </Link>
-
-                    <Link href={"/profile/awards"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Trophy className="mr-3 size-5" />
-                        Awards
-                      </DropdownMenuItem>
-                    </Link>
                   </div>
 
                   <DropdownMenuSeparator />

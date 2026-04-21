@@ -3,6 +3,7 @@ import { RootState } from "../../store";
 
 export const roles = {
   ADMIN: "admin" as const,
+  SUPER_ADMIN: "superadmin" as const,
   USER: "business" as const,
 };
 
@@ -51,8 +52,9 @@ const authSlice = createSlice({
     ) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
-      // Sync token to cookie
+      // Sync token and role to cookies
       setCookie("accessToken", action.payload.accessToken);
+      setCookie("userRole", action.payload.user.role);
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
@@ -62,6 +64,7 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       removeCookie("accessToken");
+      removeCookie("userRole");
     },
   },
 });

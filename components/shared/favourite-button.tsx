@@ -6,6 +6,8 @@ import {
   useGetFavouritesQuery,
 } from "@/redux/features/favourite/favouriteApi";
 import { Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/redux/hook";
 import { toast } from "sonner";
 
 type Props = {
@@ -17,12 +19,9 @@ type Props = {
 export function FavouriteButton({ placeId, type, Style }: Props) {
   const [addToFavourite, { isLoading }] = useAddToFavouriteMutation();
 
-  // ✅ Get the full favourites list from the server (cached and shared by RTK Query)
   const { data: favouritesData } = useGetFavouritesQuery();
   const favouritesList: any[] = favouritesData?.data || [];
 
-  // ✅ Derive isFavourite purely from server data — no useState, no useEffect
-  //    This automatically stays correct on every reload and after any mutation
   const key = type === "Map" ? "map" : type === "Place" ? "place" : "offer";
   const isFavourite = favouritesList.some((fav: any) => {
     if (fav.type !== type) return false;
@@ -30,10 +29,21 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
     return id === placeId;
   });
 
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
+  const router = useRouter();
+
   const handleFavourite = async (e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    if (!accessToken) {
+      toast.error("Login Required", {
+        description: "You must be logged in to add items to favorites.",
+      });
+      router.push("/login");
+      return;
     }
 
     try {
