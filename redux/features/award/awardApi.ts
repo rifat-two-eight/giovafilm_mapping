@@ -14,7 +14,15 @@ export const awardApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Award"],
     }),
+    redeemFreeMap: builder.mutation({
+      query: (data: { mapId: string }) => ({
+        url: "/awards/redeem-free-map",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Award", "User"],
+    }),
   }),
 });
 
-export const { useGetAwardsQuery } = awardApi;
+export const { useGetAwardsQuery, useRedeemFreeMapMutation } = awardApi;

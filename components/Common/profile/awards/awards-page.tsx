@@ -6,12 +6,17 @@ import {
   Mountain,
   Feather,
   Trophy,
+  FileText,
+  Map as MapIcon,
+  Compass,
 } from "lucide-react";
 import { AwardCard } from "./award-card";
 import { UnlockedAwardCard } from "./unlocked-award-card";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGetAwardsQuery } from "@/redux/features/award/awardApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import Link from "next/link";
 
 import unlockImage from "@/public/offers-image/Gourmet Garden.png";
 
@@ -25,6 +30,12 @@ const getAwardIcon = (type: string) => {
       return Mountain;
     case "History Buff":
       return Feather;
+    case "PDF Itinerary":
+      return FileText;
+    case "Free Map":
+      return MapIcon;
+    case "Legendary Explorer":
+      return Compass;
     default:
       return Trophy;
   }
@@ -38,6 +49,7 @@ export default function AwardsPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
+  const { data: user } = useGetProfileQuery({});
   const { data: awardsRes, isLoading } = useGetAwardsQuery({ page, limit });
 
   const awardsData = awardsRes?.data || [];
@@ -46,6 +58,8 @@ export default function AwardsPage() {
 
   const lockedAwards = awardsData.filter((a: any) => !a.isUnlocked);
   const unlockedAwards = awardsData.filter((a: any) => a.isUnlocked);
+
+  const hasRedeemed = !!user?.redeemedFreeMap;
 
   console.log(awardsData);
 
@@ -93,7 +107,23 @@ export default function AwardsPage() {
                       key={award._id}
                       title={award.type}
                       image={getAwardImage(award.type)}
-                    />
+                    >
+                      {award.type === "Free Map" && (
+                        <div className="pt-2">
+                          {hasRedeemed ? (
+                            <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold cursor-default">
+                              Redeemed
+                            </Button>
+                          ) : (
+                            <Link href="/catalog" className="block w-full">
+                              <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold">
+                                Redeem Now
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      )}
+                    </UnlockedAwardCard>
                   ))}
                 </div>
               </div>

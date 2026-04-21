@@ -7,9 +7,14 @@ import { Check } from "lucide-react";
 interface UnlockedAwardProps {
   title: string;
   image: StaticImageData | string;
+  children?: React.ReactNode;
 }
 
-export function UnlockedAwardCard({ title, image }: UnlockedAwardProps) {
+export function UnlockedAwardCard({
+  title,
+  image,
+  children,
+}: UnlockedAwardProps) {
   return (
     <Card className="w-full! overflow-hidden rounded-xl border-2 border-amber-400 w-[320px] shadow-md py-0 gap-1.5">
       {/* Image */}
@@ -40,6 +45,8 @@ export function UnlockedAwardCard({ title, image }: UnlockedAwardProps) {
         <div className="w-full h-2 bg-amber-100 rounded-full">
           <div className="h-full w-full bg-amber-500 rounded-full" />
         </div>
+
+        {children}
       </div>
     </Card>
   );
