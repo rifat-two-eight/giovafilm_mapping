@@ -50,11 +50,6 @@ const menuItems = [
     icon: Grid2x2,
   },
   {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: Grid2x2,
-  },
-  {
     label: "Favorites",
     href: "/profile/favorite-places",
     icon: Heart,
@@ -241,7 +236,7 @@ export default function Header() {
                     </div>
                   </div>
                   <div className="py-2">
-                    {user?.role === "super_admin" ? (
+                    {user?.role === "super_admin" || user?.role === "admin" ? (
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />
@@ -340,20 +335,29 @@ export default function Header() {
                   align="end"
                   className="w-64 p-0 overflow-hidden rounded-xl shadow-lg"
                 >
-                  <div className="py-2">
-                    {menuItems.map((item, index) => {
-                      const Icon = item.icon;
+                  {user?.role !== "user" ? (
+                    <Link href={"/dashboard"}>
+                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Grid2x2 className="mr-3 size-5" />
+                        Dashoard
+                      </DropdownMenuItem>
+                    </Link>
+                  ) : (
+                    <div className="py-2">
+                      {menuItems.map((item, index) => {
+                        const Icon = item.icon;
 
-                      return (
-                        <Link key={index} href={item.href}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Icon className="mr-3 size-5" />
-                            {item.label}
-                          </DropdownMenuItem>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                        return (
+                          <Link key={index} href={item.href}>
+                            <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                              <Icon className="mr-3 size-5" />
+                              {item.label}
+                            </DropdownMenuItem>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <DropdownMenuSeparator />
 

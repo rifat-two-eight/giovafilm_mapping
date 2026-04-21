@@ -12,7 +12,7 @@ import {
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   LayoutDashboard,
@@ -27,6 +27,9 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { useLogoutMutation } from "@/redux/features/auth/authApi";
+import { useAppDispatch } from "@/redux/hook";
+import { logout } from "@/redux/features/auth/authSlice";
 
 const menuItems = [
   {
@@ -83,9 +86,21 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const handleLogout = () => {
-    console.log("Logout clicked");
+  const [logoutApi] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi({}).unwrap();
+    } catch {
+    } finally {
+      dispatch(logout());
+      localStorage.clear();
+      // closeMenus();
+      router.push("/");
+    }
   };
 
   return (

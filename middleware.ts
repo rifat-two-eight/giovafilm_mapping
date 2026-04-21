@@ -37,10 +37,8 @@ export function middleware(request: NextRequest) {
   }
 
   // 3. Check for 'for-business' route (only for 'business' role)
-  if (pathname.startsWith("/for-business") && accessToken) {
-    if (userRole !== "business") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+  if (pathname.startsWith("/for-business") && !accessToken) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

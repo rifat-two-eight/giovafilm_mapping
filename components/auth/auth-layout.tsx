@@ -51,7 +51,21 @@ export function AuthLayout({
       </div>
 
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-lg ">{children}</div>
+        <div className="w-full max-w-lg ">
+          {/* Logo */}
+          <div className="shrink-0">
+            <Link href="/" className="lg:hidden">
+              <Image
+                src={require("@/public/logo.png")}
+                alt="Dashboard Logo"
+                height={500}
+                width={500}
+                className="w-72 h-auto mx-auto "
+              />
+            </Link>
+          </div>
+          {children}
+        </div>
       </div>
     </div>
   );
