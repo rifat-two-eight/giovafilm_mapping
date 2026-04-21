@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider className=" bg-[#F5F6FA] h-screen">
       {/* bg-[#E2E8F0] */}
       <div className="flex w-full h-screen">
-        <AppSidebar />
+        <AppSidebar  />
         <div className="flex-1">
           <DashTopHeader />
           <div className="min-h-0  p-8 overflow-auto bg-[#F5F6FA]">

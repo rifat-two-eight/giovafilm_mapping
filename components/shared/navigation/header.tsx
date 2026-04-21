@@ -87,14 +87,8 @@ export default function Header() {
     (state: any) => state.auth?.accessToken,
   );
 
-  const { data: user2 } = useGetProfileQuery({});
+  const { data: user } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
-
-  // Example user data
-  const user = {
-    name: "John Doe",
-    image: "", // if image exists it will show
-  };
 
   const handleLogout = async () => {
     try {
@@ -182,9 +176,9 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
                     <Avatar className="h-10 w-10 cursor-pointer border">
-                      {user2?.profile ? (
+                      {user?.profile ? (
                         <AvatarImage
-                          src={getImageUrl(user2.profile)}
+                          src={getImageUrl(user.profile)}
                           width={500}
                           height={500}
                           className="object-cover"
@@ -206,7 +200,7 @@ export default function Header() {
                     {/* Avatar with Achievement Badge */}
                     <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg border">
                       <Image
-                        src={getImageUrl(user2?.profile)}
+                        src={getImageUrl(user?.profile)}
                         alt={"Logo"}
                         width={500}
                         height={500}
@@ -220,13 +214,13 @@ export default function Header() {
 
                     {/* User Name */}
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      {user2?.name}
+                      {user?.name}
                     </h2>
 
                     {/* Level Badge */}
                     <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
                       <span className="text-primary font-semibold capitalize">
-                        {user2?.role}
+                        {user?.role}
                       </span>
                     </div>
 
@@ -247,7 +241,7 @@ export default function Header() {
                     </div>
                   </div>
                   <div className="py-2">
-                    {user2?.role === "super_admin" ? (
+                    {user?.role === "super_admin" ? (
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />
@@ -330,7 +324,11 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none ">
                     <Avatar className="h-8 w-8 cursor-pointer">
-                      <AvatarImage src={user.image} />
+                      {user?.profile ? (
+                        <AvatarImage src={getImageUrl(user.profile)} />
+                      ) : (
+                        <User className="size-4" />
+                      )}
                       <AvatarFallback>
                         <User className="size-4" />
                       </AvatarFallback>

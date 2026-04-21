@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
 
   // 1. Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   if (isProtectedRoute && !accessToken) {
@@ -24,18 +24,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 2. Check for role-based access to dashboard
+  // 2. Check for role-based access
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isProfileRoute = pathname.startsWith("/profile");
 
-  if (isAdminRoute && accessToken) {
-    const isAdmin =
-      userRole === "admin" ||
-      userRole === "superadmin" ||
-      userRole === "super admin";
+  const isAdmin =
+    userRole === "admin" ||
+    userRole === "superadmin" ||
+    userRole === "super_admin";
 
-    if (!isAdmin) {
-      // If user is logged in but not an admin, redirect to home
+  if (accessToken) {
+    // If accessing dashboard but NOT an admin -> redirect to home
+    if (isAdminRoute && !isAdmin) {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // If accessing profile but IS an admin -> redirect to dashboard
+    if (isProfileRoute && isAdmin) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
