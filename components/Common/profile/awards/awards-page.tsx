@@ -34,7 +34,6 @@ const getAwardImage = (type: string) => {
   return unlockImage;
 };
 
-
 export default function AwardsPage() {
   const [page, setPage] = useState(1);
   const limit = 10;

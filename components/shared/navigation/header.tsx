@@ -460,47 +460,64 @@ export default function Header() {
                 <h3 className="text-sm font-medium text-gray-500 mb-3 px-4">
                   Account
                 </h3>
-                <div className="space-y-1">
-                  <button
+
+                {user?.role === "super_admin" || user?.role === "admin" ? (
+                  <Link
+                    href={"/dashboard"}
                     onClick={closeMenus}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <Heart className="size-5" />
-                    <span>Favorites</span>
-                  </button>
+                    <Grid2x2 className="size-5" />
+                    Dashoard
+                  </Link>
+                ) : (
+                  <div className="space-y-1">
+                    <Link
+                      href={"/profile/favorite-places"}
+                      onClick={closeMenus}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Heart className=" size-5" />
+                      <span>Favorites</span>
+                    </Link>
 
-                  <button
-                    onClick={closeMenus}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Map className="size-5" />
-                    <span>Purchased Maps</span>
-                  </button>
+                    <Link
+                      href={"/profile/purchased-maps"}
+                      onClick={closeMenus}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Map className="size-5" />
+                      <span>Purchased Maps</span>
+                    </Link>
 
-                  <button
-                    onClick={closeMenus}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Star className="size-5" />
-                    <span>Contributions & Reviews</span>
-                  </button>
+                    <Link
+                      href={"/profile/reviews"}
+                      onClick={closeMenus}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Star className="size-5" />
+                      <span>Contributions & Reviews</span>
+                    </Link>
 
-                  <button
-                    onClick={closeMenus}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Trophy className="size-5" />
-                    <span>Awards</span>
-                  </button>
+                    <Link
+                      href={"/profile/awards"}
+                      onClick={closeMenus}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Trophy className="size-5" />
+                      <span>Awards</span>
+                    </Link>
 
-                  {/* ✅ Logout in hamburger menu */}
-                  <button
-                    onClick={() => handleLogout()}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors text-left"
-                  >
-                    <span>Log Out</span>
-                  </button>
-                </div>
+                    {/* ✅ Logout in hamburger menu */}
+                    <button
+                      onClick={() => handleLogout()}
+                      className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left"
+                    >
+                      <Map className="size-5" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

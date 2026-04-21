@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // Define routes that require authentication
-const protectedRoutes = ["/dashboard", "/profile"];
+const protectedRoutes = ["/dashboard", "/profile", "/for-business"];
 
 // Define routes that require admin or super admin roles
 const adminRoutes = ["/dashboard"];
@@ -19,29 +19,27 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedRoute && !accessToken) {
     const loginUrl = new URL("/login", request.url);
-    // We can pass a message or redirect back URL if needed
-    // loginUrl.searchParams.set("message", "Login Required");
     return NextResponse.redirect(loginUrl);
   }
 
-  // 2. Check for role-based access
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
-  const isProfileRoute = pathname.startsWith("/profile");
 
-  const isAdmin =
-    userRole === "admin" ||
-    userRole === "superadmin" ||
-    userRole === "super_admin";
+  if (isAdminRoute && accessToken) {
+    const isAdmin =
+      userRole === "admin" ||
+      userRole === "superadmin" ||
+      userRole === "super_admin";
 
-  if (accessToken) {
-    // If accessing dashboard but NOT an admin -> redirect to home
-    if (isAdminRoute && !isAdmin) {
+    if (!isAdmin) {
+      // If user is logged in but not an admin, redirect to home
       return NextResponse.redirect(new URL("/", request.url));
     }
+  }
 
-    // If accessing profile but IS an admin -> redirect to dashboard
-    if (isProfileRoute && isAdmin) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+  // 3. Check for 'for-business' route (only for 'business' role)
+  if (pathname.startsWith("/for-business") && accessToken) {
+    if (userRole !== "business") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
@@ -50,5 +48,5 @@ export function middleware(request: NextRequest) {
 
 // Config to match only relevant paths for performance
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"],
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/for-business/:path*"],
 };
