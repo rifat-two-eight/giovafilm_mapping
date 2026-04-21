@@ -16,7 +16,7 @@ export default function page() {
 
         {/* <SecuritySettings /> */}
 
-        <BillingSettings />
+        {/* <BillingSettings /> */}
       </div>
     </div>
   );

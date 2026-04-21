@@ -22,13 +22,13 @@ export function BillingSettings() {
           Manage Subscription
         </Button>
 
-        <Button variant="outline" className="py-5 w-full justify-start">
+        {/* <Button variant="outline" className="py-5 w-full justify-start">
           Update Payment Method
-        </Button>
+        </Button> */}
 
-        <Button variant="outline" className="py-5 w-full justify-start">
+        {/* <Button variant="outline" className="py-5 w-full justify-start">
           View Billing History
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   );
