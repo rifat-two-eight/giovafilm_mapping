@@ -1,32 +1,36 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { NoImage } from "@/lib/others/others";
+import { getImageUrl } from "@/lib/utils";
+import { MapPin, Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Review {
-  id: number;
-  title: string;
-  location: string;
+  _id: string;
+  placeId: {
+    name: string;
+    address?: string;
+    images?: string[];
+  };
   rating: number;
-  reviewDate: string;
-  description: string;
-  image: string;
+  createdAt: string;
+  review: string;
 }
 
 interface ReviewsSectionProps {
   reviews: Review[];
-  reviewCount: number;
 }
 
-export function ReviewsSection({ reviews, reviewCount }: ReviewsSectionProps) {
+export function ReviewsSection({ reviews }: ReviewsSectionProps) {
+  console.log("reviews", reviews);
   return (
     <div className="space-y-6">
       {/* Header with View All Link */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
-          My Reviews ({reviewCount})
+          My Reviews ({reviews?.length})
         </h2>
         <Link
           href="/profile/contributions-reviews"
@@ -38,22 +42,31 @@ export function ReviewsSection({ reviews, reviewCount }: ReviewsSectionProps) {
 
       {/* Reviews List */}
       <div className="space-y-5">
-        {reviews.map((review) => (
+        {reviews?.map((review) => (
           <div
-            key={review.id}
+            key={review._id}
             className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col md:flex-row"
           >
             {/* Image Section */}
-            <div className="relative w-full md:w-56  h-64 md:h-auto shrink-0">
-              <Image
-                src={review.image}
-                alt={review.title}
-                fill
-                className="object-cover"
-              />
+            <div className="relative w-full md:w-56 h-56 shrink-0">
+              {review?.placeId?.media?.length ? (
+                <Image
+                  src={getImageUrl(review?.placeId?.media?.[0])}
+                  alt={review.placeId?.name || "Place"}
+                  unoptimized
+                  width={500}
+                  height={500}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <div className="w-full md:w-56 h-56">
+                  <NoImage />
+                </div>
+              )}
+
               {/* Location Badge */}
-              <div className="absolute bottom-3 left-1 bg-white px-2 py-1 rounded-md text-xs font-semibold text-gray-900 shadow-md">
-                📍 {review.location}
+              <div className="absolute bottom-3 left-1 bg-white px-2 py-1 rounded-md text-xs font-semibold text-gray-900 shadow-md flex items-center gap-1">
+                <MapPin size={14} /> {review.placeId?.name || "Unknown"}
               </div>
             </div>
 
@@ -63,7 +76,7 @@ export function ReviewsSection({ reviews, reviewCount }: ReviewsSectionProps) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-bold text-gray-900">
-                    {review.title}
+                    {review.placeId?.name}
                   </h3>
                   {/* Star Rating */}
                   <div className="flex gap-1">
@@ -85,12 +98,19 @@ export function ReviewsSection({ reviews, reviewCount }: ReviewsSectionProps) {
 
                 {/* Review Date */}
                 <p className="text-xs text-gray-500 mb-3">
-                  Reviewed on {review.reviewDate}
+                  Reviewed on{" "}
+                  {review.createdAt
+                    ? new Date(review.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "2-digit",
+                        year: "numeric",
+                      })
+                    : "N/A"}
                 </p>
 
                 {/* Description */}
                 <p className="text-sm text-gray-600 line-clamp-2">
-                  {review.description}
+                  {review.review}
                 </p>
               </div>
 

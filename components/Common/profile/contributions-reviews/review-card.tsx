@@ -1,46 +1,37 @@
 "use client";
 
-import Image from "next/image";
-import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NoImage } from "@/lib/others/others";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import { Star } from "lucide-react";
+import Image from "next/image";
 
-/**
- * ReviewCard Component
- *
- * Displays a single review with:
- * - Map/location image
- * - Title and star rating
- * - Review date
- * - Description
- * - Edit and View Details buttons
- */
-
-interface ReviewCardProps {
-  title: string;
-  rating: number;
-  reviewDate: string;
-  description: string;
-  mapImage?: string;
-}
-
-export function ReviewCard({
-  title,
-  rating,
-  reviewDate,
-  description,
-  mapImage,
-}: ReviewCardProps) {
+export function ReviewCard({ review }: any) {
+  console.log("review data", review);
+  // ✅ Rating logic
+  const rating = review?.rating || 0;
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 flex flex-col md:flex-row md:gap-6 hover:shadow-sm transition-shadow duration-200 overflow-hidden">
       {/* Map image container */}
-      {mapImage && (
+      {review?.placeId?.media?.length > 0 ? (
         <div className="shrink-0">
           <div className="w-full md:w-80 h-56 md:h-full xl:h-56 relative overflow-hidden">
-            <Image src={mapImage} alt={title} fill className="object-cover" />
+            <Image
+              src={getImageUrl(review?.placeId?.media[0])}
+              alt={review?.placeId?.name}
+              width={100}
+              height={100}
+              unoptimized
+              className="w-full h-full object-cover"
+            />
           </div>
+        </div>
+      ) : (
+        <div className="w-full md:w-80 h-56 md:h-full xl:h-56 overflow-hidden">
+          <NoImage />
         </div>
       )}
 
@@ -48,7 +39,9 @@ export function ReviewCard({
       <div className="flex-1 flex items-start flex-col justify-center font-public-sans p-6 lg:pr-36">
         {/* Title and rating */}
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {review?.placeId?.name}
+          </h3>
 
           {/* Star rating */}
           <div className="flex items-center gap-3 mb-3">
@@ -77,13 +70,13 @@ export function ReviewCard({
               ))}
             </div>
             <span className="text-sm text-gray-500">
-              Reviewed on {reviewDate}
+              Reviewed on {formatDate(review?.createdAt)}
             </span>
           </div>
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 mb-4">{description}</p>
+        <p className="text-gray-700 mb-4">{review?.review}</p>
 
         {/* Buttons */}
         <div className="flex gap-3">

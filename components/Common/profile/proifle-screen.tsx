@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
 import { ContributionsSection } from "./contributions-section";
 import { ProfileSidebar } from "./profile-sidebar";
 import { ReviewsSection } from "./reviews-section";
@@ -11,6 +12,8 @@ export default function ProfilePage() {
   const { user, contributions, reviews } = profileData;
 
   const { data } = useGetProfileQuery({});
+  const { data: reviewsData = [], isLoading: isReviewsLoading } =
+    useGetMyReviewsQuery({});
 
   return (
     <main className="bg-gray-50 min-h-screen py-12">
@@ -28,10 +31,9 @@ export default function ProfilePage() {
             <ContributionsSection contributions={contributions} />
 
             {/* Reviews Section */}
-            <ReviewsSection
-              reviews={reviews}
-              reviewCount={contributions.reviews}
-            />
+            {!isReviewsLoading && (
+              <ReviewsSection reviews={reviewsData?.data} />
+            )}
           </div>
         </div>
       </div>

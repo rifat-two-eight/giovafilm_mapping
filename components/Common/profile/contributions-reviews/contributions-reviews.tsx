@@ -6,47 +6,16 @@ import { ReviewCard } from "./review-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
-
-const reviewsData = [
-  {
-    id: 1,
-    title: "Grand Canyon National Park",
-    rating: 5,
-    reviewDate: "Oct 12, 2023",
-    description:
-      "An absolutely breathtaking experience! We started the hike at sunrise and the colors were unreal. Highly recommend bringing extra water and starting early to avoid the crowds at the main overlooks. Truly a world wonder that everyone...",
-    mapImage:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
-  },
-  {
-    id: 2,
-    title: "Golden Gate Bridge",
-    rating: 4.5,
-    reviewDate: "Sep 28, 2023",
-    description:
-      "Classic landmark! A bit foggy when we went (Karl the Fog was out in full force), but walking across the bridge is an essential SF experience. Don't forget a jacket, even if it's sunny in the city center!",
-    mapImage:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
-  },
-  {
-    id: 3,
-    title: "Playa Delfines",
-    rating: 5,
-    reviewDate: "Aug 15, 2023",
-    description:
-      "One of the most beautiful public beaches in Cancun. The water is incredibly blue. It's quite windy and the waves can be strong, so be careful if you aren't a strong swimmer. The 'Cancun' sign is here for great photos!",
-    mapImage:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
-  },
-];
 
 export default function ContributionsReviews() {
   const [displayedReviews, setDisplayedReviews] = useState(3);
 
   const { data: user } = useGetProfileQuery({});
-  console.log("user", user);
+  const { data: reviewsData = [], isLoading } = useGetMyReviewsQuery({});
+  console.log(reviewsData?.data);
 
   // ✅ NEW: Progress logic (no UI style change, just text)
   const currentPoints = 1250;
@@ -108,28 +77,23 @@ export default function ContributionsReviews() {
 
           {/* Reviews list */}
           <div className="space-y-6">
-            {reviewsData.slice(0, displayedReviews).map((review) => (
-              <ReviewCard
-                key={review.id}
-                title={review.title}
-                rating={review.rating}
-                reviewDate={review.reviewDate}
-                description={review.description}
-                mapImage={review.mapImage}
-              />
+            {reviewsData?.data?.map((review: any) => (
+              <ReviewCard key={review._id} review={review} />
             ))}
           </div>
 
           {/* Load more button */}
-          <div className="flex justify-center mt-12">
-            <Button
-              onClick={handleLoadMore}
-              variant="outline"
-              className="border-2 border-yellow-400 text-gray-900 hover:bg-yellow-50 font-semibold px-8 py-6 rounded-xl text-base"
-            >
-              Load More Contributions
-            </Button>
-          </div>
+          {reviewsData.length > displayedReviews && (
+            <div className="flex justify-center mt-12">
+              <Button
+                onClick={handleLoadMore}
+                variant="outline"
+                className="border-2 border-yellow-400 text-gray-900 hover:bg-yellow-50 font-semibold px-8 py-6 rounded-xl text-base"
+              >
+                Load More Contributions
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
