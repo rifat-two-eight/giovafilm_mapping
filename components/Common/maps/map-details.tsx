@@ -6,6 +6,7 @@ import {
   Clock,
   Dog,
   Heart,
+  Map,
   MapPin,
   MessageSquare,
   Phone,
@@ -29,7 +30,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import { NoImage } from "@/lib/others/others";
@@ -79,6 +80,7 @@ export const restaurantData = [
 
 export default function MapDetails() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
@@ -106,6 +108,14 @@ export default function MapDetails() {
     "Family Friendly": { icon: User2, label: "FAMILY FRIENDLY" },
     Wifi: { icon: Wifi, label: "WIFI" },
     "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
+  };
+
+  const handleViewOnMap = () => {
+    if (!lat || !lng) {
+      console.error("Invalid coordinates");
+      return;
+    }
+    router.push(`/view-location?lat=${lat}&lng=${lng}`);
   };
 
   const handleDirections = () => {
@@ -224,6 +234,14 @@ export default function MapDetails() {
                 );
               })}
             </div>
+
+            <Button
+              onClick={handleViewOnMap}
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
+            >
+              <Map size={18} className="mr-2" />
+              View on Map
+            </Button>
 
             {/* directions button */}
             {!isRestaurant && (
