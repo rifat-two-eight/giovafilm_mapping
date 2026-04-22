@@ -13,7 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   CircleDollarSign,
-  Edit2,
   Grid2x2,
   Heart,
   Map,
@@ -26,15 +25,16 @@ import {
   X,
 } from "lucide-react";
 
+import { getImageUrl } from "@/lib/utils";
+import { useLogoutMutation } from "@/redux/features/auth/authApi";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/redux/hook";
-import { logout } from "@/redux/features/auth/authSlice";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
-import { useLogoutMutation } from "@/redux/features/auth/authApi";
-import { getImageUrl } from "@/lib/utils";
+import { NoImage } from "@/lib/others/others";
 
 const navLinks = [
   { name: "Maps", href: "/maps" },
@@ -200,14 +200,19 @@ export default function Header() {
                   <div className="border p-3 rounded-md text-center">
                     {/* Avatar with Achievement Badge */}
                     <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg border">
-                      <Image
-                        src={getImageUrl(user?.profile)}
-                        alt={"Logo"}
-                        width={500}
-                        height={500}
-                        unoptimized
-                        className="object-cover h-full"
-                      />
+                      {user?.profile ? (
+                        <Image
+                          src={getImageUrl(user?.profile)}
+                          alt={"Logo"}
+                          width={500}
+                          height={500}
+                          unoptimized
+                          className="object-cover h-full"
+                        />
+                      ) : (
+                        <NoImage />
+                      )}
+
                       <div className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
                         ⭐
                       </div>

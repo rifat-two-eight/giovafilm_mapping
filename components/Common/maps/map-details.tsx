@@ -86,6 +86,8 @@ export default function MapDetails() {
     skip: !id,
   });
 
+  console.log(placeRes);
+
   const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
 

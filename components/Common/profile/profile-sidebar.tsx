@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import ProfileUpdateModal from "./profile-update-modal";
+import { NoImage } from "@/lib/others/others";
 
 const profileLinks = [
   {
@@ -52,14 +53,19 @@ export function ProfileSidebar({ data }: ProfileProps) {
         <div className="border p-3 rounded-md ">
           {/* Avatar with Achievement Badge */}
           <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg">
-            <Image
-              src={getImageUrl(data?.profile)}
-              alt={"profile"}
-              width={500}
-              height={500}
-              unoptimized
-              className="object-cover h-full"
-            />
+            {data?.profile ? (
+              <Image
+                src={getImageUrl(data?.profile)}
+                alt={"profile"}
+                width={500}
+                height={500}
+                unoptimized
+                className="object-cover h-full"
+              />
+            ) : (
+              <NoImage />
+            )}
+
             <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
               ⭐
             </div>
@@ -79,7 +85,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
 
           {/* Join Date */}
           <p className="text-gray-500 text-sm flex items-center justify-center gap-1 mb-6">
-            📅 Joined {formatDate(data?.createdAt)}
+            📅 Joined {formatDate(data?.createdAt) || 0}
           </p>
 
           {/* Action Buttons */}

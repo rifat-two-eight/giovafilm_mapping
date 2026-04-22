@@ -4,6 +4,10 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { ReviewCard } from "./review-card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { getImageUrl } from "@/lib/utils";
+import { NoImage } from "@/lib/others/others";
 
 const reviewsData = [
   {
@@ -41,6 +45,13 @@ const reviewsData = [
 export default function ContributionsReviews() {
   const [displayedReviews, setDisplayedReviews] = useState(3);
 
+  const { data: user } = useGetProfileQuery({});
+  console.log("user", user);
+
+  // ✅ NEW: Progress logic (no UI style change, just text)
+  const currentPoints = 1250;
+  const nextLevelPoints = 2000;
+
   const handleLoadMore = () => {
     setDisplayedReviews((prev) => prev + 3);
   };
@@ -53,14 +64,18 @@ export default function ContributionsReviews() {
         <div className="flex flex-col items-center py-12 bg-white rounded-2xl mb-8">
           {/* Profile image with border */}
           <div className="w-32 h-32 mb-6 relative">
-            <Image
-              src={
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&h=128&fit=crop"
-              }
-              alt="John Doe"
-              fill
-              className="rounded-full object-cover border-4 border-gray-200"
-            />
+            {user?.profile ? (
+              <Image
+                src={getImageUrl(user?.profile)}
+                alt="John Doe"
+                unoptimized
+                width={500}
+                height={500}
+                className="w-full h-full rounded-full object-cover border-4 border-gray-200"
+              />
+            ) : (
+              <NoImage />
+            )}
           </div>
 
           {/* User name */}
@@ -69,10 +84,20 @@ export default function ContributionsReviews() {
           {/* Badge and join date */}
           <div className="flex items-center gap-3 text-sm">
             <span className="bg-yellow-100 text-yellow-700 font-semibold px-4 py-1 rounded-full">
-              LEVEL 4 EXPLORER
+              Level {user?.level || 0} EXPLORER
+            </span>
+            •
+            <span className="bg-yellow-100 text-yellow-700 font-semibold px-4 py-1 rounded-full">
+              {user?.points.toLocaleString() || 0} POINTS
             </span>
             <span className="text-gray-600">• Joined Oct 2023</span>
           </div>
+
+          {/* ✅ NEW: Progress info (no style change) */}
+          <p className="text-gray-500 text-sm mt-2">
+            {currentPoints.toLocaleString()} /{" "}
+            {nextLevelPoints.toLocaleString()} points to next level
+          </p>
         </div>
 
         {/* Reviews section */}
@@ -96,7 +121,6 @@ export default function ContributionsReviews() {
           </div>
 
           {/* Load more button */}
-
           <div className="flex justify-center mt-12">
             <Button
               onClick={handleLoadMore}

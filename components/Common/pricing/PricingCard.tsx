@@ -34,10 +34,7 @@ export function PricingCard({
   const [createCheckoutSession, { isLoading }] =
     useCreateCheckoutSessionMutation();
 
-  const formatPrice = (price: number, name: string) => {
-    if (name.toLowerCase() === "enterprise") return "Custom";
-    return `$${price}`;
-  };
+  console.log(plan);
 
   const handleClick = async () => {
     if (isFormStep) {
@@ -87,16 +84,12 @@ export function PricingCard({
 
       {/* Plan Header */}
       <div className="space-y-2 mb-4">
-        <h3
-          className={`text-xl font-bold ${isEnterprise ? "text-white" : "text-gray-900"}`}
-        >
-          {plan.name}
-        </h3>
+        <h3 className={`text-xl font-bold text-gray-900}`}>{plan.name}</h3>
         <div className="flex items-baseline gap-1">
           <span
             className={`text-3xl font-bold ${isEnterprise ? "text-yellow-400" : "text-gray-900"}`}
           >
-            {formatPrice(plan.price, plan.name)}
+            {/* {formatPrice(plan.price, plan.name)} */}${plan.price}
           </span>
           {plan.interval && plan.name.toLowerCase() !== "enterprise" && (
             <span
