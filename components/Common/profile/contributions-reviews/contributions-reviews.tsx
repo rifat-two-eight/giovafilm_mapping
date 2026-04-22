@@ -15,7 +15,7 @@ export default function ContributionsReviews() {
 
   const { data: user } = useGetProfileQuery({});
   const { data: reviewsData = [], isLoading } = useGetMyReviewsQuery({});
-  console.log(reviewsData?.data);
+  console.log(user);
 
   // ✅ NEW: Progress logic (no UI style change, just text)
   const currentPoints = 1250;

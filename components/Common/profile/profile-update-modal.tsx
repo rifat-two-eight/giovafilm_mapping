@@ -148,7 +148,7 @@ import { Input } from "@/components/ui/input";
 import { getImageUrl } from "@/lib/utils";
 import { useUpdateProfileMutation } from "@/redux/features/user/userApi";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 // Only MIME types your backend fileFilter accepts
@@ -167,6 +167,14 @@ export default function ProfileUpdateModal({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [name, setName] = useState<string>(data?.name ?? "");
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+
+  useEffect(() => {
+    if (open && data) {
+      setName(data.name ?? "");
+      setPreview(null);
+      setImageFile(null);
+    }
+  }, [data, open]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

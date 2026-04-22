@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   CircleDollarSign,
+  Edit2,
   Grid2x2,
   Heart,
   Map,
@@ -35,6 +36,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { NoImage } from "@/lib/others/others";
+import { Progress } from "@/components/ui/progress";
+import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
 
 const navLinks = [
   { name: "Maps", href: "/maps" },
@@ -90,6 +93,10 @@ export default function Header() {
 
   const { data: user } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+  const maxPoints = 1000;
+  const progress = ((user?.points || 0) / maxPoints) * 100;
 
   const handleLogout = async () => {
     try {
@@ -223,19 +230,34 @@ export default function Header() {
                       {user?.name}
                     </h2>
 
+                    <div className="space-y-1 mb-4">
+                      <p>
+                        Level <span className="font-bold">{user?.level}</span>
+                      </p>
+
+                      <Progress value={progress} className="h-2" />
+
+                      <p className="text-sm text-gray-500">
+                        {user?.points || 0} / {maxPoints} points
+                      </p>
+                    </div>
+
                     {/* Level Badge */}
-                    <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
+                    {/* <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
                       <span className="text-primary font-semibold capitalize">
                         {user?.role}
                       </span>
-                    </div>
+                    </div> */}
 
                     {/* Action Buttons */}
                     <div className="space-y-3">
-                      {/* <Button className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2">
+                      <Button
+                        onClick={() => setIsUpdateModalOpen(true)}
+                        className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2"
+                      >
                         <Edit2 size={18} />
                         Edit Profile
-                      </Button> */}
+                      </Button>
 
                       <Button
                         variant="outline"
@@ -507,6 +529,12 @@ export default function Header() {
           />
         )}
       </header>
+
+      <ProfileUpdateModal
+        data={user}
+        open={isUpdateModalOpen}
+        onOpenChange={setIsUpdateModalOpen}
+      />
     </div>
   );
 }

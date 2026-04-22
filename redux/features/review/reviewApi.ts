@@ -15,7 +15,19 @@ const reviewApi = baseApi.injectEndpoints({
       providesTags: ["Review"],
       transformResponse: (response: any) => response.data,
     }),
+    updateReview: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/review/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Review", "Place"],
+    }),
   }),
 });
 
-export const { useCreateReviewMutation, useGetMyReviewsQuery } = reviewApi;
+export const {
+  useCreateReviewMutation,
+  useGetMyReviewsQuery,
+  useUpdateReviewMutation,
+} = reviewApi;

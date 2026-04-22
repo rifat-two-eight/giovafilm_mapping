@@ -5,9 +5,13 @@ import { NoImage } from "@/lib/others/others";
 import { formatDate, getImageUrl } from "@/lib/utils";
 import { Star } from "lucide-react";
 import Image from "next/image";
+import { ReviewModal } from "../../maps/review-modal";
+import { useState } from "react";
+import Link from "next/link";
 
 export function ReviewCard({ review }: any) {
-  console.log("review data", review);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // ✅ Rating logic
   const rating = review?.rating || 0;
   const fullStars = Math.floor(rating);
@@ -80,17 +84,33 @@ export function ReviewCard({ review }: any) {
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 rounded-lg">
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 rounded-lg"
+          >
             ✎ Edit Review
           </Button>
-          <Button
-            variant="outline"
-            className="border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-50 font-semibold px-6 rounded-lg"
-          >
-            View Details
-          </Button>
+          <Link href={`/maps/${review?.placeId?._id}`}>
+            <Button
+              variant="outline"
+              className="border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-50 font-semibold px-6 rounded-lg"
+            >
+              View Details
+            </Button>
+          </Link>
         </div>
       </div>
+
+      <ReviewModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        placeId={review?.placeId?._id}
+        initialData={{
+          _id: review?._id,
+          rating: review?.rating,
+          review: review?.review,
+        }}
+      />
     </div>
   );
 }

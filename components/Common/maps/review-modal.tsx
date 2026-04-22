@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
-import { useCreateReviewMutation } from "@/redux/features/review/reviewApi";
+import {
+  useCreateReviewMutation,
+  useUpdateReviewMutation,
+} from "@/redux/features/review/reviewApi";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -17,14 +20,37 @@ interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   placeId: string | undefined;
+  initialData?: {
+    _id: string;
+    rating: number;
+    review: string;
+  };
 }
 
-export function ReviewModal({ isOpen, onClose, placeId }: ReviewModalProps) {
+export function ReviewModal({
+  isOpen,
+  onClose,
+  placeId,
+  initialData,
+}: ReviewModalProps) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState("");
 
-  const [createReview, { isLoading }] = useCreateReviewMutation();
+  const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
+  const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
+
+  const isLoading = isCreating || isUpdating;
+
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setRating(initialData.rating);
+      setReview(initialData.review);
+    } else if (!initialData && isOpen) {
+      setRating(0);
+      setReview("");
+    }
+  }, [initialData, isOpen]);
 
   const handleSubmit = async () => {
     if (!placeId) {
@@ -41,20 +67,34 @@ export function ReviewModal({ isOpen, onClose, placeId }: ReviewModalProps) {
     }
 
     try {
-      const res = await createReview({
-        placeId,
-        rating,
-        review,
-      }).unwrap();
+      let res;
+      if (initialData) {
+        res = await updateReview({
+          id: initialData._id,
+          data: { rating, review },
+        }).unwrap();
+      } else {
+        res = await createReview({
+          placeId,
+          rating,
+          review,
+        }).unwrap();
+      }
 
       if (res.success) {
-        toast.success("Review submitted successfully!");
-        setRating(0);
-        setReview("");
+        toast.success(
+          initialData
+            ? "Review updated successfully!"
+            : "Review submitted successfully!",
+        );
+        if (!initialData) {
+          setRating(0);
+          setReview("");
+        }
         onClose();
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to submit review");
+      toast.error(err?.data?.message || "Failed to save review");
     }
   };
 
@@ -63,7 +103,7 @@ export function ReviewModal({ isOpen, onClose, placeId }: ReviewModalProps) {
       <DialogContent className="w-[700px] rounded-3xl p-5 border-none shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black text-center text-gray-900 uppercase tracking-tight">
-            Write a Review
+            {initialData ? "Edit Your Review" : "Write a Review"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-4">
@@ -120,7 +160,11 @@ export function ReviewModal({ isOpen, onClose, placeId }: ReviewModalProps) {
               disabled={isLoading}
               className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-black rounded-2xl h-14 text-sm tracking-widest shadow-lg shadow-yellow-200 hover:shadow-yellow-300 transition-all active:translate-y-0.5 disabled:opacity-50"
             >
-              {isLoading ? "SUBMITTING..." : "POST REVIEW"}
+              {isLoading
+                ? "SAVING..."
+                : initialData
+                  ? "UPDATE REVIEW"
+                  : "POST REVIEW"}
             </Button>
           </div>
         </div>
