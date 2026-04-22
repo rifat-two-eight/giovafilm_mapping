@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
+  CircleDollarSign,
   Edit2,
   Grid2x2,
   Heart,
@@ -43,7 +44,7 @@ const navLinks = [
   { name: "For Business", href: "/for-business" },
 ];
 
-const menuItems = [
+export const menuItems = [
   {
     label: "Profile",
     href: "/profile",
@@ -63,6 +64,11 @@ const menuItems = [
     label: "Contributions & Reviews",
     href: "/profile/contributions-reviews",
     icon: Star,
+  },
+  {
+    label: "Subscription",
+    href: "/profile/subscription",
+    icon: CircleDollarSign,
   },
   {
     label: "Awards",
@@ -244,40 +250,19 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                     ) : (
-                      <div className="">
-                        <Link href={"/profile"}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Grid2x2 className="mr-3 size-5" />
-                            Profile
-                          </DropdownMenuItem>
-                        </Link>
-                        <Link href={"/profile/favorite-places"}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Heart className="mr-3 size-5" />
-                            Favorites
-                          </DropdownMenuItem>
-                        </Link>
+                      <div>
+                        {menuItems.map((item, index) => {
+                          const Icon = item.icon;
 
-                        <Link href={"/profile/purchased-maps"}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Map className="mr-3 size-5" />
-                            Purchased Maps
-                          </DropdownMenuItem>
-                        </Link>
-
-                        <Link href={"/profile/contributions-reviews"}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Star className="mr-3 size-5" />
-                            Contributions & Reviews
-                          </DropdownMenuItem>
-                        </Link>
-
-                        <Link href={"/profile/awards"}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                            <Trophy className="mr-3 size-5" />
-                            Awards
-                          </DropdownMenuItem>
-                        </Link>
+                          return (
+                            <Link key={index} href={item.href}>
+                              <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                                <Icon className="mr-3 size-5" />
+                                {item.label}
+                              </DropdownMenuItem>
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -428,7 +413,7 @@ export default function Header() {
           }`}
         >
           <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-0">
               <h2 className="text-lg font-semibold">Menu</h2>
               <button
                 onClick={closeMenus}
@@ -439,7 +424,7 @@ export default function Header() {
             </div>
 
             {/* Navigation Links */}
-            <div className="space-y-2">
+            <div className="">
               {navLinks.map((link, index) => {
                 const isActive = pathname === link.href;
 
@@ -448,7 +433,7 @@ export default function Header() {
                     key={index}
                     href={link.href}
                     onClick={closeMenus}
-                    className={`block px-4 py-3 font-semibold text-black font-inter transition-colors rounded-lg ${
+                    className={`block px-4 py-2 font-semibold text-black font-inter transition-colors rounded-lg ${
                       isActive ? "bg-primary" : "hover:bg-gray-100"
                     }`}
                   >
@@ -460,7 +445,7 @@ export default function Header() {
 
             {/* User Menu Items in Hamburger (Mobile) */}
             {isAuthenticated && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="text-sm font-medium text-gray-500 mb-3 px-4">
                   Account
                 </h3>
@@ -476,46 +461,28 @@ export default function Header() {
                   </Link>
                 ) : (
                   <div className="space-y-1">
-                    <Link
-                      href={"/profile/favorite-places"}
-                      onClick={closeMenus}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Heart className=" size-5" />
-                      <span>Favorites</span>
-                    </Link>
+                    <div className="space-y-1">
+                      {menuItems.map((item, index) => {
+                        const Icon = item.icon;
 
-                    <Link
-                      href={"/profile/purchased-maps"}
-                      onClick={closeMenus}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Map className="size-5" />
-                      <span>Purchased Maps</span>
-                    </Link>
-
-                    <Link
-                      href={"/profile/reviews"}
-                      onClick={closeMenus}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Star className="size-5" />
-                      <span>Contributions & Reviews</span>
-                    </Link>
-
-                    <Link
-                      href={"/profile/awards"}
-                      onClick={closeMenus}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Trophy className="size-5" />
-                      <span>Awards</span>
-                    </Link>
+                        return (
+                          <Link
+                            key={index}
+                            href={item.href}
+                            onClick={closeMenus}
+                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          >
+                            <Icon className="size-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
 
                     {/* ✅ Logout in hamburger menu */}
                     <button
                       onClick={() => handleLogout()}
-                      className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4"
                     >
                       <Map className="size-5" />
                       <span>Log Out</span>

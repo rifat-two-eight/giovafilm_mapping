@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 export function BillingSettings() {
   return (
@@ -18,9 +19,11 @@ export function BillingSettings() {
           </p>
         </div>
 
-        <Button variant="outline" className="py-5 w-full justify-start">
-          Manage Subscription
-        </Button>
+        <Link href={"/pricing"}>
+          <Button variant="outline" className="py-5 w-full justify-start">
+            Manage Subscription
+          </Button>
+        </Link>
 
         {/* <Button variant="outline" className="py-5 w-full justify-start">
           Update Payment Method

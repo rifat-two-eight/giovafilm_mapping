@@ -73,7 +73,7 @@ export function PricingCard({
           ? "border-2 border-yellow-400 bg-white shadow-lg scale-102"
           : isSelected
             ? "border-2 border-yellow-400 bg-white ring-2 ring-yellow-400/20"
-            : "border-2 border-gray-200 bg-white hover:border-gray-300"
+            : "border-2 border-gray-200 bg-white hover:border-gray-300 "
       } ${isEnterprise ? "!bg-gray-900 !border-black !text-white" : ""}`}
     >
       {/* Badge */}
@@ -106,11 +106,7 @@ export function PricingCard({
             </span>
           )}
         </div>
-        <p
-          className={`text-sm ${isEnterprise ? "text-gray-300" : "text-gray-600"}`}
-        >
-          {plan.description}
-        </p>
+        <p className={`text-sm text-gray-600}`}>{plan.description}</p>
       </div>
 
       {/* Select Button */}
@@ -124,17 +120,19 @@ export function PricingCard({
         className={`w-full py-2 mb-6 font-semibold rounded-lg transition-all ${
           isSelected
             ? isEnterprise
-              ? "bg-white text-black hover:bg-gray-100"
+              ? "bg-white  text-black hover:bg-gray-100"
               : "bg-yellow-400 text-black hover:bg-yellow-500"
             : isEnterprise
-              ? "bg-white text-black hover:bg-gray-100"
+              ? "bg-gray-100 text-black hover:bg-gray-200"
               : isPro
                 ? "bg-yellow-400 text-black hover:bg-yellow-500"
                 : "bg-gray-100 text-gray-900 hover:bg-gray-200"
         }`}
       >
         {isFormStep
-          ? isSelected ? "Plan Selected" : "Select Plan"
+          ? isSelected
+            ? "Plan Selected"
+            : "Select Plan"
           : isLoading
             ? "Processing..."
             : "Get Started"}
@@ -145,14 +143,13 @@ export function PricingCard({
         {plan.features.map((feature, idx) => (
           <div key={idx} className="flex items-start gap-3">
             <Check
-              className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+              className={`w-5 h-5 shrink-0 mt-0.5 ${
                 isEnterprise ? "text-yellow-400" : "text-green-500"
               }`}
             />
             <span
-              className={`text-sm ${
-                isEnterprise ? "text-gray-200" : "text-gray-700"
-              }`}
+              className={`text-sm text-gray-700"
+              `}
             >
               {feature}
             </span>
