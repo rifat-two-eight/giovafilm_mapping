@@ -152,7 +152,7 @@ export default function OtpVerify() {
           }
 
           if (userRole === "user") {
-            router.push("/profile");
+            router.push("/profile/contributions-reviews");
           } else {
             router.push("/dashboard");
           }

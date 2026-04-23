@@ -1,9 +1,5 @@
-import ProfilePage from "@/components/Common/profile/proifle-screen";
+import { redirect } from "next/navigation";
 
 export default function page() {
-  return (
-    <div>
-      <ProfilePage />
-    </div>
-  );
+  redirect("/profile/contributions-reviews");
 }

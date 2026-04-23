@@ -63,7 +63,7 @@ export default function TopHeader() {
 
           {/* Profile */}
           <Link
-            href={"/profile"}
+            href={"/profile/contributions-reviews"}
             className="w-10 h-10 rounded-full border-2 border-[#FFC107] p-0.5 overflow-hidden cursor-pointer"
           >
             <Image
