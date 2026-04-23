@@ -26,6 +26,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { useAppDispatch } from "@/redux/hook";
@@ -82,6 +83,11 @@ const menuItems = [
     url: "/dashboard/settings",
     icon: Settings,
   },
+  // {
+  //   title: "Subscription",
+  //   url: "/dashboard/subscription",
+  //   icon: CreditCard,
+  // },
 ];
 
 export function AppSidebar() {
