@@ -63,7 +63,7 @@ export const LoginForm = () => {
       toast.success(res.message || "Logged in successfully!");
 
       if (decoded?.role === "user") {
-        router.push("/profile/contributions-reviews");
+        router.push("/maps");
       } else {
         router.push("/dashboard");
       }

@@ -66,7 +66,6 @@ interface MapCategoriesPanelProps {
   categories: any[];
   enabledCategories: Record<string, boolean>;
   onToggle: (id: string, value: boolean) => void;
-  onShowResults: () => void;
 }
 
 function MapCategoriesPanel({
@@ -74,7 +73,6 @@ function MapCategoriesPanel({
   categories,
   enabledCategories,
   onToggle,
-  onShowResults,
 }: MapCategoriesPanelProps) {
   return (
     <div className="w-[230px] bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[60vh]">
@@ -132,16 +130,6 @@ function MapCategoriesPanel({
           </div>
         )}
       </div>
-
-      {/* Footer button */}
-      {/* <div className="p-3 border-t border-gray-100 shrink-0">
-        <Button
-          onClick={onShowResults}
-          className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm rounded-xl py-2.5 h-auto"
-        >
-          Show results
-        </Button>
-      </div> */}
     </div>
   );
 }
@@ -166,11 +154,12 @@ function GeolocationOnLoad({
   return null;
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MapPage() {
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
   const [markerPos, setMarkerPos] = useState(defaultPosition);
 
+  // enabledCategories: true = visible, false = hidden
+  // We start with an empty object and treat a missing key as true (visible) via ?? true
   const [enabledCategories, setEnabledCategories] = useState<
     Record<string, boolean>
   >({});
@@ -183,15 +172,13 @@ export default function MapPage() {
   // --- API Fetches ---
   const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
   const fetchedPlaces = placesRes?.data || [];
-  console.log("fetchedPlaces", fetchedPlaces);
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   const fetchedCategories = categoriesRes?.data || [];
 
   const { data: availableCountries = [] } = useGetAvailableCountriesQuery();
-  console.log("availableCountries", availableCountries);
 
-  // Initialize enabled categories to false when they load
+  // Initialize all categories to true (visible) once loaded
   useEffect(() => {
     if (
       fetchedCategories.length > 0 &&
@@ -199,7 +186,7 @@ export default function MapPage() {
     ) {
       const initial: Record<string, boolean> = {};
       fetchedCategories.forEach((c: any) => {
-        initial[c._id] = false;
+        initial[c._id] = true; // ← all switches ON by default
       });
       setEnabledCategories(initial);
     }
@@ -207,27 +194,23 @@ export default function MapPage() {
 
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
-  // Filter places based on enabled categories
-  const isAnyCategoryEnabled = Object.values(enabledCategories).some(
-    (val) => val,
-  );
-
   const displayPlaces = fetchedPlaces.filter((place: any) => {
-    // Country Filter
+    // Country filter
     if (selectedCountry !== "all") {
       const placeCountry = place.location?.country || place.country;
       if (placeCountry !== selectedCountry) return false;
     }
 
-    if (!isAnyCategoryEnabled) return true; // Show all maps if no categories are enabled
-
+    // Category filter:
+    // Show the place unless its category switch is explicitly set to false.
     const categoryId = place.category?._id || place.category;
-    if (!categoryId) return false;
+    if (!categoryId) return true; // no category → always show
 
-    const _id =
+    const id =
       typeof categoryId === "string" ? categoryId : categoryId.toString();
 
-    return enabledCategories[_id] === true;
+    // Missing key defaults to visible; only hide when explicitly false
+    return enabledCategories[id] !== false;
   });
 
   return (
@@ -298,6 +281,12 @@ export default function MapPage() {
             <MapControl position={ControlPosition.TOP_LEFT}>
               <div className="flex items-start gap-2 m-3">
                 {/* Category Filter */}
+                {/* <MapCategoriesPanel
+                  categories={fetchedCategories}
+                  enabledCategories={enabledCategories}
+                  onToggle={handleToggle}
+                /> */}
+
                 <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="categories" className="border-none">
@@ -321,7 +310,6 @@ export default function MapPage() {
                                     : "hover:bg-gray-50 text-gray-800"
                                 }`}
                               >
-                                {/* Colored icon circle */}
                                 <div
                                   className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                                   style={{ backgroundColor: color }}
@@ -333,12 +321,10 @@ export default function MapPage() {
                                   />
                                 </div>
 
-                                {/* Label */}
                                 <span className="flex-1 text-sm font-medium capitalize truncate">
                                   {cat.name}
                                 </span>
 
-                                {/* Toggle — yellow when on, gray when off */}
                                 <Switch
                                   checked={enabled}
                                   onCheckedChange={(val) =>

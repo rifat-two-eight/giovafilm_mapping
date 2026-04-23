@@ -1,5 +1,4 @@
 import { InfoWindow } from "@vis.gl/react-google-maps";
-import React from "react";
 import { PlaceFormContent } from "./PlaceFormContent";
 
 interface PlaceInfoWindowProps {
