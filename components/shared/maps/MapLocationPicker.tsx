@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  AdvancedMarker,
   APIProvider,
   Map,
-  AdvancedMarker,
   useMap,
 } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";

@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
 
@@ -12,14 +11,6 @@ import { getImageUrl } from "@/lib/utils";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
-
-type Offer = {
-  id: number;
-  title: string;
-  category: string;
-  image: StaticImageData | string;
-  discount: number;
-};
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");

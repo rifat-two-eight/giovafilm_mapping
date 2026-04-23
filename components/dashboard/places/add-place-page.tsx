@@ -2,6 +2,7 @@
 
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
 
+import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,7 +28,6 @@ import { ChevronRight, Map as MapIcon, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { CategoryMarker } from "@/components/shared/maps/category-marker";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 // Maps category name (lowercase) to a pin color.

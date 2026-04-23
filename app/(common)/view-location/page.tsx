@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  AdvancedMarker,
   APIProvider,
   Map,
-  AdvancedMarker,
   Pin,
 } from "@vis.gl/react-google-maps";
 import { useSearchParams } from "next/navigation";

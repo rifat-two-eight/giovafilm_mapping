@@ -1,7 +1,7 @@
 "use client";
 
+import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";
-import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 
 export default function LocationVerification({ location }: any) {
   // mapLocation.coordinates is [lng, lat] (GeoJSON order)
