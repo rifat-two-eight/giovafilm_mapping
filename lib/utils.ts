@@ -5,13 +5,43 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getImageUrl = (media?: File | string) => {
+export const getImageUrl = (media?: any) => {
   if (!media) return "/placeholder.png";
 
-  const baseURL = process.env.NEXT_PUBLIC_BASEURL as string;
+  let mediaPath = "";
 
-  // Prevent double slashes
-  return `${baseURL}${media}`;
+  if (Array.isArray(media) && media.length > 0) {
+    mediaPath = media[0];
+  } else if (typeof media === "string") {
+    mediaPath = media;
+  }
+
+  // Handle common junk strings or non-string paths
+  if (
+    !mediaPath ||
+    typeof mediaPath !== "string" ||
+    mediaPath === "undefined" ||
+    mediaPath === "null" ||
+    mediaPath.trim() === ""
+  ) {
+    return "/placeholder.png";
+  }
+
+  // If it's already a full URL, return it
+  if (mediaPath.startsWith("http")) return mediaPath;
+
+  const baseURL = (process.env.NEXT_PUBLIC_BASEURL || "").trim();
+
+  // Ensure there's a leading slash on media if not present and baseURL doesn't end with one
+  const separator =
+    baseURL && !baseURL.endsWith("/") && !mediaPath.startsWith("/") ? "/" : "";
+
+  // If no baseURL, ensure mediaPath starts with a slash for Next.js Image
+  if (!baseURL && !mediaPath.startsWith("/")) {
+    return `/${mediaPath}`;
+  }
+
+  return `${baseURL}${separator}${mediaPath}`;
 };
 
 export const formatDate = (dateString: string) => {
