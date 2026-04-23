@@ -45,6 +45,14 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+    getAvailableCountries: builder.query<any, void>({
+      query: () => ({
+        url: "/map/available-countries",
+        method: "GET",
+      }),
+      providesTags: ["Map"],
+      transformResponse: (response: any) => response.data,
+    }),
   }),
 });
 
@@ -54,4 +62,5 @@ export const {
   useGetMapByIdQuery,
   useUpdateMapMutation,
   useDeleteMapMutation,
+  useGetAvailableCountriesQuery,
 } = mapApi;

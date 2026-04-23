@@ -48,11 +48,11 @@ const navLinks = [
 ];
 
 export const menuItems = [
-  {
-    label: "Profile",
-    href: "/profile",
-    icon: Grid2x2,
-  },
+  // {
+  //   label: "Profile",
+  //   href: "/profile",
+  //   icon: Grid2x2,
+  // },
   {
     label: "Favorites",
     href: "/profile/favorite-places",

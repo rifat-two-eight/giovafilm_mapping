@@ -8,11 +8,11 @@ interface ContributionsSection {
   pointsUntilNextLevel: number;
 }
 
-interface ContributionsProps {
-  contributions: ContributionsSection;
-}
-
-export function ContributionsSection({ contributions }: ContributionsProps) {
+export function ContributionsSection() {
+  const currentPoints = 1250;
+  const nextLevelPoints = 2000;
+  const pointsUntilNextLevel = nextLevelPoints - currentPoints;
+  const progressToNextLevel = (currentPoints / nextLevelPoints) * 100;
   return (
     <div className="bg-white rounded-2xl p-8 border border-gray-200 space-y-8">
       {/* Header */}
@@ -32,9 +32,7 @@ export function ContributionsSection({ contributions }: ContributionsProps) {
           <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
             TOTAL POINTS
           </p>
-          <p className="text-4xl font-bold text-yellow-500">
-            {contributions?.totalPoints.toLocaleString()}
-          </p>
+          <p className="text-4xl font-bold text-yellow-500">2450</p>
         </div>
 
         {/* Reviews */}
@@ -42,9 +40,7 @@ export function ContributionsSection({ contributions }: ContributionsProps) {
           <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
             REVIEWS
           </p>
-          <p className="text-4xl font-bold text-yellow-500">
-            {contributions?.reviews}
-          </p>
+          <p className="text-4xl font-bold text-yellow-500">24</p>
         </div>
 
         {/* Photos */}
@@ -52,9 +48,7 @@ export function ContributionsSection({ contributions }: ContributionsProps) {
           <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
             PHOTOS
           </p>
-          <p className="text-4xl font-bold text-yellow-500">
-            {contributions?.photos}
-          </p>
+          <p className="text-4xl font-bold text-yellow-500">112</p>
         </div>
       </div>
 
@@ -65,7 +59,7 @@ export function ContributionsSection({ contributions }: ContributionsProps) {
             Progress to Level 5
           </h3>
           <p className="text-xs text-gray-500 mb-3">
-            {contributions?.pointsUntilNextLevel} pts until next rank
+            {pointsUntilNextLevel} pts until next rank
           </p>
         </div>
 
@@ -73,13 +67,13 @@ export function ContributionsSection({ contributions }: ContributionsProps) {
         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div
             className="bg-green-600 h-full rounded-full transition-all duration-300"
-            style={{ width: `${contributions?.progressToNextLevel}%` }}
+            style={{ width: `${progressToNextLevel}%` }}
           />
         </div>
 
         {/* Progress Percentage */}
         <p className="text-xs text-right text-gray-600 font-medium">
-          {contributions?.progressToNextLevel}%
+          {progressToNextLevel}%
         </p>
 
         {/* Help Text */}

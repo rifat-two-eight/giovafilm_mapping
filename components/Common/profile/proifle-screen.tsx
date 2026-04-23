@@ -1,16 +1,12 @@
 "use client";
 
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
-import { ContributionsSection } from "./contributions-section";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { ProfileSidebar } from "./profile-sidebar";
 import { ReviewsSection } from "./reviews-section";
 
-import profileData from "@/lib/profile.json";
 
 export default function ProfilePage() {
-  const { user, contributions, reviews } = profileData;
-
   const { data } = useGetProfileQuery({});
   const { data: reviewsData = [], isLoading: isReviewsLoading } =
     useGetMyReviewsQuery({});
@@ -28,7 +24,7 @@ export default function ProfilePage() {
           {/* Right Content - 3/4 width */}
           <div className="lg:col-span-3 space-y-10">
             {/* Contributions Section */}
-            <ContributionsSection contributions={contributions} />
+            {/* <ContributionsSection contributions={contributions} /> */}
 
             {/* Reviews Section */}
             {!isReviewsLoading && (

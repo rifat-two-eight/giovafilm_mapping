@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import React, { useState } from "react";
-import { ReviewCard } from "./review-card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
-import { getImageUrl } from "@/lib/utils";
-import { NoImage } from "@/lib/others/others";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useState } from "react";
+import { ContributionsSection } from "../contributions-section";
+import ProfileUpdateModal from "../profile-update-modal";
+import { ReviewCard } from "./review-card";
 
 export default function ContributionsReviews() {
   const [displayedReviews, setDisplayedReviews] = useState(3);
@@ -30,8 +28,8 @@ export default function ContributionsReviews() {
       {/* Main container */}
       <div className="max-w-360 mx-auto p-6 bg-white rounded-2xl">
         {/* Profile header */}
-        <div className="flex flex-col items-center py-12 bg-white rounded-2xl mb-8">
-          {/* Profile image with border */}
+        {/* <div className="flex flex-col items-center py-12 bg-white rounded-2xl mb-8">
+          
           <div className="w-32 h-32 mb-6 relative">
             {user?.profile ? (
               <Image
@@ -47,10 +45,9 @@ export default function ContributionsReviews() {
             )}
           </div>
 
-          {/* User name */}
+    
           <h1 className="text-3xl font-bold text-gray-900 mb-4">John Doe</h1>
 
-          {/* Badge and join date */}
           <div className="flex items-center gap-3 text-sm">
             <span className="bg-yellow-100 text-yellow-700 font-semibold px-4 py-1 rounded-full">
               Level {user?.level || 0} EXPLORER
@@ -62,15 +59,17 @@ export default function ContributionsReviews() {
             <span className="text-gray-600">• Joined Oct 2023</span>
           </div>
 
-          {/* ✅ NEW: Progress info (no style change) */}
+    
           <p className="text-gray-500 text-sm mt-2">
             {currentPoints.toLocaleString()} /{" "}
             {nextLevelPoints.toLocaleString()} points to next level
           </p>
-        </div>
+        </div> */}
+
+        <ContributionsSection />
 
         {/* Reviews section */}
-        <div>
+        <div className="mt-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
             My Reviews ({reviewsData.length})
           </h2>
