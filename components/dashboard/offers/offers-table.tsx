@@ -1,7 +1,10 @@
 "use client";
 
 import { Edit, Pause, Play, Trash2 } from "lucide-react";
-import { useDeleteOfferMutation, useGetOffersQuery } from "@/redux/features/offer/offerApi";
+import {
+  useDeleteOfferMutation,
+  useGetOffersQuery,
+} from "@/redux/features/offer/offerApi";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 
@@ -85,7 +88,10 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-gray-400">
+                <td
+                  colSpan={7}
+                  className="px-6 py-10 text-center text-gray-400"
+                >
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                     Loading offers...
@@ -94,7 +100,10 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
               </tr>
             ) : offersData.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                <td
+                  colSpan={7}
+                  className="px-6 py-10 text-center text-gray-500"
+                >
                   No offers found. Create one to get started!
                 </td>
               </tr>
@@ -152,14 +161,14 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                       </button>
 
                       {/* Pause / Resume */}
-                      {offer.status === "Active" && (
+                      {/* {offer.status === "Active" && (
                         <button
                           className="text-orange-500 hover:text-orange-700"
                           aria-label="Pause offer"
                         >
                           <Pause size={18} />
                         </button>
-                      )}
+                      )} */}
 
                       {offer.status === "Paused" && (
                         <button

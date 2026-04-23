@@ -1,21 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getImageUrl } from "@/lib/utils";
 import {
-  Check,
-  CheckCheckIcon,
-  CheckCircle2,
-  ChevronRight,
-  HelpCircle,
-  Star,
-} from "lucide-react";
+  useGetSingleOfferQuery,
+  useRedeemOfferMutation,
+} from "@/redux/features/offer/offerApi";
+import { CheckCircle2, ChevronRight, HelpCircle, Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useGetSingleOfferQuery } from "@/redux/features/offer/offerApi";
-import { getImageUrl } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
+import { toast } from "sonner";
 
 export default function RestaurantDetail() {
   const params = useParams();
@@ -27,34 +24,60 @@ export default function RestaurantDetail() {
   });
   const offer = offerRes?.data;
 
-  console.log("offer", offer);
+  const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
 
-  const [timeLeft, setTimeLeft] = useState("14:06");
-
-  // Check if the current path is from /maps
-  const isFromMaps = pathname?.startsWith("/maps");
+  const [timeLeft, setTimeLeft] = useState<string>("00:00");
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [expiry, setExpiry] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!offer) return;
-    // Simulate countdown timer
+    // If the offer has an active redemption, start the timer
+    if (offer?.activeRedemption?.expiresAt) {
+      setExpiry(offer.activeRedemption.expiresAt);
+    }
+  }, [offer]);
+
+  useEffect(() => {
+    if (!expiry) return;
+
+    setIsTimerActive(true);
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        const [minutes, seconds] = prev.split(":").map(Number);
-        let totalSeconds = minutes * 60 + seconds - 1;
+      const now = new Date().getTime();
+      const distance = new Date(expiry).getTime() - now;
 
-        if (totalSeconds < 0) {
-          clearInterval(timer);
-          return "00:00";
-        }
+      if (distance < 0) {
+        clearInterval(timer);
+        setTimeLeft("00:00");
+        setIsTimerActive(false);
+        setExpiry(null);
+        return;
+      }
 
-        const newMinutes = Math.floor(totalSeconds / 60);
-        const newSeconds = totalSeconds % 60;
-        return `${String(newMinutes).padStart(2, "0")}:${String(newSeconds).padStart(2, "0")}`;
-      });
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft(
+        `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+      );
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [offer]);
+  }, [expiry]);
+
+  const handleRedeem = async () => {
+    try {
+      const res = await redeemOffer(offerId).unwrap();
+      if (res.data?.expiresAt) {
+        toast.success("Offer redeemed successfully!");
+        setExpiry(res.data.expiresAt);
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to redeem offer");
+    }
+  };
+
+  // Check if the current path is from /maps
+  const isFromMaps = pathname?.startsWith("/maps");
 
   if (isLoading) {
     return (
@@ -142,10 +165,10 @@ export default function RestaurantDetail() {
                 <div className="space-y-2 sm:space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="space-y-1 sm:space-y-2">
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 break-words">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 wrap-break-word">
                         {offer?.title}
                       </h1>
-                      <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 break-words">
+                      <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 wrap-break-word">
                         <span>📍</span>{" "}
                         {offer.place?.address || "Location not specified"}
                       </p>
@@ -178,7 +201,7 @@ export default function RestaurantDetail() {
                           <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
                             FROM
                           </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+                          <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
                             {new Date(offer.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -189,7 +212,7 @@ export default function RestaurantDetail() {
                           <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
                             UNTIL
                           </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+                          <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
                             {new Date(offer.validUntil).toLocaleDateString()}
                           </p>
                         </div>
@@ -238,7 +261,7 @@ export default function RestaurantDetail() {
                           {timeLeft}
                         </div>
                         <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
-                          Time Left
+                          {isTimerActive ? "Time Left" : "Redeem Now"}
                         </div>
                       </div>
                     </div>
@@ -248,7 +271,7 @@ export default function RestaurantDetail() {
                   <div className="p-3 sm:p-4 bg-gray-50 rounded-lg text-center">
                     <p className="text-xs sm:text-sm text-gray-600">
                       Present this screen to the staff member at{" "}
-                      <span className="font-semibold break-words">
+                      <span className="font-semibold wrap-break-word">
                         {offer.place?.name}
                       </span>{" "}
                       to validate your redemption.
@@ -257,8 +280,16 @@ export default function RestaurantDetail() {
                 </div>
 
                 {/* Redeem Button */}
-                <Button className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20">
-                  REDEEM OFFER
+                <Button
+                  onClick={handleRedeem}
+                  disabled={isRedeeming || isTimerActive}
+                  className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20"
+                >
+                  {isRedeeming
+                    ? "REDEEMING..."
+                    : isTimerActive
+                      ? "OFFER REDEEMED"
+                      : "REDEEM OFFER"}
                 </Button>
 
                 {/* Offer Code */}

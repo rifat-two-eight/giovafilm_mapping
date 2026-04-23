@@ -33,6 +33,13 @@ const offerApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Offer"],
     }),
+    redeemOffer: builder.mutation({
+      query: (id) => ({
+        url: `/offer/${id}/redeem`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [{ type: "Offer", id }],
+    }),
   }),
 });
 
@@ -42,4 +49,5 @@ export const {
   useCreateOfferMutation,
   useDeleteOfferMutation,
   useUpdateOfferMutation,
+  useRedeemOfferMutation,
 } = offerApi;

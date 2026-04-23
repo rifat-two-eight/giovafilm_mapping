@@ -16,9 +16,11 @@ import {
   useCreateOfferMutation,
   useUpdateOfferMutation,
 } from "@/redux/features/offer/offerApi";
-import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { useGetBusinessesQuery } from "@/redux/features/business/businessApi";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Controller } from "react-hook-form";
 
 interface CreateOfferDialogProps {
   open: boolean;
@@ -33,7 +35,10 @@ interface FormData {
   discountType: string;
   discountValue: string;
   validFrom: string;
-  validUntil: string;
+  validUntil?: string;
+  noExpiration: boolean;
+  maxRedemptions: string;
+  redemptionDuration: string;
   buttonLabel: string;
 }
 
@@ -43,11 +48,18 @@ export function CreateOfferDialog({
   initialData,
 }: CreateOfferDialogProps) {
   const isEdit = !!initialData;
-  const { register, handleSubmit, reset } = useForm<FormData>();
+  const { register, handleSubmit, reset, watch, control, setValue } =
+    useForm<FormData>({
+      defaultValues: {
+        noExpiration: false,
+      },
+    });
   const [createOffer, { isLoading: isCreating }] = useCreateOfferMutation();
   const [updateOffer, { isLoading: isUpdating }] = useUpdateOfferMutation();
-  const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
-  const places = placesRes?.data || [];
+  const { data: businessesRes } = useGetBusinessesQuery({ limit: 100 });
+  const businesses = businessesRes?.data || [];
+
+  const noExpiration = watch("noExpiration");
 
   // ── Image state — managed manually, NOT via register ─────────────────────
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -89,6 +101,9 @@ export function CreateOfferDialog({
         validUntil: initialData.validUntil
           ? new Date(initialData.validUntil).toISOString().split("T")[0]
           : "",
+        noExpiration: initialData.noExpiration || false,
+        maxRedemptions: initialData.maxRedemptions?.toString() || "",
+        redemptionDuration: initialData.redemptionDuration?.toString() || "",
         buttonLabel: initialData.buttonLabel,
       });
       setPreview(getImageUrl(initialData.photo));
@@ -109,6 +124,9 @@ export function CreateOfferDialog({
         discountValue: "",
         validFrom: "",
         validUntil: "",
+        noExpiration: false,
+        maxRedemptions: "",
+        redemptionDuration: "",
         buttonLabel: "",
       });
       setPreview(null);
@@ -146,7 +164,14 @@ export function CreateOfferDialog({
         discountType: data.discountType,
         discountValue: Number(data.discountValue) || 0,
         validFrom: new Date(data.validFrom).toISOString(),
-        validUntil: new Date(data.validUntil).toISOString(),
+        validUntil: data.noExpiration
+          ? null
+          : data.validUntil
+            ? new Date(data.validUntil).toISOString()
+            : null,
+        noExpiration: data.noExpiration,
+        maxRedemptions: Number(data.maxRedemptions) || 0,
+        redemptionDuration: Number(data.redemptionDuration) || 0,
         redemptionRules: rules,
         buttonLabel: data.buttonLabel,
         status: "Active",
@@ -262,23 +287,23 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Place */}
+          {/* Business Selection */}
           <div>
             <Label
               htmlFor="place"
               className="text-sm font-medium text-gray-700"
             >
-              Place
+              Choose Business
             </Label>
             <select
               id="place"
               className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              {...register("place", { required: "Place is required" })}
+              {...register("place", { required: "Business is required" })}
             >
-              <option value="">Select a place</option>
-              {places.map((p: any) => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
+              <option value="">Select a business</option>
+              {businesses.map((b: any) => (
+                <option key={b._id} value={b._id}>
+                  {b.name}
                 </option>
               ))}
             </select>
@@ -303,6 +328,47 @@ export function CreateOfferDialog({
             />
           </div>
 
+          {/* Redemption Limits */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label
+                htmlFor="maxRedemptions"
+                className="text-sm font-medium text-gray-700"
+              >
+                Max Redemptions
+              </Label>
+              <Input
+                id="maxRedemptions"
+                type="number"
+                min={0}
+                placeholder="e.g., 100"
+                className="mt-1"
+                {...register("maxRedemptions", {
+                  required: "Max redemptions is required",
+                })}
+              />
+            </div>
+
+            <div>
+              <Label
+                htmlFor="redemptionDuration"
+                className="text-sm font-medium text-gray-700"
+              >
+                Duration (Days)
+              </Label>
+              <Input
+                id="redemptionDuration"
+                type="number"
+                min={0}
+                placeholder="e.g., 7"
+                className="mt-1"
+                {...register("redemptionDuration", {
+                  required: "Duration is required",
+                })}
+              />
+            </div>
+          </div>
+
           {/* Discount Type and Value */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -314,7 +380,7 @@ export function CreateOfferDialog({
               </Label>
               <select
                 id="discountType"
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 {...register("discountType", { required: "Type is required" })}
               >
                 <option value="">Select discount type</option>
@@ -347,7 +413,7 @@ export function CreateOfferDialog({
           </div>
 
           {/* Valid From and Valid Until */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label
                 htmlFor="validFrom"
@@ -365,21 +431,45 @@ export function CreateOfferDialog({
               />
             </div>
 
-            <div>
-              <Label
-                htmlFor="validUntil"
-                className="text-sm font-medium text-gray-700"
-              >
-                Valid Until
-              </Label>
-              <Input
-                id="validUntil"
-                type="date"
-                className="mt-1"
-                {...register("validUntil", {
-                  required: "End date is required",
-                })}
-              />
+            <div className="flex items-end gap-2">
+              {!noExpiration && (
+                <div>
+                  <Label
+                    htmlFor="validUntil"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Valid Until
+                  </Label>
+                  <Input
+                    id="validUntil"
+                    type="date"
+                    className="mt-1"
+                    {...register("validUntil", {
+                      required: !noExpiration ? "End date is required" : false,
+                    })}
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 mb-2">
+                <Controller
+                  name="noExpiration"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="noExpiration"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label
+                  htmlFor="noExpiration"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  No Expiration
+                </Label>
+              </div>
             </div>
           </div>
 
@@ -394,7 +484,7 @@ export function CreateOfferDialog({
 
             {/* Input row */}
             <div className="flex gap-2 mt-1">
-              <textarea
+              <Input
                 id="redemptionRules"
                 value={ruleInput}
                 onChange={(e) => {
@@ -403,12 +493,11 @@ export function CreateOfferDialog({
                 }}
                 placeholder="e.g., One per user per visit"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                rows={2}
               />
               <Button
                 type="button"
                 onClick={handleAddRule}
-                className="self-start bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 h-auto"
+                className="self-start bg-primary hover:bg-primary/80 text-white px-4 py-2 h-auto"
               >
                 Add
               </Button>
@@ -476,7 +565,7 @@ export function CreateOfferDialog({
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-purple-600 hover:bg-purple-700 text-white min-w-32 flex items-center justify-center gap-2"
+              className="bg-primary hover:bg-primary/80 text-white min-w-32 flex items-center justify-center gap-2"
             >
               {isLoading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
