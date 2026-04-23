@@ -129,7 +129,7 @@ export function ViewPlaceModal({
                   className="bg-white/90 text-blue-700 hover:bg-white border-none shadow-sm"
                 >
                   {typeof place.category === "object"
-                    ? place.category.name
+                    ? place?.category?.name
                     : "Place"}
                 </Badge>
                 <DialogTitle className="text-4xl font-black text-white tracking-tight leading-tight">

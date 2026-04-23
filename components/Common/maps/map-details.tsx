@@ -3,9 +3,10 @@
 import {
   BarChart3,
   Car,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Dog,
-  Heart,
   Map,
   MapPin,
   MessageSquare,
@@ -19,9 +20,24 @@ import {
   User2,
   Utensils,
   Wifi,
+  X,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import {
   Accordion,
@@ -33,13 +49,13 @@ import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
+import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
-import { FavouriteButton } from "@/components/shared/favourite-button";
 
 export const infoData = [
   {
@@ -118,6 +134,18 @@ export default function MapDetails() {
     router.push(`/view-location?lat=${lat}&lng=${lng}`);
   };
 
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState<number | null>(
+    null,
+  );
+
+  const mediaList = useMemo(() => {
+    return placeData?.media || [];
+  }, [placeData]);
+
+  const isVideo = (url: string) => {
+    return /\.(mp4|webm|ogg)$/i.test(url);
+  };
+
   const handleDirections = () => {
     if (!lat || !lng) {
       console.error("Invalid coordinates");
@@ -159,21 +187,54 @@ export default function MapDetails() {
         {/* TOP GRID */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* LEFT HERO CARD */}
-          <div className="lg:col-span-2 relative rounded-xl overflow-hidden">
-            <div className="h-100 object-cover">
-              {placeData?.media.length > 0 ? (
-                <Image
-                  src={getImageUrl(placeData?.media?.[0])}
-                  alt={placeData?.name || "Place Image"}
-                  width={1000}
-                  height={1000}
-                  unoptimized
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <NoImage />
+          <div className="lg:col-span-2 relative rounded-xl overflow-hidden group">
+            <Carousel className="w-full h-full">
+              <CarouselContent className="h-100 ml-0">
+                {mediaList.length > 0 ? (
+                  mediaList.map((media: string, index: number) => (
+                    <CarouselItem
+                      key={index}
+                      className="pl-0 h-full cursor-pointer"
+                      onClick={() => setSelectedMediaIndex(index)}
+                    >
+                      <div className="h-full w-full relative">
+                        {isVideo(media) ? (
+                          <video
+                            src={getImageUrl(media)}
+                            className="object-cover w-full h-full"
+                            muted
+                            loop
+                            onMouseOver={(e) => e.currentTarget.play()}
+                            onMouseOut={(e) => e.currentTarget.pause()}
+                          />
+                        ) : (
+                          <Image
+                            src={getImageUrl(media)}
+                            alt={`${placeData?.name} media ${index + 1}`}
+                            width={1000}
+                            height={1000}
+                            unoptimized
+                            className="object-cover w-full h-full"
+                          />
+                        )}
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem className="pl-0 h-full">
+                    <NoImage />
+                  </CarouselItem>
+                )}
+              </CarouselContent>
+
+              {/* Navigation Arrows - Overlay */}
+              {mediaList.length > 1 && (
+                <>
+                  <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 border-none text-white transition-opacity opacity-0 group-hover:opacity-100 size-12" />
+                  <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/40 border-none text-white transition-opacity opacity-0 group-hover:opacity-100 size-12" />
+                </>
               )}
-            </div>
+            </Carousel>
 
             {/* overlay */}
             <div className="absolute inset-0 bg-black/40"></div>
@@ -555,6 +616,82 @@ export default function MapDetails() {
         onClose={() => setIsReviewOpen(false)}
         placeId={placeData?._id}
       />
+
+      {/* Media Modal */}
+      <Dialog
+        open={selectedMediaIndex !== null}
+        onOpenChange={(open) => !open && setSelectedMediaIndex(null)}
+      >
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 bg-black/95 border-none flex flex-col items-center justify-center overflow-hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Media Gallery</DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-full flex items-center justify-center px-4 md:px-16">
+            {selectedMediaIndex !== null && (
+              <div className="relative w-full h-full flex items-center justify-center">
+                {isVideo(mediaList[selectedMediaIndex]) ? (
+                  <video
+                    src={getImageUrl(mediaList[selectedMediaIndex])}
+                    className="max-w-full max-h-full object-contain"
+                    controls
+                    autoPlay
+                  />
+                ) : (
+                  <Image
+                    src={getImageUrl(mediaList[selectedMediaIndex])}
+                    alt="Gallery view"
+                    width={1600}
+                    height={900}
+                    unoptimized
+                    className="max-w-full max-h-full object-contain"
+                  />
+                )}
+
+                {/* Navigation Buttons in Modal */}
+                {mediaList.length > 1 && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setSelectedMediaIndex(
+                          (selectedMediaIndex - 1 + mediaList.length) %
+                            mediaList.length,
+                        )
+                      }
+                      className="absolute left-0 md:left-4 top-1/2 -translate-y-1/2 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
+                    >
+                      <ChevronLeft size={48} strokeWidth={1} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setSelectedMediaIndex(
+                          (selectedMediaIndex + 1) % mediaList.length,
+                        )
+                      }
+                      className="absolute right-0 md:right-4 top-1/2 -translate-y-1/2 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
+                    >
+                      <ChevronRight size={48} strokeWidth={1} />
+                    </button>
+                  </>
+                )}
+
+                {/* Close Button overlay */}
+                <button
+                  onClick={() => setSelectedMediaIndex(null)}
+                  className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors z-[110]"
+                >
+                  <X size={32} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Media Info overlay */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
+            {selectedMediaIndex !== null && selectedMediaIndex + 1} /{" "}
+            {mediaList.length}
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
