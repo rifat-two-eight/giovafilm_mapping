@@ -357,6 +357,15 @@ export default function AddPlacePage() {
             <Map
               defaultCenter={defaultPosition}
               defaultZoom={13}
+              restriction={{
+                latLngBounds: {
+                  north: 85,
+                  south: -85,
+                  west: -180,
+                  east: 180,
+                },
+                strictBounds: true,
+              }}
               gestureHandling={"greedy"}
               disableDefaultUI={false}
               mapId="YOUR_MAP_ID"

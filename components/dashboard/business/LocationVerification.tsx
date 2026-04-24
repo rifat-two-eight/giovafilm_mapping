@@ -29,9 +29,20 @@ export default function LocationVerification({ location }: any) {
             style={{ width: "100%", height: "100%" }}
             center={center}
             zoom={15}
+            minZoom={3}
+            restriction={{
+              latLngBounds: {
+                north: 85,
+                south: -85,
+                west: -180,
+                east: 180,
+              },
+              strictBounds: true,
+            }}
             gestureHandling="greedy"
             disableDefaultUI={true}
             mapId="location-verification-map"
+            clickableIcons={false}
           >
             {hasCoords && <AdvancedMarker position={{ lat, lng }} />}
           </Map>

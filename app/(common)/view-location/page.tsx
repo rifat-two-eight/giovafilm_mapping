@@ -32,9 +32,20 @@ function MapContent() {
         <Map
           defaultCenter={position}
           defaultZoom={15}
+          minZoom={3}
+          restriction={{
+            latLngBounds: {
+              north: 85,
+              south: -85,
+              west: -180,
+              east: 180,
+            },
+            strictBounds: true,
+          }}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
           mapId="VIEW_LOCATION_MAP"
+          clickableIcons={false}
         >
           <AdvancedMarker position={position}>
             <Pin

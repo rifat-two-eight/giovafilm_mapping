@@ -1,9 +1,9 @@
-import Image, { StaticImageData } from "next/image";
-import { MapPin, Star } from "lucide-react";
-import Link from "next/link";
 import { NoImage } from "@/lib/others/others";
-import { getImageUrl } from "@/lib/utils";
 import { TPlace } from "@/lib/types/place/place";
+import { getImageUrl } from "@/lib/utils";
+import { MapPin, Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export function PlaceCard({ data }: { data: TPlace }) {
   console.log(data);
@@ -18,7 +18,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
               alt={data?.name}
               unoptimized
               fill
-              className="object-cover"
+              className="w-full h-full"
             />
           ) : (
             <NoImage />

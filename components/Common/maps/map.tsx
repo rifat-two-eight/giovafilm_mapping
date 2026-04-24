@@ -120,14 +120,24 @@ export default function MapPage() {
   });
 
   return (
-    <div className="min-h-screen">
-      <div style={{ height: "calc(100vh - 100px)", width: "100%" }}>
+    <div className="">
+      <div style={{ height: "calc(100vh - 90px)", width: "100%" }}>
         <APIProvider
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
         >
           <Map
             defaultCenter={defaultPosition}
             defaultZoom={13}
+            minZoom={3}
+            restriction={{
+              latLngBounds: {
+                north: 85,
+                south: -85,
+                west: -180,
+                east: 180,
+              },
+              strictBounds: true,
+            }}
             gestureHandling={"greedy"}
             disableDefaultUI={false}
             mapId="YOUR_MAP_ID"
@@ -135,6 +145,7 @@ export default function MapPage() {
             mapTypeControlOptions={{
               position: ControlPosition.TOP_RIGHT,
             }}
+            clickableIcons={false}
           >
             {/* Pans once on mount — no controlled center prop needed */}
             <GeolocationOnLoad onLocation={setMarkerPos} />

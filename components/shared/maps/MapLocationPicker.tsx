@@ -56,11 +56,22 @@ export function MapLocationPicker({
         <Map
           defaultCenter={defaultPosition}
           defaultZoom={13}
+          minZoom={3}
+          restriction={{
+            latLngBounds: {
+              north: 85,
+              south: -85,
+              west: -180,
+              east: 180,
+            },
+            strictBounds: true,
+          }}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
           mapId="LOCATION_PICKER_MAP"
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}
+          clickableIcons={false}
         >
           {!initialLocation && (
             <GeolocationOnLoad
