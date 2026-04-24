@@ -174,7 +174,7 @@ export function UsersTable(): React.ReactElement {
                   >
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                       <div className="flex flex-col">
-                        <span>{user.name}</span>
+                        <span>{user.name || "Unknown User"}</span>
                         {/* {user.profile && <img src={user.profile} alt="" className="w-8 h-8 rounded-full" />} */}
                       </div>
                     </td>

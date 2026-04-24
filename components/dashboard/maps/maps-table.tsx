@@ -32,6 +32,8 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
     limit,
     searchTerm,
   });
+
+  console.log("map:", response?.data);
   const [deleteMap] = useDeleteMapMutation();
 
   const mapsData: Map[] = response?.data || [];
@@ -176,7 +178,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                         <Copy size={18} />
                       </button> */}
 
-                      {/* <button
+                      <button
                         className="text-orange-500 hover:text-orange-700 transition-colors"
                         aria-label={
                           map.status === "Published" ? "Hide map" : "Show map"
@@ -187,7 +189,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                         ) : (
                           <Eye size={18} />
                         )}
-                      </button> */}
+                      </button>
 
                       <button
                         onClick={() => handleDelete(map._id)}

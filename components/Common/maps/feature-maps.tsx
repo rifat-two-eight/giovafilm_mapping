@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { motion } from "motion/react";
-import Link from "next/link";
-import { useGetMapsQuery } from "@/redux/features/map/mapApi";
-import { getImageUrl } from "@/lib/utils";
 import { FavouriteButton } from "@/components/shared/favourite-button";
+import { Button } from "@/components/ui/button";
+import { getImageUrl } from "@/lib/utils";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { motion } from "motion/react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
@@ -55,10 +55,13 @@ export default function FeaturedMaps() {
                   >
                     {/* Image Container */}
                     <div className="relative h-64 mb-2">
-                      <img
+                      <Image
                         src={getImageUrl(map.images?.[0])}
                         alt={map.name}
-                        className="w-full h-full object-cover"
+                        unoptimized
+                        width={500}
+                        height={500}
+                        className="w-full h-full object-bottom"
                         referrerPolicy="no-referrer"
                       />
 
