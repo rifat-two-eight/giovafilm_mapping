@@ -1,12 +1,15 @@
 "use client";
 
-import { Edit, Copy, Eye, EyeOff, Trash2, Search } from "lucide-react";
-import { useState } from "react";
-import Swal from "sweetalert2";
-import { toast } from "sonner";
-import { useGetMapsQuery, useDeleteMapMutation } from "@/redux/features/map/mapApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  useDeleteMapMutation,
+  useGetMapsQuery,
+} from "@/redux/features/map/mapApi";
+import { Copy, Edit, Eye, EyeOff, Search, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 interface Map {
   _id: string;
@@ -24,7 +27,11 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: response, isLoading } = useGetMapsQuery({ page, limit, searchTerm });
+  const { data: response, isLoading } = useGetMapsQuery({
+    page,
+    limit,
+    searchTerm,
+  });
   const [deleteMap] = useDeleteMapMutation();
 
   const mapsData: Map[] = response?.data || [];
@@ -38,14 +45,16 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteMap(id).unwrap();
           toast.success("Map deleted successfully");
         } catch (error: any) {
-          toast.error(error?.data?.message || error?.message || "Failed to delete map");
+          toast.error(
+            error?.data?.message || error?.message || "Failed to delete map",
+          );
           console.error("Failed to delete map:", error);
         }
       }
@@ -73,7 +82,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
       <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-white">
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input 
+          <Input
             type="text"
             placeholder="Search maps..."
             className="pl-9 h-9"
@@ -135,7 +144,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                   <td className="px-6 py-4 text-sm">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        map.status
+                        map.status,
                       )}`}
                     >
                       {map.status || "Draft"}
@@ -160,14 +169,14 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                         <Edit size={18} />
                       </button>
 
-                      <button
+                      {/* <button
                         className="text-gray-500 hover:text-gray-700 transition-colors"
                         aria-label="Duplicate map"
                       >
                         <Copy size={18} />
-                      </button>
+                      </button> */}
 
-                      <button
+                      {/* <button
                         className="text-orange-500 hover:text-orange-700 transition-colors"
                         aria-label={
                           map.status === "Published" ? "Hide map" : "Show map"
@@ -178,7 +187,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                         ) : (
                           <Eye size={18} />
                         )}
-                      </button>
+                      </button> */}
 
                       <button
                         onClick={() => handleDelete(map._id)}
@@ -215,7 +224,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
               <option value={50}>50</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
               Page {meta.page} of {meta.totalPage || 1}

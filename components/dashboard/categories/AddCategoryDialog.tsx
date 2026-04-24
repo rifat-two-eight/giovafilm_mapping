@@ -123,7 +123,11 @@ export function AddCategoryDialog({
       }
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || error?.message || `Failed to ${isEditing ? "update" : "create"} category`);
+      toast.error(
+        error?.data?.message ||
+          error?.message ||
+          `Failed to ${isEditing ? "update" : "create"} category`,
+      );
       console.error(
         `Failed to ${isEditing ? "update" : "create"} category:`,
         error,
@@ -222,7 +226,7 @@ export function AddCategoryDialog({
 
             {/* Emoji Picker Component */}
             {showEmojiPicker && !isView && (
-              <div className="absolute top-16 left-0 z-50">
+              <div className="absolute bottom-0 left-0 z-50">
                 <div
                   className="fixed inset-0"
                   onClick={() => setShowEmojiPicker(false)}
@@ -275,3 +279,4 @@ export function AddCategoryDialog({
     </Dialog>
   );
 }
+
