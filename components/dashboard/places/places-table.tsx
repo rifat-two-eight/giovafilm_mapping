@@ -52,8 +52,6 @@ export function PlacesTable() {
   const places: Place[] = response?.data || [];
   const meta = response?.meta;
 
-  console.log("All places", places);
-
   const handleDelete = async (id: string) => {
     Swal.fire({
       title: "Are you sure?",

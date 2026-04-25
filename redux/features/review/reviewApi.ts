@@ -23,6 +23,11 @@ const reviewApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Review", "Place"],
     }),
+    getReviewsByPlace: builder.query({
+      query: (placeId: string) => `/review/${placeId}/place`,
+      providesTags: ["Review"],
+      transformResponse: (response: any) => response.data,
+    }),
   }),
 });
 
@@ -30,4 +35,5 @@ export const {
   useCreateReviewMutation,
   useGetMyReviewsQuery,
   useUpdateReviewMutation,
+  useGetReviewsByPlaceQuery,
 } = reviewApi;

@@ -53,6 +53,7 @@ import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
+import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
@@ -103,8 +104,10 @@ export default function MapDetails() {
   const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
     skip: !id,
   });
-
-  console.log(placeRes);
+  const { data: reviews, isLoading: isReviewsLoading } =
+    useGetReviewsByPlaceQuery(id, {
+      skip: !id,
+    });
 
   const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
@@ -115,6 +118,9 @@ export default function MapDetails() {
   const isRestaurant =
     placeData?.category?.name?.toLowerCase() === "restaurant";
   const dataToRender = isRestaurant ? restaurantData : infoData;
+
+  const reviewData = reviews?.data;
+  console.log("placeRes", reviewData);
 
   const servicesMap: Record<string, any> = {
     Parking: { icon: Car, label: "PARKING" },
@@ -351,7 +357,6 @@ export default function MapDetails() {
             className="space-y-4"
           >
             {/* ACCESS */}
-
             <AccordionItem
               value="access"
               className="border rounded-xl bg-white"
@@ -466,92 +471,108 @@ export default function MapDetails() {
               </AccordionTrigger>
 
               <AccordionContent className="px-6 pb-6 space-y-6">
-                {/* Rating summary */}
-                <div className="flex items-center gap-3">
-                  <h3 className="text-3xl font-bold">4.8</h3>
-
-                  <div className="flex text-yellow-500">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <Star key={i} size={18} fill="currentColor" />
-                      ))}
+                {isReviewsLoading ? (
+                  <div className="py-10 flex justify-center">
+                    <div className="w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
                   </div>
-
-                  <p className="text-sm text-muted-foreground">
-                    Based on 124 reviews
-                  </p>
-                </div>
-
-                {/* REVIEW 1 */}
-                <div className="flex gap-4">
-                  <Avatar>
-                    <AvatarImage src="/avatar.png" />
-                    <AvatarFallback>M</AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">Marcus Chen</p>
-                        <p className="text-xs text-muted-foreground">
-                          2 DAYS AGO
-                        </p>
-                      </div>
+                ) : reviewData && reviewData.length > 0 ? (
+                  <>
+                    {/* Rating summary */}
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-3xl font-bold">
+                        {(
+                          reviewData.reduce(
+                            (acc: number, rev: any) => acc + rev.rating,
+                            0,
+                          ) / reviewData.length
+                        ).toFixed(1)}
+                      </h3>
 
                       <div className="flex text-yellow-500">
                         {Array(5)
                           .fill(0)
                           .map((_, i) => (
-                            <Star key={i} size={16} fill="currentColor" />
+                            <Star
+                              key={i}
+                              size={18}
+                              fill={
+                                i <
+                                Math.round(
+                                  reviewData.reduce(
+                                    (acc: number, rev: any) => acc + rev.rating,
+                                    0,
+                                  ) / reviewData.length,
+                                )
+                                  ? "currentColor"
+                                  : "none"
+                              }
+                            />
                           ))}
                       </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        Based on {reviewData.length} reviews
+                      </p>
                     </div>
 
-                    <p className="text-sm text-muted-foreground">
-                      Absolutely stunning views! The hike was moderately
-                      challenging but well worth it when you reach the
-                      crystal-clear water at the top. Highly recommend arriving
-                      early.
-                    </p>
-                  </div>
-                </div>
+                    {reviewData.map((reviewItem: any, index: number) => (
+                      <div key={reviewItem._id}>
+                        <div className="flex gap-4">
+                          <Avatar>
+                            <AvatarImage
+                              src={getImageUrl(reviewItem?.reviewer?.profile)}
+                            />
+                            <AvatarFallback>
+                              {reviewItem?.reviewer?.name?.charAt(0) || "U"}
+                            </AvatarFallback>
+                          </Avatar>
 
-                <div className="border-t"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-semibold">
+                                  {reviewItem?.reviewer?.name || "Anonymous"}
+                                </p>
+                                <p className="text-xs text-muted-foreground uppercase">
+                                  {new Date(
+                                    reviewItem.createdAt,
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
 
-                {/* REVIEW 2 */}
-                <div className="flex gap-4">
-                  <Avatar>
-                    <AvatarImage src="/avatar.png" />
-                    <AvatarFallback>S</AvatarFallback>
-                  </Avatar>
+                              <div className="flex text-yellow-500">
+                                {Array(5)
+                                  .fill(0)
+                                  .map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      size={16}
+                                      fill={
+                                        i < reviewItem.rating
+                                          ? "currentColor"
+                                          : "none"
+                                      }
+                                    />
+                                  ))}
+                              </div>
+                            </div>
 
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">Sarah Jenkins</p>
-                        <p className="text-xs text-muted-foreground">
-                          1 WEEK AGO
-                        </p>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {reviewItem.review}
+                            </p>
+                          </div>
+                        </div>
+                        {index < reviewData.length - 1 && (
+                          <div className="border-t mt-6"></div>
+                        )}
                       </div>
-
-                      <div className="flex text-yellow-500">
-                        {Array(4)
-                          .fill(0)
-                          .map((_, i) => (
-                            <Star key={i} size={16} fill="currentColor" />
-                          ))}
-                        <Star size={16} />
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      The trail was well-marked. A bit crowded on the weekend
-                      but the scenery is spectacular. Don't forget to bring
-                      plenty of water!
-                    </p>
+                    ))}
+                  </>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-gray-500 italic">No reviews yet.</p>
                   </div>
-                </div>
+                )}
 
                 {/* Button */}
                 <Button
