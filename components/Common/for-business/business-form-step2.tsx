@@ -43,6 +43,8 @@
 
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AdvancedMarker,
   APIProvider,
@@ -50,8 +52,9 @@ import {
   MapMouseEvent,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { toast } from "sonner";
 
 interface BusinessFormStep2Props {
   form: UseFormReturn<any>;
@@ -60,6 +63,7 @@ interface BusinessFormStep2Props {
 interface MarkerPosition {
   lat: number;
   lng: number;
+  zoom?: number;
 }
 
 // Inner component that has access to the map instance
@@ -73,6 +77,15 @@ function MapContent({
   onMapClick: (e: MapMouseEvent) => void;
 }) {
   const map = useMap();
+
+  useEffect(() => {
+    if (map && markerPosition) {
+      map.panTo(markerPosition);
+      if (markerPosition.zoom) {
+        map.setZoom(markerPosition.zoom);
+      }
+    }
+  }, [map, markerPosition]);
 
   // Apply crosshair cursor when in add mode
   if (map) {
@@ -114,6 +127,49 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     setIsAddMode((prev) => !prev);
   };
 
+  const handleExtractLocation = () => {
+    const url = form.getValues("mapUrl");
+    if (!url) {
+      toast.error("Please enter a Google Maps URL first");
+      return;
+    }
+
+    // Extraction Regex Patterns
+    const patterns = [
+      /@(-?\d+\.\d+),(-?\d+\.\d+)(?:,(\d+\.?\d*)z)?/, // @lat,lng,zoomz pattern
+      /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, // !3d!4d pattern
+      /ll=(-?\d+\.\d+),(-?\d+\.\d+)/, // ll parameter
+      /q=(-?\d+\.\d+),(-?\d+\.\d+)/, // q parameter
+    ];
+
+    let extractedCoords: MarkerPosition | null = null;
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        extractedCoords = {
+          lat: parseFloat(match[1]),
+          lng: parseFloat(match[2]),
+          zoom: match[3] ? parseFloat(match[3]) : undefined,
+        };
+        break;
+      }
+    }
+
+    if (extractedCoords) {
+      setMarkerPosition(extractedCoords);
+      form.setValue("mapLocation", extractedCoords);
+      console.log("Extracted Location:", extractedCoords);
+      toast.success("Location extracted successfully!");
+      setIsAddMode(false);
+    } else {
+      toast.error(
+        "Could not extract coordinates. Try using the full URL from your browser address bar.",
+      );
+      console.warn("Extraction failed for URL:", url);
+    }
+  };
+
   const handleMapClick = useCallback(
     (e: MapMouseEvent) => {
       if (!e.detail.latLng) return;
@@ -133,7 +189,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">Map Location</h2>
         <Button
@@ -143,6 +199,25 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
         >
           {isAddMode ? "Cancel" : "Add Location"}
         </Button>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-base font-semibold text-gray-500 uppercase tracking-wide">
+          Put Your Google Map Location Url
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://www.google.com/maps/.../@23.7806,90.407,15z"
+            {...form.register("mapUrl")}
+            className="bg-gray-50 border-gray-200"
+          />
+          <Button
+            type="button"
+            onClick={handleExtractLocation}
+            className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-6"
+          >
+            Add
+          </Button>
+        </div>
       </div>
 
       {isAddMode && (

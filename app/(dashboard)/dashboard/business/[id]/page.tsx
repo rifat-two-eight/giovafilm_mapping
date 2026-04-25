@@ -35,6 +35,8 @@ export default function BusinessDetailPage() {
 
   const business = response?.data;
 
+  console.log("business", business);
+
   const handleStatusUpdate = async (newStatus: string) => {
     try {
       await updateStatus({ id: id as string, status: newStatus }).unwrap();

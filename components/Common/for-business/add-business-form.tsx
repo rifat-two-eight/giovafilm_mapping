@@ -2,25 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
+import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { BusinessFormStep1 } from "./business-form-step1";
 import { BusinessFormStep2 } from "./business-form-step2";
 import { BusinessFormStep3 } from "./business-form-step3";
 import { BusinessFormStep4 } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
-import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
-import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export function AddBusinessForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [businessPhotos, setBusinessPhotos] = useState<File[]>([]);
   const [menuFile, setMenuFile] = useState<File | null>(null);
   const [businessId, setBusinessId] = useState<string | null>(null);
-  const router = useRouter();
 
   const [addBusiness, { isLoading: isCreating }] = useAddBusinessMutation();
   const [createCheckoutSession, { isLoading: isSubmitting }] =
@@ -49,6 +47,15 @@ export function AddBusinessForm() {
       ownerPhone: "",
       invoicingEmail: "",
       selectedPlan: "",
+      dailyHours: [
+        { day: "Monday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Tuesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Wednesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Thursday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Friday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Saturday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        { day: "Sunday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+      ],
     },
   });
 
@@ -89,20 +96,13 @@ export function AddBusinessForm() {
         },
         hours: {
           customHours: true,
-          schedule: [
-            ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
-              (day) => ({
-                days: day,
-                openTime: values.hoursMonFriStart,
-                closeTime: values.hoursMonFriEnd,
-              }),
-            ),
-            ...["Saturday", "Sunday"].map((day) => ({
-              days: day,
-              openTime: values.hoursSatSunStart,
-              closeTime: values.hoursSatSunEnd,
+          schedule: values.dailyHours
+            .filter((h: any) => h.isOpen)
+            .map((h: any) => ({
+              days: h.day,
+              openTime: h.openTime,
+              closeTime: h.closeTime,
             })),
-          ],
         },
         privateInfo: {
           ownerPhone: values.ownerPhone,
