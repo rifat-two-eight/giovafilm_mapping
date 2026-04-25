@@ -423,13 +423,13 @@ export const PlaceFormContent = ({
                 </div>
               </div>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 className="w-fit text-[10px] font-bold uppercase tracking-widest text-yellow-600 border-yellow-200 bg-yellow-50/50 hover:bg-yellow-50"
               >
                 <Plus size={14} className="mr-2" /> Add more
-              </Button>
+              </Button> */}
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Notes (optional)</Label>
@@ -499,9 +499,9 @@ export const PlaceFormContent = ({
                 </div>
               ))}
             </div>
-            <Button className="w-full h-11 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100">
+            {/* <Button className="w-full h-11 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100">
               <Plus size={16} className="mr-2" /> ADD NEW SERVICE
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>

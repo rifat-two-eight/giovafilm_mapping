@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
   useDeleteMapMutation,
   useGetMapsQuery,
+  useUpdateMapStatusMutation,
 } from "@/redux/features/map/mapApi";
 import { Copy, Edit, Eye, EyeOff, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -18,9 +19,19 @@ interface Map {
   price: number;
   features: string[];
   status: "Published" | "Draft" | string;
+  isActive: boolean;
   places: string[];
   updatedAt: string;
 }
+
+const tableHeaders = [
+  "Map Name",
+  "Description",
+  "Status",
+  "Price",
+  "Last Updated",
+  "Actions",
+];
 
 export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   const [page, setPage] = useState(1);
@@ -32,6 +43,8 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
     limit,
     searchTerm,
   });
+
+  const [updateMapStatus] = useUpdateMapStatusMutation();
 
   console.log("map:", response?.data);
   const [deleteMap] = useDeleteMapMutation();
@@ -63,20 +76,26 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
     });
   };
 
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateMapStatus({
+        id,
+        data: { isActive: !currentStatus },
+      }).unwrap();
+      toast.success(
+        `Map ${!currentStatus ? "published" : "hidden"} successfully`,
+      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update map status");
+      console.error("Failed to update map status:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     return status === "Published" || status === "Active"
       ? "bg-green-100 text-green-800"
       : "bg-gray-100 text-gray-800";
   };
-
-  const tableHeaders = [
-    "Map Name",
-    "Description",
-    "Status",
-    "Price",
-    "Last Updated",
-    "Actions",
-  ];
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden border-gray-200 flex flex-col">
@@ -179,15 +198,14 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                       </button> */}
 
                       <button
+                        onClick={() => handleToggleStatus(map._id, map.isActive)}
                         className="text-orange-500 hover:text-orange-700 transition-colors"
-                        aria-label={
-                          map.status === "Published" ? "Hide map" : "Show map"
-                        }
+                        aria-label={map.isActive ? "Hide map" : "Show map"}
                       >
-                        {map.status === "Published" ? (
-                          <EyeOff size={18} />
-                        ) : (
+                        {map.isActive ? (
                           <Eye size={18} />
+                        ) : (
+                          <EyeOff size={18} />
                         )}
                       </button>
 

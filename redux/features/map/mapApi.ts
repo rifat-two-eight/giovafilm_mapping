@@ -38,6 +38,14 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+    updateMapStatus: builder.mutation({
+      query: ({ id, data }: { id: string; data: any }) => ({
+        url: `/map/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Map"],
+    }),
     deleteMap: builder.mutation({
       query: (id: string) => ({
         url: `/map/${id}`,
@@ -61,6 +69,7 @@ export const {
   useGetMapsQuery,
   useGetMapByIdQuery,
   useUpdateMapMutation,
+  useUpdateMapStatusMutation,
   useDeleteMapMutation,
   useGetAvailableCountriesQuery,
 } = mapApi;

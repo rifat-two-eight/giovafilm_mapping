@@ -12,7 +12,7 @@ export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
-  console.log(maps);
+  const featuredMaps = maps.filter((map: any) => map.isActive);
 
   return (
     <div className="bg-gray-50 py-10 font-inter">
@@ -39,12 +39,12 @@ export default function FeaturedMaps() {
                   className="h-96 bg-gray-200 animate-pulse rounded-2xl"
                 />
               ))
-            ) : maps.length === 0 ? (
+            ) : featuredMaps.length === 0 ? (
               <p className="col-span-full text-center text-gray-500 py-10">
                 No featured maps found.
               </p>
             ) : (
-              maps.map((map: any) => {
+              featuredMaps.map((map: any) => {
                 return (
                   <motion.div
                     key={map._id}

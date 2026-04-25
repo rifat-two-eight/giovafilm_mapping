@@ -354,13 +354,13 @@ export function CreateOfferDialog({
                 htmlFor="redemptionDuration"
                 className="text-sm font-medium text-gray-700"
               >
-                Duration (Days)
+                Duration (Minutes)
               </Label>
               <Input
                 id="redemptionDuration"
                 type="number"
                 min={0}
-                placeholder="e.g., 7"
+                placeholder="e.g., 60"
                 className="mt-1"
                 {...register("redemptionDuration", {
                   required: "Duration is required",
