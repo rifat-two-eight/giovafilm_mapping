@@ -1,8 +1,12 @@
 "use client";
 
-import { Mail, CheckCircle } from "lucide-react";
+import { NoImage } from "@/lib/others/others";
+import { getImageUrl } from "@/lib/utils";
+import { Mail, CheckCircle, X } from "lucide-react";
+import Image from "next/image";
 
-export default function OwnerInformation({ owner }: any) {
+export default function OwnerInformation({ user }: any) {
+  console.log("user", user);
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -11,13 +15,24 @@ export default function OwnerInformation({ owner }: any) {
       </div>
 
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-2xl">
-          {owner.avatar}
+        <div className="w-12 h-12 rounded-full overflow-hidden">
+          {user.profile ? (
+            <Image
+              src={getImageUrl(user?.profile)}
+              alt={user.name}
+              width={48}
+              height={48}
+              unoptimized
+              className="rounded-full w-12 h-12 object-cover"
+            />
+          ) : (
+            <NoImage />
+          )}
         </div>
 
         <div>
-          <p className="font-semibold text-gray-900">{owner.name}</p>
-          <p className="text-sm text-gray-500">{owner.title}</p>
+          <p className="font-semibold text-gray-900">{user.name}</p>
+          <p className="text-sm text-gray-500">{user.title}</p>
         </div>
       </div>
 
@@ -27,7 +42,7 @@ export default function OwnerInformation({ owner }: any) {
             Private Email
           </p>
 
-          <p className="text-gray-700 mt-1">{owner.email}</p>
+          <p className="text-gray-700 mt-1">{user.email}</p>
         </div>
 
         <div>
@@ -35,7 +50,7 @@ export default function OwnerInformation({ owner }: any) {
             Mobile Phone
           </p>
 
-          <p className="text-gray-700 mt-1">{owner.phone}</p>
+          <p className="text-gray-700 mt-1">{user.phone || "N/A"}</p>
         </div>
 
         <div>
@@ -43,10 +58,17 @@ export default function OwnerInformation({ owner }: any) {
             Identity Verified
           </p>
 
-          <div className="flex items-center gap-2 mt-1">
-            <CheckCircle size={16} className="text-green-600" />
-            <span className="text-green-600 font-medium">Verified</span>
-          </div>
+          {user?.verified ? (
+            <div className="flex items-center gap-2 mt-1">
+              <CheckCircle size={16} className="text-green-600" />
+              <span className="text-green-600 font-medium">Verified</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mt-1">
+              <X size={16} className="text-red-600" />
+              <span className="text-red-600 font-medium">Not Verified</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

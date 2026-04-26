@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, Mail, User } from "lucide-react";
+import { Lock, Mail, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
@@ -21,6 +21,24 @@ type FormValues = {
   terms: boolean;
 };
 
+export interface RegisterSuccessResponse {
+  data: {
+    email: string;
+  };
+  message: string;
+  statusCode: number;
+  success: boolean;
+}
+
+export interface RegisterErrorResponse {
+  data: {
+    message: string;
+    success: boolean;
+    errorMessages?: any[];
+  };
+  status: number;
+}
+
 export const RegisterForm = () => {
   const router = useRouter();
   const { register, handleSubmit, setValue } = useForm<FormValues>();
@@ -35,21 +53,18 @@ export const RegisterForm = () => {
         password: data.password,
       });
 
-      console.log(res);
-
-      // ✅ Check nested email
-      if (res?.data?.data?.email) {
-        // ✅ Show success toast
-        toast.success(res.data.message || "User created successfully!");
-
-        // ✅ Redirect to OTP page (optionally pass email)
-        router.push(`/otp-verify?email=${res.data.data.email}`);
+      if ("data" in res && res.data) {
+        const successData = res.data as RegisterSuccessResponse;
+        if (successData?.data?.email) {
+          toast.success(successData.message || "User created successfully!");
+          router.push(`/otp-verify?email=${successData.data.email}`);
+        }
+      } else if ("error" in res && res.error) {
+        const errorData = res.error as RegisterErrorResponse;
+        toast.error(errorData?.data?.message || "Something went wrong");
       }
-    } catch (error: any) {
-      console.log(error);
-
-      // ❌ Error toast
-      toast.error(error?.data?.message || "Something went wrong");
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -169,9 +184,17 @@ export const RegisterForm = () => {
         {/* Button */}
         <Button
           type="submit"
-          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
+          disabled={isLoading}
+          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 disabled:opacity-70"
         >
-          Sign Up
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Signing up...
+            </>
+          ) : (
+            "Sign Up"
+          )}
         </Button>
       </form>
 

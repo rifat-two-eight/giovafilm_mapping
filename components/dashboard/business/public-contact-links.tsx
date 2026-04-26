@@ -18,7 +18,7 @@ export default function PublicContactLinks({ contact }: any) {
             Public Phone
           </p>
           <p className="text-gray-900 font-medium mt-2">
-            {contact.publicPhone}
+            {contact.phone || "N/A"}
           </p>
         </div>
 
@@ -26,7 +26,9 @@ export default function PublicContactLinks({ contact }: any) {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Public Email
           </p>
-          <p className="text-gray-900 font-medium mt-2">{contact.contactEmail}</p>
+          <p className="text-gray-900 font-medium mt-2">
+            {contact.email || "N/A"}
+          </p>
         </div>
 
         <div className="col-span-2">

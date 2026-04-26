@@ -35,8 +35,6 @@ export default function BusinessDetailPage() {
 
   const business = response?.data;
 
-  console.log("business", business);
-
   const handleStatusUpdate = async (newStatus: string) => {
     try {
       await updateStatus({ id: id as string, status: newStatus }).unwrap();
@@ -101,14 +99,6 @@ export default function BusinessDetailPage() {
     website: business.contact?.website || "N/A",
   };
 
-  const ownerData = {
-    name: business.user?.name || "Business Owner",
-    title: "Submitter / Business Owner",
-    email: business.privateInfo?.invoicingEmail || "N/A",
-    phone: business.privateInfo?.ownerPhone || "N/A",
-    avatar: (business.name?.[0] || "B").toUpperCase(),
-  };
-
   // Adapter for hours
   const mappedHours: any = {};
   if (business.hours?.schedule) {
@@ -167,7 +157,7 @@ export default function BusinessDetailPage() {
           <BusinessOverview businessData={businessData} />
 
           {/* Public Contact & Links */}
-          <PublicContactLinks contact={business.privateInfo} />
+          <PublicContactLinks contact={business.user} />
 
           {/* Hours of Operation */}
           <HoursOfOperation hours={mappedHours} />
@@ -233,8 +223,12 @@ export default function BusinessDetailPage() {
 
         {/* Right Column - Sidebar */}
         <div className="space-y-8">
-          <OwnerInformation owner={ownerData} />
-          <LocationVerification location={business.location} />
+          <OwnerInformation user={business?.user} />
+          <LocationVerification
+            businessId={id as string}
+            location={business.location}
+            isAccuracyVerified={business?.isAccuracyVerified}
+          />
           <AdminReviewTasks reviewTasks={reviewTasks} />
         </div>
       </div>

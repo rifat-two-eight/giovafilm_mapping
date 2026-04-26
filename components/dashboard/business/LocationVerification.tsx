@@ -1,15 +1,43 @@
 "use client";
 
+import { Switch } from "@/components/ui/switch";
+import { useUpdateAccuracyVerifiedStatusMutation } from "@/redux/features/business/businessApi";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";
 
-export default function LocationVerification({ location }: any) {
+import { toast } from "sonner";
+
+export default function LocationVerification({
+  businessId,
+  location,
+  isAccuracyVerified,
+}: any) {
   // mapLocation.coordinates is [lng, lat] (GeoJSON order)
   const lng = location?.mapLocation?.coordinates?.[0];
   const lat = location?.mapLocation?.coordinates?.[1];
 
   const hasCoords = lat !== undefined && lng !== undefined;
   const center = hasCoords ? { lat, lng } : { lat: 23.8103, lng: 90.4125 }; // fallback: Dhaka
+
+  const [updateAccuracy, { isLoading }] =
+    useUpdateAccuracyVerifiedStatusMutation();
+
+  const handleToggle = async (checked: boolean) => {
+    if (!businessId) return;
+    try {
+      await updateAccuracy({
+        id: businessId,
+        isAccuracyVerified: checked,
+      }).unwrap();
+      toast.success(
+        checked
+          ? "Location accuracy verified!"
+          : "Location accuracy unverified.",
+      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update accuracy status.");
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -61,10 +89,12 @@ export default function LocationVerification({ location }: any) {
         <span className="text-sm font-medium text-gray-700">
           Verify Pin Accuracy
         </span>
-
-        <button className="w-12 h-6 bg-blue-600 rounded-full flex items-center justify-end pr-1">
-          <div className="w-5 h-5 bg-white rounded-full"></div>
-        </button>
+        <Switch
+          checked={isAccuracyVerified}
+          onCheckedChange={handleToggle}
+          disabled={isLoading}
+          className={`${isAccuracyVerified ? "!bg-yellow-400" : ""}`}
+        />
       </div>
     </div>
   );
