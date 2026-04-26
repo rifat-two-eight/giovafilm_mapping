@@ -30,11 +30,12 @@ import { getImageUrl } from "@/lib/utils";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NoImage } from "@/lib/others/others";
 import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
@@ -87,6 +88,20 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data: placesRes, isFetching } = useGetPlacesQuery(
+    { searchTerm: debouncedSearch, limit: 5 },
+    { skip: debouncedSearch.trim().length === 0 },
+  );
+  const places = placesRes?.data || [];
+
   const isAuthenticated = useAppSelector(
     (state: any) => state.auth?.accessToken,
   );
@@ -95,7 +110,7 @@ export default function Header() {
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
-  console.log("User",user);
+  console.log("User", user);
 
   const maxPoints = 1000;
   const progress = ((user?.points || 0) / maxPoints) * 100;
@@ -154,9 +169,59 @@ export default function Header() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5 group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search digital maps, cities, landmarks..."
                 className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
               />
+
+              {/* Search Results Dropdown */}
+              {searchTerm && (
+                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                  {isFetching ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      Searching...
+                    </div>
+                  ) : places.length > 0 ? (
+                    <div className="max-h-60 overflow-y-auto">
+                      {places.map((place: any) => (
+                        <Link
+                          key={place._id}
+                          href={`/places/${place._id}`}
+                          onClick={() => setSearchTerm("")}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                        >
+                          <div className="size-10 rounded-lg overflow-hidden shrink-0">
+                            {place.media?.[0] ? (
+                              <img
+                                src={getImageUrl(place.media[0])}
+                                alt={place.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <Map className="size-4 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-900">
+                              {place.name}
+                            </h4>
+                            <p className="text-xs text-gray-500 truncate">
+                              {place.address}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      No places found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -427,10 +492,63 @@ export default function Header() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
               <input
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search digital maps, cities, landmarks..."
                 className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                 autoFocus
               />
+
+              {/* Search Results Dropdown Mobile */}
+              {searchTerm && (
+                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                  {isFetching ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      Searching...
+                    </div>
+                  ) : places.length > 0 ? (
+                    <div className="max-h-60 overflow-y-auto">
+                      {places.map((place: any) => (
+                        <Link
+                          key={place._id}
+                          href={`/places/${place._id}`}
+                          onClick={() => {
+                            setSearchTerm("");
+                            closeMenus();
+                          }}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                        >
+                          <div className="size-10 rounded-lg overflow-hidden shrink-0">
+                            {place.media?.[0] ? (
+                              <img
+                                src={getImageUrl(place.media[0])}
+                                alt={place.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <Map className="size-4 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-900">
+                              {place.name}
+                            </h4>
+                            <p className="text-xs text-gray-500 truncate">
+                              {place.address}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      No places found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

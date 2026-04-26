@@ -189,7 +189,7 @@ export default function MapDetails() {
 
   return (
     <section className="bg-gray-100 py-10">
-      <div className="max-w-[1400px] mx-auto px-6  ">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6  ">
         {/* TOP GRID */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* LEFT HERO CARD */}
@@ -272,11 +272,11 @@ export default function MapDetails() {
 
             {/* title */}
             <div className="absolute bottom-6 left-6 text-white">
-              <h1 className="text-5xl font-bold font-public-sans drop-shadow-lg">
+              <h1 className=" text-2xl md:text-5xl font-bold font-public-sans drop-shadow-lg">
                 {placeData?.name}
               </h1>
 
-              <div className="flex items-center gap-2 mt-2 text-lg drop-shadow-md">
+              <div className="flex items-center gap-2 mt-2 md:text-lg drop-shadow-md">
                 <MapPin size={16} className="text-[#EC5B13]" />
                 {placeData?.category?.name} • {placeData?.address}
               </div>

@@ -70,7 +70,7 @@ export default function OfferSection() {
     <section className="bg-gray-50">
       <div className="max-w-360 mx-auto px-4 md:px-6 py-12">
         {/* Filters and Search */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-8">
           <div className="flex gap-3 flex-wrap">
             {/* <Button className="text-black ">
               <SlidersHorizontal className="w-4 h-4 mr-2" />

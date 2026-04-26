@@ -75,7 +75,8 @@ function CountryPanner({ selectedCountry }: { selectedCountry: string }) {
   const geocodingLib = useMapsLibrary("geocoding");
 
   useEffect(() => {
-    if (!map || !geocodingLib || !selectedCountry || selectedCountry === "all") return;
+    if (!map || !geocodingLib || !selectedCountry || selectedCountry === "all")
+      return;
 
     const geocoder = new geocodingLib.Geocoder();
     geocoder.geocode({ address: selectedCountry }, (results, status) => {
@@ -238,90 +239,92 @@ export default function MapPage() {
                   enabledCategories={enabledCategories}
                   onToggle={handleToggle}
                 /> */}
-
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="categories" className="border-none">
-                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-50">
-                        <span className="text-base font-bold text-gray-900">
-                          Map Categories
-                        </span>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-0">
-                        <div className=" space-y-1 max-h-[40vh] overflow-y-auto">
-                          {fetchedCategories.map((cat: any) => {
-                            const Icon = getCategoryIcon(cat.name);
-                            const color = getCategoryColor(cat.name);
-                            const enabled = enabledCategories[cat._id] ?? true;
-                            return (
-                              <div
-                                key={cat._id}
-                                className={`flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors ${
-                                  enabled
-                                    ? ""
-                                    : "hover:bg-gray-50 text-gray-800"
-                                }`}
-                              >
+                <div className="flex flex-col md:flex-row gap-2">
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="categories" className="border-none">
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-50">
+                          <span className="text-base font-bold text-gray-900">
+                            Map Categories
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-0">
+                          <div className=" space-y-1 max-h-[40vh] overflow-y-auto">
+                            {fetchedCategories.map((cat: any) => {
+                              const Icon = getCategoryIcon(cat.name);
+                              const color = getCategoryColor(cat.name);
+                              const enabled =
+                                enabledCategories[cat._id] ?? true;
+                              return (
                                 <div
-                                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                                  style={{ backgroundColor: color }}
+                                  key={cat._id}
+                                  className={`flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors ${
+                                    enabled
+                                      ? ""
+                                      : "hover:bg-gray-50 text-gray-800"
+                                  }`}
                                 >
-                                  <Icon
-                                    size={17}
-                                    color="#fff"
-                                    strokeWidth={2.2}
+                                  <div
+                                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                                    style={{ backgroundColor: color }}
+                                  >
+                                    <Icon
+                                      size={17}
+                                      color="#fff"
+                                      strokeWidth={2.2}
+                                    />
+                                  </div>
+
+                                  <span className="flex-1 text-sm font-medium capitalize truncate">
+                                    {cat.name}
+                                  </span>
+
+                                  <Switch
+                                    checked={enabled}
+                                    onCheckedChange={(val) =>
+                                      handleToggle(cat._id, val)
+                                    }
+                                    className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300`}
                                   />
                                 </div>
-
-                                <span className="flex-1 text-sm font-medium capitalize truncate">
-                                  {cat.name}
-                                </span>
-
-                                <Switch
-                                  checked={enabled}
-                                  onCheckedChange={(val) =>
-                                    handleToggle(cat._id, val)
-                                  }
-                                  className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300`}
-                                />
+                              );
+                            })}
+                            {fetchedCategories.length === 0 && (
+                              <div className="text-sm text-gray-500 text-center py-4">
+                                No categories found.
                               </div>
-                            );
-                          })}
-                          {fetchedCategories.length === 0 && (
-                            <div className="text-sm text-gray-500 text-center py-4">
-                              No categories found.
-                            </div>
-                          )}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
 
-                {/* Country Filter */}
-                <div className="w-40 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                  <Select
-                    onValueChange={setSelectedCountry}
-                    value={selectedCountry}
-                  >
-                    <SelectTrigger className="w-full py-6 border-none focus:ring-0 font-semibold text-gray-800 bg-white">
-                      <SelectValue placeholder="Select Country" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
-                      <SelectItem value="all" className="font-medium">
-                        All Countries
-                      </SelectItem>
-                      {availableCountries.map((country: string) => (
-                        <SelectItem
-                          key={country}
-                          value={country}
-                          className="capitalize font-medium"
-                        >
-                          {country}
+                  {/* Country Filter */}
+                  <div className="w-40 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <Select
+                      onValueChange={setSelectedCountry}
+                      value={selectedCountry}
+                    >
+                      <SelectTrigger className="w-full py-6 border-none focus:ring-0 font-semibold text-gray-800 bg-white">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
+                        <SelectItem value="all" className="font-medium">
+                          All Countries
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        {availableCountries.map((country: string) => (
+                          <SelectItem
+                            key={country}
+                            value={country}
+                            className="capitalize font-medium"
+                          >
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </MapControl>
