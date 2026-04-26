@@ -32,6 +32,15 @@ const mapApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Map"],
     }),
+
+    getPurchasedMaps: builder.query<any, void>({
+      query: () => ({
+        url: "/map/purchased/all",
+        method: "GET",
+      }),
+      providesTags: ["Map"],
+    }),
+
     updateMap: builder.mutation({
       query: ({ id, data }: { id: string; data: any }) => ({
         url: `/map/${id}`,
@@ -40,6 +49,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+
     updateMapStatus: builder.mutation({
       query: ({ id, data }: { id: string; data: any }) => ({
         url: `/map/${id}`,
@@ -48,6 +58,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+
     deleteMap: builder.mutation({
       query: (id: string) => ({
         url: `/map/${id}`,
@@ -55,6 +66,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+
     getAvailableCountries: builder.query<any, void>({
       query: () => ({
         url: "/map/available-countries",
@@ -70,6 +82,7 @@ export const {
   useCreateMapMutation,
   useGetMapsQuery,
   useGetMapByIdQuery,
+  useGetPurchasedMapsQuery,
   useUpdateMapMutation,
   useUpdateMapStatusMutation,
   useDeleteMapMutation,

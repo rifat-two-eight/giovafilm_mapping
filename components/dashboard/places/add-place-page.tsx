@@ -4,6 +4,8 @@ import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategory
 
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -114,6 +116,9 @@ export default function AddPlacePage() {
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
+  const [mapUrl, setMapUrl] = useState("");
+  const [isExtracting, setIsExtracting] = useState(false);
+
   const [tempMarker, setTempMarker] = useState<{
     lat: number;
     lng: number;
@@ -123,6 +128,108 @@ export default function AddPlacePage() {
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
+
+  const extractFromUrlString = (urlString: string): { lat: number; lng: number } | null => {
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    // First try to find exact marker coordinates !3d(lat)!4d(lng) or !2d(lng)!3d(lat)
+    const bangMatch3d4d = urlString.match(
+      /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+    );
+    if (bangMatch3d4d) {
+      lat = parseFloat(bangMatch3d4d[1]);
+      lng = parseFloat(bangMatch3d4d[2]);
+    } else {
+      const bangMatch2d3d = urlString.match(
+        /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/,
+      );
+      if (bangMatch2d3d) {
+        lng = parseFloat(bangMatch2d3d[1]);
+        lat = parseFloat(bangMatch2d3d[2]);
+      }
+    }
+
+    // Try to find viewport coordinates and zoom
+    const atMatch = urlString.match(
+      /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)z)?/,
+    );
+    if (atMatch) {
+      if (lat === null) lat = parseFloat(atMatch[1]);
+      if (lng === null) lng = parseFloat(atMatch[2]);
+    }
+
+    // Try search query or other params if still not found
+    if (lat === null || lng === null) {
+      const llMatch =
+        urlString.match(/[?&]ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/) ||
+        urlString.match(/[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (llMatch) {
+        lat = parseFloat(llMatch[1]);
+        lng = parseFloat(llMatch[2]);
+      }
+    }
+
+    if (lat !== null && lng !== null) {
+      return { lat, lng };
+    }
+    return null;
+  };
+
+  const handleExtractLocation = async () => {
+    let url = mapUrl;
+    if (!url) {
+      toast.error("Please enter a Google Maps URL first");
+      return;
+    }
+
+    if (!selectedMapId) {
+      toast.error("Please select a map first!");
+      return;
+    }
+
+    setIsExtracting(true);
+    let extractedCoords = extractFromUrlString(url);
+
+    if (
+      !extractedCoords &&
+      (url.includes("goo.gl") || url.includes("maps.app.goo.gl"))
+    ) {
+      try {
+        if (!url.startsWith("http")) {
+          url = `https://${url}`;
+        }
+        const res = await fetch("/api/expand-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (data.expandedUrl) {
+          extractedCoords = extractFromUrlString(data.expandedUrl);
+        }
+      } catch (error) {
+        console.error("Failed to expand URL", error);
+      }
+    }
+
+    setIsExtracting(false);
+
+    if (extractedCoords) {
+      const newLat = extractedCoords.lat;
+      const newLng = extractedCoords.lng;
+      setTempMarker({ lat: newLat, lng: newLng });
+      setSelectedPlace({ position: { lat: newLat, lng: newLng }, isNew: true });
+      setFormData({ name: "", description: "" });
+      setMapUrl("");
+      setIsAddingMarker(false);
+      toast.success("Location extracted successfully!");
+    } else {
+      toast.error(
+        "Could not extract coordinates. Try using the full URL from your browser address bar.",
+      );
+    }
+  };
 
   const handleMapClick = (e: any) => {
     if (!isAddingMarker) return;
@@ -255,23 +362,55 @@ export default function AddPlacePage() {
             </div>
 
             <div className="space-y-2">
-              <button
-                onClick={() => {
-                  if (!selectedMapId) {
-                    toast.error("Please select a map before adding a place.");
-                    return;
-                  }
-                  setIsAddingMarker(true);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
-                  isAddingMarker
-                    ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <Plus size={16} />
-                {isAddingMarker ? "Click on Map" : "Add Place (Drop Pin)"}
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    if (!selectedMapId) {
+                      toast.error("Please select a map before adding a place.");
+                      return;
+                    }
+                    setIsAddingMarker((prev) => !prev);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${
+                    isAddingMarker
+                      ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <Plus size={16} />
+                  {isAddingMarker ? "Cancel Adding Place" : "Add Place (Drop Pin)"}
+                </button>
+
+                {isAddingMarker && (
+                  <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 space-y-3 shadow-inner">
+                    <p className="text-xs text-blue-600 font-medium">
+                      Click anywhere on the map to drop a pin, OR use a Google Maps URL:
+                    </p>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+                        Put Your Google Map Location Url
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          name="mapURL"
+                          placeholder="https://maps.app.goo.gl/..."
+                          value={mapUrl}
+                          onChange={(e) => setMapUrl(e.target.value)}
+                          className="flex-1 bg-white border-gray-200 text-xs h-8 px-2"
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleExtractLocation}
+                          disabled={isExtracting}
+                          className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-3 py-1 h-8 text-xs rounded-md shadow-sm"
+                        >
+                          {isExtracting ? "..." : "Add Place"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => setIsDialogOpen(true)}
                 className="w-full flex items-center gap-3 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"

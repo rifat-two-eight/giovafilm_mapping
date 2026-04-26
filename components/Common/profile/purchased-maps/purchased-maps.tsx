@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import PurchasedMapsCard from "./purchased-maps-card";
+import { useGetPurchasedMapsQuery } from "@/redux/features/map/mapApi";
 
 const purchasedMaps = [
   {
@@ -71,6 +72,9 @@ const purchasedMaps = [
 export default function PurchasedMapsPage() {
   const [activeTab, setActiveTab] = useState("All Maps");
 
+  const { data, isLoading, error } = useGetPurchasedMapsQuery();
+  console.log(data);
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       <main className="flex-1 max-w-[1440px] mx-auto w-full px-6 py-12">
@@ -115,7 +119,7 @@ export default function PurchasedMapsPage() {
 
         {/* Map List */}
         <div className="space-y-4 mb-12">
-          {purchasedMaps.map((map) => (
+          {purchasedMaps?.map((map) => (
             <PurchasedMapsCard key={map.id} map={map} />
           ))}
         </div>
