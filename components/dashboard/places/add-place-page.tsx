@@ -250,6 +250,7 @@ export default function AddPlacePage() {
 
   const handleSavePlace = async (data?: any) => {
     const finalData = data || formData;
+    console.log("finalData", finalData);
     const saveMarker =
       tempMarker || (selectedPlace?.isNew ? selectedPlace.position : null);
 
@@ -285,6 +286,12 @@ export default function AddPlacePage() {
           access: finalData.accessDescription || "",
           recommendations: finalData.recommendations || "",
         },
+        // New fields
+        schedules: finalData.schedules || "",
+        entryCost: finalData.entryCost || "",
+        hikeTime: finalData.hikeTime || "",
+        atmosphere: finalData.atmosphere || "",
+        difficulty: finalData.difficulty || "",
       };
 
       let payload: any = placeData;

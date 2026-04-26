@@ -24,10 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
-import { Clock, Earth, Mail, Plus } from "lucide-react";
+import { Clock, Earth, Mail, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
@@ -41,7 +40,12 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
   const categories = categoriesRes?.data || [];
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedDay, setSelectedDay] = useState("");
+  const [selectionType, setSelectionType] = useState<
+    "everyday" | "range" | "individual"
+  >("everyday");
+  const [startDay, setStartDay] = useState("Monday");
+  const [endDay, setEndDay] = useState("Friday");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("18:00");
 
@@ -56,18 +60,47 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
   ];
 
   const handleAddHours = () => {
-    if (!selectedDay) return;
-
-    const dailyHours = form.getValues("dailyHours");
-    const updatedHours = dailyHours.map((h: any) => {
-      if (h.day === selectedDay) {
-        return { ...h, isOpen: true, openTime: startTime, closeTime: endTime };
+    let dayString = "";
+    if (selectionType === "everyday") {
+      dayString = "Mon - Sun";
+    } else if (selectionType === "range") {
+      dayString = `${startDay.substring(0, 3)} - ${endDay.substring(0, 3)}`;
+    } else {
+      if (selectedDays.length === 0) return;
+      if (selectedDays.length === 1) {
+        dayString = selectedDays[0];
+      } else {
+        dayString = selectedDays.map((d) => d.substring(0, 3)).join(", ");
       }
-      return h;
-    });
+    }
 
-    form.setValue("dailyHours", updatedHours);
+    const currentHours = form.getValues("dailyHours") || [];
+    const activeHours = currentHours.filter((h: any) => h.isOpen);
+
+    form.setValue("dailyHours", [
+      ...activeHours,
+      {
+        day: dayString,
+        isOpen: true,
+        openTime: startTime,
+        closeTime: endTime,
+        id: Date.now().toString(),
+      },
+    ]);
+
     setIsDialogOpen(false);
+    // reset selection state
+    setSelectedDays([]);
+    setStartDay("Monday");
+    setEndDay("Friday");
+  };
+
+  const handleRemoveHour = (index: number) => {
+    const currentHours = form.getValues("dailyHours") || [];
+    const activeHours = currentHours.filter((h: any) => h.isOpen);
+    const updated = [...activeHours];
+    updated.splice(index, 1);
+    form.setValue("dailyHours", updated);
   };
 
   return (
@@ -331,51 +364,140 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 <DialogTitle>Add Business Hours</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-bold text-gray-700">
-                    Select Day
-                  </Label>
-                  <Select value={selectedDay} onValueChange={setSelectedDay}>
-                    <SelectTrigger className="bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="Select a day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DAYS.map((day) => (
-                        <SelectItem key={day} value={day}>
-                          {day}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center gap-4 border-b border-gray-100 pb-2">
+                  <button
+                    type="button"
+                    className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "everyday" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
+                    onClick={() => setSelectionType("everyday")}
+                  >
+                    Everyday
+                  </button>
+                  <button
+                    type="button"
+                    className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "range" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
+                    onClick={() => setSelectionType("range")}
+                  >
+                    Date Range
+                  </button>
+                  <button
+                    type="button"
+                    className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "individual" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
+                    onClick={() => setSelectionType("individual")}
+                  >
+                    Individual Days
+                  </button>
                 </div>
+
+                {selectionType === "everyday" && (
+                  <div className="py-2">
+                    <p className="text-sm font-medium text-gray-500">
+                      This schedule will apply to all 7 days of the week.
+                    </p>
+                  </div>
+                )}
+
+                {selectionType === "range" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-gray-700">
+                        Start Day
+                      </Label>
+                      <Select value={startDay} onValueChange={setStartDay}>
+                        <SelectTrigger className="bg-gray-50 border-gray-200">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DAYS.map((d) => (
+                            <SelectItem key={d} value={d}>
+                              {d}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-gray-700">
+                        End Day
+                      </Label>
+                      <Select value={endDay} onValueChange={setEndDay}>
+                        <SelectTrigger className="bg-gray-50 border-gray-200">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DAYS.map((d) => (
+                            <SelectItem key={d} value={d}>
+                              {d}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {selectionType === "individual" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-bold text-gray-700">
+                      Select Days
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {DAYS.map((d) => {
+                        const isSelected = selectedDays.includes(d);
+                        return (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => {
+                              setSelectedDays((prev) =>
+                                prev.includes(d)
+                                  ? prev.filter((x) => x !== d)
+                                  : [...prev, d],
+                              );
+                            }}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${isSelected ? "bg-yellow-100 border-yellow-400 text-yellow-700" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}
+                          >
+                            {d.substring(0, 3)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-sm font-bold text-gray-700">
                       Start Time
                     </Label>
-                    <Input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="bg-gray-50 border-gray-200"
-                    />
+                    <div className="relative">
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-bold text-gray-700">
                       End Time
                     </Label>
-                    <Input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="bg-gray-50 border-gray-200"
-                    />
+                    <div className="relative">
+                      <Input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-6">
                   <Button
+                    type="button"
                     variant="outline"
                     className="flex-1 font-bold text-gray-500 hover:text-gray-700 rounded-xl h-11"
                     onClick={() => setIsDialogOpen(false)}
@@ -383,6 +505,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     Cancel
                   </Button>
                   <Button
+                    type="button"
                     className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-black rounded-xl h-11 tracking-widest shadow-lg shadow-yellow-100 transition-all"
                     onClick={handleAddHours}
                   >
@@ -395,37 +518,53 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         </div>
 
         {/* Schedule Summary Display */}
-        <div className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <div className="grid grid-cols-2 bg-gray-100/50 px-4 py-2 border-b border-gray-100">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-              Day
-            </span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-              Status / Hours
-            </span>
+        {form.watch("dailyHours")?.filter((h: any) => h.isOpen)?.length > 0 && (
+          <div className="pt-2 pb-4">
+            <div className="flex flex-col gap-4 w-full md:w-3/4 lg:w-2/3">
+              {form
+                .watch("dailyHours")
+                .filter((h: any) => h.isOpen)
+                .map((dayHour: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4"
+                  >
+                    <span className="text-sm md:text-base font-bold text-gray-800 min-w-[100px]">
+                      {dayHour.day}
+                    </span>
+
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                      <div className="relative flex-1 md:w-32">
+                        <Input
+                          readOnly
+                          value={dayHour.openTime}
+                          className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
+                        />
+                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+
+                      <div className="relative flex-1 md:w-32">
+                        <Input
+                          readOnly
+                          value={dayHour.closeTime}
+                          className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
+                        />
+                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveHour(idx)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
-          <div className="p-2 space-y-1">
-            {form.watch("dailyHours").map((dayHour: any) => (
-              <div
-                key={dayHour.day}
-                className="grid grid-cols-2 px-3 py-2 rounded-lg hover:bg-white transition-colors group"
-              >
-                <span className="text-sm font-bold text-gray-600">
-                  {dayHour.day}
-                </span>
-                <span
-                  className={`text-sm font-black tracking-tight ${
-                    dayHour.isOpen ? "text-gray-900" : "text-red-400 opacity-60"
-                  }`}
-                >
-                  {dayHour.isOpen
-                    ? `${formatTime(dayHour.openTime)} – ${formatTime(dayHour.closeTime)}`
-                    : "CLOSED"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

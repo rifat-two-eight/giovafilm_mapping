@@ -58,43 +58,6 @@ import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
 
-export const infoData = [
-  {
-    icon: Clock,
-    label: "SCHEDULES",
-    value: "Sunrise - Sunset",
-  },
-  {
-    icon: Ticket,
-    label: "ENTRY COST",
-    value: "$15.00 / vehicle",
-  },
-  {
-    icon: BarChart3,
-    label: "DIFFICULTY",
-    value: "Moderate",
-    highlight: true,
-  },
-  {
-    icon: Timer,
-    label: "HIKE TIME",
-    value: "~ 3.5 Hours",
-  },
-];
-
-export const restaurantData = [
-  {
-    icon: Clock,
-    label: "SCHEDULES",
-    value: "09:00 AM - 11:00 PM",
-  },
-  {
-    icon: Ticket,
-    label: "Atmosphere:",
-    value: "Cozy & Romantic",
-  },
-];
-
 export default function MapDetails() {
   const params = useParams();
   const router = useRouter();
@@ -112,15 +75,54 @@ export default function MapDetails() {
   const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
 
+  console.log("placeData", placeData);
+
   const lat = coordinates?.[1];
   const lng = coordinates?.[0];
+
+  const infoData = [
+    {
+      icon: Clock,
+      label: "SCHEDULES",
+      value: placeData?.schedules || "",
+    },
+    {
+      icon: Ticket,
+      label: "ENTRY COST",
+      value: `$${placeData?.entryCost || 0}/vehicle` || "",
+    },
+    {
+      icon: BarChart3,
+      label: "DIFFICULTY",
+      value: placeData?.difficulty || "N/A",
+      highlight: true,
+    },
+    {
+      icon: Timer,
+      label: "HIKE TIME",
+      value: placeData?.hikeTime || "",
+    },
+  ];
+
+  const restaurantData = [
+    {
+      icon: Clock,
+      label: "SCHEDULES",
+      value: placeData?.schedules || "",
+    },
+    {
+      icon: Ticket,
+      label: "Atmosphere:",
+      value: placeData?.atmosphere || "",
+    },
+  ];
 
   const isRestaurant =
     placeData?.category?.name?.toLowerCase() === "restaurant";
   const dataToRender = isRestaurant ? restaurantData : infoData;
 
   const reviewData = reviews?.data;
-  console.log("placeRes", reviewData);
+  // console.log("placeRes", reviewData);
 
   const servicesMap: Record<string, any> = {
     Parking: { icon: Car, label: "PARKING" },

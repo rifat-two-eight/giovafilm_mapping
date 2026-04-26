@@ -11,7 +11,17 @@ interface PlaceInfoWindowProps {
     name: string;
     description: string;
     category: string;
+    address?: string;
+    accessDescription?: string;
+    recommendations?: string;
+    services?: string[];
+    accessibility?: any;
+    images?: string[];
     isNew: boolean;
+    schedules?: string;
+    entryCost?: number;
+    hikeTime?: string;
+    atmosphere?: string;
   };
 }
 

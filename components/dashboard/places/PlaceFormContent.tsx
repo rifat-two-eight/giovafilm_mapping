@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TimeRangePicker } from "@/components/ui/time-range-picker";
 import { getImageUrl } from "@/lib/utils";
 import {
   Baby,
@@ -19,13 +20,11 @@ import {
   X as CloseIcon,
   Dog,
   MapPin,
-  Plus,
   Upload,
   Users,
   Utensils,
   Wifi,
 } from "lucide-react";
-import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
 interface PlaceFormContentProps {
@@ -44,6 +43,11 @@ interface PlaceFormContentProps {
     accessibility?: any;
     images?: string[];
     isNew: boolean;
+    schedules?: string;
+    entryCost?: number;
+    hikeTime?: string;
+    atmosphere?: string;
+    difficulty?: string;
   };
 }
 
@@ -85,6 +89,11 @@ export const PlaceFormContent = ({
     },
     recommendations: initialData?.recommendations || "",
     services: initialData?.services || ([] as string[]),
+    schedules: initialData?.schedules || "",
+    entryCost: initialData?.entryCost || "",
+    hikeTime: initialData?.hikeTime || "",
+    atmosphere: initialData?.atmosphere || "",
+    difficulty: initialData?.difficulty || "",
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,6 +336,86 @@ export const PlaceFormContent = ({
                 />
               </div>
             </div>
+
+            {/* Conditionally Rendered New Fields */}
+            {formData.category && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <Label className="text-sm font-medium">Schedules</Label>
+                  <TimeRangePicker
+                    value={formData.schedules}
+                    onChange={(val) =>
+                      setFormData({ ...formData, schedules: val })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Atmosphere</Label>
+                  <Input
+                    placeholder='e.g., "Relaxing"'
+                    value={formData.atmosphere}
+                    onChange={(e) =>
+                      setFormData({ ...formData, atmosphere: e.target.value })
+                    }
+                    className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                  />
+                </div>
+
+                {categories
+                  .find((c: any) => c._id === formData.category)
+                  ?.name?.toLowerCase() !== "restaurant" && (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Entry Cost</Label>
+                      <Input
+                        placeholder='e.g., "$15.00 / vehicle"'
+                        type="number"
+                        min={0}
+                        value={formData.entryCost}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            entryCost: e.target.value,
+                          })
+                        }
+                        className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Difficulty</Label>
+                      <Select
+                        value={formData.difficulty}
+                        onValueChange={(val) =>
+                          setFormData({ ...formData, difficulty: val })
+                        }
+                      >
+                        <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[9999]">
+                          <SelectItem value="Easy">Easy</SelectItem>
+                          <SelectItem value="Moderate">Moderate</SelectItem>
+                          <SelectItem value="Hard">Hard</SelectItem>
+                          <SelectItem value="Expert">Expert</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Hike Time</Label>
+                      <Input
+                        placeholder='e.g., "~ 3.5 Hours"'
+                        value={formData.hikeTime}
+                        onChange={(e) =>
+                          setFormData({ ...formData, hikeTime: e.target.value })
+                        }
+                        className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 
