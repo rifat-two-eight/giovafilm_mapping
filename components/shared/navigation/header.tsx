@@ -29,6 +29,7 @@ import {
 import { getImageUrl } from "@/lib/utils";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { logout } from "@/redux/features/auth/authSlice";
+import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
@@ -120,6 +121,7 @@ export default function Header() {
       await logoutApi({}).unwrap();
     } catch {
     } finally {
+      broadcastLogout(); // signal all other tabs
       dispatch(logout());
       localStorage.clear();
       closeMenus();

@@ -20,6 +20,7 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/redux/hook";
 import { logout } from "@/redux/features/auth/authSlice";
+import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
 
 export default function DashTopHeader() {
   const [open, setOpen] = useState(false);
@@ -34,9 +35,9 @@ export default function DashTopHeader() {
       await logoutApi({}).unwrap();
     } catch {
     } finally {
+      broadcastLogout(); // signal all other tabs
       dispatch(logout());
       localStorage.clear();
-      // closeMenus();
       router.push("/");
     }
   };
