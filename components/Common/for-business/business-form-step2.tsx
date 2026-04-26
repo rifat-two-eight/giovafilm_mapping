@@ -1,44 +1,3 @@
-// "use client";
-
-// import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
-// import { Button } from "@/components/ui/button";
-// import { APIProvider, Map } from "@vis.gl/react-google-maps";
-// import { UseFormReturn } from "react-hook-form";
-
-// interface BusinessFormStep2Props {
-//   form: UseFormReturn<any>;
-// }
-
-// export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
-//   const mapLocation = form.watch("mapLocation");
-
-//   return (
-//     <div className="space-y-8">
-//       <div className="flex items-center justify-between">
-//         <h2 className="text-xl font-bold text-gray-900">Map Location</h2>
-//         <Button>Add Location</Button>
-//       </div>
-
-//       <APIProvider
-//         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
-//       >
-//         <div style={{ width: "100%", height: "500px" }}>
-//           <Map
-//             style={{ width: "100%", height: "100%" }}
-//             defaultZoom={13}
-//             gestureHandling={"greedy"}
-//             disableDefaultUI={false}
-//             mapId="YOUR_MAP_ID"
-//             mapTypeControl={true}
-//           >
-//             <CustomLocationButton />
-//           </Map>
-//         </div>
-//       </APIProvider>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
@@ -116,6 +75,7 @@ function MapContent({
 
 export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const [isAddMode, setIsAddMode] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<MarkerPosition | null>(
     () => {
       const existing = form.getValues("mapLocation");
@@ -127,40 +87,155 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     setIsAddMode((prev) => !prev);
   };
 
-  const handleExtractLocation = () => {
-    const url = form.getValues("mapUrl");
+  const extractFromUrlString = (urlString: string): MarkerPosition | null => {
+    let lat: number | null = null;
+    let lng: number | null = null;
+    let zoom: number | undefined = undefined;
+
+    // First try to find exact marker coordinates !3d(lat)!4d(lng) or !2d(lng)!3d(lat)
+    const bangMatch3d4d = urlString.match(
+      /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+    );
+    if (bangMatch3d4d) {
+      lat = parseFloat(bangMatch3d4d[1]);
+      lng = parseFloat(bangMatch3d4d[2]);
+    } else {
+      const bangMatch2d3d = urlString.match(
+        /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/,
+      );
+      if (bangMatch2d3d) {
+        lng = parseFloat(bangMatch2d3d[1]);
+        lat = parseFloat(bangMatch2d3d[2]);
+      }
+    }
+
+    // Try to find viewport coordinates and zoom
+    const atMatch = urlString.match(
+      /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)z)?/,
+    );
+    if (atMatch) {
+      if (lat === null) lat = parseFloat(atMatch[1]);
+      if (lng === null) lng = parseFloat(atMatch[2]);
+      if (atMatch[3]) zoom = parseFloat(atMatch[3]);
+    }
+
+    // Try search query or other params if still not found
+    if (lat === null || lng === null) {
+      const llMatch =
+        urlString.match(/[?&]ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/) ||
+        urlString.match(/[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (llMatch) {
+        lat = parseFloat(llMatch[1]);
+        lng = parseFloat(llMatch[2]);
+      }
+    }
+
+    if (lat !== null && lng !== null) {
+      return { lat, lng, zoom };
+    }
+    return null;
+  };
+
+  const reverseGeocodeAndSetAddress = async (lat: number, lng: number) => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
+      if (!apiKey) return;
+      
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+      );
+      const data = await res.json();
+
+      if (data.results && data.results.length > 0) {
+        const result = data.results[0];
+        
+        let streetAddress = "";
+        let city = "";
+        let country = "";
+
+        result.address_components.forEach((component: any) => {
+          const types = component.types;
+          if (types.includes("street_number")) {
+            streetAddress = component.long_name + " ";
+          }
+          if (types.includes("route")) {
+            streetAddress += component.long_name;
+          }
+          if (types.includes("locality") || types.includes("administrative_area_level_2") || types.includes("postal_town")) {
+            city = component.long_name;
+          }
+          if (types.includes("country")) {
+            country = component.long_name;
+          }
+        });
+
+        if (!streetAddress.trim()) {
+          // Fallback if no specific street parts
+          streetAddress = result.formatted_address.split(",")[0];
+        }
+
+        const addressData = { 
+          streetAddress: streetAddress.trim(), 
+          city, 
+          country 
+        };
+        
+        console.log("Reverse Geocoded Address Data:", addressData);
+        
+        if (addressData.streetAddress) form.setValue("streetAddress", addressData.streetAddress);
+        if (addressData.city) form.setValue("city", addressData.city);
+        if (addressData.country) form.setValue("country", addressData.country);
+      }
+    } catch (err) {
+      console.error("Reverse geocoding failed:", err);
+    }
+  };
+
+  const handleExtractLocation = async () => {
+    let url = form.getValues("mapUrl");
     if (!url) {
       toast.error("Please enter a Google Maps URL first");
       return;
     }
 
-    // Extraction Regex Patterns
-    const patterns = [
-      /@(-?\d+\.\d+),(-?\d+\.\d+)(?:,(\d+\.?\d*)z)?/, // @lat,lng,zoomz pattern
-      /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, // !3d!4d pattern
-      /ll=(-?\d+\.\d+),(-?\d+\.\d+)/, // ll parameter
-      /q=(-?\d+\.\d+),(-?\d+\.\d+)/, // q parameter
-    ];
+    setIsExtracting(true);
+    let extractedCoords = extractFromUrlString(url);
 
-    let extractedCoords: MarkerPosition | null = null;
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) {
-        extractedCoords = {
-          lat: parseFloat(match[1]),
-          lng: parseFloat(match[2]),
-          zoom: match[3] ? parseFloat(match[3]) : undefined,
-        };
-        break;
+    // If we couldn't extract coordinates and it looks like a short URL, try expanding it
+    if (
+      !extractedCoords &&
+      (url.includes("goo.gl") || url.includes("maps.app.goo.gl"))
+    ) {
+      try {
+        // Ensure the url has http/https
+        if (!url.startsWith("http")) {
+          url = `https://${url}`;
+        }
+        const res = await fetch("/api/expand-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (data.expandedUrl) {
+          extractedCoords = extractFromUrlString(data.expandedUrl);
+        }
+      } catch (error) {
+        console.error("Failed to expand URL", error);
       }
     }
+
+    setIsExtracting(false);
 
     if (extractedCoords) {
       setMarkerPosition(extractedCoords);
       form.setValue("mapLocation", extractedCoords);
       console.log("Extracted Location:", extractedCoords);
-      toast.success("Location extracted successfully!");
+      
+      // Attempt to extract address components and fill form
+      await reverseGeocodeAndSetAddress(extractedCoords.lat, extractedCoords.lng);
+      
+      toast.success("Location and address extracted successfully!");
       setIsAddMode(false);
     } else {
       toast.error(
@@ -171,7 +246,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   };
 
   const handleMapClick = useCallback(
-    (e: MapMouseEvent) => {
+    async (e: MapMouseEvent) => {
       if (!e.detail.latLng) return;
 
       const coords: MarkerPosition = {
@@ -184,6 +259,10 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       setIsAddMode(false); // exit add mode after placing marker
 
       console.log(coords);
+      
+      // Attempt to extract address components and fill form
+      await reverseGeocodeAndSetAddress(coords.lat, coords.lng);
+      toast.success("Location and address set successfully!");
     },
     [form],
   );
@@ -213,9 +292,10 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
           <Button
             type="button"
             onClick={handleExtractLocation}
+            disabled={isExtracting}
             className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-6"
           >
-            Add
+            {isExtracting ? "..." : "Add"}
           </Button>
         </div>
       </div>

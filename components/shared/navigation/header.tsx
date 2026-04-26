@@ -95,6 +95,8 @@ export default function Header() {
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
+  console.log("User",user);
+
   const maxPoints = 1000;
   const progress = ((user?.points || 0) / maxPoints) * 100;
 
