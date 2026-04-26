@@ -229,6 +229,14 @@ export function UpdatePlaceModal({
           access: finalData.accessDescription || "",
           recommendations: finalData.recommendations || "",
         },
+        // New fields
+        schedules: finalData.schedules || "",
+        entryCost: finalData.entryCost || "",
+        hikeTime: finalData.hikeTime || "",
+        atmosphere: finalData.atmosphere || "",
+        difficulty: finalData.difficulty || "",
+        // Pass retained existing images back so backend knows what to keep
+        existingImages: finalData.existingImages || [],
       };
 
       let payload: any = placeData;
@@ -240,6 +248,12 @@ export function UpdatePlaceModal({
           formDataPayload.append("images", file);
         });
         payload = formDataPayload;
+      } else if (
+        finalData.existingImages &&
+        finalData.existingImages.length !== (place?.media?.length ?? 0)
+      ) {
+        // Images were removed but no new files — still send JSON so backend can prune
+        payload = placeData;
       }
 
       await updatePlace({ id: placeId, data: payload }).unwrap();
@@ -311,7 +325,14 @@ export function UpdatePlaceModal({
                   senior: place.accessibility?.features?.includes("senior"),
                   notes: place.accessibility?.notes || "",
                 },
+                images: place.media || [],
                 isNew: false,
+                // New fields pre-populated from existing place data
+                schedules: place.schedules || "",
+                entryCost: place.entryCost || "",
+                hikeTime: place.hikeTime || "",
+                atmosphere: place.atmosphere || "",
+                difficulty: place.difficulty || "",
               }}
             />
           </div>
