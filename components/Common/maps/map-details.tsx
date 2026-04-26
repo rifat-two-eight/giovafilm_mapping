@@ -265,10 +265,10 @@ export default function MapDetails() {
             />
 
             {/* share */}
-            <button className="absolute top-5 right-5 text-yellow-400 flex items-center gap-2 font-semibold">
+            {/* <button className="absolute top-5 right-5 text-yellow-400 flex items-center gap-2 font-semibold">
               <Share2 size={18} />
               SHARE
-            </button>
+            </button> */}
 
             {/* title */}
             <div className="absolute bottom-6 left-6 text-white">

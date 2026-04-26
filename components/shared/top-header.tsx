@@ -7,7 +7,6 @@ import { useState } from "react";
 
 export default function TopHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const navItems = [
     {
       label: "Map",

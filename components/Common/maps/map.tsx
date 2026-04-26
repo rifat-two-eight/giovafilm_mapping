@@ -26,6 +26,8 @@ import {
   ControlPosition,
   Map,
   MapControl,
+  useMap,
+  useMapsLibrary,
 } from "@vis.gl/react-google-maps";
 import {
   Landmark,
@@ -66,6 +68,29 @@ export function getCategoryIcon(name: string) {
 export function getCategoryColor(name: string) {
   const n = name?.toLowerCase() || "";
   return PREDEFINED_CATEGORIES[n]?.color || "#FF9800";
+}
+
+function CountryPanner({ selectedCountry }: { selectedCountry: string }) {
+  const map = useMap();
+  const geocodingLib = useMapsLibrary("geocoding");
+
+  useEffect(() => {
+    if (!map || !geocodingLib || !selectedCountry || selectedCountry === "all") return;
+
+    const geocoder = new geocodingLib.Geocoder();
+    geocoder.geocode({ address: selectedCountry }, (results, status) => {
+      if (status === "OK" && results?.[0]) {
+        if (results[0].geometry.viewport) {
+          map.fitBounds(results[0].geometry.viewport);
+        } else {
+          map.setCenter(results[0].geometry.location);
+          map.setZoom(6);
+        }
+      }
+    });
+  }, [selectedCountry, map, geocodingLib]);
+
+  return null;
 }
 
 export default function MapPage() {
@@ -158,6 +183,7 @@ export default function MapPage() {
           >
             {/* Pans once on mount — no controlled center prop needed */}
             <GeolocationOnLoad onLocation={setMarkerPos} />
+            <CountryPanner selectedCountry={selectedCountry} />
 
             <CustomLocationButton />
 

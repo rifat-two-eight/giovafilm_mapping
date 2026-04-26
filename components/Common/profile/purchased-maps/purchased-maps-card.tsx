@@ -1,21 +1,37 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
+import { useUpdateMapStatusMutation } from "@/redux/features/map/mapApi";
+import { toast } from "sonner";
 
-type PurchasedMap = {
-  id: number;
+export type PurchasedMap = {
+  id: string | number;
   title: string;
   badge: string;
   badgeColor: string;
   info: string;
   image: string;
   status: string;
-  offline: boolean;
+  isActive: boolean;
   icon: any;
   iconColor: string;
 };
 
 export default function PurchasedMapsCard({ map }: { map: PurchasedMap }) {
+  const [updateMapStatus, { isLoading }] = useUpdateMapStatusMutation();
+
+  const handleToggle = async (checked: boolean) => {
+    try {
+      await updateMapStatus({
+        id: map.id.toString(),
+        data: { isActive: checked },
+      }).unwrap();
+      toast.success(checked ? "Map activated successfully!" : "Map deactivated successfully!");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update map status");
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl p-4 flex items-center gap-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow group font-public-sans">
       {/* Map Image */}
@@ -54,11 +70,13 @@ export default function PurchasedMapsCard({ map }: { map: PurchasedMap }) {
       <div className="flex items-center gap-6 pr-4">
         <div className="text-right">
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">
-            Offline Status
+            Status
           </p>
 
           <Switch
-            checked={map.offline}
+            checked={map.isActive}
+            onCheckedChange={handleToggle}
+            disabled={isLoading}
             className="data-[state=checked]:bg-yellow-500 data-[state=unchecked]:bg-gray-200"
           />
         </div>

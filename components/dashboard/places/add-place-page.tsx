@@ -32,8 +32,7 @@ import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
 
 // ─── Category color palette ────────────────────────────────────────────────────
-// Maps category name (lowercase) to a pin color.
-// Extend this as you add more categories.
+
 const CATEGORY_COLORS: Record<string, string> = {
   restaurant: "#EF4444",
   food: "#EF4444",
@@ -129,7 +128,9 @@ export default function AddPlacePage() {
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
 
-  const extractFromUrlString = (urlString: string): { lat: number; lng: number } | null => {
+  const extractFromUrlString = (
+    urlString: string,
+  ): { lat: number; lng: number } | null => {
     let lat: number | null = null;
     let lng: number | null = null;
 
@@ -378,13 +379,16 @@ export default function AddPlacePage() {
                   }`}
                 >
                   <Plus size={16} />
-                  {isAddingMarker ? "Cancel Adding Place" : "Add Place (Drop Pin)"}
+                  {isAddingMarker
+                    ? "Cancel Adding Place"
+                    : "Add Place (Drop Pin)"}
                 </button>
 
                 {isAddingMarker && (
                   <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 space-y-3 shadow-inner">
                     <p className="text-xs text-blue-600 font-medium">
-                      Click anywhere on the map to drop a pin, OR use a Google Maps URL:
+                      Click anywhere on the map to drop a pin, OR use a Google
+                      Maps URL:
                     </p>
                     <div className="space-y-1.5">
                       <Label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
@@ -419,7 +423,7 @@ export default function AddPlacePage() {
               </button>
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 size={16}
@@ -429,7 +433,7 @@ export default function AddPlacePage() {
                 placeholder="Search places..."
                 className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Categories List */}
@@ -476,14 +480,14 @@ export default function AddPlacePage() {
             </div>
           </div>
 
-          <div className="p-4 border-t border-gray-100 space-y-2">
+          {/* <div className="p-4 border-t border-gray-100 space-y-2">
             <button className="w-full text-left text-xs text-gray-500 hover:text-blue-600 transition-colors">
               Import places (CSV)
             </button>
             <button className="w-full text-left text-xs text-gray-500 hover:text-blue-600 transition-colors">
               Export map
             </button>
-          </div>
+          </div> */}
 
           <div className="bg-gray-100 p-3 text-[10px] font-bold text-gray-500 uppercase">
             Selected Map: {selectedMap?.name || "None"}

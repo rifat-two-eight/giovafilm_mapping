@@ -17,13 +17,29 @@ import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import ProfileUpdateModal from "../Common/profile/profile-update-modal";
 import { SidebarTrigger } from "../ui/sidebar";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/redux/hook";
+import { logout } from "@/redux/features/auth/authSlice";
 
 export default function DashTopHeader() {
   const [open, setOpen] = useState(false);
   const { data: user } = useGetProfileQuery({});
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
   const [logoutApi] = useLogoutMutation();
 
-  // console.log(user);
+  const handleLogout = async () => {
+    try {
+      await logoutApi({}).unwrap();
+    } catch {
+    } finally {
+      dispatch(logout());
+      localStorage.clear();
+      // closeMenus();
+      router.push("/");
+    }
+  };
 
   return (
     <div className="p-4 md:px-8 border-b border-gray-300/50">
@@ -56,7 +72,9 @@ export default function DashTopHeader() {
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500">Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

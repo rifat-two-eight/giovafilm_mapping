@@ -11,69 +11,39 @@ import {
   Mountain,
   ShieldCheck,
 } from "lucide-react";
-import PurchasedMapsCard from "./purchased-maps-card";
+import PurchasedMapsCard, { PurchasedMap } from "./purchased-maps-card";
 import { useGetPurchasedMapsQuery } from "@/redux/features/map/mapApi";
-
-const purchasedMaps = [
-  {
-    id: 1,
-    title: "PUERTO RICO ADVENTURE",
-    badge: "PREMIUM ACCESS",
-    badgeColor: "bg-yellow-100 text-yellow-700",
-    info: "Last updated 2 days ago",
-    image:
-      "https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&q=80&w=400",
-    status: "active",
-    offline: true,
-    icon: ShieldCheck,
-    iconColor: "text-yellow-500",
-  },
-  {
-    id: 2,
-    title: "SAN JUAN HISTORIC",
-    badge: "VERIFIED GUIDE",
-    badgeColor: "bg-blue-100 text-blue-700",
-    info: "1.2 GB • Ready for offline",
-    image:
-      "https://images.unsplash.com/photo-1589308454676-435948967982?auto=format&fit=crop&q=80&w=400",
-    status: "active",
-    offline: true,
-    icon: Compass,
-    iconColor: "text-gray-400",
-  },
-  {
-    id: 3,
-    title: "HIDDEN WATERFALLS",
-    badge: "EXPLORER PACK",
-    badgeColor: "bg-emerald-100 text-emerald-700",
-    info: "85% Downloaded...",
-    image:
-      "https://images.unsplash.com/photo-1433086566608-e93777ef39c1?auto=format&fit=crop&q=80&w=400",
-    status: "active",
-    offline: false,
-    icon: Droplets,
-    iconColor: "text-emerald-500",
-  },
-  {
-    id: 4,
-    title: "MOUNTAIN TRAILS",
-    badge: "INACTIVE",
-    badgeColor: "bg-gray-100 text-gray-500",
-    info: "Click to renew subscription",
-    image:
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=400",
-    status: "inactive",
-    offline: false,
-    icon: Mountain,
-    iconColor: "text-gray-300",
-  },
-];
+import { getImageUrl } from "@/lib/utils";
+import Link from "next/link";
 
 export default function PurchasedMapsPage() {
   const [activeTab, setActiveTab] = useState("All Maps");
 
-  const { data, isLoading, error } = useGetPurchasedMapsQuery();
-  console.log(data);
+  const { data, isLoading } = useGetPurchasedMapsQuery();
+
+  const rawMaps = data?.data || [];
+
+  const formattedMaps = rawMaps.map((map: any) => ({
+    id: map._id,
+    title: map.name,
+    badge: map.isActive ? "ACTIVE" : "INACTIVE",
+    badgeColor: map.isActive
+      ? "bg-green-100 text-green-700"
+      : "bg-gray-100 text-gray-500",
+    info: `Added ${new Date(map.createdAt).toLocaleDateString()}`,
+    image: getImageUrl(map.images?.[0]),
+    status: map.isActive ? "Active" : "Inactive",
+    offline: !!map.isActive,
+    icon: map.isActive ? ShieldCheck : Compass,
+    iconColor: map.isActive ? "text-green-500" : "text-gray-400",
+    isActive: !!map.isActive,
+  }));
+
+  const filteredMaps = formattedMaps.filter((map: any) => {
+    if (activeTab === "Active") return map.isActive === true;
+    if (activeTab === "Inactive") return map.isActive === false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
@@ -88,10 +58,12 @@ export default function PurchasedMapsPage() {
               Manage and access your offline adventure guides
             </p>
           </div>
-          <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
-            <Compass size={20} />
-            Browse More Maps
-          </Button>
+          <Link href={"/catalog"}>
+            <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-12 text-base shadow-lg shadow-yellow-500/20">
+              <Compass size={20} />
+              Browse More Maps
+            </Button>
+          </Link>
         </div>
 
         {/* Tabs */}
@@ -108,7 +80,9 @@ export default function PurchasedMapsPage() {
             >
               {tab}{" "}
               {tab === "All Maps" && (
-                <span className="ml-1 text-[10px] opacity-60">12</span>
+                <span className="ml-1 text-[10px] opacity-60">
+                  {formattedMaps.length}
+                </span>
               )}
               {activeTab === tab && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 rounded-full" />
@@ -119,13 +93,23 @@ export default function PurchasedMapsPage() {
 
         {/* Map List */}
         <div className="space-y-4 mb-12">
-          {purchasedMaps?.map((map) => (
-            <PurchasedMapsCard key={map.id} map={map} />
-          ))}
+          {isLoading ? (
+            <div className="text-center py-10 text-gray-500">
+              Loading your maps...
+            </div>
+          ) : filteredMaps.length > 0 ? (
+            filteredMaps.map((map: PurchasedMap) => (
+              <PurchasedMapsCard key={map.id} map={map} />
+            ))
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              No {activeTab.toLowerCase()} found.
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center gap-2">
+        {/* <div className="flex items-center justify-center gap-2">
           <button className="w-10 h-10 rounded-xl border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-white hover:shadow-sm transition-all">
             <ChevronLeft size={20} />
           </button>
@@ -144,7 +128,7 @@ export default function PurchasedMapsPage() {
           <button className="w-10 h-10 rounded-xl border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-white hover:shadow-sm transition-all">
             <ChevronRight size={20} />
           </button>
-        </div>
+        </div> */}
       </main>
     </div>
   );
