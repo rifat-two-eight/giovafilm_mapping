@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Download, RotateCcw, Shield, Star } from "lucide-react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import SimilarMaps from "./similar-maps";
-import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
-import { getImageUrl } from "@/lib/utils";
-import { PlaceCard } from "../places/place-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect } from "react";
+import { getImageUrl } from "@/lib/utils";
+import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
+import { useCreateMapCheckoutSessionMutation } from "@/redux/features/payment/paymentApi";
+import { Star } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import SimilarMaps from "./similar-maps";
 
 interface MapDetail {
   id: number;
@@ -32,6 +32,7 @@ interface MapDetail {
 
 export default function FeatureMapDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
 
   const {
@@ -43,7 +44,33 @@ export default function FeatureMapDetailPage() {
 
   console.log("mapData", mapData);
 
+  const [createCheckout, { isLoading: isCheckingOut }] = useCreateMapCheckoutSessionMutation();
   const [mainImage, setMainImage] = useState<string | null>(null);
+
+  const handleBuyNow = async () => {
+    // Validate authentication
+    const hasToken = document.cookie.includes("accessToken=");
+    if (!hasToken) {
+      toast.error("Please log in to purchase this map.");
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const res = await createCheckout({
+        mapId: id,
+        amount: mapData?.price,
+      }).unwrap();
+
+      if (res?.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Failed to retrieve checkout URL.");
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong during checkout.");
+    }
+  };
 
   useEffect(() => {
     if (mapData?.images?.length > 0) {
@@ -189,8 +216,12 @@ export default function FeatureMapDetailPage() {
             </div>
 
             {/* Buy Button */}
-            <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
-              BUY NOW
+            <Button
+              onClick={handleBuyNow}
+              disabled={isCheckingOut}
+              className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none disabled:opacity-70"
+            >
+              {isCheckingOut ? "PROCESSING..." : "BUY NOW"}
             </Button>
 
             {/* Features Icons */}
