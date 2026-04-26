@@ -100,12 +100,24 @@ export default function OtpVerify() {
         oneTimeCode: otpCode,
       });
 
-      console.log(response);
+      console.log("api res", response?.data.data);
 
       if (response.data?.success) {
         const userData = response.data.data;
 
-        console.log(userData);
+        console.log("token", userData);
+
+        toast.success("Account verified successfully!", {
+          id: toastId,
+          description: "Your account is now active.",
+        });
+
+        if (userData?.token) {
+          setTimeout(() => {
+            router.push(`/reset-password?token=${userData.token}`);
+          }, 1000);
+          return;
+        }
 
         if (userData?.accessToken) {
           // Robustly get user data
@@ -133,29 +145,18 @@ export default function OtpVerify() {
           document.cookie = `accessToken=${userData.accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
         }
 
-        toast.success("Account verified successfully!", {
-          id: toastId,
-          description: "Your account is now active.",
-        });
+        // Robustly get user data (from userData.user or decode from accessToken)
+        let userRole = userData?.user?.role;
 
-        if (authType === "forget-password") {
-          setTimeout(() => {
-            router.push(`/reset-password?token=${userData.token}`);
-          }, 1000);
+        if (!userRole && userData?.accessToken) {
+          const decoded = decodeJwtPayload(userData.accessToken);
+          userRole = decoded?.role;
+        }
+
+        if (userRole === "user") {
+          router.push("/profile/contributions-reviews");
         } else {
-          // Robustly get user data (from userData.user or decode from accessToken)
-          let userRole = userData?.user?.role;
-
-          if (!userRole && userData?.accessToken) {
-            const decoded = decodeJwtPayload(userData.accessToken);
-            userRole = decoded?.role;
-          }
-
-          if (userRole === "user") {
-            router.push("/profile/contributions-reviews");
-          } else {
-            router.push("/dashboard");
-          }
+          router.push("/dashboard");
         }
       } else {
         const errorData = (response.error as any)?.data;

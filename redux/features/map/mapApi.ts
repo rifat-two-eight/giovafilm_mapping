@@ -16,6 +16,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Map"],
     }),
+
     getMaps: builder.query<any, GetMapsArgs>({
       query: ({ page = 1, limit = 10, searchTerm = "" } = {}) => ({
         url: `/map?page=${page}&limit=${limit}&searchTerm=${searchTerm}`,
@@ -23,6 +24,7 @@ const mapApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Map"],
     }),
+
     getMapById: builder.query<any, string>({
       query: (id: string) => ({
         url: `/map/${id}`,

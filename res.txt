@@ -1,35 +1,530 @@
-res 
-{error: {…}}
-error
-: 
-data
-: 
-errorMessages
-: 
-[{…}]
-message
-: 
-"An account with this email already exist, please login or try with another email."
-stack
-: 
-"Error: An account with this email already exist, please login or try with another email.\n    at Object.createUser (D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\src\\modules\\auth\\custom.auth\\custom.auth.service.ts:28:11)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\src\\modules\\auth\\custom.auth\\custom.auth.controller.ts:137:18\n    at D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\src\\shared\\catchAsync.ts:7:7"
-success
-: 
-false
-[[Prototype]]
-: 
-Object
-status
-: 
-400
-[[Prototype]]
-: 
-Object
-[[Prototype]]
-: 
-Object
-
-
-
-res {data: {…}}data: data: email: "cw8hr75pay@ruutukf.com"[[Prototype]]: Objectmessage: "Registration successful and OTP sent to your email"statusCode: 200success: true[[Prototype]]: Object[[Prototype]]: Object
-forward-logs-shared.ts:95 [Fast Refresh] rebuilding
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "Maps retrieved successfully",
+    "meta": {
+        "total": 6,
+        "limit": 10,
+        "page": 1,
+        "totalPage": 1
+    },
+    "data": [
+        {
+            "isActive": true,
+            "_id": "69e93d53668604cc97522f47",
+            "name": "Republica Dominicana",
+            "description": "¡Activa tu mapa de \"Roadtripeado RD\" con más de 200 lugares por tan solo $15  ! Todos los lugares tienen la ruta de Google Maps.\n\nINCLUYE:\n• Playas | Pozas\n• Ríos | Charcos | Cascadas\n• Cuevas | Petroglifos | Acantilados\n• Alquiler de: Jetski | Kayak | Kart | cuatriciclo | Caballos\n• Castillos | Faros | ruinas | Lugares Históricos\n•Tablados | Jardines | Árboles de Ceiba Gigantes\n• Restaurantes | Foodtruck\n• Experiencias de: Picnics | Pinturas | Talleres\n• Airbnb's | Hoteles\n• Museos | Parques de Atracciones | Parques Acuáticos\n• ¡Y Mucho Más!",
+            "price": 15,
+            "images": [
+                "/uploads/images/1777064179636-d3khlb.png"
+            ],
+            "features": [],
+            "places": [
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.43738103327108,
+                            27.388337187280946
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "children",
+                            "senior"
+                        ],
+                        "notes": ""
+                    },
+                    "_id": "69e96350565be48ae8cfe01d",
+                    "name": "Hic error illum ver",
+                    "map": "69e93d53668604cc97522f47",
+                    "category": {
+                        "_id": "69d802fe805480b37ddf6c89",
+                        "name": "Historic Site",
+                        "color": "#8d6e63",
+                        "icon": "🏰",
+                        "status": "Active",
+                        "createdAt": "2026-04-09T19:50:22.187Z",
+                        "updatedAt": "2026-04-22T19:04:54.596Z",
+                        "__v": 0
+                    },
+                    "country": "Unknown",
+                    "description": "Est necessitatibus d",
+                    "media": [
+                        "/uploads/images/1776902991008-pqnflz.jpg"
+                    ],
+                    "address": "Ratione qui esse et ",
+                    "services": [
+                        "Restrooms",
+                        "Food Nearby",
+                        "Wifi"
+                    ],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-23T00:09:53.001Z",
+                    "updatedAt": "2026-04-23T00:09:53.001Z",
+                    "__v": 0,
+                    "id": "69e96350565be48ae8cfe01d"
+                }
+            ],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-22T21:27:47.709Z",
+            "updatedAt": "2026-04-24T20:56:28.327Z",
+            "country": "Unknown",
+            "id": "69e93d53668604cc97522f47"
+        },
+        {
+            "_id": "69e912c3668604cc97522d2a",
+            "name": "Puerto Rico",
+            "description": "¡Activa tu mapa de \"Roadtripeado PR\" con más de 800 lugares por tan solo $35! 📍🌴 Todos los lugares tienen la ruta de Google Maps.\n\nINCLUYE:\n• 🏖️ Playas | Pozas\n• 🌊 Ríos | Charcos | Cascadas\n• 🕳️ Cuevas | Petroglifos | Acantilados\n• 🚤 Alquiler de: Jetski | Kayak | Kart | Cuatriciclo | Caballos\n• 🏰 Castillos | Faros | Ruinas | Lugares Históricos\n• 🌳 Tablados | Jardines | Árboles de Ceiba Gigantes\n• 🍽️ Restaurantes & Ofertas Mensuales\n• 🎨 Experiencias de: Picnics | Pinturas | Talleres\n• 🏡 Airbnb's | Hoteles\n• 🖼️ Museos | Parques de Atracciones | Parques Acuáticos\n• ¡Y Mucho Más!",
+            "price": 35,
+            "images": [
+                "/uploads/images/1777064153091-wpmivr.png"
+            ],
+            "features": [],
+            "places": [
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            83.84295071647072,
+                            28.249162065692165
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "wheelchair",
+                            "children",
+                            "pets"
+                        ],
+                        "notes": ""
+                    },
+                    "_id": "69e960ed565be48ae8cfdfd8",
+                    "name": "Incidunt et explica",
+                    "map": "69e912c3668604cc97522d2a",
+                    "category": {
+                        "_id": "69dbca53351b45d201a4bec8",
+                        "name": "Beach",
+                        "color": "#1e88e5",
+                        "icon": "🌴",
+                        "status": "Active",
+                        "createdAt": "2026-04-12T16:37:39.014Z",
+                        "updatedAt": "2026-04-22T19:03:27.291Z",
+                        "__v": 0
+                    },
+                    "country": "Unknown",
+                    "description": "In esse aperiam et q",
+                    "media": [
+                        "/uploads/images/1776902381080-wq49hs.jpg"
+                    ],
+                    "address": "Voluptas dignissimos",
+                    "services": [
+                        "Family Friendly",
+                        "Restrooms",
+                        "Parking",
+                        "Guided Tour"
+                    ],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-22T23:59:41.831Z",
+                    "updatedAt": "2026-04-22T23:59:41.831Z",
+                    "__v": 0,
+                    "id": "69e960ed565be48ae8cfdfd8"
+                },
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            -66.12394970171324,
+                            18.470799891631472
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "wheelchair",
+                            "children",
+                            "senior"
+                        ],
+                        "notes": ""
+                    },
+                    "_id": "69e9776d668604cc97523054",
+                    "name": "Castillo San Felipe del Morro",
+                    "map": "69e912c3668604cc97522d2a",
+                    "category": {
+                        "_id": "69d802fe805480b37ddf6c89",
+                        "name": "Historic Site",
+                        "color": "#8d6e63",
+                        "icon": "🏰",
+                        "status": "Active",
+                        "createdAt": "2026-04-09T19:50:22.187Z",
+                        "updatedAt": "2026-04-22T19:04:54.596Z",
+                        "__v": 0
+                    },
+                    "description": "El Castillo San Felipe del Morro es una imponente fortaleza histórica construida en el siglo XVI para proteger la entrada a la bahía de San Juan. Con sus murallas, garitas icónicas y vistas espectaculares al océano, es uno de los lugares más emblemáticos y visitados de Puerto Rico.",
+                    "media": [
+                        "/uploads/images/1777063620689-j7hwpl.png",
+                        "/uploads/images/1777063623358-1484cv.png"
+                    ],
+                    "address": "San Juan, Puerto Rico",
+                    "services": [
+                        "Restrooms",
+                        "Family Friendly"
+                    ],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-23T01:35:41.939Z",
+                    "updatedAt": "2026-04-24T20:47:12.494Z",
+                    "__v": 0,
+                    "id": "69e9776d668604cc97523054"
+                },
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            -65.96554038187807,
+                            18.394553828761193
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [],
+                        "notes": ""
+                    },
+                    "_id": "69ebd7c8668604cc975235ce",
+                    "name": "Pa Onde Sea",
+                    "map": "69e912c3668604cc97522d2a",
+                    "category": {
+                        "_id": "69e908033c17a1b9794349e3",
+                        "name": "restaurant",
+                        "color": "#fb8c00",
+                        "icon": "🍽️",
+                        "status": "Active",
+                        "createdAt": "2026-04-22T17:40:19.602Z",
+                        "updatedAt": "2026-04-22T19:05:04.767Z",
+                        "__v": 0
+                    },
+                    "description": "El mejor restaurante de Carolina",
+                    "media": [
+                        "/uploads/images/1777063878587-xevh5i.jpg"
+                    ],
+                    "address": "Carolina, Puerto Rico",
+                    "services": [],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-24T20:51:20.174Z",
+                    "updatedAt": "2026-04-24T20:51:20.174Z",
+                    "__v": 0,
+                    "id": "69ebd7c8668604cc975235ce"
+                }
+            ],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-22T18:26:11.404Z",
+            "updatedAt": "2026-04-26T17:14:35.894Z",
+            "country": "Unknown",
+            "isActive": true,
+            "id": "69e912c3668604cc97522d2a"
+        },
+        {
+            "_id": "69dd52f8351b45d201a4c314",
+            "name": "Amy Meadows",
+            "description": "Consequatur dolor nu",
+            "price": 488,
+            "images": [
+                "/uploads/images/1776112376439-5cfd4u.jpg"
+            ],
+            "features": [
+                "Est id in officia e"
+            ],
+            "places": [],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-13T20:32:56.484Z",
+            "updatedAt": "2026-04-26T17:14:38.297Z",
+            "isActive": true,
+            "id": "69dd52f8351b45d201a4c314"
+        },
+        {
+            "isActive": true,
+            "_id": "69d802c3805480b37ddf6c78",
+            "name": "Dhanmondi",
+            "description": "Dhanmondi is an upscale residential and commercial neighbourhood and a thana in Dhaka, Bangladesh, known for its central location,",
+            "price": 1000,
+            "images": [
+                "/uploads/images/1775764163165-3u1rn7.jpg"
+            ],
+            "features": [],
+            "places": [
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.42857134936523,
+                            23.847434640916653
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "wheelchair",
+                            "pets",
+                            "senior"
+                        ],
+                        "notes": ""
+                    },
+                    "_id": "69e94c16381fd232268df3db",
+                    "name": "Sky Dine Rooftop Restaurant",
+                    "map": "69d802c3805480b37ddf6c78",
+                    "category": {
+                        "_id": "69e908033c17a1b9794349e3",
+                        "name": "restaurant",
+                        "color": "#fb8c00",
+                        "icon": "🍽️",
+                        "status": "Active",
+                        "createdAt": "2026-04-22T17:40:19.602Z",
+                        "updatedAt": "2026-04-22T19:05:04.767Z",
+                        "__v": 0
+                    },
+                    "country": "india",
+                    "description": "This place is on the top floor of the building. You have to go to level 8 by lift and go up by stair more 1 level. Lift Closes at 11:30 pm sharp.\nWell decorated and nicely presented. Rooftop is decorated by plants and outdoor",
+                    "media": [
+                        "/uploads/images/1776897045715-u03fic.jpg"
+                    ],
+                    "address": "Dhaka Resturent",
+                    "services": [
+                        "Family Friendly",
+                        "Wifi",
+                        "Guided Tour",
+                        "Food Nearby"
+                    ],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-22T22:30:46.415Z",
+                    "updatedAt": "2026-04-22T22:30:46.415Z",
+                    "__v": 0,
+                    "id": "69e94c16381fd232268df3db"
+                },
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.5089,
+                            23.786
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "Wheelchair accessible entrance",
+                            "Elevator available"
+                        ],
+                        "notes": "Staff available to assist disabled visitors"
+                    },
+                    "recommendations": {
+                        "tips": "Try their signature caramel latte."
+                    },
+                    "_id": "69ea729a57deda022015d983",
+                    "name": "Star Coffee Dhanmondi",
+                    "map": "69d802c3805480b37ddf6c78",
+                    "category": null,
+                    "country": "Bangladesh",
+                    "description": "A popular coffee shop known for premium espresso and cozy ambiance.",
+                    "media": [
+                        "/uploads/images/1776972488163-cr90kv.jpg"
+                    ],
+                    "address": "House 10, Road 4, Dhanmondi, Dhaka",
+                    "access": "Easily accessible by car and rickshaw",
+                    "services": [
+                        "Free WiFi",
+                        "Parking",
+                        "Air Conditioning"
+                    ],
+                    "status": "Published",
+                    "rating": 4.601895734597156,
+                    "totalReview": 211,
+                    "openCount": 0,
+                    "createdAt": "2026-04-23T19:27:22.492Z",
+                    "updatedAt": "2026-04-25T20:43:58.961Z",
+                    "__v": 0,
+                    "id": "69ea729a57deda022015d983"
+                },
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.5089,
+                            23.786
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [],
+                        "notes": "Staff available to assist disabled visitors"
+                    },
+                    "recommendations": {
+                        "tips": "Try their signature caramel latte."
+                    },
+                    "_id": "69ea744bb41181964e0579be",
+                    "name": "Star Coffee Dhanmondi",
+                    "map": "69d802c3805480b37ddf6c78",
+                    "category": {
+                        "_id": "69ea719457deda022015d944",
+                        "name": "test",
+                        "color": "#00acc1",
+                        "icon": "🫠",
+                        "status": "Active",
+                        "createdAt": "2026-04-23T19:23:00.368Z",
+                        "updatedAt": "2026-04-23T19:23:00.368Z",
+                        "__v": 0
+                    },
+                    "country": "Bangladesh",
+                    "description": "A popular coffee shop known for premium espresso and cozy ambiance.",
+                    "media": [
+                        "/uploads/images/1777054794365-ftpnt5.jpg",
+                        "/uploads/images/1777054794372-bfsmu3.jpg",
+                        "/uploads/images/1777054794389-c7oqe9.jpg",
+                        "/uploads/images/1777054794396-xwg7k5.jpg"
+                    ],
+                    "address": "House 10, Road 4, Dhanmondi, Dhaka",
+                    "access": "Easily accessible by car and rickshaw",
+                    "services": [
+                        "Free WiFi",
+                        "Parking",
+                        "Air Conditioning"
+                    ],
+                    "status": "Published",
+                    "rating": 4.6,
+                    "totalReview": 210,
+                    "openCount": 0,
+                    "createdAt": "2026-04-23T19:34:35.506Z",
+                    "updatedAt": "2026-04-24T18:19:54.635Z",
+                    "__v": 0,
+                    "id": "69ea744bb41181964e0579be"
+                }
+            ],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-09T19:49:23.235Z",
+            "updatedAt": "2026-04-23T19:34:35.587Z",
+            "country": "Bangladesh",
+            "id": "69d802c3805480b37ddf6c78"
+        },
+        {
+            "isActive": true,
+            "_id": "69d80214805480b37ddf6c72",
+            "name": "Gulshan",
+            "description": "Gulshan (Bengali: গুলশান) is an affluent residential and business neighbourhood, as well as a thana (police jurisdiction) situated in Dhaka, Bangladesh",
+            "price": 2000,
+            "images": [
+                "/uploads/images/1775763988627-de4xlv.jpg"
+            ],
+            "features": [
+                "Sunt enim officiis"
+            ],
+            "places": [
+                {
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.22601092456054,
+                            23.817887193103722
+                        ]
+                    },
+                    "accessibility": {
+                        "features": [
+                            "wheelchair",
+                            "pets"
+                        ],
+                        "notes": ""
+                    },
+                    "_id": "69e94b83381fd232268df3c2",
+                    "name": "gulshan",
+                    "map": "69d80214805480b37ddf6c72",
+                    "category": {
+                        "_id": "69e908033c17a1b9794349e3",
+                        "name": "restaurant",
+                        "color": "#fb8c00",
+                        "icon": "🍽️",
+                        "status": "Active",
+                        "createdAt": "2026-04-22T17:40:19.602Z",
+                        "updatedAt": "2026-04-22T19:05:04.767Z",
+                        "__v": 0
+                    },
+                    "country": "bangladesh",
+                    "description": "Create a \"View on Map\" button on the map details page, positioned above the \"DIRECTIONS\" section. This button should always be visible.\n\nThe functionality of the \"View on Map\" button utilizes the location's coordinate data. When clicked, the button should redirect users to ViewLocation page and where the place's location is displayed. based on locations coordinate  data",
+                    "media": [
+                        "/uploads/images/1776896898875-fcc652.jpg"
+                    ],
+                    "address": "gulshan, dhaka",
+                    "services": [
+                        "Family Friendly",
+                        "Parking",
+                        "Restrooms",
+                        "Food Nearby"
+                    ],
+                    "status": "Published",
+                    "rating": 0,
+                    "totalReview": 0,
+                    "openCount": 0,
+                    "createdAt": "2026-04-22T22:28:19.612Z",
+                    "updatedAt": "2026-04-22T22:28:19.612Z",
+                    "__v": 0,
+                    "id": "69e94b83381fd232268df3c2"
+                }
+            ],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-09T19:46:28.686Z",
+            "updatedAt": "2026-04-22T22:28:19.698Z",
+            "country": "Unknown",
+            "id": "69d80214805480b37ddf6c72"
+        },
+        {
+            "isActive": true,
+            "_id": "69d801cc805480b37ddf6c6e",
+            "name": "Old Dhaka",
+            "description": "Known for its historic charm and areas like Lalbagh, Chowkbazar, Sutrapur, Wari, and Gendaria.",
+            "price": 500,
+            "images": [
+                "/uploads/images/1775763916831-vbhno3.jpg"
+            ],
+            "features": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "places": [],
+            "status": "Published",
+            "isPaid": true,
+            "rating": 4.5,
+            "totalReview": 120,
+            "viewCount": 0,
+            "createdAt": "2026-04-09T19:45:16.894Z",
+            "updatedAt": "2026-04-21T16:25:32.668Z",
+            "id": "69d801cc805480b37ddf6c6e"
+        }
+    ]
+}

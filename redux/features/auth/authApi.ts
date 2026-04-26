@@ -1,6 +1,7 @@
 import { baseApi } from "@/redux/api/baseApi";
 
 export const authApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -54,11 +55,19 @@ export const authApi = baseApi.injectEndpoints({
         token: string;
         newPassword: string;
         confirmPassword: string;
-      }) => ({
-        url: `/auth/reset-password?token=${token}`,
-        method: "POST",
-        body: data,
-      }),
+      }) => {
+        console.log("Token:", token);
+        console.log("Payload:", data);
+
+        return {
+          url: "/auth/reset-password",
+          method: "POST",
+          body: data,
+          headers: {
+            Authorization: `${token}`,
+          },
+        };
+      },
     }),
 
     googleLogin: builder.mutation({

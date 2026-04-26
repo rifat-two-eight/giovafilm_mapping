@@ -12,6 +12,8 @@ export default function FeaturedMaps() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
+  console.log(mapsRes);
+
   const featuredMaps = maps.filter((map: any) => map.isActive);
 
   return (

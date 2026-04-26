@@ -1,13 +1,14 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
 
 type FormValues = {
   password: string;
@@ -16,8 +17,11 @@ type FormValues = {
 
 export const ResetPasswordForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   const { register, handleSubmit } = useForm<FormValues>();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const onSubmit = async (data: FormValues) => {
     if (data.password !== data.confirmPassword) {
@@ -25,15 +29,28 @@ export const ResetPasswordForm = () => {
       return;
     }
 
+    if (!token) {
+      toast.error("Invalid or missing reset token.");
+      return;
+    }
+
+    const toastId = toast.loading("Resetting password...");
+
     try {
-      // 🔁 Call your reset password API here
-      console.log("Reset Data:", data);
+      const response = await resetPassword({
+        token,
+        newPassword: data.password,
+        confirmPassword: data.confirmPassword,
+      }).unwrap();
 
-      toast.success("Password reset successfully!");
-
-      router.push("/login");
+      if (response.success) {
+        toast.success(response.message || "Password reset successfully!", { id: toastId });
+        router.push("/login");
+      } else {
+        toast.error(response.message || "Failed to reset password.", { id: toastId });
+      }
     } catch (err: any) {
-      toast.error(err?.data?.message ?? "Reset failed. Try again.");
+      toast.error(err?.data?.message || err?.data?.error || "Reset failed. Try again.", { id: toastId });
     }
   };
 
@@ -86,9 +103,10 @@ export const ResetPasswordForm = () => {
         {/* Submit Button */}
         <Button
           type="submit"
+          disabled={isLoading}
           className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
         >
-          Reset Password
+          {isLoading ? "Resetting..." : "Reset Password"}
         </Button>
       </form>
 
