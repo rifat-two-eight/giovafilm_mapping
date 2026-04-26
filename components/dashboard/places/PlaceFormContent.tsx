@@ -45,7 +45,7 @@ interface PlaceFormContentProps {
     isNew: boolean;
     schedules?: string;
     entryCost?: number;
-    hikeTime?: string;
+    hikeTime?: number;
     atmosphere?: string;
     difficulty?: string;
   };
@@ -406,6 +406,9 @@ export const PlaceFormContent = ({
                       <Input
                         placeholder='e.g., "~ 3.5 Hours"'
                         value={formData.hikeTime}
+                        type="number"
+                        step={0.5}
+                        min={0}
                         onChange={(e) =>
                           setFormData({ ...formData, hikeTime: e.target.value })
                         }
