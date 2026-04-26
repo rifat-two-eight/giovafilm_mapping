@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
 import {
   useGetSingleOfferQuery,
   useRedeemOfferMutation,
@@ -202,7 +202,7 @@ export default function RestaurantDetail() {
                             FROM
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
-                            {new Date(offer.createdAt).toLocaleDateString()}
+                            {formatDate(offer.createdAt)}
                           </p>
                         </div>
                       </div>

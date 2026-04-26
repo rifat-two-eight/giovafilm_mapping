@@ -115,7 +115,9 @@ export default function Footer() {
 
         {/* Divider */}
         <div className="border-t border-gray-200 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-          <p>© 2024 Roadtripeado Inc. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Roadtripeado Inc. All rights reserved.
+          </p>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <div className="flex items-center gap-2">
