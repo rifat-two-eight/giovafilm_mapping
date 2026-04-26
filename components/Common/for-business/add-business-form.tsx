@@ -13,6 +13,8 @@ import { BusinessFormStep3 } from "./business-form-step3";
 import { BusinessFormStep4 } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useRouter } from "next/navigation";
 
 export function AddBusinessForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -23,6 +25,9 @@ export function AddBusinessForm() {
   const [addBusiness, { isLoading: isCreating }] = useAddBusinessMutation();
   const [createCheckoutSession, { isLoading: isSubmitting }] =
     useCreateCheckoutSessionMutation();
+
+  const { data: user } = useGetProfileQuery({});
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -49,11 +54,31 @@ export function AddBusinessForm() {
       selectedPlan: "",
       dailyHours: [
         { day: "Monday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        { day: "Tuesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        { day: "Wednesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        { day: "Thursday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        {
+          day: "Tuesday",
+          isOpen: false,
+          openTime: "09:00",
+          closeTime: "18:00",
+        },
+        {
+          day: "Wednesday",
+          isOpen: false,
+          openTime: "09:00",
+          closeTime: "18:00",
+        },
+        {
+          day: "Thursday",
+          isOpen: false,
+          openTime: "09:00",
+          closeTime: "18:00",
+        },
         { day: "Friday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        { day: "Saturday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+        {
+          day: "Saturday",
+          isOpen: false,
+          openTime: "09:00",
+          closeTime: "18:00",
+        },
         { day: "Sunday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
       ],
     },
@@ -65,9 +90,20 @@ export function AddBusinessForm() {
     const isValid = await form.trigger(["ownerPhone", "invoicingEmail"]);
     if (!isValid) return;
 
+    const userData = user?.data || user;
+    const hasActiveSubscription =
+      userData?.subscriptionStatus === "active" ||
+      userData?.subscribe === "true" ||
+      userData?.subscribe === true;
+
     // If already created, just move forward
     if (businessId) {
-      setCurrentStep(6);
+      if (hasActiveSubscription) {
+        toast.success("Redirecting to maps...");
+        router.push("/maps");
+      } else {
+        setCurrentStep(6);
+      }
       return;
     }
 
@@ -139,8 +175,13 @@ export function AddBusinessForm() {
       const newId = res?.data?._id || res?._id;
       setBusinessId(newId);
 
-      toast.success("Business created! Now choose your plan.");
-      setCurrentStep(6);
+      if (hasActiveSubscription) {
+        toast.success("Business created successfully!");
+        router.push("/maps");
+      } else {
+        toast.success("Business created! Now choose your plan.");
+        setCurrentStep(6);
+      }
     } catch (err: any) {
       // Show the exact backend error message for easier debugging
       const message =

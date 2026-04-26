@@ -1,12 +1,18 @@
 "use client";
 
-import { useGetSubscriptionPlansQuery } from "@/redux/features/subscription/subscriptionApi";
+import { useGetSubscriptionPlansQuery, useGetMySubscriptionQuery } from "@/redux/features/subscription/subscriptionApi";
 import { PricingCard, Plan } from "@/components/Common/pricing/PricingCard";
 import { Button } from "@/components/ui/button";
 
 export default function PricingPage() {
-  const { data: plansRes, isLoading, error } = useGetSubscriptionPlansQuery();
+  const { data: plansRes, isLoading: plansLoading, error } = useGetSubscriptionPlansQuery();
+  const { data: subRes, isLoading: subLoading } = useGetMySubscriptionQuery();
+  
   const plans: Plan[] = plansRes?.data || [];
+  const currentSub = subRes?.data;
+  const currentPlanId = currentSub?.status !== "canceled" ? currentSub?.planId?._id : null;
+  
+  const isLoading = plansLoading || subLoading;
 
   return (
     <main className="min-h-screen bg-gray-50 py-20 px-6">
@@ -47,7 +53,11 @@ export default function PricingPage() {
           /* Pricing Grid */
           <div className="grid md:grid-cols-3 gap-8 items-stretch pt-8">
             {plans.map((plan) => (
-              <PricingCard key={plan._id} plan={plan} />
+              <PricingCard 
+                key={plan._id} 
+                plan={plan} 
+                isSelected={currentPlanId === plan._id}
+              />
             ))}
           </div>
         )}

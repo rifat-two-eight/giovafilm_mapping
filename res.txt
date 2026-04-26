@@ -1,0 +1,66 @@
+{
+    "statusCode": 200,
+    "success": true,
+    "message": "Subscription retrieved successfully",
+    "data": {
+        "_id": "69ed53a02fdea7e375fae9c4",
+        "userId": "69d68e957e9507328d9a2d8d",
+        "planId": {
+            "_id": "69cd79c3837c9c281d03e885",
+            "name": "Pro",
+            "description": "Maximize visibility and drive more customers.",
+            "price": 29,
+            "currency": "usd",
+            "interval": "month",
+            "intervalCount": 1,
+            "trialPeriodDays": 0,
+            "features": [
+                "Featured listing status",
+                "Up to 10 photos",
+                "Custom offer integration",
+                "Priority in search results"
+            ],
+            "maxTeamMembers": 5,
+            "maxServices": 10,
+            "maxPhotos": 10,
+            "isActive": true,
+            "stripePriceId": "price_1THUxsGdOsJASBMCRL2xb1MM",
+            "stripeProductId": "prod_UG0zlpuEISNKIa",
+            "userTypes": [
+                "organizer"
+            ],
+            "priority": 2,
+            "createdAt": "2026-04-01T20:02:11.793Z",
+            "updatedAt": "2026-04-01T20:02:11.793Z",
+            "__v": 0
+        },
+        "stripeCustomerId": "cus_UP4764sb91ZiIg",
+        "stripeSubscriptionId": "sub_1TQFzPGdOsJASBMCValTV85J",
+        "stripePriceId": "price_1THUxsGdOsJASBMCRL2xb1MM",
+        "status": "active",
+        "currentPeriodStart": "2026-04-25T23:51:59.000Z",
+        "currentPeriodEnd": "2026-05-25T23:51:59.000Z",
+        "trialStart": null,
+        "trialEnd": null,
+        "canceledAt": null,
+        "cancelAtPeriodEnd": false,
+        "endedAt": null,
+        "hasUsedTrial": false,
+        "metadata": {
+            "userId": "69d68e957e9507328d9a2d8d",
+            "planId": "69cd79c3837c9c281d03e885"
+        },
+        "lastPaymentDate": null,
+        "nextPaymentDate": null,
+        "paymentFailureCount": 0,
+        "lastWebhookEventId": "evt_1TQFzVGdOsJASBMCBUU0qUSh",
+        "pausedAt": null,
+        "resumedAt": null,
+        "riskScore": 0,
+        "fraudFlags": [],
+        "lastSyncedAt": "2026-04-25T23:52:00.718Z",
+        "createdAt": "2026-04-25T23:52:00.719Z",
+        "updatedAt": "2026-04-25T23:52:01.000Z",
+        "__v": 0
+    }
+}

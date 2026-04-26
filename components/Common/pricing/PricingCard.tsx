@@ -66,15 +66,26 @@ export function PricingCard({
     <div
       onClick={handleClick}
       className={`relative rounded-2xl p-6 cursor-pointer transition-all duration-200 h-full flex flex-col ${
-        isPro && isFormStep && !isSelected
-          ? "border-2 border-yellow-400 bg-white shadow-lg scale-102"
-          : isSelected
-            ? "border-2 border-yellow-400 bg-white ring-2 ring-yellow-400/20"
+        isSelected
+          ? "border-4 border-yellow-400 bg-white shadow-xl scale-105 z-10"
+          : isPro && isFormStep
+            ? "border-2 border-yellow-400 bg-white shadow-lg scale-102"
             : "border-2 border-gray-200 bg-white hover:border-gray-300 "
-      } ${isEnterprise ? "!bg-gray-900 !border-black !text-white" : ""}`}
+      } ${isEnterprise ? "!bg-gray-900 !text-white" : ""} ${
+        isEnterprise && isSelected ? "!border-yellow-400 shadow-yellow-400/20" : ""
+      }`}
     >
-      {/* Badge */}
-      {isPro && (
+      {/* Selected Badge */}
+      {isSelected && (
+        <div className="absolute -top-4 right-4 z-20">
+          <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-white">
+            <Check size={14} strokeWidth={3} /> {isFormStep ? "SELECTED" : "CURRENT PLAN"}
+          </span>
+        </div>
+      )}
+
+      {/* Popular Badge */}
+      {isPro && !isSelected && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
           <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
             MOST POPULAR
@@ -105,21 +116,21 @@ export function PricingCard({
       {/* Select Button */}
       <Button
         type="button"
-        disabled={isLoading}
+        disabled={isLoading || (isSelected && !isFormStep)}
         onClick={(e) => {
           e.stopPropagation();
-          handleClick();
+          if (!isSelected || isFormStep) {
+            handleClick();
+          }
         }}
-        className={`w-full py-2 mb-6 font-semibold rounded-lg transition-all ${
+        className={`w-full py-2 mb-6 font-semibold rounded-lg transition-all border-2 ${
           isSelected
-            ? isEnterprise
-              ? "bg-white  text-black hover:bg-gray-100"
-              : "bg-yellow-400 text-black hover:bg-yellow-500"
+            ? "bg-green-500 text-white border-green-500 hover:bg-green-600 shadow-md"
             : isEnterprise
-              ? "bg-gray-100 text-black hover:bg-gray-200"
+              ? "bg-gray-100 text-black border-transparent hover:bg-gray-200"
               : isPro
-                ? "bg-yellow-400 text-black hover:bg-yellow-500"
-                : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                ? "bg-yellow-400 text-black border-transparent hover:bg-yellow-500"
+                : "bg-white text-gray-900 border-gray-200 hover:bg-gray-50"
         }`}
       >
         {isFormStep
@@ -128,7 +139,9 @@ export function PricingCard({
             : "Select Plan"
           : isLoading
             ? "Processing..."
-            : "Get Started"}
+            : isSelected
+              ? "Current Plan"
+              : "Get Started"}
       </Button>
 
       {/* Features */}

@@ -1,17 +1,16 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
+  FormControl,
   FormField,
   FormItem,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { useGetSubscriptionPlansQuery } from "@/redux/features/subscription/subscriptionApi";
-import { PricingCard, Plan } from "../pricing/PricingCard";
+import { Plan, PricingCard } from "../pricing/PricingCard";
 
 interface BusinessFormStep6Props {
   form: UseFormReturn<any>;

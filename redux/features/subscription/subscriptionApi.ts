@@ -16,8 +16,18 @@ const subscriptionApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    getMySubscription: builder.query<any, void>({
+      query: () => ({
+        url: "/subscription/my-subscription",
+        method: "GET",
+      }),
+      providesTags: ["Subscription"],
+    }),
   }),
 });
 
-export const { useGetSubscriptionPlansQuery, useCreateCheckoutSessionMutation } =
-  subscriptionApi;
+export const { 
+  useGetSubscriptionPlansQuery, 
+  useCreateCheckoutSessionMutation,
+  useGetMySubscriptionQuery
+} = subscriptionApi;
