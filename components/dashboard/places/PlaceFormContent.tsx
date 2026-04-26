@@ -397,7 +397,6 @@ export const PlaceFormContent = ({
                           <SelectItem value="Easy">Easy</SelectItem>
                           <SelectItem value="Moderate">Moderate</SelectItem>
                           <SelectItem value="Hard">Hard</SelectItem>
-                          <SelectItem value="Expert">Expert</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

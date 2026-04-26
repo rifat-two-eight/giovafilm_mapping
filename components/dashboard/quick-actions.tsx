@@ -6,10 +6,10 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  { label: "Create a new map", href: "#" },
-  { label: "Add a place", href: "#" },
-  { label: "Publish updates", href: "#" },
-  { label: "Download monthly report", href: "#" },
+  { label: "Create a new map", href: "/dashboard/maps" },
+  { label: "Add a place", href: "/dashboard/places/add-place" },
+  // { label: "Publish updates", href: "#" },
+  // { label: "Download monthly report", href: "#" },
 ];
 
 export function QuickActions() {
