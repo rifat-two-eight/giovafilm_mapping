@@ -44,7 +44,8 @@ export default function FeatureMapDetailPage() {
 
   console.log("mapData", mapData);
 
-  const [createCheckout, { isLoading: isCheckingOut }] = useCreateMapCheckoutSessionMutation();
+  const [createCheckout, { isLoading: isCheckingOut }] =
+    useCreateMapCheckoutSessionMutation();
   const [mainImage, setMainImage] = useState<string | null>(null);
 
   const handleBuyNow = async () => {
@@ -68,7 +69,9 @@ export default function FeatureMapDetailPage() {
         toast.error("Failed to retrieve checkout URL.");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Something went wrong during checkout.");
+      toast.error(
+        error?.data?.message || "Something went wrong during checkout.",
+      );
     }
   };
 
