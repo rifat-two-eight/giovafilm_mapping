@@ -8,6 +8,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import { CustomLocationButton } from "./CustomLocationButton";
+import { mapStyles } from "@/components/Common/maps/map";
 
 interface MapLocationPickerProps {
   initialLocation?: { lat: number; lng: number };
@@ -68,7 +69,8 @@ export function MapLocationPicker({
           }}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
-          mapId="LOCATION_PICKER_MAP"
+          mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+          styles={mapStyles}
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}
           clickableIcons={false}

@@ -1,5 +1,6 @@
 "use client";
 
+import { mapStyles } from "@/components/Common/maps/map";
 import { Switch } from "@/components/ui/switch";
 import { useUpdateAccuracyVerifiedStatusMutation } from "@/redux/features/business/businessApi";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
@@ -68,8 +69,9 @@ export default function LocationVerification({
               strictBounds: true,
             }}
             gestureHandling="greedy"
+            mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+            styles={mapStyles}
             disableDefaultUI={true}
-            mapId="location-verification-map"
             clickableIcons={false}
           >
             {hasCoords && <AdvancedMarker position={{ lat, lng }} />}

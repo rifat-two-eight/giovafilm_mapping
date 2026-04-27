@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
+import { mapStyles } from "../maps/map";
 
 interface BusinessFormStep2Props {
   form: UseFormReturn<any>;
@@ -30,10 +31,14 @@ function MapContent({
   isAddMode,
   markerPosition,
   onMapClick,
+  mapId,
+  styles,
 }: {
   isAddMode: boolean;
   markerPosition: MarkerPosition | null;
-  onMapClick: (e: MapMouseEvent) => void;
+  onMapClick: (e: MapMouseEvent) => void | Promise<void>;
+  mapId?: string;
+  styles?: object[];
 }) {
   const map = useMap();
 
@@ -61,8 +66,9 @@ function MapContent({
         defaultZoom={13}
         gestureHandling={"greedy"}
         disableDefaultUI={false}
-        mapId="YOUR_MAP_ID"
+        mapId={mapId}
         mapTypeControl={true}
+        styles={styles as any}
         onClick={isAddMode ? onMapClick : undefined}
       >
         <CustomLocationButton />
@@ -140,15 +146,15 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     try {
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY;
       if (!apiKey) return;
-      
+
       const res = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`,
       );
       const data = await res.json();
 
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
-        
+
         let streetAddress = "";
         let city = "";
         let country = "";
@@ -161,7 +167,11 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
           if (types.includes("route")) {
             streetAddress += component.long_name;
           }
-          if (types.includes("locality") || types.includes("administrative_area_level_2") || types.includes("postal_town")) {
+          if (
+            types.includes("locality") ||
+            types.includes("administrative_area_level_2") ||
+            types.includes("postal_town")
+          ) {
             city = component.long_name;
           }
           if (types.includes("country")) {
@@ -174,15 +184,16 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
           streetAddress = result.formatted_address.split(",")[0];
         }
 
-        const addressData = { 
-          streetAddress: streetAddress.trim(), 
-          city, 
-          country 
+        const addressData = {
+          streetAddress: streetAddress.trim(),
+          city,
+          country,
         };
-        
+
         console.log("Reverse Geocoded Address Data:", addressData);
-        
-        if (addressData.streetAddress) form.setValue("streetAddress", addressData.streetAddress);
+
+        if (addressData.streetAddress)
+          form.setValue("streetAddress", addressData.streetAddress);
         if (addressData.city) form.setValue("city", addressData.city);
         if (addressData.country) form.setValue("country", addressData.country);
       }
@@ -231,10 +242,13 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       setMarkerPosition(extractedCoords);
       form.setValue("mapLocation", extractedCoords);
       console.log("Extracted Location:", extractedCoords);
-      
+
       // Attempt to extract address components and fill form
-      await reverseGeocodeAndSetAddress(extractedCoords.lat, extractedCoords.lng);
-      
+      await reverseGeocodeAndSetAddress(
+        extractedCoords.lat,
+        extractedCoords.lng,
+      );
+
       toast.success("Location and address extracted successfully!");
       setIsAddMode(false);
     } else {
@@ -259,7 +273,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       setIsAddMode(false); // exit add mode after placing marker
 
       console.log(coords);
-      
+
       // Attempt to extract address components and fill form
       await reverseGeocodeAndSetAddress(coords.lat, coords.lng);
       toast.success("Location and address set successfully!");
@@ -321,6 +335,8 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
             isAddMode={isAddMode}
             markerPosition={markerPosition}
             onMapClick={handleMapClick}
+            mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+            styles={mapStyles}
           />
         </div>
       </APIProvider>

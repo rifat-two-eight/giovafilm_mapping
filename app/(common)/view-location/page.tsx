@@ -1,5 +1,6 @@
 "use client";
 
+import { mapStyles } from "@/components/Common/maps/map";
 import {
   AdvancedMarker,
   APIProvider,
@@ -44,8 +45,9 @@ function MapContent() {
           }}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
-          mapId="VIEW_LOCATION_MAP"
+          mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
           clickableIcons={false}
+          styles={mapStyles}
         >
           <AdvancedMarker position={position}>
             <Pin

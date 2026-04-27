@@ -30,6 +30,7 @@ import { ChevronRight, Map as MapIcon, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
+import { mapStyles } from "@/components/Common/maps/map";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -518,7 +519,8 @@ export default function AddPlacePage() {
               }}
               gestureHandling={"greedy"}
               disableDefaultUI={false}
-              mapId="YOUR_MAP_ID"
+              mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+              styles={mapStyles}
               onClick={handleMapClick}
               style={{ cursor: isAddingMarker ? "crosshair" : "grab" }}
             >
