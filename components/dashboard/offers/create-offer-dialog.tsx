@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X } from "lucide-react";
+import { ChevronDown, Upload, X } from "lucide-react";
 import {
   useCreateOfferMutation,
   useUpdateOfferMutation,
@@ -65,6 +65,17 @@ export function CreateOfferDialog({
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  // ── Business searchable dropdown state ───────────────────────────────────
+  const [businessSearch, setBusinessSearch] = useState("");
+  const [businessDropdownOpen, setBusinessDropdownOpen] = useState(false);
+  const selectedBusinessId = watch("place");
+  const selectedBusiness = businesses.find(
+    (b: any) => b._id === selectedBusinessId,
+  );
+  const filteredBusinesses = businesses.filter((b: any) =>
+    b.name.toLowerCase().includes(businessSearch.toLowerCase()),
+  );
 
   // ── Redemption rules state ────────────────────────────────────────────────
   const [ruleInput, setRuleInput] = useState("");
@@ -193,9 +204,8 @@ export function CreateOfferDialog({
         }).unwrap();
         toast.success("Offer updated successfully!");
       } else {
-        const res = await createOffer(formDataPayload).unwrap();
+        await createOffer(formDataPayload).unwrap();
         toast.success("Offer created successfully!");
-        console.log("create offer response", res);
       }
 
       onOpenChange(false);
@@ -287,7 +297,7 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Business Selection */}
+          {/* Business Selection — custom searchable dropdown */}
           <div>
             <Label
               htmlFor="place"
@@ -295,18 +305,88 @@ export function CreateOfferDialog({
             >
               Choose Business
             </Label>
-            <select
-              id="place"
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              {...register("place", { required: "Business is required" })}
-            >
-              <option value="">Select a business</option>
-              {businesses.map((b: any) => (
-                <option key={b._id} value={b._id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+
+            {/* Hidden input keeps react-hook-form happy */}
+            <input type="hidden" {...register("place", { required: "Business is required" })} />
+
+            <div className="relative mt-1">
+              {/* Trigger button */}
+              <button
+                id="place"
+                type="button"
+                onClick={() => setBusinessDropdownOpen((o) => !o)}
+                className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              >
+                <span className={selectedBusiness ? "text-gray-900" : "text-gray-400"}>
+                  {selectedBusiness ? selectedBusiness.name : "Choose Business"}
+                </span>
+                <ChevronDown
+                  size={16}
+                  className={`text-gray-400 transition-transform ${businessDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {/* Dropdown panel */}
+              {businessDropdownOpen && (
+                <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden">
+                  {/* Search input */}
+                  <div className="p-2 border-b border-gray-100">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={businessSearch}
+                      onChange={(e) => setBusinessSearch(e.target.value)}
+                      placeholder="Search business..."
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Options list */}
+                  <ul className="max-h-48 overflow-y-auto">
+                    {/* Default unselect option */}
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setValue("place", "");
+                          setBusinessSearch("");
+                          setBusinessDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-50"
+                      >
+                        Choose Business
+                      </button>
+                    </li>
+
+                    {filteredBusinesses.length === 0 ? (
+                      <li className="px-3 py-3 text-sm text-gray-400 text-center">
+                        No businesses found.
+                      </li>
+                    ) : (
+                      filteredBusinesses.map((b: any) => (
+                        <li key={b._id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setValue("place", b._id, { shouldValidate: true });
+                              setBusinessSearch("");
+                              setBusinessDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
+                              selectedBusinessId === b._id
+                                ? "bg-blue-50 text-blue-700 font-medium"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {b.name}
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Offer Description */}

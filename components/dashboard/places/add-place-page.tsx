@@ -97,6 +97,9 @@ export default function AddPlacePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  // filterCategoryId: the category clicked in the sidebar for map filtering
+  // null = show all, otherwise show only places in that category
+  const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
@@ -113,6 +116,17 @@ export default function AddPlacePage() {
   const categories = categoriesRes?.data || [];
   const fetchedPlaces = placesRes?.data || [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);
+
+  // Filter places by the sidebar-selected category (null = show all)
+  const displayPlaces = filterCategoryId
+    ? fetchedPlaces.filter((place: any) => {
+        const catId =
+          typeof place.category === "object"
+            ? place.category?._id
+            : place.category;
+        return catId === filterCategoryId;
+      })
+    : fetchedPlaces;
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -449,43 +463,71 @@ export default function AddPlacePage() {
             <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
               Categories
             </div>
-            <div className="space-y-0.5">
-              {categories.map((cat: any) => (
-                <button
-                  key={cat._id}
-                  onClick={() => setSelectedCategoryId(cat._id)}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                    selectedCategoryId === cat._id
-                      ? "bg-blue-50 text-blue-700 font-semibold"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <ChevronRight
-                      size={14}
-                      className={
-                        selectedCategoryId === cat._id
-                          ? "text-blue-500"
-                          : "text-gray-300"
-                      }
-                    />
-                    {/* Small colored dot matching pin color */}
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        background: resolveCategoryColor(cat),
-                        flexShrink: 0,
+
+            {/* Gate: require a map to be selected before allowing category filter */}
+            {!selectedMapId ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center">
+                <MapIcon size={28} className="text-gray-300" />
+                <p className="text-xs text-gray-400 font-medium leading-snug">
+                  Select an{" "}
+                  <span className="text-blue-500 font-semibold">
+                    Active Map
+                  </span>{" "}
+                  above to browse and filter places by category.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-0.5">
+                {categories.map((cat: any) => {
+                  const isFilterActive = filterCategoryId === cat._id;
+                  return (
+                    <button
+                      key={cat._id}
+                      onClick={() => {
+                        // Toggle: click active category to show all again
+                        setFilterCategoryId((prev) =>
+                          prev === cat._id ? null : cat._id,
+                        );
+                        // Also set as the default category for new places
+                        setSelectedCategoryId(cat._id);
                       }}
-                    />
-                    <span className="text-lg">{cat.icon}</span>
-                    <span className="truncate">{cat.name}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
+                        isFilterActive
+                          ? "bg-blue-50 text-blue-700 font-semibold"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <ChevronRight
+                          size={14}
+                          className={
+                            isFilterActive ? "text-blue-500" : "text-gray-300"
+                          }
+                        />
+                        {/* Small colored dot matching pin color */}
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: resolveCategoryColor(cat),
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span className="text-lg">{cat.icon}</span>
+                        <span className="truncate">{cat.name}</span>
+                      </div>
+                      {isFilterActive && (
+                        <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">
+                          Filtered
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* <div className="p-4 border-t border-gray-100 space-y-2">
@@ -530,7 +572,7 @@ export default function AddPlacePage() {
               <CustomLocationButton />
 
               {/* ── Saved markers from server ── */}
-              {fetchedPlaces.map((place: any) => {
+              {displayPlaces.map((place: any) => {
                 const position = {
                   lat: place.location.coordinates[1],
                   lng: place.location.coordinates[0],
