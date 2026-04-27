@@ -164,9 +164,11 @@ export function AddBusinessForm() {
       }
 
       const res = await addBusiness(formData).unwrap();
-      console.log("Business created successfully!", res);
-      toast.success("Business created successfully!");
-      router.push("/for-business");
+
+      if (res?.success === true) {
+        toast.success("Business created successfully!");
+        router.push("/profile/my-business");
+      }
     } catch (err: any) {
       const message =
         err?.data?.message || err?.message || "Failed to create business.";

@@ -20,6 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
   AdvancedMarker,
   APIProvider,
@@ -101,20 +102,57 @@ export default function MapPage() {
   const [enabledCategories, setEnabledCategories] = useState<
     Record<string, boolean>
   >({});
-  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [detectedCountry, setDetectedCountry] = useState<string>("");
+
+  const { data: userProfile } = useGetProfileQuery({});
+  const geocodingLib = useMapsLibrary("geocoding");
 
   const handleToggle = (id: string, value: boolean) => {
     setEnabledCategories((prev) => ({ ...prev, [id]: value }));
   };
 
   // --- API Fetches ---
-  const { data: placesRes } = useGetPlacesQuery({ limit: 100 });
+  const { data: placesRes } = useGetPlacesQuery({
+    limit: 100,
+    country: selectedCountry || undefined,
+  });
   const fetchedPlaces = placesRes?.data || [];
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   const fetchedCategories = categoriesRes?.data || [];
 
   const { data: availableCountries = [] } = useGetAvailableCountriesQuery();
+
+  // Detect country from markerPos (current location)
+  useEffect(() => {
+    if (!geocodingLib || !markerPos.lat || !markerPos.lng) return;
+
+    const geocoder = new geocodingLib.Geocoder();
+    geocoder.geocode({ location: markerPos }, (results, status) => {
+      if (status === "OK" && results?.[0]) {
+        const countryComponent = results[0].address_components.find((c) =>
+          c.types.includes("country"),
+        );
+        if (countryComponent) {
+          setDetectedCountry(countryComponent.long_name);
+        }
+      }
+    });
+  }, [markerPos, geocodingLib]);
+
+  // Set initial selectedCountry based on detection, profile, or first available
+  useEffect(() => {
+    if (selectedCountry) return; // already set
+
+    if (detectedCountry) {
+      setSelectedCountry(detectedCountry);
+    } else if (userProfile?.country) {
+      setSelectedCountry(userProfile.country);
+    } else if (availableCountries.length > 0) {
+      setSelectedCountry(availableCountries[0]);
+    }
+  }, [detectedCountry, userProfile, availableCountries, selectedCountry]);
 
   // Initialize all categories to true (visible) once loaded
   useEffect(() => {
@@ -128,15 +166,19 @@ export default function MapPage() {
       });
       setEnabledCategories(initial);
     }
-  }, [fetchedCategories]);
+  }, [fetchedCategories, enabledCategories]);
 
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
   const displayPlaces = fetchedPlaces.filter((place: any) => {
-    // Country filter
-    if (selectedCountry !== "all") {
+    // Country filter (Strict: must match selected country)
+    if (selectedCountry) {
       const placeCountry = place.location?.country || place.country;
-      if (placeCountry !== selectedCountry) return false;
+      if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
+        return false;
+    } else {
+      // If no country is selected/detected yet, don't show any data
+      return false;
     }
 
     // Category filter:
@@ -307,18 +349,21 @@ export default function MapPage() {
                         <SelectValue placeholder="Select Country" />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
-                        <SelectItem value="all" className="font-medium">
-                          All Countries
-                        </SelectItem>
-                        {availableCountries.map((country: string) => (
-                          <SelectItem
-                            key={country}
-                            value={country}
-                            className="capitalize font-medium"
-                          >
-                            {country}
-                          </SelectItem>
-                        ))}
+                        {availableCountries
+                          .filter(
+                            (country: string) =>
+                              country.toLowerCase() ===
+                              selectedCountry.toLowerCase(),
+                          )
+                          .map((country: string) => (
+                            <SelectItem
+                              key={country}
+                              value={country}
+                              className="capitalize font-medium"
+                            >
+                              {country}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
