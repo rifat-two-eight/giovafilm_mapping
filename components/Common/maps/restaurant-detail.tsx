@@ -10,14 +10,18 @@ import {
 import { CheckCircle2, ChevronRight, HelpCircle, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAppSelector } from "@/redux/hook";
+import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 
 export default function RestaurantDetail() {
   const params = useParams();
   const pathname = usePathname();
+  const router = useRouter();
   const offerId = params.id as string;
+  const user = useAppSelector(selectCurrentUser);
 
   const { data: offerRes, isLoading } = useGetSingleOfferQuery(offerId, {
     skip: !offerId,
@@ -65,6 +69,12 @@ export default function RestaurantDetail() {
   }, [expiry]);
 
   const handleRedeem = async () => {
+    if (!user) {
+      toast.error("Please login to redeem this offer");
+      router.push("/login");
+      return;
+    }
+
     try {
       const res = await redeemOffer(offerId).unwrap();
       if (res.data?.expiresAt) {
@@ -294,9 +304,9 @@ export default function RestaurantDetail() {
 
                 {/* Offer Code */}
                 <div className="flex items-center justify-center gap-2 flex-wrap">
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                  {/* <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
                     Offer Code:
-                  </p>
+                  </p> */}
                   <code className="text-xs sm:text-sm break-all text-center">
                     {offer.offerCode}
                   </code>
