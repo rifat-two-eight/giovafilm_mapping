@@ -1,30 +1,24 @@
-{
-    "statusCode": 200,
-    "success": true,
-    "message": "Purchased maps retrieved successfully",
-    "data": [
-        {
-            "_id": "69dd52f8351b45d201a4c314",
-            "name": "Amy Meadows",
-            "description": "Consequatur dolor nu",
-            "price": 488,
-            "images": [
-                "/uploads/images/1776112376439-5cfd4u.jpg"
-            ],
-            "features": [
-                "Est id in officia e"
-            ],
-            "places": [],
-            "status": "Published",
-            "isPaid": true,
-            "rating": 4.5,
-            "totalReview": 120,
-            "viewCount": 0,
-            "createdAt": "2026-04-13T20:32:56.484Z",
-            "updatedAt": "2026-04-26T17:14:38.297Z",
-            "__v": 0,
-            "isActive": true,
-            "id": "69dd52f8351b45d201a4c314"
-        }
-    ]
-}
+{status: 400, data: {…}}
+data
+: 
+errorMessages
+: 
+[{…}]
+message
+: 
+"Required"
+stack
+: 
+"ZodError: [\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"body\",\n      \"plan\"\n    ],\n    \"message\": \"Required\"\n  }\n]\n    at Object.get error [as error] (D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\node_modules\\zod\\lib\\types.js:55:31)\n    at ZodObject.parseAsync (D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\node_modules\\zod\\lib\\types.js:183:22)\n    at D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\src\\middleware\\validateRequest.ts:8:7"
+success
+: 
+false
+[[Prototype]]
+: 
+Object
+status
+: 
+400
+[[Prototype]]
+: 
+Object

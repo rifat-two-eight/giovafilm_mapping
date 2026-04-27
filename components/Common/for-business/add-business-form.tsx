@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
-import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -13,18 +14,13 @@ import { BusinessFormStep3 } from "./business-form-step3";
 import { BusinessFormStep4 } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
-import { useRouter } from "next/navigation";
 
 export function AddBusinessForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [businessPhotos, setBusinessPhotos] = useState<File[]>([]);
   const [menuFile, setMenuFile] = useState<File | null>(null);
-  const [businessId, setBusinessId] = useState<string | null>(null);
 
-  const [addBusiness, { isLoading: isCreating }] = useAddBusinessMutation();
-  const [createCheckoutSession, { isLoading: isSubmitting }] =
-    useCreateCheckoutSessionMutation();
+  const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
 
   const { data: user } = useGetProfileQuery({});
   const router = useRouter();
@@ -84,32 +80,24 @@ export function AddBusinessForm() {
     },
   });
 
-  // Step 5 Creation Logic
+  console.log("form values", form.getValues());
+
+  // ── Step 5: validate only, then advance to Step 6 ────────────────────────
   const handleStep5Transition = async () => {
-    // Validate Step 5 fields
     const isValid = await form.trigger(["ownerPhone", "invoicingEmail"]);
     if (!isValid) return;
+    setCurrentStep(6);
+  };
 
-    const userData = user?.data || user;
-    const hasActiveSubscription =
-      userData?.subscriptionStatus === "active" ||
-      userData?.subscribe === "true" ||
-      userData?.subscribe === true;
-
-    // If already created, just move forward
-    if (businessId) {
-      if (hasActiveSubscription) {
-        toast.success("Redirecting to maps...");
-        router.push("/maps");
-      } else {
-        setCurrentStep(6);
-      }
+  // ── Step 6 submit: send ALL data + planID in one addBusiness call ─────────
+  const onFinalSubmit = async (values: any) => {
+    if (!values.selectedPlan) {
+      toast.error("Please select a pricing plan to continue.");
       return;
     }
+    console.log(values.selectedPlan, "selected plan");
 
     try {
-      const values = form.getValues();
-
       const businessData = {
         name: values.businessName,
         category: values.category,
@@ -144,7 +132,6 @@ export function AddBusinessForm() {
           ownerPhone: values.ownerPhone,
           contactEmail: values.invoicingEmail,
         },
-        // Only include offer if title is provided
         ...(values.offerTitle
           ? {
               offer: {
@@ -155,64 +142,36 @@ export function AddBusinessForm() {
               },
             }
           : {}),
+        plan: values.selectedPlan,
       };
 
       const formData = new FormData();
-
-      // ✅ "data" must match exactly what your backend expects (e.g. upload.fields + body parser)
+      // Send structured business data as JSON string
       formData.append("data", JSON.stringify(businessData));
+      // Renamed to 'plan' to match the Zod error (path: ["body", "plan"])
+      formData.append("plan", values.selectedPlan);
+      // Keeping planID just in case other parts of the system still need it
+      formData.append("planID", values.selectedPlan);
 
-      // ✅ "images" — append each photo individually under the SAME field name
+      // Append business photos
       businessPhotos.forEach((photo) => {
         formData.append("images", photo);
       });
 
+      // Append menu file if provided
       if (menuFile) {
         formData.append("images", menuFile);
       }
 
       const res = await addBusiness(formData).unwrap();
-      const newId = res?.data?._id || res?._id;
-      setBusinessId(newId);
-
-      if (hasActiveSubscription) {
-        toast.success("Business created successfully!");
-        router.push("/maps");
-      } else {
-        toast.success("Business created! Now choose your plan.");
-        setCurrentStep(6);
-      }
+      console.log("Business created successfully!", res);
+      toast.success("Business created successfully!");
+      router.push("/for-business");
     } catch (err: any) {
-      // Show the exact backend error message for easier debugging
       const message =
         err?.data?.message || err?.message || "Failed to create business.";
       toast.error(message);
       console.error("Business creation error:", err);
-    }
-  };
-
-  const onFinalSubmit = async (values: any) => {
-    if (!values.selectedPlan) {
-      toast.error("Please select a pricing plan to continue.");
-      return;
-    }
-
-    try {
-      const res = await createCheckoutSession({
-        planId: values.selectedPlan,
-        successUrl: `${window.location.origin}/success`,
-        cancelUrl: `${window.location.origin}/cancel`,
-      }).unwrap();
-
-      if (res.data?.url) {
-        window.location.href = res.data.url;
-      } else {
-        toast.error("Failed to initiate payment. Please try again.");
-      }
-    } catch (err: any) {
-      toast.error(
-        err?.data?.message || "Something went wrong. Please try again.",
-      );
     }
   };
 
@@ -268,7 +227,7 @@ export function AddBusinessForm() {
                   variant="outline"
                   onClick={() => setCurrentStep(currentStep - 1)}
                   className="flex-1 py-6 text-base font-semibold"
-                  disabled={isCreating}
+                  disabled={isSubmitting}
                 >
                   Back
                 </Button>
@@ -306,10 +265,9 @@ export function AddBusinessForm() {
                 <Button
                   type="button"
                   onClick={handleStep5Transition}
-                  disabled={isCreating}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
-                  {isCreating ? "Creating Business..." : "Create and Continue"}
+                  Continue
                 </Button>
               )}
 
@@ -322,10 +280,10 @@ export function AddBusinessForm() {
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      <span>Processing...</span>
+                      <span>Creating Business...</span>
                     </div>
                   ) : (
-                    "Purchase and Finish"
+                    "Save & Finish"
                   )}
                 </Button>
               )}

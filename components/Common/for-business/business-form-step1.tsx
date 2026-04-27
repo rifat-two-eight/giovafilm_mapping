@@ -37,12 +37,20 @@ interface BusinessFormStep1Props {
 export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
   const { data: categoriesRes, isLoading: isLoadingCats } =
     useGetCategoriesQuery({ limit: 100 });
-  const categories = categoriesRes?.data || [];
+
+  const allCategories: any[] = categoriesRes?.data || [];
+  // Show only categories that are tagged as "business" type,
+  // or whose name includes "business" (case-insensitive) as a fallback.
+  const categories = allCategories.filter(
+    (cat: any) =>
+      cat.type === "business" || cat.name?.toLowerCase().includes("business"),
+  );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectionType, setSelectionType] = useState<
     "everyday" | "range" | "individual" | "always-open"
   >("everyday");
+  
   const [startDay, setStartDay] = useState("Monday");
   const [endDay, setEndDay] = useState("Friday");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -559,7 +567,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         {form.watch("dailyHours")?.filter((h: any) => h.isOpen)?.length > 0 && (
           <div className="pt-2 pb-4">
             <div className="flex flex-col gap-4 w-full md:w-3/4 lg:w-2/3">
-                  {form
+              {form
                 .watch("dailyHours")
                 .filter((h: any) => h.isOpen)
                 .map((dayHour: any, idx: number) => (

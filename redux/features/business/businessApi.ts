@@ -48,6 +48,15 @@ const businessApi = baseApi.injectEndpoints({
       invalidatesTags: ["Business"],
     }),
 
+    updateBusiness: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/business/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Business"],
+    }),
+
     deleteBusiness: builder.mutation({
       query: (id) => ({
         url: `/business/${id}`,
@@ -64,5 +73,6 @@ export const {
   useGetSingleBusinessQuery,
   useUpdateBusinessStatusMutation,
   useUpdateAccuracyVerifiedStatusMutation,
+  useUpdateBusinessMutation,
   useDeleteBusinessMutation,
 } = businessApi;

@@ -34,7 +34,7 @@ export function PricingCard({
   const [createCheckoutSession, { isLoading }] =
     useCreateCheckoutSessionMutation();
 
-  console.log(plan);
+  // console.log(plan);
 
   const handleClick = async () => {
     if (isFormStep) {
@@ -72,14 +72,17 @@ export function PricingCard({
             ? "border-2 border-yellow-400 bg-white shadow-lg scale-102"
             : "border-2 border-gray-200 bg-white hover:border-gray-300 "
       } ${isEnterprise ? "!bg-gray-900 !text-white" : ""} ${
-        isEnterprise && isSelected ? "!border-yellow-400 shadow-yellow-400/20" : ""
+        isEnterprise && isSelected
+          ? "!border-yellow-400 shadow-yellow-400/20"
+          : ""
       }`}
     >
       {/* Selected Badge */}
       {isSelected && (
         <div className="absolute -top-4 right-4 z-20">
           <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-white">
-            <Check size={14} strokeWidth={3} /> {isFormStep ? "SELECTED" : "CURRENT PLAN"}
+            <Check size={14} strokeWidth={3} />{" "}
+            {isFormStep ? "SELECTED" : "CURRENT PLAN"}
           </span>
         </div>
       )}

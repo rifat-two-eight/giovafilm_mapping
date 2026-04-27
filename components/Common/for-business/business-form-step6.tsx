@@ -19,6 +19,7 @@ interface BusinessFormStep6Props {
 export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
   const { data: plansRes, isLoading, error } = useGetSubscriptionPlansQuery();
   const selectedPlan = form.watch("selectedPlan");
+  console.log("selectedPlan", selectedPlan);
 
   const plans: Plan[] = plansRes?.data || [];
 
@@ -26,7 +27,9 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-medium font-public-sans text-xl">Loading subscription plans...</p>
+        <p className="text-gray-500 font-medium font-public-sans text-xl">
+          Loading subscription plans...
+        </p>
       </div>
     );
   }
@@ -34,8 +37,14 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
   if (error) {
     return (
       <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 space-y-4">
-        <p className="text-red-500 font-medium text-lg">Failed to load subscription plans.</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <p className="text-red-500 font-medium text-lg">
+          Failed to load subscription plans.
+        </p>
+        <Button
+          onClick={() => window.location.reload()}
+          variant="outline"
+          className="rounded-xl"
+        >
           Try Again
         </Button>
       </div>
@@ -84,5 +93,3 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
     </div>
   );
 }
-
-
