@@ -23,11 +23,29 @@ const subscriptionApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Subscription"],
     }),
+
+    
+    cancelSubscription: builder.mutation<
+      any,
+      { subscriptionId: string; token: string }
+    >({
+      query: ({ subscriptionId, token }) => {
+        return {
+          url: `/subscription/${subscriptionId}/cancel`,
+          method: "DELETE",
+          headers: {
+            Authorization: token,
+          },
+        };
+      },
+      invalidatesTags: ["Subscription"],
+    }),
   }),
 });
 
-export const { 
-  useGetSubscriptionPlansQuery, 
+export const {
+  useGetSubscriptionPlansQuery,
   useCreateCheckoutSessionMutation,
-  useGetMySubscriptionQuery
+  useGetMySubscriptionQuery,
+  useCancelSubscriptionMutation,
 } = subscriptionApi;
