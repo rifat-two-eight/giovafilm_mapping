@@ -43,14 +43,12 @@ import LocationDialog from "./location-dialog";
 
 const mapStyles = [
   {
-    // এটি ম্যাপের সব ধরণের টেক্সট এবং আইকন লেবেল বন্ধ করে দিবে
     featureType: "all",
     elementType: "labels",
     stylers: [{ visibility: "off" }],
   },
 ];
 
-// --- Dynamic Category Icons & Colors ---
 const PREDEFINED_CATEGORIES: Record<string, { icon: any; color: string }> = {
   beaches: { icon: Umbrella, color: "#2196F3" },
   restaurants: { icon: Utensils, color: "#F44336" },
@@ -174,15 +172,14 @@ export default function MapPage() {
             }}
             gestureHandling={"greedy"}
             disableDefaultUI={false}
-            mapId="YOUR_MAP_ID" // নিশ্চিত করুন এই ID টি আপনার Google Console থেকে নেয়া
+            mapId="YOUR_MAP_ID"
             mapTypeControl={true}
             mapTypeControlOptions={{
               position: ControlPosition.TOP_RIGHT,
             }}
-            clickableIcons={false} // ম্যাপের ডিফল্ট POI আইকন ক্লিক বন্ধ করবে
-            styles={mapStyles} // লেবেল লুকানোর স্টাইলটি এখানে পাস হচ্ছে
+            clickableIcons={false}
+            styles={mapStyles}
           >
-            {/* Pans once on mount — no controlled center prop needed */}
             <GeolocationOnLoad onLocation={setMarkerPos} />
             <CountryPanner selectedCountry={selectedCountry} />
 
