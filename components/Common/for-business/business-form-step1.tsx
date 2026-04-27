@@ -41,7 +41,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectionType, setSelectionType] = useState<
-    "everyday" | "range" | "individual"
+    "everyday" | "range" | "individual" | "always-open"
   >("everyday");
   const [startDay, setStartDay] = useState("Monday");
   const [endDay, setEndDay] = useState("Friday");
@@ -61,6 +61,23 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
 
   const handleAddHours = () => {
     let dayString = "";
+    if (selectionType === "always-open") {
+      const currentHours = form.getValues("dailyHours") || [];
+      const activeHours = currentHours.filter((h: any) => h.isOpen);
+      form.setValue("dailyHours", [
+        ...activeHours,
+        {
+          day: "Always Open",
+          isOpen: true,
+          openTime: "",
+          closeTime: "",
+          id: Date.now().toString(),
+          alwaysOpen: true,
+        },
+      ]);
+      setIsDialogOpen(false);
+      return;
+    }
     if (selectionType === "everyday") {
       dayString = "Mon - Sun";
     } else if (selectionType === "range") {
@@ -386,6 +403,13 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   >
                     Individual Days
                   </button>
+                  <button
+                    type="button"
+                    className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "always-open" ? "border-green-500 text-green-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
+                    onClick={() => setSelectionType("always-open")}
+                  >
+                    Always Open
+                  </button>
                 </div>
 
                 {selectionType === "everyday" && (
@@ -435,6 +459,18 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   </div>
                 )}
 
+                {selectionType === "always-open" && (
+                  <div className="py-4 flex flex-col items-center gap-2 text-center">
+                    <span className="text-3xl">🕐</span>
+                    <p className="text-sm font-semibold text-green-700">
+                      This business is open 24 hours, 7 days a week.
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      No specific opening or closing times will be set.
+                    </p>
+                  </div>
+                )}
+
                 {selectionType === "individual" && (
                   <div className="space-y-2">
                     <Label className="text-sm font-bold text-gray-700">
@@ -464,36 +500,38 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-bold text-gray-700">
-                      Start Time
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        type="time"
-                        value={startTime}
-                        onChange={(e) => setStartTime(e.target.value)}
-                        className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      />
-                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                {selectionType !== "always-open" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-gray-700">
+                        Start Time
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          type="time"
+                          value={startTime}
+                          onChange={(e) => setStartTime(e.target.value)}
+                          className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        />
+                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-gray-700">
+                        End Time
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          type="time"
+                          value={endTime}
+                          onChange={(e) => setEndTime(e.target.value)}
+                          className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        />
+                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-bold text-gray-700">
-                      End Time
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        type="time"
-                        value={endTime}
-                        onChange={(e) => setEndTime(e.target.value)}
-                        className="bg-gray-50 border-gray-200 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      />
-                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
+                )}
 
                 <div className="flex gap-3 pt-6">
                   <Button
@@ -521,7 +559,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         {form.watch("dailyHours")?.filter((h: any) => h.isOpen)?.length > 0 && (
           <div className="pt-2 pb-4">
             <div className="flex flex-col gap-4 w-full md:w-3/4 lg:w-2/3">
-              {form
+                  {form
                 .watch("dailyHours")
                 .filter((h: any) => h.isOpen)
                 .map((dayHour: any, idx: number) => (
@@ -534,23 +572,31 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     </span>
 
                     <div className="flex items-center gap-3 w-full md:w-auto">
-                      <div className="relative flex-1 md:w-32">
-                        <Input
-                          readOnly
-                          value={dayHour.openTime}
-                          className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
-                        />
-                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                      </div>
+                      {dayHour.alwaysOpen ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-bold">
+                          🕐 Always Open
+                        </span>
+                      ) : (
+                        <>
+                          <div className="relative flex-1 md:w-32">
+                            <Input
+                              readOnly
+                              value={dayHour.openTime}
+                              className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
+                            />
+                            <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
 
-                      <div className="relative flex-1 md:w-32">
-                        <Input
-                          readOnly
-                          value={dayHour.closeTime}
-                          className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
-                        />
-                        <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                      </div>
+                          <div className="relative flex-1 md:w-32">
+                            <Input
+                              readOnly
+                              value={dayHour.closeTime}
+                              className="bg-gray-50/50 border-gray-200 text-gray-700 font-medium pr-10 rounded-xl focus-visible:ring-0"
+                            />
+                            <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
+                        </>
+                      )}
 
                       <button
                         type="button"

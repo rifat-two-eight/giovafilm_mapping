@@ -205,7 +205,7 @@ export const PlaceFormContent = ({
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Category</Label>
                 <Select
-                  value={formData.category}
+                  value={formData.category || undefined}
                   onValueChange={(val) =>
                     setFormData({ ...formData, category: val })
                   }
@@ -213,7 +213,10 @@ export const PlaceFormContent = ({
                   <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
                     <SelectValue placeholder="Choose a category" />
                   </SelectTrigger>
-                  <SelectContent className="z-[9999]">
+                  <SelectContent
+                    position="popper"
+                    style={{ zIndex: 99999 }}
+                  >
                     {categories.map((cat: any) => (
                       <SelectItem key={cat._id} value={cat._id}>
                         {cat.icon} {cat.name}
@@ -342,12 +345,29 @@ export const PlaceFormContent = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
                   <Label className="text-sm font-medium">Schedules</Label>
-                  <TimeRangePicker
-                    value={formData.schedules}
-                    onChange={(val) =>
-                      setFormData({ ...formData, schedules: val })
-                    }
-                  />
+                  <div className="flex items-center gap-2 mb-2">
+                    <Checkbox
+                      id="always-open"
+                      checked={formData.schedules === "Always open"}
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          schedules: checked ? "Always open" : "",
+                        })
+                      }
+                    />
+                    <Label htmlFor="always-open" className="text-sm cursor-pointer">
+                      Always open
+                    </Label>
+                  </div>
+                  {formData.schedules !== "Always open" && (
+                    <TimeRangePicker
+                      value={formData.schedules}
+                      onChange={(val) =>
+                        setFormData({ ...formData, schedules: val })
+                      }
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -385,7 +405,7 @@ export const PlaceFormContent = ({
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Difficulty</Label>
                       <Select
-                        value={formData.difficulty}
+                        value={formData.difficulty || undefined}
                         onValueChange={(val) =>
                           setFormData({ ...formData, difficulty: val })
                         }
@@ -393,7 +413,10 @@ export const PlaceFormContent = ({
                         <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
-                        <SelectContent className="z-[9999]">
+                        <SelectContent
+                          position="popper"
+                          style={{ zIndex: 99999 }}
+                        >
                           <SelectItem value="Easy">Easy</SelectItem>
                           <SelectItem value="Moderate">Moderate</SelectItem>
                           <SelectItem value="Hard">Hard</SelectItem>

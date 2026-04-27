@@ -114,7 +114,7 @@ export function AppSidebar() {
     <Sidebar className="h-screen bg-[#f5f5f5] border-r border-gray-300/50">
       {/* Logo */}
       <div className="py-3 flex justify-center border-b border-gray-300/50">
-        <Link href="/">
+        <Link href="/maps">
           <Image
             src={require("@/public/logo.png")}
             alt="Dashboard Logo"
