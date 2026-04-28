@@ -8,7 +8,8 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import { CustomLocationButton } from "./CustomLocationButton";
-import { mapStyles } from "@/components/Common/maps/map";
+import { mapStyles } from "@/lib/utils";
+
 
 interface MapLocationPickerProps {
   initialLocation?: { lat: number; lng: number };

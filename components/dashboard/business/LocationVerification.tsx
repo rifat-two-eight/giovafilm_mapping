@@ -1,7 +1,7 @@
 "use client";
 
-import { mapStyles } from "@/components/Common/maps/map";
 import { Switch } from "@/components/ui/switch";
+import { mapStyles } from "@/lib/utils";
 import { useUpdateAccuracyVerifiedStatusMutation } from "@/redux/features/business/businessApi";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";

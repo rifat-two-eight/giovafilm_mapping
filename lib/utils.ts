@@ -129,3 +129,11 @@ export const CLEAN_MAP_STYLES = [
     stylers: [{ visibility: "on" }],
   },
 ];
+
+export const mapStyles = [
+  {
+    featureType: "all",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
+];

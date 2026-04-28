@@ -4,6 +4,7 @@ import { CustomLocationButton } from "@/components/shared/maps/CustomLocationBut
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { mapStyles } from "@/lib/utils";
 import {
   AdvancedMarker,
   APIProvider,
@@ -14,7 +15,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-import { mapStyles } from "../maps/map";
 
 interface BusinessFormStep2Props {
   form: UseFormReturn<any>;
