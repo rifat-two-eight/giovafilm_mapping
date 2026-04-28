@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
+import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,6 +22,8 @@ export function AddBusinessForm() {
   const [menuFile, setMenuFile] = useState<File | null>(null);
 
   const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
+  const [createOffer, { isLoading: isCreatingOffer }] = useCreateOfferMutation();
+  const isLoading = isSubmitting || isCreatingOffer;
 
   const { data: user } = useGetProfileQuery({});
   const router = useRouter();
@@ -86,15 +89,15 @@ export function AddBusinessForm() {
     },
   });
 
-  console.log("form values", form.getValues());
+  const step4WatchedValues = form.watch(step4Inputs as any);
   const step4InputValues = step4Inputs.reduce(
-    (acc, inputName) => {
-      acc[inputName] = form.getValues(inputName);
+    (acc, inputName, index) => {
+      acc[inputName] = step4WatchedValues[index];
       return acc;
     },
     {} as Record<(typeof step4Inputs)[number], any>,
   );
-  console.log("step 4 inputs and values", step4InputValues);
+  console.log("Step 4 inputs and values:", step4InputValues);
 
   // ── Step 5: validate only, then advance to Step 6 ────────────────────────
   const handleStep5Transition = async () => {
@@ -193,7 +196,50 @@ export function AddBusinessForm() {
 
       if (res?.success === true) {
         toast.success("Business created successfully!");
-        router.push("/profile/my-business");
+        
+        const businessId = res?.data?._id || res?.data?.id || (typeof res?.data === "string" ? res?.data : null);
+
+        // immediately call createOffer API if offerTitle exists
+        if (businessId && step4InputValues.offerTitle) {
+          try {
+            const offerData = {
+              title: step4InputValues.offerTitle,
+              place: businessId,
+              description: step4InputValues.offerDescription,
+              discountType: step4InputValues.offerDiscountType,
+              discountValue: Number(step4InputValues.offerDiscount) || 0,
+              validFrom: step4InputValues.offerValidFrom 
+                ? new Date(step4InputValues.offerValidFrom).toISOString() 
+                : new Date().toISOString(),
+              validUntil: step4InputValues.offerNoExpiration
+                ? null
+                : step4InputValues.offerValidUntil
+                  ? new Date(step4InputValues.offerValidUntil).toISOString()
+                  : null,
+              noExpiration: step4InputValues.offerNoExpiration,
+              maxRedemptions: Number(step4InputValues.offerMaxRedemptions) || 0,
+              redemptionDuration: Number(step4InputValues.offerDuration) || 0,
+              redemptionRules: step4InputValues.offerRedemptionRules ? [step4InputValues.offerRedemptionRules] : [],
+              buttonLabel: "Redeem",
+              status: "Active",
+              redemptionsCount: 0,
+            };
+
+            const offerFormDataPayload = new FormData();
+            offerFormDataPayload.append("data", JSON.stringify(offerData));
+
+            // Append images
+            businessPhotos.forEach((photo) => {
+              offerFormDataPayload.append("images", photo);
+            });
+
+            await createOffer(offerFormDataPayload).unwrap();
+            toast.success("Offer created successfully!");
+          } catch (offerErr: any) {
+            console.error("Offer creation error:", offerErr);
+            toast.error(offerErr?.data?.message || offerErr?.message || "Failed to create offer.");
+          }
+        }
       }
     } catch (err: any) {
       const message =
@@ -255,7 +301,7 @@ export function AddBusinessForm() {
                   variant="outline"
                   onClick={() => setCurrentStep(currentStep - 1)}
                   className="flex-1 py-6 text-base font-semibold"
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                 >
                   Back
                 </Button>
@@ -302,10 +348,10 @@ export function AddBusinessForm() {
               {currentStep === 6 && (
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
-                  {isSubmitting ? (
+                  {isLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                       <span>Creating Business...</span>
