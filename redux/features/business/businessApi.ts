@@ -64,6 +64,13 @@ const businessApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Business"],
     }),
+    getMyBusinesses: builder.query<any, void>({
+      query: () => ({
+        url: "/business/my-business",
+        method: "GET",
+      }),
+      providesTags: ["Business"],
+    }),
   }),
 });
 
@@ -75,4 +82,5 @@ export const {
   useUpdateAccuracyVerifiedStatusMutation,
   useUpdateBusinessMutation,
   useDeleteBusinessMutation,
+  useGetMyBusinessesQuery,
 } = businessApi;

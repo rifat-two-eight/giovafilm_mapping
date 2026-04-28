@@ -6,7 +6,6 @@ import {
   useUpdateCategoryMutation,
 } from "@/redux/features/category/categoryApi";
 import { useState, useEffect } from "react";
-import EmojiPicker from "emoji-picker-react";
 import { toast } from "sonner";
 
 import {
@@ -76,7 +75,6 @@ export function AddCategoryDialog({
     },
   });
 
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const selectedColor = watch("color");
   const selectedIcon = watch("icon");
 
@@ -99,7 +97,6 @@ export function AddCategoryDialog({
       } else {
         reset({ categoryName: "", color: "#3b82f6", icon: "🔘" });
       }
-      setShowEmojiPicker(false);
     }
   }, [open, initialData, reset]);
 
@@ -211,8 +208,7 @@ export function AddCategoryDialog({
 
             <div className="flex items-center gap-2 mt-1">
               <div
-                className={`w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center text-xl ${!isView && "cursor-pointer hover:bg-gray-50"}`}
-                onClick={() => !isView && setShowEmojiPicker(!showEmojiPicker)}
+                className={`w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center text-xl`}
               >
                 {selectedIcon}
               </div>
@@ -224,27 +220,9 @@ export function AddCategoryDialog({
               />
             </div>
 
-            {/* Emoji Picker Component */}
-            {showEmojiPicker && !isView && (
-              <div className="absolute bottom-0 left-0 z-50">
-                <div
-                  className="fixed inset-0"
-                  onClick={() => setShowEmojiPicker(false)}
-                />
-                <div className="relative shadow-xl">
-                  <EmojiPicker
-                    onEmojiClick={(emojiData) => {
-                      setValue("icon", emojiData.emoji);
-                      setShowEmojiPicker(false);
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
             {!isView && (
               <p className="text-xs text-gray-500 mt-1">
-                Click the icon box to pick an emoji, or paste one
+                Type or paste an emoji or unicode symbol
               </p>
             )}
           </div>
@@ -279,4 +257,3 @@ export function AddCategoryDialog({
     </Dialog>
   );
 }
-
