@@ -84,11 +84,11 @@ const menuItems = [
     url: "/dashboard/settings",
     icon: Settings,
   },
-  // {
-  //   title: "Subscription",
-  //   url: "/dashboard/subscription",
-  //   icon: CreditCard,
-  // },
+  {
+    title: "Subscription",
+    url: "/dashboard/subscription",
+    icon: CreditCard,
+  },
 ];
 
 export function AppSidebar() {

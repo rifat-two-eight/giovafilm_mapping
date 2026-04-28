@@ -60,80 +60,14 @@ export function decodeJwtPayload(token: string) {
   }
 }
 
-// mapStyles.ts  (or inline in your component)
-export const CLEAN_MAP_STYLES = [
-  // ── Hide ALL points of interest ──────────────────────────────────
-  { featureType: "poi", elementType: "all", stylers: [{ visibility: "off" }] },
-
-  // ── Hide transit (stations, bus stops, metro, etc.) ──────────────
-  {
-    featureType: "transit",
-    elementType: "all",
-    stylers: [{ visibility: "off" }],
-  },
-
-  // ── Keep roads — just clean them up slightly ──────────────────────
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels",
-    stylers: [{ visibility: "on" }],
-  },
-
-  // ── Keep administrative labels (countries, states, cities) ────────
-  {
-    featureType: "administrative",
-    elementType: "labels",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "administrative.country",
-    elementType: "labels.text",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "administrative.province",
-    elementType: "labels.text",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text",
-    stylers: [{ visibility: "on" }],
-  },
-  {
-    featureType: "administrative.neighborhood",
-    elementType: "labels.text",
-    stylers: [{ visibility: "on" }],
-  },
-
-  // ── Keep water & landscape for context ───────────────────────────
-  { featureType: "water", elementType: "all", stylers: [{ visibility: "on" }] },
-  {
-    featureType: "landscape",
-    elementType: "geometry",
-    stylers: [{ visibility: "on" }],
-  },
-];
-
 export const mapStyles = [
   {
     featureType: "all",
     elementType: "labels",
     stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "poi.business",
+    stylers: [{ visibility: "on" }],
   },
 ];

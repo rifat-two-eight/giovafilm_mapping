@@ -31,7 +31,7 @@ export default function FeaturedMaps() {
             </div>
           </div>
 
-          <div
+          {/* <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7`}
           >
             {isLoading ? (
@@ -55,7 +55,6 @@ export default function FeaturedMaps() {
                     transition={{ duration: 0.3 }}
                     className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
-                    {/* Image Container */}
                     <div className="relative h-64 mb-2">
                       <Image
                         src={getImageUrl(map.images?.[0])}
@@ -76,9 +75,6 @@ export default function FeaturedMaps() {
                       </div>
                     </div>
 
-                    
-
-                    {/* Card Details */}
                     <div className="p-3 flex flex-col flex-1">
                       <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
                         {map.name}
@@ -102,9 +98,9 @@ export default function FeaturedMaps() {
                 );
               })
             )}
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7 mt-10`}
           >
             {isLoading ? (
@@ -128,7 +124,6 @@ export default function FeaturedMaps() {
                     transition={{ duration: 0.3 }}
                     className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
-                    {/* Image Container */}
                     <div className="relative h-64 mb-2">
                       <Image
                         src={getImageUrl(map.images?.[0])}
@@ -149,9 +144,6 @@ export default function FeaturedMaps() {
                       </div>
                     </div>
 
-                    
-
-                    {/* Card Details */}
                     <div className="p-3 flex flex-col flex-1">
                       <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
                         {map.name}
@@ -175,8 +167,7 @@ export default function FeaturedMaps() {
                 );
               })
             )}
-          </div>
-
+          </div> */}
 
           <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mt-10`}
@@ -203,27 +194,25 @@ export default function FeaturedMaps() {
                     className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
                     {/* Image Container */}
-                    <div className="relative  mb-2">
-  <Image
-    src={getImageUrl(map.images?.[0])}
-    alt={map.name}
-    unoptimized
-    width={500}
-    height={500}
-    className="w-full h-full object-contain"
-    referrerPolicy="no-referrer"
-  />
+                    <div className="relative h-96 w-96 mb-2 overflow-hidden">
+                      <Image
+                        src={getImageUrl(map.images?.[0])}
+                        alt={map.name}
+                        unoptimized
+                        width={500}
+                        height={500}
+                        className="w-full "
+                        referrerPolicy="no-referrer"
+                      />
 
-  <div className="absolute top-2 right-2">
-    <FavouriteButton
-      placeId={map._id}
-      type="Map"
-      Style="w-8 h-8 p-0 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110 border-none"
-    />
-  </div>
-</div>
-
-                    
+                      <div className="absolute top-2 right-2">
+                        <FavouriteButton
+                          placeId={map._id}
+                          type="Map"
+                          Style="w-8 h-8 p-0 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-transform hover:scale-110 border-none"
+                        />
+                      </div>
+                    </div>
 
                     {/* Card Details */}
                     <div className="p-3 flex flex-col flex-1">

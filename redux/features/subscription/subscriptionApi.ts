@@ -23,8 +23,14 @@ const subscriptionApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Subscription"],
     }),
-
-    
+    createSubscriptionPlan: builder.mutation({
+      query: (data) => ({
+        url: "/subscription/admin/plans",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Subscription"],
+    }),
     cancelSubscription: builder.mutation<
       any,
       { subscriptionId: string; token: string }
@@ -48,4 +54,5 @@ export const {
   useCreateCheckoutSessionMutation,
   useGetMySubscriptionQuery,
   useCancelSubscriptionMutation,
+  useCreateSubscriptionPlanMutation,
 } = subscriptionApi;

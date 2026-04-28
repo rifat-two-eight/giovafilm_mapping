@@ -1,0 +1,11 @@
+{
+    "success": false,
+    "message": "Interval must be month or year",
+    "errorMessages": [
+        {
+            "path": "interval",
+            "message": "Interval must be month or year"
+        }
+    ],
+    "stack": "ZodError: [\n  {\n    \"received\": \"week\",\n    \"code\": \"invalid_enum_value\",\n    \"options\": [\n      \"month\",\n      \"year\"\n    ],\n    \"path\": [\n      \"body\",\n      \"interval\"\n    ],\n    \"message\": \"Interval must be month or year\"\n  }\n]\n    at Object.get error [as error] (D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\node_modules\\zod\\lib\\types.js:55:31)\n    at ZodObject.parseAsync (D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\node_modules\\zod\\lib\\types.js:183:22)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at D:\\Mohosin\\Mohosin\\projects\\giovafilm-roadtripeado\\src\\middleware\\validateRequest.ts:8:7"
+}

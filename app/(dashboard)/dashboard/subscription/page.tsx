@@ -200,15 +200,18 @@
 import { PricingCard } from "@/components/Common/pricing/PricingCard";
 import { SubscriptionTable } from "@/components/dashboard/subscription/all-subscription-table";
 import { SubscriptionCard } from "@/components/dashboard/subscription/subscription-card";
+import { Button } from "@/components/ui/button";
 import {
   useGetSubscriptionPlansQuery,
   useCreateCheckoutSessionMutation,
 } from "@/redux/features/subscription/subscriptionApi";
 import { Loader2 } from "lucide-react";
-
+import { useState } from "react";
 import { toast } from "sonner";
+import { AddSubscriptionModal } from "@/components/dashboard/subscription/add-subscription-modal";
 
 export default function SubscriptionPage() {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { data: plansRes, isLoading } = useGetSubscriptionPlansQuery();
   const [createCheckoutSession, { isLoading: isCreating }] =
     useCreateCheckoutSessionMutation();
@@ -241,8 +244,11 @@ export default function SubscriptionPage() {
 
   return (
     <div className="p-6 space-y-10">
-      <div>
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-black uppercase">Subscription Plans</h1>
+        <Button onClick={() => setIsAddModalOpen(true)} className="bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest py-6 px-6 rounded-xl">
+          + Add New Plan
+        </Button>
       </div>
 
       {/* <PricingCard key={plans?.[0]?._id} plan={plans?.[0]} /> */}
@@ -266,9 +272,9 @@ export default function SubscriptionPage() {
       </div>
       <div className="space-y-4">
         <h2 className="text-2xl font-black uppercase">Subscription History</h2>
-
         <SubscriptionTable data={subscriptionHistory} />
       </div>
+      <AddSubscriptionModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </div>
   );
 }

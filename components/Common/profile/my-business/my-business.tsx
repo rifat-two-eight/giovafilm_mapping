@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function MyBusinessPage() {
   const router = useRouter();
@@ -135,164 +136,176 @@ export default function MyBusinessPage() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {businesses.map((business: any, index: number) => {
-              console.log("business", business?.hasActiveSubscription);
-              return (
-                <motion.div
-                  key={business._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
+            {businesses.map((business: any, index: number) => (
+              <motion.div
+                key={business._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
+              >
+                {/* Image Section */}
+                <Link
+                  href={`/profile/my-business/${business._id}`}
+                  className="relative h-56 w-full block overflow-hidden"
                 >
-                  {/* Image Section */}
-                  <Link
-                    href={`/profile/my-business/${business._id}`}
-                    className="relative h-56 w-full block overflow-hidden"
-                  >
-                    {business.media?.photos.length > 0 ? (
-                      <Image
-                        src={getImageUrl(business.media?.photos?.[0])}
-                        alt={business.name}
-                        width={200}
-                        height={200}
-                        unoptimized
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <NoImage />
-                    )}
+                  {business.media?.photos.length > 0 ? (
+                    <Image
+                      src={getImageUrl(business.media?.photos?.[0])}
+                      alt={business.name}
+                      width={200}
+                      height={200}
+                      unoptimized
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <NoImage />
+                  )}
 
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1   rounded-full flex items-center gap-2 shadow-sm border border-white/20">
-                      <span className="text-base">
-                        {business.category?.icon || "🏢"}
-                      </span>
-                      <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                        {business.category?.name || "General"}
-                      </span>
-                    </div>
+                  {/* Category Badge */}
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1   rounded-full flex items-center gap-2 shadow-sm border border-white/20">
+                    <span className="text-base">
+                      {business.category?.icon || "🏢"}
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      {business.category?.name || "General"}
+                    </span>
+                  </div>
 
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4">
-                      <Badge
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(business.status)}`}
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4">
+                    <Badge
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(business.status)}`}
+                    >
+                      {business.status}
+                    </Badge>
+                  </div>
+                </Link>
+
+                {/* Content Section */}
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <Link href={`/profile/my-business/${business._id}`}>
+                      <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-1">
+                        {business.name}
+                      </h3>
+                    </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
+                          <MoreVertical size={20} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="rounded-xl border-slate-200 shadow-xl p-2 w-48"
                       >
-                        {business.status}
-                      </Badge>
-                    </div>
-                  </Link>
-
-                  {/* Content Section */}
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <Link href={`/profile/my-business/${business._id}`}>
-                        <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-1">
-                          {business.name}
-                        </h3>
-                      </Link>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
-                            <MoreVertical size={20} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="rounded-xl border-slate-200 shadow-xl p-2 w-48"
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer"
                         >
-                          <DropdownMenuItem
-                            asChild
-                            className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer"
-                          >
-                            <Link href={`/profile/my-business/${business._id}`}>
-                              <Eye size={16} /> View Details
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer">
+                          <Link href={`/profile/my-business/${business._id}`}>
+                            <Eye size={16} /> View Details
+                          </Link>
+                        </DropdownMenuItem>
+                        {/* <DropdownMenuItem className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer">
                             <Settings size={16} /> Edit Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer">
-                            <ExternalLink size={16} /> View on Map
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                          </DropdownMenuItem>  */}
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const coords =
+                              business.location?.mapLocation?.coordinates ||
+                              business.location?.coordinates;
+                            const lat = coords?.[1];
+                            const lng = coords?.[0];
+                            if (lat && lng) {
+                              router.push(
+                                `/view-location?lat=${lat}&lng=${lng}`,
+                              );
+                            } else {
+                              toast.error("Invalid coordinates");
+                            }
+                          }}
+                          className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer"
+                        >
+                          <ExternalLink size={16} /> View on Map
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
 
-                    <div className="flex items-center gap-1.5 text-slate-500 mb-4">
-                      <MapPin size={16} />
-                      <span className="text-xs font-medium truncate">
-                        {business.location?.city}, {business.location?.country}
+                  <div className="flex items-center gap-1.5 text-slate-500 mb-4">
+                    <MapPin size={16} />
+                    <span className="text-xs font-medium truncate">
+                      {business.location?.city}, {business.location?.country}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-slate-600 line-clamp-2 mb-6 font-medium leading-relaxed">
+                    {business.description}
+                  </p>
+
+                  {/* Stats Bar */}
+                  <div className="flex items-center justify-between border-t pt-5 border-slate-100">
+                    <div className="flex items-center gap-1.5 text-slate-400 mt-4">
+                      <Clock size={16} />
+                      <span className="text-sm font-bold text-slate-600">
+                        {new Date(business.createdAt).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric" },
+                        )}
                       </span>
                     </div>
 
-                    <p className="text-sm text-slate-600 line-clamp-2 mb-6 font-medium leading-relaxed">
-                      {business.description} <br />
-                      {business.isAccuracyVerified || "fadslkhfoaph"}
-                    </p>
+                    <div className="flex items-center gap-2 mt-4">
+                      {business.status === "Pending" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-amber-600 border-amber-300"
+                        >
+                          Approval Needed
+                        </Button>
+                      )}
 
-                    {/* Stats Bar */}
-                    <div className="flex items-center justify-between border-t  border-slate-100">
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <Clock size={16} />
-                        <span className="text-sm font-bold text-slate-600">
-                          {new Date(business.createdAt).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric" },
-                          )}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {business.status === "Pending" && (
+                      {business?.hasActiveSubscription === false &&
+                        business?.status === "Approved" && (
                           <Button
+                            onClick={() => handlePayNow(business.plan)}
                             size="sm"
-                            variant="outline"
-                            className="text-amber-600 border-amber-300"
+                            className="bg-primary text-white hover:bg-primary/90"
+                            disabled={isPaymentLoading}
                           >
-                            Approval Needed
+                            {isPaymentLoading ? "Processing..." : "Pay Now"}
                           </Button>
                         )}
 
-                        {business?.hasActiveSubscription === false &&
-                          business?.status === "Approved" && (
-                            <Button
-                              onClick={() => handlePayNow(business.plan)}
-                              size="sm"
-                              className="bg-primary text-white hover:bg-primary/90"
-                              disabled={isPaymentLoading}
-                            >
-                              {isPaymentLoading ? "Processing..." : "Pay Now"}
-                            </Button>
-                          )}
-
-                        {business?.hasActiveSubscription === true &&
-                          business.status === "Approved" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-emerald-600 border-emerald-300"
-                            >
-                              Approved
-                            </Button>
-                          )}
-
-                        {business.status === "Rejected" && (
+                      {business?.hasActiveSubscription === true &&
+                        business.status === "Approved" && (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-rose-600 border-rose-300"
-                            disabled
+                            className="text-emerald-600 border-emerald-300"
                           >
-                            Rejected
+                            Approved
                           </Button>
                         )}
-                      </div>
+
+                      {business.status === "Rejected" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-rose-600 border-rose-300"
+                          disabled
+                        >
+                          Rejected
+                        </Button>
+                      )}
                     </div>
                   </div>
-                </motion.div>
-              );
-            })}
+                </div>
+              </motion.div>
+            ))}
           </div>
         )}
       </div>

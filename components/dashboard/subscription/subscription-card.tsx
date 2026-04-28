@@ -43,13 +43,14 @@ export function SubscriptionCard({ plan, onSubscribe, isLoading }: Props) {
         ))}
       </div>
 
-      <Button
-        onClick={() => onSubscribe(plan._id)}
-        disabled={isLoading}
-        className="w-full bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest py-6 rounded-2xl"
-      >
-        {isLoading ? "Processing..." : "Subscribe Now"}
-      </Button>
+      <div className="flex items-center justify-center gap-2 overflow-hidden">
+        <Button className="w-auto px-5 bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest">
+          Edit Plan
+        </Button>
+        <Button className="w-auto px-5 bg-red-500 hover:bg-red-600 text-white font-black uppercase tracking-widest">
+          Delete Plan
+        </Button>
+      </div>
     </div>
   );
 }
