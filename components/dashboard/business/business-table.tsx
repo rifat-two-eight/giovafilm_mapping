@@ -73,7 +73,7 @@ export function BusinessTable() {
   const businesses = response?.data || [];
   const meta = response?.meta || { page: 1, limit: 10, total: 0, totalPage: 1 };
 
-  console.log(businesses);
+  // console.log("businesses", businesses);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) =>
@@ -104,7 +104,7 @@ export function BusinessTable() {
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
-      await updateStatus({ id, status: newStatus }).unwrap();
+      const res = await updateStatus({ id, status: newStatus }).unwrap();
       toast.success(`Business ${newStatus} successfully!`);
     } catch (err) {
       toast.error("Failed to update business status.");

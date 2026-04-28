@@ -198,59 +198,61 @@ export function AddBusinessForm() {
       if (res?.success === true) {
         toast.success("Business created successfully!");
 
-        router.push("/profile/my-business");
-
         const businessId =
           res?.data?._id ||
           res?.data?.id ||
           (typeof res?.data === "string" ? res?.data : null);
 
         // immediately call createOffer API if offerTitle exists
-        // if (businessId && step4InputValues.offerTitle) {
-        //   try {
-        //     const offerData = {
-        //       title: step4InputValues.offerTitle,
-        //       place: businessId,
-        //       description: step4InputValues.offerDescription,
-        //       discountType: step4InputValues.offerDiscountType,
-        //       discountValue: Number(step4InputValues.offerDiscount) || 0,
-        //       validFrom: step4InputValues.offerValidFrom
-        //         ? new Date(step4InputValues.offerValidFrom).toISOString()
-        //         : new Date().toISOString(),
-        //       validUntil: step4InputValues.offerNoExpiration
-        //         ? null
-        //         : step4InputValues.offerValidUntil
-        //           ? new Date(step4InputValues.offerValidUntil).toISOString()
-        //           : null,
-        //       noExpiration: step4InputValues.offerNoExpiration,
-        //       maxRedemptions: Number(step4InputValues.offerMaxRedemptions) || 0,
-        //       redemptionDuration: Number(step4InputValues.offerDuration) || 0,
-        //       redemptionRules: step4InputValues.offerRedemptionRules
-        //         ? [step4InputValues.offerRedemptionRules]
-        //         : [],
-        //       buttonLabel: "Redeem",
-        //       status: "Active",
-        //       redemptionsCount: 0,
-        //     };
+        if (businessId && step4InputValues.offerTitle) {
+          try {
+            const offerData = {
+              title: step4InputValues.offerTitle,
+              place: businessId,
+              description: step4InputValues.offerDescription,
+              discountType: step4InputValues.offerDiscountType,
+              discountValue: Number(step4InputValues.offerDiscount) || 0,
+              validFrom: step4InputValues.offerValidFrom
+                ? new Date(step4InputValues.offerValidFrom).toISOString()
+                : new Date().toISOString(),
+              validUntil: step4InputValues.offerNoExpiration
+                ? null
+                : step4InputValues.offerValidUntil
+                  ? new Date(step4InputValues.offerValidUntil).toISOString()
+                  : null,
+              noExpiration: step4InputValues.offerNoExpiration,
+              maxRedemptions: Number(step4InputValues.offerMaxRedemptions) || 0,
+              redemptionDuration: Number(step4InputValues.offerDuration) || 0,
+              redemptionRules: step4InputValues.offerRedemptionRules
+                ? [step4InputValues.offerRedemptionRules]
+                : [],
+              buttonLabel: "Redeem",
+              status: "Active",
+              redemptionsCount: 0,
+            };
 
-        //     const offerFormDataPayload = new FormData();
-        //     offerFormDataPayload.append("data", JSON.stringify(offerData));
+            const offerFormDataPayload = new FormData();
+            offerFormDataPayload.append("data", JSON.stringify(offerData));
 
-        //     businessPhotos.forEach((photo) => {
-        //       offerFormDataPayload.append("images", photo);
-        //     });
+            businessPhotos.forEach((photo) => {
+              offerFormDataPayload.append("images", photo);
+            });
 
-        //     await createOffer(offerFormDataPayload).unwrap();
-        //     toast.success("Offer created successfully!");
-        //   } catch (offerErr: any) {
-        //     console.error("Offer creation error:", offerErr);
-        //     toast.error(
-        //       offerErr?.data?.message ||
-        //         offerErr?.message ||
-        //         "Failed to create offer.",
-        //     );
-        //   }
-        // }
+            const offerRes = await createOffer(offerFormDataPayload).unwrap();
+            // console.log("offer res", offerRes);
+            if (offerRes?.success) {
+              router.push("/profile/my-business");
+            }
+            toast.success("Offer created successfully!");
+          } catch (offerErr: any) {
+            console.error("Offer creation error:", offerErr);
+            toast.error(
+              offerErr?.data?.message ||
+                offerErr?.message ||
+                "Failed to create offer.",
+            );
+          }
+        }
       }
     } catch (err: any) {
       const message =

@@ -32,6 +32,8 @@ export default function BusinessDetails() {
   const { data: response, isLoading } = useGetSingleBusinessQuery(id as string);
   const business = response?.data;
 
+  console.log(business, "business");
+
   const getStatusIcon = (status: string) => {
     switch (status?.toLowerCase()) {
       case "active":
