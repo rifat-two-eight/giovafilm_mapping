@@ -215,7 +215,7 @@ export default function SubscriptionPage() {
 
   const plans = plansRes?.data || [];
 
-  console.log(plans);
+  // console.log(plans);
 
   const subscriptionHistory = [
     {

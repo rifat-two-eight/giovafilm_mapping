@@ -1,6 +1,6 @@
 "use client";
 
-import { mapStyles } from "@/components/Common/maps/map";
+import { mapStyles } from "@/lib/utils";
 import {
   AdvancedMarker,
   APIProvider,

@@ -30,7 +30,8 @@ import { ChevronRight, Map as MapIcon, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { mapStyles } from "@/components/Common/maps/map";
+import { mapStyles } from "@/lib/utils";
+
 
 // ─── Category color palette ────────────────────────────────────────────────────
 

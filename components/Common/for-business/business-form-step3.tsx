@@ -20,19 +20,19 @@ export function BusinessFormStep3({
   const photosInputRef = useRef<HTMLInputElement>(null);
   const menuInputRef = useRef<HTMLInputElement>(null);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>(() =>
-    businessPhotos.map((f) => URL.createObjectURL(f))
+    businessPhotos.map((f) => URL.createObjectURL(f)),
   );
   const [menuPreview, setMenuPreview] = useState<string | null>(() =>
-    menuFile ? URL.createObjectURL(menuFile) : null
+    menuFile ? URL.createObjectURL(menuFile) : null,
   );
   const [menuFileName, setMenuFileName] = useState<string>(
-    menuFile ? menuFile.name : ""
+    menuFile ? menuFile.name : "",
   );
 
   const handlePhotosSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      console.log("[v0] Photos selected:", files.length);
+      // console.log("[v0] Photos selected:", files.length);
       const newFiles = [...businessPhotos, ...files];
       const newPreviews = files.map((file) => URL.createObjectURL(file));
       setPhotoPreviews([...photoPreviews, ...newPreviews]);
@@ -43,7 +43,7 @@ export function BusinessFormStep3({
   const handleMenuSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log("[v0] Menu file selected:", file.name);
+      // console.log("[v0] Menu file selected:", file.name);
       const preview = URL.createObjectURL(file);
       setMenuPreview(preview);
       setMenuFileName(file.name);
@@ -54,10 +54,10 @@ export function BusinessFormStep3({
   const removePhoto = (index: number) => {
     const updatedPreviews = photoPreviews.filter((_, i) => i !== index);
     setPhotoPreviews(updatedPreviews);
-    
+
     const updatedFiles = businessPhotos.filter((_, i) => i !== index);
     onPhotosChange?.(updatedFiles);
-    
+
     if (photosInputRef.current) {
       photosInputRef.current.value = "";
     }

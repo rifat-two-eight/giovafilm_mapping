@@ -247,19 +247,6 @@ export default function MapDetails() {
             {/* overlay */}
             <div className="absolute inset-0 bg-black/40"></div>
 
-            {/* favorite */}
-            {/* <button className="absolute top-5 left-5 bg-white/40 backdrop-blur p-4 rounded-lg">
-              <Heart
-                size={20}
-                className={
-                  isFavourite
-                    ? "text-red-500 fill-red-500"
-                    : isFavouriteLoading
-                      ? "animate-pulse"
-                      : "text-gray-400"
-                }
-              />
-            </button> */}
             <FavouriteButton
               placeId={id}
               type="Place"

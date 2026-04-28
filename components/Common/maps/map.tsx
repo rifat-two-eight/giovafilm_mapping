@@ -41,14 +41,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import LocationDialog from "./location-dialog";
-
-export const mapStyles = [
-  {
-    featureType: "all",
-    elementType: "labels",
-    stylers: [{ visibility: "off" }],
-  },
-];
+import { mapStyles } from "@/lib/utils";
 
 const PREDEFINED_CATEGORIES: Record<string, { icon: any; color: string }> = {
   beaches: { icon: Umbrella, color: "#2196F3" },
@@ -405,7 +398,7 @@ export default function MapPage() {
 //   SelectValue,
 // } from "@/components/ui/select";
 // import { Switch } from "@/components/ui/switch";
-// import { CLEAN_MAP_STYLES } from "@/lib/utils";
+
 // import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 // import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 // import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
@@ -429,6 +422,7 @@ export default function MapPage() {
 // } from "lucide-react";
 // import { useEffect, useState } from "react";
 // import LocationDialog from "./location-dialog";
+// import { CLEAN_MAP_STYLES } from "@/lib/utils";
 
 // // --- Dynamic Category Icons & Colors ---
 // const PREDEFINED_CATEGORIES: Record<string, { icon: any; color: string }> = {
@@ -615,6 +609,7 @@ export default function MapPage() {
 //             gestureHandling={"greedy"}
 //             disableDefaultUI={false}
 //             // Remove the mapId prop — inline styles don't work with Cloud-based Map IDs
+//             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
 //             styles={CLEAN_MAP_STYLES} // ← add this
 //             mapTypeControl={true}
 //             mapTypeControlOptions={{
