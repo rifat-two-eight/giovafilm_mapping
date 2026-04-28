@@ -28,7 +28,7 @@ export default function RestaurantDetail() {
   });
   const offer = offerRes?.data;
 
-  console.log("offer", offer?.redemptionDuration);
+  // console.log("offer", offer?.redemptionDuration);
 
   const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
 

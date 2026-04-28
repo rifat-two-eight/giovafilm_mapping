@@ -19,7 +19,7 @@ interface BusinessFormStep6Props {
 export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
   const { data: plansRes, isLoading, error } = useGetSubscriptionPlansQuery();
   const selectedPlan = form.watch("selectedPlan");
-  console.log("selectedPlan", selectedPlan);
+  // console.log("selectedPlan", selectedPlan);
 
   const plans: Plan[] = plansRes?.data || [];
 

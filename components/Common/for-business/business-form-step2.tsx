@@ -241,7 +241,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     if (extractedCoords) {
       setMarkerPosition(extractedCoords);
       form.setValue("mapLocation", extractedCoords);
-      console.log("Extracted Location:", extractedCoords);
+      // console.log("Extracted Location:", extractedCoords);
 
       // Attempt to extract address components and fill form
       await reverseGeocodeAndSetAddress(

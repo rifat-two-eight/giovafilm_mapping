@@ -56,9 +56,6 @@ export const authApi = baseApi.injectEndpoints({
         newPassword: string;
         confirmPassword: string;
       }) => {
-        console.log("Token:", token);
-        console.log("Payload:", data);
-
         return {
           url: "/auth/reset-password",
           method: "POST",

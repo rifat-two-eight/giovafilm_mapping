@@ -43,7 +43,7 @@ export function BillingSettings() {
         token,
       }).unwrap();
 
-      console.log(res);
+      // console.log(res);
       toast.success("Subscription cancelled successfully");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to cancel subscription");
