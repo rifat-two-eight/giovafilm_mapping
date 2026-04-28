@@ -34,7 +34,7 @@ export default function BusinessDetailPage() {
   const [deleteBusiness] = useDeleteBusinessMutation();
 
   const business = response?.data;
-  console.log("business----", business);
+  // console.log("business----", business);
 
   const handleStatusUpdate = async (newStatus: string) => {
     try {

@@ -22,7 +22,7 @@ export const ForgotPasswordForm = () => {
   const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
 
   const onSubmit = async (data: FormValues) => {
-    console.log("Reset email sent to:", data.email);
+    // console.log("Reset email sent to:", data.email);
     try {
       const res = await forgetPassword({ email: data?.email });
 
@@ -33,7 +33,7 @@ export const ForgotPasswordForm = () => {
         // ✅ Redirect to OTP page (optionally pass email)
         router.push(`/otp-verify?email=${data.email}`);
       }
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       console.log(error);
     }
