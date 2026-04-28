@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { BusinessFormStep1 } from "./business-form-step1";
 import { BusinessFormStep2 } from "./business-form-step2";
 import { BusinessFormStep3 } from "./business-form-step3";
-import { BusinessFormStep4 } from "./business-form-step4";
+import { BusinessFormStep4, step4Inputs } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
 
@@ -45,6 +45,12 @@ export function AddBusinessForm() {
       offerDescription: "",
       offerDiscount: "",
       offerValidUntil: "",
+      offerMaxRedemptions: "",
+      offerDuration: "",
+      offerDiscountType: "",
+      offerValidFrom: "",
+      offerNoExpiration: false,
+      offerRedemptionRules: "",
       ownerPhone: "",
       invoicingEmail: "",
       selectedPlan: "",
@@ -81,6 +87,14 @@ export function AddBusinessForm() {
   });
 
   console.log("form values", form.getValues());
+  const step4InputValues = step4Inputs.reduce(
+    (acc, inputName) => {
+      acc[inputName] = form.getValues(inputName);
+      return acc;
+    },
+    {} as Record<(typeof step4Inputs)[number], any>,
+  );
+  console.log("step 4 inputs and values", step4InputValues);
 
   // ── Step 5: validate only, then advance to Step 6 ────────────────────────
   const handleStep5Transition = async () => {
@@ -91,6 +105,7 @@ export function AddBusinessForm() {
 
   // ── Step 6 submit: send ALL data + planID in one addBusiness call ─────────
   const onFinalSubmit = async (values: any) => {
+    console.log("Form submission values:", values);
     if (!values.selectedPlan) {
       toast.error("Please select a pricing plan to continue.");
       return;
@@ -138,7 +153,18 @@ export function AddBusinessForm() {
                 title: values.offerTitle,
                 description: values.offerDescription,
                 discount: values.offerDiscount,
-                validUntil: values.offerValidUntil,
+                validFrom: values.offerValidFrom,
+                validUntil: values.offerNoExpiration
+                  ? null
+                  : values.offerValidUntil,
+                maxRedemptions: Number(values.offerMaxRedemptions) || 0,
+                redemptionDuration: Number(values.offerDuration) || 0,
+                discountType: values.offerDiscountType,
+                discountValue: Number(values.offerDiscount) || 0,
+                noExpiration: values.offerNoExpiration,
+                redemptionRules: values.offerRedemptionRules
+                  ? [values.offerRedemptionRules]
+                  : [],
               },
             }
           : {}),

@@ -119,7 +119,10 @@ export default function MyBusinessPage() {
                 className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
               >
                 {/* Image Section */}
-                <div className="relative h-56 w-full overflow-hidden">
+                <Link
+                  href={`/profile/my-business/${business._id}`}
+                  className="relative h-56 w-full block overflow-hidden"
+                >
                   {business.media?.photos.length > 0 ? (
                     <Image
                       src={getImageUrl(business.media?.photos?.[0])}
@@ -151,14 +154,16 @@ export default function MyBusinessPage() {
                       {business.status}
                     </Badge>
                   </div>
-                </div>
+                </Link>
 
                 {/* Content Section */}
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-1">
-                      {business.name}
-                    </h3>
+                    <Link href={`/profile/my-business/${business._id}`}>
+                      <h3 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-1">
+                        {business.name}
+                      </h3>
+                    </Link>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-400">
@@ -169,6 +174,14 @@ export default function MyBusinessPage() {
                         align="end"
                         className="rounded-xl border-slate-200 shadow-xl p-2 w-48"
                       >
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer"
+                        >
+                          <Link href={`/profile/my-business/${business._id}`}>
+                            <Eye size={16} /> View Details
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer">
                           <Settings size={16} /> Edit Details
                         </DropdownMenuItem>

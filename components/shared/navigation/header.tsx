@@ -56,6 +56,11 @@ export const menuItems = [
   //   icon: Grid2x2,
   // },
   {
+    label: "My Business",
+    href: "/profile/my-business",
+    icon: Grid2x2,
+  },
+  {
     label: "Favorites",
     href: "/profile/favorite-places",
     icon: Heart,

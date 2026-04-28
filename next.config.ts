@@ -7,7 +7,13 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "10.10.7.11",
         port: "5002",
-        pathname: "/images/**",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "mohosin5004.binarybards.online",
+
+        pathname: "/**",
       },
       {
         protocol: "http",

@@ -17,6 +17,19 @@ interface BusinessFormStep3Props {
   form: UseFormReturn<any>;
 }
 
+export const step4Inputs = [
+  "offerTitle",
+  "offerDescription",
+  "offerMaxRedemptions",
+  "offerDuration",
+  "offerDiscountType",
+  "offerDiscount",
+  "offerValidFrom",
+  "offerValidUntil",
+  "offerNoExpiration",
+  "offerRedemptionRules",
+] as const;
+
 export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
   return (
     <div className="space-y-8">
@@ -85,7 +98,7 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
       </div> */}
 
       {/* Form Fields */}
-      <div className="space-y-4">
+      <div className="space-y-4 text-left">
         <FormField
           control={form.control}
           name="offerTitle"
@@ -126,18 +139,116 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
           )}
         />
 
+        {/* Limits */}
         <div className="grid md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="offerMaxRedemptions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base text-gray-900 font-semibold">
+                  Max Redemptions
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="e.g., 100"
+                    {...field}
+                    className="bg-gray-50 border-gray-200"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="offerDuration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base text-gray-900 font-semibold">
+                  Duration (Minutes)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="e.g., 60"
+                    {...field}
+                    className="bg-gray-50 border-gray-200"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Discount Type and Value */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="offerDiscountType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base text-gray-900 font-semibold">
+                  Discount Type
+                </FormLabel>
+                <FormControl>
+                  <select
+                    {...field}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  >
+                    <option value="">Select type</option>
+                    <option value="Percentage">Percentage</option>
+                    <option value="Flat">Flat Amount</option>
+                    <option value="BOGO">Buy One Get One (BOGO)</option>
+                    <option value="Free item">Free Item</option>
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="offerDiscount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Discount Percentage
+                  Discount Value
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="10"
+                    type="number"
+                    min={0}
+                    placeholder="e.g., 10"
+                    {...field}
+                    className="bg-gray-50 border-gray-200"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Validity */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="offerValidFrom"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base text-gray-900 font-semibold">
+                  Valid From
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
                     {...field}
                     className="bg-gray-50 border-gray-200"
                   />
@@ -159,7 +270,8 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
                   <Input
                     type="date"
                     {...field}
-                    className="bg-gray-50 border-gray-200"
+                    disabled={form.watch("offerNoExpiration")}
+                    className="bg-gray-50 border-gray-200 disabled:opacity-50"
                   />
                 </FormControl>
                 <FormMessage />
@@ -168,25 +280,48 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
           />
         </div>
 
-        {/* Offer Conditions */}
-        <div className="space-y-3">
-          <label className="text-base font-semibold text-gray-900">
-            Offer Conditions
-          </label>
-          <div className="space-y-2">
-            {["Dine-in only", "1 per user", "No stacking"].map((condition) => (
-              <div key={condition} className="flex items-center gap-2">
-                <Checkbox id={condition} />
-                <label
-                  htmlFor={condition}
-                  className=" text-gray-700 cursor-pointer"
-                >
-                  {condition}
-                </label>
+        <FormField
+          control={form.control}
+          name="offerNoExpiration"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-gray-50/50">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-sm font-semibold text-gray-900 cursor-pointer">
+                  No Expiration
+                </FormLabel>
+                <p className="text-xs text-gray-500">
+                  Checking this will make the offer valid indefinitely.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="offerRedemptionRules"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base text-gray-900 font-semibold">
+                Redemption Rules
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="e.g., One per user per visit, No stacking with other offers..."
+                  {...field}
+                  className="bg-gray-50 border-gray-200 min-h-20"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );
