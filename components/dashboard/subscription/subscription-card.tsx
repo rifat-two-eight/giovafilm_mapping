@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 type Props = {
   plan: any;
   onSubscribe: (planId: string) => void;
+  onEdit: (plan: any) => void;
+  onDelete: (planId: string) => void;
   isLoading: boolean;
 };
 
-export function SubscriptionCard({ plan, onSubscribe, isLoading }: Props) {
+export function SubscriptionCard({ plan, onSubscribe, onEdit, onDelete, isLoading }: Props) {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-xl transition-all p-8 flex flex-col relative overflow-hidden group">
       {plan.isPopular && (
@@ -27,7 +29,7 @@ export function SubscriptionCard({ plan, onSubscribe, isLoading }: Props) {
             ${plan.price}
           </span>
           <span className="text-gray-500 font-medium lowercase">
-            /{plan.duration}
+            /{plan.interval}
           </span>
         </div>
       </div>
@@ -44,10 +46,10 @@ export function SubscriptionCard({ plan, onSubscribe, isLoading }: Props) {
       </div>
 
       <div className="flex items-center justify-center gap-2 overflow-hidden">
-        <Button className="w-auto px-5 bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest">
+        <Button onClick={() => onEdit(plan)} className="w-auto px-5 bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest">
           Edit Plan
         </Button>
-        <Button className="w-auto px-5 bg-red-500 hover:bg-red-600 text-white font-black uppercase tracking-widest">
+        <Button onClick={() => onDelete(plan._id)} className="w-auto px-5 bg-red-500 hover:bg-red-600 text-white font-black uppercase tracking-widest">
           Delete Plan
         </Button>
       </div>

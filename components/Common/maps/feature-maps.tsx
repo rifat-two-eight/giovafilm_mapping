@@ -18,11 +18,11 @@ export default function FeaturedMaps() {
 
   return (
     <div className="bg-gray-50 py-10 font-inter">
-      <div className="max-w-360 mx-auto px-4 md:px-6">
+      <div className="mx-auto px-4 md:px-6" style={{ maxWidth: "1300px" }}>
         <div className="px- 4 md:px-6">
           <div className="flex justify-between items-center mb-5 mt-2">
             <div className="">
-              <h2 className="text-3xl  font-bold leading-normal">
+              <h2 className="text-3xl font-bold leading-normal">
                 Featured Maps
               </h2>
               <p className="text-gray-500/80">
@@ -191,7 +191,7 @@ export default function FeaturedMaps() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
+                    className="bg-white rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
                     {/* Image Container */}
                     <div className="relative h-96 w-96 mb-2 overflow-hidden">
@@ -201,7 +201,7 @@ export default function FeaturedMaps() {
                         unoptimized
                         width={500}
                         height={500}
-                        className="w-full "
+                        className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
 

@@ -31,6 +31,21 @@ const subscriptionApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Subscription"],
     }),
+    updateSubscriptionPlan: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/subscription/admin/plans/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Subscription"],
+    }),
+    deleteSubscriptionPlan: builder.mutation({
+      query: (id) => ({
+        url: `/subscription/admin/plans/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Subscription"],
+    }),
     cancelSubscription: builder.mutation<
       any,
       { subscriptionId: string; token: string }
@@ -55,4 +70,6 @@ export const {
   useGetMySubscriptionQuery,
   useCancelSubscriptionMutation,
   useCreateSubscriptionPlanMutation,
+  useUpdateSubscriptionPlanMutation,
+  useDeleteSubscriptionPlanMutation,
 } = subscriptionApi;

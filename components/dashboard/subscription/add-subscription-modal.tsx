@@ -10,24 +10,33 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateSubscriptionPlanMutation } from "@/redux/features/subscription/subscriptionApi";
+import {
+  useCreateSubscriptionPlanMutation,
+  useUpdateSubscriptionPlanMutation,
+} from "@/redux/features/subscription/subscriptionApi";
 import { Loader2, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface AddSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  plan?: any;
 }
 
 export function AddSubscriptionModal({
   isOpen,
   onClose,
+  plan,
 }: AddSubscriptionModalProps) {
-  const [createSubscriptionPlan, { isLoading }] =
+  const [createSubscriptionPlan, { isLoading: isCreating }] =
     useCreateSubscriptionPlanMutation();
+  const [updateSubscriptionPlan, { isLoading: isUpdating }] =
+    useUpdateSubscriptionPlanMutation();
 
-  const [formData, setFormData] = useState({
+  const isLoading = isCreating || isUpdating;
+
+  const defaultFormData = {
     name: "",
     description: "",
     price: 0,
@@ -35,9 +44,29 @@ export function AddSubscriptionModal({
     interval: "month",
     intervalCount: 1,
     trialPeriodDays: 0,
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultFormData);
 
   const [features, setFeatures] = useState<string[]>([""]);
+
+  useEffect(() => {
+    if (plan && isOpen) {
+      setFormData({
+        name: plan.name || "",
+        description: plan.description || "",
+        price: plan.price || 0,
+        currency: plan.currency || "usd",
+        interval: plan.interval || "month",
+        intervalCount: plan.intervalCount || 1,
+        trialPeriodDays: plan.trialPeriodDays || 0,
+      });
+      setFeatures(plan.features?.length > 0 ? plan.features : [""]);
+    } else if (!isOpen) {
+      setFormData(defaultFormData);
+      setFeatures([""]);
+    }
+  }, [plan, isOpen]);
 
   const handleFeatureChange = (index: number, value: string) => {
     const newFeatures = [...features];
@@ -79,23 +108,27 @@ export function AddSubscriptionModal({
     };
 
     try {
-      const res = await createSubscriptionPlan(payload).unwrap();
-      if (res.success || res.data) {
-        toast.success("Subscription plan created successfully!");
-        onClose();
-        setFormData({
-          name: "",
-          description: "",
-          price: 0,
-          currency: "usd",
-          interval: "month",
-          intervalCount: 1,
-          trialPeriodDays: 0,
-        });
-        setFeatures([""]);
+      if (plan) {
+        const res = await updateSubscriptionPlan({
+          id: plan._id,
+          data: payload,
+        }).unwrap();
+        if (res.success || res.data) {
+          toast.success("Subscription plan updated successfully!");
+          onClose();
+        }
+      } else {
+        const res = await createSubscriptionPlan(payload).unwrap();
+        if (res.success || res.data) {
+          toast.success("Subscription plan created successfully!");
+          onClose();
+        }
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to create subscription plan");
+      toast.error(
+        error?.data?.message ||
+          `Failed to ${plan ? "update" : "create"} subscription plan`
+      );
     }
   };
 
@@ -104,7 +137,7 @@ export function AddSubscriptionModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black uppercase">
-            Add New Subscription Plan
+            {plan ? "Edit Subscription Plan" : "Add New Subscription Plan"}
           </DialogTitle>
         </DialogHeader>
 
@@ -240,8 +273,10 @@ export function AddSubscriptionModal({
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {plan ? "Updating..." : "Creating..."}
                 </>
+              ) : plan ? (
+                "Update Plan"
               ) : (
                 "Create Plan"
               )}
