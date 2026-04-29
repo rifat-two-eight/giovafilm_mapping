@@ -18,7 +18,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
               alt={data?.name}
               unoptimized
               fill
-              className="w-full h-full"
+              className="w-full h-full object-cover hover:scale-105 transition-all"
             />
           ) : (
             <NoImage />
@@ -27,7 +27,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
           {/* Rating Badge */}
           <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full flex items-center gap-1 text-sm font-medium shadow">
             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-            {data?.rating}
+            {parseFloat(data?.rating?.toFixed(1))}
           </div>
         </div>
 

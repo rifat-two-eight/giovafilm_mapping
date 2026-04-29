@@ -35,7 +35,6 @@ import {
 import { useEffect, useState } from "react";
 import LocationDialog from "./location-dialog";
 
-
 export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
 }
@@ -76,7 +75,11 @@ function CountryPanner({
   return null;
 }
 
-function MapPanner({ position }: { position: { lat: number; lng: number } | null }) {
+function MapPanner({
+  position,
+}: {
+  position: { lat: number; lng: number } | null;
+}) {
   const map = useMap();
   useEffect(() => {
     if (map && position) {
@@ -93,6 +96,7 @@ export default function MapPage() {
   const [enabledCategories, setEnabledCategories] = useState<
     Record<string, boolean>
   >({});
+
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [detectedCountry, setDetectedCountry] = useState<string>("");
   const [isManualSelection, setIsManualSelection] = useState(false);
@@ -107,7 +111,7 @@ export default function MapPage() {
   // --- API Fetches ---
   const { data: placesRes } = useGetPlacesQuery({
     limit: 100,
-    country: selectedCountry || undefined,
+    country: selectedCountry === "all" ? "" : selectedCountry,
   });
   const fetchedPlaces = placesRes?.data || [];
 
@@ -216,17 +220,23 @@ export default function MapPage() {
               isManualSelection={isManualSelection}
             />
 
-            <MapPanner 
+            <MapPanner
               position={
-                selectedLocation 
-                  ? displayPlaces.find((p: any) => p._id === selectedLocation.id)?.location?.coordinates 
-                    ? { 
-                        lat: displayPlaces.find((p: any) => p._id === selectedLocation.id).location.coordinates[1], 
-                        lng: displayPlaces.find((p: any) => p._id === selectedLocation.id).location.coordinates[0] 
+                selectedLocation
+                  ? displayPlaces.find(
+                      (p: any) => p._id === selectedLocation.id,
+                    )?.location?.coordinates
+                    ? {
+                        lat: displayPlaces.find(
+                          (p: any) => p._id === selectedLocation.id,
+                        ).location.coordinates[1],
+                        lng: displayPlaces.find(
+                          (p: any) => p._id === selectedLocation.id,
+                        ).location.coordinates[0],
                       }
                     : null
                   : null
-              } 
+              }
             />
             <CustomLocationButton />
 
@@ -281,7 +291,7 @@ export default function MapPage() {
                   enabledCategories={enabledCategories}
                   onToggle={handleToggle}
                 /> */}
-                <div className="flex flex-col md:flex-row gap-2">
+                <div className="flex items-start gap-2">
                   <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
                     <Accordion type="single" collapsible className="w-full">
                       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
@@ -289,38 +299,48 @@ export default function MapPage() {
                           Map Categories
                         </span>
                       </div>
-                      <div className="max-h-[50vh] overflow-y-auto no-scrollbar">
+                      <div className="max-h-[50vh] overflow-y-auto ">
                         {fetchedCategories.map((cat: any) => {
                           const color = getCategoryColor(cat);
                           const enabled = enabledCategories[cat._id] ?? true;
                           const placesInCat = fetchedPlaces.filter((p: any) => {
-                            const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+                            const pCatId =
+                              typeof p.category === "object"
+                                ? p.category?._id
+                                : p.category;
                             return pCatId === cat._id;
                           });
 
                           return (
-                            <AccordionItem key={cat._id} value={cat._id} className="border-b border-gray-100 last:border-0">
-                              <div className="flex items-center group">
-                                <AccordionTrigger className="flex-1 py-3 px-4 hover:no-underline hover:bg-gray-50 transition-colors">
+                            <AccordionItem
+                              key={cat._id}
+                              value={cat._id}
+                              className=""
+                            >
+                              <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0">
+                                <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
                                   <div className="flex items-center gap-3 w-full">
-                                    <div 
-                                      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm"
-                                      style={{ backgroundColor: color }}
-                                    >
-                                      <CategoryIcon icon={cat.icon} size={18} color="#fff" />
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                                      <CategoryIcon
+                                        icon={cat.icon}
+                                        size={18}
+                                        color="#fff"
+                                      />
                                     </div>
                                     <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize truncate">
                                       {cat.name}
                                     </span>
-                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mr-2">
+                                    {/* <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mr-2">
                                       {placesInCat.length}
-                                    </span>
+                                    </span> */}
                                   </div>
                                 </AccordionTrigger>
                                 <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
                                   <Switch
                                     checked={enabled}
-                                    onCheckedChange={(val) => handleToggle(cat._id, val)}
+                                    onCheckedChange={(val) =>
+                                      handleToggle(cat._id, val)
+                                    }
                                     className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
                                   />
                                 </div>
@@ -331,24 +351,27 @@ export default function MapPage() {
                                     placesInCat.map((place: any) => (
                                       <button
                                         key={place._id}
-                                        onClick={() => setSelectedLocation({ id: place._id })}
-                                        className={`w-full flex items-center gap-3 px-6 py-2.5 text-left transition-all ${
+                                        onClick={() =>
+                                          setSelectedLocation({ id: place._id })
+                                        }
+                                        className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
                                           selectedLocation?.id === place._id
                                             ? "bg-blue-600 text-white font-bold shadow-md"
                                             : "text-gray-600 hover:bg-white hover:text-blue-600"
                                         }`}
                                       >
-                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`} />
+                                        <div
+                                          className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`}
+                                        />
                                         <div className="flex flex-col min-w-0">
-                                          <span className="text-xs truncate">{place.name}</span>
-                                          <span className={`text-[9px] truncate ${selectedLocation?.id === place._id ? "text-blue-100" : "text-gray-400"}`}>
-                                            {place.location?.country || place.country || "View details"}
+                                          <span className="truncate">
+                                            {place.name}
                                           </span>
                                         </div>
                                       </button>
                                     ))
                                   ) : (
-                                    <div className="px-10 py-3 text-[10px] text-gray-400 italic">
+                                    <div className="px-10 py-3 text-gray-400 italic">
                                       No places in this category yet.
                                     </div>
                                   )}

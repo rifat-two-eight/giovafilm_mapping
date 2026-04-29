@@ -51,7 +51,7 @@ export default function ExplorePlaces() {
 
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
-    limit: 6,
+    limit: 9,
     searchTerm,
     sort: activeFilter ? getSortValue(activeFilter) : "",
   });

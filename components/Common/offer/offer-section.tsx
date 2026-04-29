@@ -119,7 +119,7 @@ export default function OfferSection() {
                       width={500}
                       height={500}
                       unoptimized
-                      className="object-cover h-72 w-full"
+                      className="object-cover h-72 w-full hover:scale-105 transition-all"
                     />
 
                     {/* Favorite Button */}
