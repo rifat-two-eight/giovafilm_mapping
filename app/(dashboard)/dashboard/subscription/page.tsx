@@ -67,7 +67,7 @@ export default function SubscriptionPage() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -76,7 +76,7 @@ export default function SubscriptionPage() {
             Swal.fire({
               title: "Deleted!",
               text: "Subscription plan has been deleted.",
-              icon: "success"
+              icon: "success",
             });
           }
         } catch (error: any) {
@@ -124,10 +124,10 @@ export default function SubscriptionPage() {
           ))
         )}
       </div>
-      <div className="space-y-4">
+      {/* <div className="space-y-4">
         <h2 className="text-2xl font-black uppercase">Subscription History</h2>
         <SubscriptionTable data={subscriptionHistory} />
-      </div>
+      </div> */}
       <AddSubscriptionModal
         isOpen={isAddModalOpen}
         onClose={handleCloseModal}
