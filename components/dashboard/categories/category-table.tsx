@@ -1,11 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useDeleteCategoryMutation, useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import {
+  useDeleteCategoryMutation,
+  useGetCategoriesQuery,
+} from "@/redux/features/category/categoryApi";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 
 interface Category {
   _id: string;
@@ -38,14 +42,18 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteCategory(id).unwrap();
           toast.success("Category deleted successfully");
         } catch (error: any) {
-          toast.error(error?.data?.message || error?.message || "Failed to delete category");
+          toast.error(
+            error?.data?.message ||
+              error?.message ||
+              "Failed to delete category",
+          );
           console.error("Failed to delete category:", error);
         }
       }
@@ -109,7 +117,15 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
                   } hover:bg-gray-50 transition-colors`}
                 >
                   {/* Icon */}
-                  <td className="px-6 py-4 text-xl">{category.icon}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center">
+                      <CategoryIcon
+                        icon={category.icon}
+                        size={30}
+                        color={category.color}
+                      />
+                    </div>
+                  </td>
 
                   {/* Category Name */}
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
@@ -193,7 +209,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
               <option value={50}>50</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
               Page {meta.page} of {meta.totalPage || 1}

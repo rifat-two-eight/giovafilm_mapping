@@ -1,17 +1,16 @@
 "use client";
 
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 type Props = {
   plan: any;
-  onSubscribe: (planId: string) => void;
   onEdit: (plan: any) => void;
   onDelete: (planId: string) => void;
   isLoading: boolean;
 };
 
-export function SubscriptionCard({ plan, onSubscribe, onEdit, onDelete, isLoading }: Props) {
+export function SubscriptionCard({ plan, onEdit, onDelete, isLoading }: Props) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-all p-8 flex flex-col relative overflow-hidden group">
       {plan.isPopular && (

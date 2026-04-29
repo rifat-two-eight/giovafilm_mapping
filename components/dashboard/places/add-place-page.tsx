@@ -31,7 +31,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
 import { mapStyles } from "@/lib/utils";
-
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -506,17 +506,7 @@ export default function AddPlacePage() {
                           }
                         />
                         {/* Small colored dot matching pin color */}
-                        <span
-                          style={{
-                            display: "inline-block",
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background: resolveCategoryColor(cat),
-                            flexShrink: 0,
-                          }}
-                        />
-                        <span className="text-lg">{cat.icon}</span>
+                        <CategoryIcon icon={cat.icon} size={24} color={cat.color} />
                         <span className="truncate">{cat.name}</span>
                       </div>
                       {isFilterActive && (

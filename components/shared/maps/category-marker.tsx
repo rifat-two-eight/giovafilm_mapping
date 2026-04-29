@@ -1,5 +1,7 @@
 // components/shared/maps/CategoryMarker.tsx
 
+import { CategoryIcon } from "../categories/category-icon";
+
 interface CategoryMarkerProps {
   icon: string;
   color?: string;
@@ -46,17 +48,7 @@ export function CategoryMarker({
           overflow: "hidden",
         }}
       >
-        <span
-          style={{
-            transform: "rotate(45deg)",
-            fontSize: 23,
-            lineHeight: 1,
-            userSelect: "none",
-            
-          }}
-        >
-          {icon}
-        </span>
+        <CategoryIcon icon={icon} size={26} color="#fff" />
       </div>
 
       {/* Pin Tail */}
