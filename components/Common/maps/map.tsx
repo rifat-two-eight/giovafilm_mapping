@@ -1,5 +1,6 @@
 "use client";
 
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
@@ -30,14 +32,8 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import {
-  Utensils,
-  Waves,
-} from "lucide-react";
-import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import { useEffect, useState } from "react";
 import LocationDialog from "./location-dialog";
-import { mapStyles } from "@/lib/utils";
 
 
 export function getCategoryColor(cat: any) {
@@ -77,6 +73,16 @@ function CountryPanner({
     });
   }, [selectedCountry, map, geocodingLib]);
 
+  return null;
+}
+
+function MapPanner({ position }: { position: { lat: number; lng: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (map && position) {
+      map.panTo(position);
+    }
+  }, [map, position]);
   return null;
 }
 
@@ -210,6 +216,18 @@ export default function MapPage() {
               isManualSelection={isManualSelection}
             />
 
+            <MapPanner 
+              position={
+                selectedLocation 
+                  ? displayPlaces.find((p: any) => p._id === selectedLocation.id)?.location?.coordinates 
+                    ? { 
+                        lat: displayPlaces.find((p: any) => p._id === selectedLocation.id).location.coordinates[1], 
+                        lng: displayPlaces.find((p: any) => p._id === selectedLocation.id).location.coordinates[0] 
+                      }
+                    : null
+                  : null
+              } 
+            />
             <CustomLocationButton />
 
             {/* User's current location marker — default pin style */}
@@ -266,55 +284,80 @@ export default function MapPage() {
                 <div className="flex flex-col md:flex-row gap-2">
                   <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
                     <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="categories" className="border-none">
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-50">
-                          <span className="text-base font-bold text-gray-900">
-                            Map Categories
-                          </span>
-                        </AccordionTrigger>
-                        <AccordionContent className="pb-0">
-                          <div className=" space-y-1 max-h-[40vh] overflow-y-auto">
-                            {fetchedCategories.map((cat: any) => {
-                              const color = getCategoryColor(cat);
-                              const enabled =
-                                enabledCategories[cat._id] ?? true;
-                              return (
-                                <div
-                                  key={cat._id}
-                                  className={`flex items-center gap-3 px-2 py-2.5 rounded-xl transition-colors ${
-                                    enabled
-                                      ? ""
-                                      : "hover:bg-gray-50 text-gray-800"
-                                  }`}
-                                >
-                                  <CategoryIcon 
-                                    icon={cat.icon} 
-                                    size={24} 
-                                    color={color} 
-                                  />
+                      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
+                        <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
+                          Map Categories
+                        </span>
+                      </div>
+                      <div className="max-h-[50vh] overflow-y-auto no-scrollbar">
+                        {fetchedCategories.map((cat: any) => {
+                          const color = getCategoryColor(cat);
+                          const enabled = enabledCategories[cat._id] ?? true;
+                          const placesInCat = fetchedPlaces.filter((p: any) => {
+                            const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+                            return pCatId === cat._id;
+                          });
 
-                                  <span className="flex-1 text-sm font-medium capitalize truncate">
-                                    {cat.name}
-                                  </span>
-
+                          return (
+                            <AccordionItem key={cat._id} value={cat._id} className="border-b border-gray-100 last:border-0">
+                              <div className="flex items-center group">
+                                <AccordionTrigger className="flex-1 py-3 px-4 hover:no-underline hover:bg-gray-50 transition-colors">
+                                  <div className="flex items-center gap-3 w-full">
+                                    <div 
+                                      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm"
+                                      style={{ backgroundColor: color }}
+                                    >
+                                      <CategoryIcon icon={cat.icon} size={18} color="#fff" />
+                                    </div>
+                                    <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize truncate">
+                                      {cat.name}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mr-2">
+                                      {placesInCat.length}
+                                    </span>
+                                  </div>
+                                </AccordionTrigger>
+                                <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
                                   <Switch
                                     checked={enabled}
-                                    onCheckedChange={(val) =>
-                                      handleToggle(cat._id, val)
-                                    }
-                                    className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300`}
+                                    onCheckedChange={(val) => handleToggle(cat._id, val)}
+                                    className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
                                   />
                                 </div>
-                              );
-                            })}
-                            {fetchedCategories.length === 0 && (
-                              <div className="text-sm text-gray-500 text-center py-4">
-                                No categories found.
                               </div>
-                            )}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                              <AccordionContent className="bg-gray-50/30 px-0 pb-0">
+                                <div className="py-1">
+                                  {placesInCat.length > 0 ? (
+                                    placesInCat.map((place: any) => (
+                                      <button
+                                        key={place._id}
+                                        onClick={() => setSelectedLocation({ id: place._id })}
+                                        className={`w-full flex items-center gap-3 px-6 py-2.5 text-left transition-all ${
+                                          selectedLocation?.id === place._id
+                                            ? "bg-blue-600 text-white font-bold shadow-md"
+                                            : "text-gray-600 hover:bg-white hover:text-blue-600"
+                                        }`}
+                                      >
+                                        <div className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`} />
+                                        <div className="flex flex-col min-w-0">
+                                          <span className="text-xs truncate">{place.name}</span>
+                                          <span className={`text-[9px] truncate ${selectedLocation?.id === place._id ? "text-blue-100" : "text-gray-400"}`}>
+                                            {place.location?.country || place.country || "View details"}
+                                          </span>
+                                        </div>
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <div className="px-10 py-3 text-[10px] text-gray-400 italic">
+                                      No places in this category yet.
+                                    </div>
+                                  )}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          );
+                        })}
+                      </div>
                     </Accordion>
                   </div>
 

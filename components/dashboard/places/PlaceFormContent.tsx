@@ -25,6 +25,7 @@ import {
   Utensils,
   Wifi,
 } from "lucide-react";
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 
 interface PlaceFormContentProps {
@@ -211,15 +212,36 @@ export const PlaceFormContent = ({
                   }
                 >
                   <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
-                    <SelectValue placeholder="Choose a category" />
+                    <div className="flex items-center gap-2">
+                      {formData.category && (
+                        <CategoryIcon
+                          icon={
+                            categories.find(
+                              (c: any) => c._id === formData.category,
+                            )?.icon
+                          }
+                          size={18}
+                          color={
+                            categories.find(
+                              (c: any) => c._id === formData.category,
+                            )?.color
+                          }
+                        />
+                      )}
+                      <SelectValue placeholder="Choose a category" />
+                    </div>
                   </SelectTrigger>
-                  <SelectContent
-                    position="popper"
-                    style={{ zIndex: 99999 }}
-                  >
+                  <SelectContent position="popper" style={{ zIndex: 99999 }}>
                     {categories.map((cat: any) => (
                       <SelectItem key={cat._id} value={cat._id}>
-                        {cat.icon} {cat.name}
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon
+                            icon={cat.icon}
+                            size={20}
+                            color={cat.color}
+                          />
+                          <span>{cat.name}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -356,7 +378,10 @@ export const PlaceFormContent = ({
                         })
                       }
                     />
-                    <Label htmlFor="always-open" className="text-sm cursor-pointer">
+                    <Label
+                      htmlFor="always-open"
+                      className="text-sm cursor-pointer"
+                    >
                       Always open
                     </Label>
                   </div>

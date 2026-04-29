@@ -94,6 +94,16 @@ function GeolocationOnLoad() {
   return null;
 }
 
+function MapPanner({ position }: { position: { lat: number; lng: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (map && position) {
+      map.panTo(position);
+    }
+  }, [map, position]);
+  return null;
+}
+
 export default function AddPlacePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
@@ -101,6 +111,7 @@ export default function AddPlacePage() {
   // filterCategoryId: the category clicked in the sidebar for map filtering
   // null = show all, otherwise show only places in that category
   const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
@@ -262,6 +273,27 @@ export default function AddPlacePage() {
     setSelectedPlace({ position: { lat: newLat, lng: newLng }, isNew: true });
     setFormData({ name: "", description: "" });
     setIsAddingMarker(false);
+  };
+
+  const handleSelectPlace = (place: any) => {
+    const position = {
+      lat: place.location.coordinates[1],
+      lng: place.location.coordinates[0],
+    };
+
+    // Sync all form data from the place object
+    setSelectedPlace({ ...place, position, isNew: false });
+
+    const catId =
+      typeof place.category === "object"
+        ? place.category?._id
+        : place.category;
+    setSelectedCategoryId(catId || null);
+
+    setFormData({
+      name: place.name,
+      description: place.description || "",
+    });
   };
 
   const handleSavePlace = async (data?: any) => {
@@ -478,43 +510,89 @@ export default function AddPlacePage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-0.5">
+              <div className="space-y-1">
+                {/* Show All Toggle */}
+                <button
+                  onClick={() => {
+                    setFilterCategoryId(null);
+                    setExpandedCategoryId(null);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                    filterCategoryId === null
+                      ? "bg-gray-100 text-blue-600"
+                      : "text-gray-400 hover:bg-gray-50"
+                  }`}
+                >
+                  <MapIcon size={14} />
+                  Show All Places
+                </button>
+
                 {categories.map((cat: any) => {
                   const isFilterActive = filterCategoryId === cat._id;
+                  const isExpanded = expandedCategoryId === cat._id;
+                  const placesInCat = fetchedPlaces.filter((p: any) => {
+                    const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+                    return pCatId === cat._id;
+                  });
+
                   return (
-                    <button
-                      key={cat._id}
-                      onClick={() => {
-                        // Toggle: click active category to show all again
-                        setFilterCategoryId((prev) =>
-                          prev === cat._id ? null : cat._id,
-                        );
-                        // Also set as the default category for new places
-                        setSelectedCategoryId(cat._id);
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                        isFilterActive
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <ChevronRight
-                          size={14}
-                          className={
-                            isFilterActive ? "text-blue-500" : "text-gray-300"
-                          }
-                        />
-                        {/* Small colored dot matching pin color */}
-                        <CategoryIcon icon={cat.icon} size={24} color={cat.color} />
-                        <span className="truncate">{cat.name}</span>
-                      </div>
-                      {isFilterActive && (
-                        <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">
-                          Filtered
+                    <div key={cat._id} className="flex flex-col">
+                      <button
+                        onClick={() => {
+                          setFilterCategoryId(cat._id);
+                          setSelectedCategoryId(cat._id);
+                          setExpandedCategoryId(isExpanded ? null : cat._id);
+                        }}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
+                          isFilterActive
+                            ? "bg-blue-50 text-blue-700 font-semibold"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ChevronRight
+                            size={14}
+                            className={`transition-transform duration-200 ${
+                              isExpanded ? "rotate-90 text-blue-500" : "text-gray-300"
+                            }`}
+                          />
+                          <CategoryIcon icon={cat.icon} size={22} color={cat.color} />
+                          <span className="truncate">{cat.name}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                          {placesInCat.length}
                         </span>
+                      </button>
+
+                      {/* Expandable Place List */}
+                      {isExpanded && (
+                        <div className="ml-9 mt-1 mb-2 pl-4 border-l-2 border-blue-100 space-y-1 animate-in slide-in-from-top-1 duration-200">
+                          {placesInCat.map((place: any) => (
+                            <button
+                              key={place._id}
+                              onClick={() => handleSelectPlace(place)}
+                              className={`w-full text-left px-3 py-2 rounded-md text-xs transition-all ${
+                                selectedPlace?._id === place._id
+                                  ? "bg-blue-600 text-white font-bold shadow-sm"
+                                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              }`}
+                            >
+                              <div className="flex flex-col">
+                                <span className="truncate">{place.name}</span>
+                                <span className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}>
+                                  {place.address ? place.address.split(',')[0] : "No address"}
+                                </span>
+                              </div>
+                            </button>
+                          ))}
+                          {placesInCat.length === 0 && (
+                            <p className="text-[10px] text-gray-400 italic py-2 pl-3">
+                              No places in this category yet.
+                            </p>
+                          )}
+                        </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -562,6 +640,8 @@ export default function AddPlacePage() {
 
               <CustomLocationButton />
 
+              <MapPanner position={selectedPlace?.position} />
+
               {/* ── Saved markers from server ── */}
               {displayPlaces.map((place: any) => {
                 const position = {
@@ -581,18 +661,7 @@ export default function AddPlacePage() {
                   <AdvancedMarker
                     key={place._id}
                     position={position}
-                    onClick={() => {
-                      setSelectedPlace({ ...place, position, isNew: false });
-                      setFormData({
-                        name: place.name,
-                        description: place.description || "",
-                      });
-                      const catId =
-                        typeof place.category === "object"
-                          ? place.category?._id
-                          : place.category;
-                      setSelectedCategoryId(catId || null);
-                    }}
+                    onClick={() => handleSelectPlace(place)}
                   >
                     <CategoryMarker
                       icon={cat?.icon || "📍"}
@@ -629,9 +698,11 @@ export default function AddPlacePage() {
                   onSave={handleSavePlace}
                   isSaving={isCreating}
                   initialData={{
-                    name: selectedPlace.name || "",
-                    description: selectedPlace.description || "",
+                    ...selectedPlace,
                     category: selectedCategoryId || "",
+                    address: selectedPlace.address || "",
+                    accessDescription: selectedPlace.details?.access || "",
+                    recommendations: selectedPlace.details?.recommendations || "",
                     isNew: selectedPlace.isNew,
                   }}
                 />
