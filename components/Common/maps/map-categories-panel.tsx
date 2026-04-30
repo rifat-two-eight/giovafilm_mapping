@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
-import { getCategoryColor, getCategoryIcon } from "./map";
+import { getCategoryColor } from "./map";
 import { Switch } from "@/components/ui/switch";
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 
 // ─── Map Categories Panel ─────────────────────────────────────────────────────
 interface MapCategoriesPanelProps {
@@ -34,8 +35,7 @@ export function MapCategoriesPanel({
       {/* Category list */}
       <div className="px-3 py-2 space-y-1 overflow-y-auto">
         {categories.map((cat) => {
-          const Icon = getCategoryIcon(cat.name);
-          const color = getCategoryColor(cat.name);
+          const color = getCategoryColor(cat);
           const enabled = enabledCategories[cat._id] ?? true;
           return (
             <div
@@ -49,7 +49,7 @@ export function MapCategoriesPanel({
                 className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                 style={{ backgroundColor: color }}
               >
-                <Icon size={17} color="#fff" strokeWidth={2.2} />
+                <CategoryIcon icon={cat.icon} size={17} color="#fff" />
               </div>
 
               {/* Label */}

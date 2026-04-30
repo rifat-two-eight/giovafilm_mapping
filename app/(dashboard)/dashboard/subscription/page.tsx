@@ -116,7 +116,6 @@ export default function SubscriptionPage() {
             <SubscriptionCard
               key={plan._id}
               plan={plan}
-              onSubscribe={handleSubscribe}
               onEdit={handleEditPlan}
               onDelete={handleDeletePlan}
               isLoading={isCreating || isDeleting}

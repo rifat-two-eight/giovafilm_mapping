@@ -93,12 +93,12 @@ export default function MapDetails() {
     {
       icon: Clock,
       label: "SCHEDULES",
-      value: placeData?.schedules || "",
+      value: placeData?.schedules || "N/A",
     },
     {
       icon: Ticket,
       label: "ENTRY COST",
-      value: `$${placeData?.entryCost || 0}/vehicle` || "",
+      value: `$${placeData?.entryCost || 0}/vehicle` || "N/A",
     },
     {
       icon: BarChart3,
@@ -109,7 +109,7 @@ export default function MapDetails() {
     {
       icon: Timer,
       label: "HIKE TIME",
-      value: placeData?.hikeTime || "",
+      value: placeData?.hikeTime || "N/A",
     },
   ];
 
