@@ -12,7 +12,6 @@ import {
   MessageSquare,
   Phone,
   Send,
-  Share2,
   Star,
   Ticket,
   Timer,
@@ -52,6 +51,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
+import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import Link from "next/link";
@@ -75,10 +75,19 @@ export default function MapDetails() {
   const placeData = placeRes?.data;
   const coordinates = placeData?.location?.coordinates;
 
-  console.log("placeData", placeData);
+  console.log("placeData", placeData?._id);
 
   const lat = coordinates?.[1];
   const lng = coordinates?.[0];
+
+  const { data: offersRes, isLoading: isOffersLoading } =
+    useGetOffersByPlaceOrBusinessIdQuery(placeData?._id, {
+      skip: !placeData?._id,
+    });
+
+  const offerId = offersRes?.data?._id;
+
+  console.log("offersRes", offerId);
 
   const infoData = [
     {
@@ -326,12 +335,14 @@ export default function MapDetails() {
                   </Button>
                 </div>
 
-                <Link href={`/discounts/${id}`} className="block">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-base rounded-xl transition-all">
-                    <Ticket size={18} className="mr-2" />
-                    Discounts
-                  </Button>
-                </Link>
+                {offerId && (
+                  <Link href={`/offer/${offerId}`} className="block">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                      <Ticket size={18} className="mr-2" />
+                      Discounts
+                    </Button>
+                  </Link>
+                )}
               </div>
             )}
           </div>
@@ -445,6 +456,65 @@ export default function MapDetails() {
                         </div>
                       );
                     })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* OFFERS & DISCOUNTS */}
+            {offersRes?.data && offersRes.data.length > 0 && (
+              <AccordionItem
+                value="offers"
+                className="border rounded-xl bg-white"
+              >
+                <AccordionTrigger className="font-semibold px-6 hover:no-underline text-blue-600">
+                  <div className="flex items-center gap-2">
+                    <Ticket size={20} />
+                    OFFERS & DISCOUNTS ({offersRes.data.length})
+                  </div>
+                </AccordionTrigger>
+
+                <AccordionContent className="px-6 pb-6 space-y-4">
+                  <div className="grid gap-4">
+                    {offersRes.data.map((offer: any) => (
+                      <div
+                        key={offer._id}
+                        className="p-4 border border-blue-100 bg-blue-50/30 rounded-xl relative overflow-hidden group hover:bg-blue-50 transition-colors"
+                      >
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1 space-y-1">
+                            <h4 className="font-bold text-lg text-gray-900 leading-tight">
+                              {offer.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {offer.description}
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">
+                                {offer.discountType === "Percentage"
+                                  ? `${offer.discountValue}% OFF`
+                                  : offer.discountType === "Flat"
+                                    ? `$${offer.discountValue} OFF`
+                                    : offer.discountType}
+                              </span>
+                              {offer.validUntil && (
+                                <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase">
+                                  Valid until:{" "}
+                                  {new Date(
+                                    offer.validUntil,
+                                  ).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <Link href={`/discounts/${id}`} className="shrink-0">
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 h-auto rounded-lg">
+                              REDEEM
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>

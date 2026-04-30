@@ -10,6 +10,10 @@ const offerApi = baseApi.injectEndpoints({
       query: (id) => `/offer/${id}`,
       providesTags: (result, error, id) => [{ type: "Offer", id }],
     }),
+    getOffersByPlaceOrBusinessId: builder.query({
+      query: (id) => `/offer/by-place-or-business/${id}`,
+      providesTags: ["Offer"],
+    }),
     createOffer: builder.mutation({
       query: (data) => ({
         url: "/offer",
@@ -46,6 +50,8 @@ const offerApi = baseApi.injectEndpoints({
 export const {
   useGetOffersQuery,
   useGetSingleOfferQuery,
+  useGetOffersByPlaceOrBusinessIdQuery,
+
   useCreateOfferMutation,
   useDeleteOfferMutation,
   useUpdateOfferMutation,

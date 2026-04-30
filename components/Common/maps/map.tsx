@@ -286,11 +286,6 @@ export default function MapPage() {
             <MapControl position={ControlPosition.TOP_LEFT}>
               <div className="flex items-start gap-2 m-3">
                 {/* Category Filter */}
-                {/* <MapCategoriesPanel
-                  categories={fetchedCategories}
-                  enabledCategories={enabledCategories}
-                  onToggle={handleToggle}
-                /> */}
                 <div className="flex items-start gap-2">
                   <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
                     <Accordion type="single" collapsible className="w-full">
@@ -301,7 +296,6 @@ export default function MapPage() {
                       </div>
                       <div className="max-h-[50vh] overflow-y-auto ">
                         {fetchedCategories.map((cat: any) => {
-                          const color = getCategoryColor(cat);
                           const enabled = enabledCategories[cat._id] ?? true;
                           const placesInCat = fetchedPlaces.filter((p: any) => {
                             const pCatId =

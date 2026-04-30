@@ -1,18 +1,20 @@
 "use client";
 
-import { Edit, Pause, Play, Trash2 } from "lucide-react";
 import {
   useDeleteOfferMutation,
   useGetOffersQuery,
 } from "@/redux/features/offer/offerApi";
-import Swal from "sweetalert2";
+import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const [deleteOffer] = useDeleteOfferMutation();
 
   const offersData = offersRes?.data || [];
+
+  console.log("offersData", offersData);
 
   const handleDelete = (id: string) => {
     Swal.fire({
@@ -64,7 +66,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 Offer Title
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Place
+                Plan / Business
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                 Discount
@@ -122,7 +124,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {offer.place?.name || "N/A"}
+                    {offer.business?.name || "N/A"}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">

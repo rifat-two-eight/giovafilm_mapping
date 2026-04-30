@@ -1,26 +1,26 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, Upload, X } from "lucide-react";
+import { getImageUrl } from "@/lib/utils";
+import { useGetBusinessesQuery } from "@/redux/features/business/businessApi";
 import {
   useCreateOfferMutation,
   useUpdateOfferMutation,
 } from "@/redux/features/offer/offerApi";
-import { useGetBusinessesQuery } from "@/redux/features/business/businessApi";
+import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { ChevronDown, Upload, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { getImageUrl } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Controller } from "react-hook-form";
 
 interface CreateOfferDialogProps {
   open: boolean;
@@ -30,6 +30,7 @@ interface CreateOfferDialogProps {
 
 interface FormData {
   title: string;
+  business: string;
   place: string;
   description: string;
   discountType: string;
@@ -59,6 +60,17 @@ export function CreateOfferDialog({
   const { data: businessesRes } = useGetBusinessesQuery({ limit: 100 });
   const businesses = businessesRes?.data || [];
 
+  const { data: placeData, isLoading: placeLoading } = useGetPlacesQuery({});
+  const places = useMemo(() => {
+    return (
+      placeData?.data?.filter((place: any) => {
+        return place.category?.name === "restaurant";
+      }) || []
+    );
+  }, [placeData]);
+
+  console.log("categoryNames", places);
+
   const noExpiration = watch("noExpiration");
 
   // ── Image state — managed manually, NOT via register ─────────────────────
@@ -66,15 +78,24 @@ export function CreateOfferDialog({
   const [preview, setPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
-  // ── Business searchable dropdown state ───────────────────────────────────
-  const [businessSearch, setBusinessSearch] = useState("");
-  const [businessDropdownOpen, setBusinessDropdownOpen] = useState(false);
-  const selectedBusinessId = watch("place");
-  const selectedBusiness = businesses.find(
-    (b: any) => b._id === selectedBusinessId,
+  const [selectionType, setSelectionType] = useState<"business" | "place">(
+    "business",
   );
-  const filteredBusinesses = businesses.filter((b: any) =>
-    b.name.toLowerCase().includes(businessSearch.toLowerCase()),
+
+  // ── Searchable dropdown state ───────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const selectedId = watch("business");
+
+  // Determine the list based on selectionType
+  const currentOptions = selectionType === "business" ? businesses : places;
+
+  const selectedEntity = currentOptions.find(
+    (item: any) => item._id === selectedId,
+  );
+
+  const filteredOptions = currentOptions.filter((item: any) =>
+    (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // ── Redemption rules state ────────────────────────────────────────────────
@@ -99,10 +120,22 @@ export function CreateOfferDialog({
 
   // ── Populate form when editing ────────────────────────────────────────────
   useEffect(() => {
+    if (!open) return; // Only run when dialog is open
+
     if (initialData) {
+      const id = initialData.place?._id || initialData.place;
+
+      // Detect if ID belongs to a place or a business
+      const isPlace = places.some((p: any) => p._id === id);
+      const detectedType = isPlace ? "place" : "business";
+
+      // Only update if different to avoid cycles
+      setSelectionType((prev) => (prev !== detectedType ? detectedType : prev));
+
       reset({
         title: initialData.title,
-        place: initialData.place?._id || initialData.place,
+        business: id,
+        place: isPlace ? id : "",
         description: initialData.description,
         discountType: initialData.discountType,
         discountValue: initialData.discountValue.toString(),
@@ -129,6 +162,7 @@ export function CreateOfferDialog({
     } else {
       reset({
         title: "",
+        business: "",
         place: "",
         description: "",
         discountType: "",
@@ -146,7 +180,7 @@ export function CreateOfferDialog({
       setRuleInput("");
       setRuleError("");
     }
-  }, [initialData, reset, open]);
+  }, [initialData, reset, open, places]);
 
   const openFileWindow = () => fileRef.current?.click();
 
@@ -168,9 +202,8 @@ export function CreateOfferDialog({
 
   const onSubmit = async (data: FormData) => {
     try {
-      const offerData = {
+      const offerData: any = {
         title: data.title,
-        place: data.place,
         description: data.description,
         discountType: data.discountType,
         discountValue: Number(data.discountValue) || 0,
@@ -188,6 +221,13 @@ export function CreateOfferDialog({
         status: "Active",
         redemptionsCount: isEdit ? initialData.redemptionsCount : 0,
       };
+
+      // Set the correct ID field based on selection type
+      if (selectionType === "business") {
+        offerData.business = data.business;
+      } else {
+        offerData.place = data.business;
+      }
 
       const formDataPayload = new FormData();
       formDataPayload.append("data", JSON.stringify(offerData));
@@ -297,88 +337,131 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Business Selection — custom searchable dropdown */}
-          <div>
-            <Label
-              htmlFor="place"
-              className="text-sm font-medium text-gray-700"
-            >
-              Choose Business
-            </Label>
+          {/* Selection Toggle and Searchable Dropdown */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-gray-700">
+                Choose {selectionType === "business" ? "Business" : "Place"}
+              </Label>
+              <div className="flex bg-gray-100 p-1 rounded-md">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectionType("business");
+                    setValue("business", "");
+                    setSearchQuery("");
+                  }}
+                  className={`px-3 py-1 text-xs rounded-md transition-all ${
+                    selectionType === "business"
+                      ? "bg-white shadow-sm text-blue-600 font-bold"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Business
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectionType("place");
+                    setValue("business", "");
+                    setSearchQuery("");
+                  }}
+                  className={`px-3 py-1 text-xs rounded-md transition-all ${
+                    selectionType === "place"
+                      ? "bg-white shadow-sm text-blue-600 font-bold"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Place
+                </button>
+              </div>
+            </div>
 
             {/* Hidden input keeps react-hook-form happy */}
-            <input type="hidden" {...register("place", { required: "Business is required" })} />
+            <input
+              type="hidden"
+              {...register("business", {
+                required: `${selectionType === "business" ? "Business" : "Place"} is required`,
+              })}
+            />
 
-            <div className="relative mt-1">
+            <div className="relative">
               {/* Trigger button */}
               <button
-                id="place"
                 type="button"
-                onClick={() => setBusinessDropdownOpen((o) => !o)}
+                onClick={() => setDropdownOpen((o) => !o)}
                 className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                <span className={selectedBusiness ? "text-gray-900" : "text-gray-400"}>
-                  {selectedBusiness ? selectedBusiness.name : "Choose Business"}
+                <span
+                  className={selectedEntity ? "text-gray-900" : "text-gray-400"}
+                >
+                  {selectedEntity
+                    ? selectedEntity.name
+                    : `Choose ${selectionType === "business" ? "Business" : "Place"}`}
                 </span>
                 <ChevronDown
                   size={16}
-                  className={`text-gray-400 transition-transform ${businessDropdownOpen ? "rotate-180" : ""}`}
+                  className={`text-gray-400 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
               {/* Dropdown panel */}
-              {businessDropdownOpen && (
+              {dropdownOpen && (
                 <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden">
                   {/* Search input */}
                   <div className="p-2 border-b border-gray-100">
                     <input
                       autoFocus
                       type="text"
-                      value={businessSearch}
-                      onChange={(e) => setBusinessSearch(e.target.value)}
-                      placeholder="Search business..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={`Search ${selectionType === "business" ? "business" : "place"}...`}
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   {/* Options list */}
                   <ul className="max-h-48 overflow-y-auto">
-                    {/* Default unselect option */}
                     <li>
                       <button
                         type="button"
                         onClick={() => {
-                          setValue("place", "");
-                          setBusinessSearch("");
-                          setBusinessDropdownOpen(false);
+                          setValue("business", "");
+                          setSearchQuery("");
+                          setDropdownOpen(false);
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-50"
                       >
-                        Choose Business
+                        Choose{" "}
+                        {selectionType === "business" ? "Business" : "Place"}
                       </button>
                     </li>
 
-                    {filteredBusinesses.length === 0 ? (
+                    {filteredOptions.length === 0 ? (
                       <li className="px-3 py-3 text-sm text-gray-400 text-center">
-                        No businesses found.
+                        No{" "}
+                        {selectionType === "business" ? "businesses" : "places"}{" "}
+                        found.
                       </li>
                     ) : (
-                      filteredBusinesses.map((b: any) => (
-                        <li key={b._id}>
+                      filteredOptions.map((item: any) => (
+                        <li key={item._id}>
                           <button
                             type="button"
                             onClick={() => {
-                              setValue("place", b._id, { shouldValidate: true });
-                              setBusinessSearch("");
-                              setBusinessDropdownOpen(false);
+                              setValue("business", item._id, {
+                                shouldValidate: true,
+                              });
+                              setSearchQuery("");
+                              setDropdownOpen(false);
                             }}
                             className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
-                              selectedBusinessId === b._id
+                              selectedId === item._id
                                 ? "bg-blue-50 text-blue-700 font-medium"
                                 : "text-gray-700"
                             }`}
                           >
-                            {b.name}
+                            {item.name}
                           </button>
                         </li>
                       ))
