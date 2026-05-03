@@ -84,6 +84,7 @@ export function InviteUserForm(): React.ReactElement {
             disabled={isLoading}
           >
             <option value="user">User</option>
+            <option value="map_editor">Map Editor</option>
             <option value="admin">Admin</option>
             <option value="super_admin">Super Admin</option>
           </select>
@@ -92,10 +93,10 @@ export function InviteUserForm(): React.ReactElement {
 
       {/* Buttons */}
       <div className="flex justify-end gap-3">
-        <Button 
-          onClick={handleCancel} 
-          variant="outline" 
-          className="px-6" 
+        <Button
+          onClick={handleCancel}
+          variant="outline"
+          className="px-6"
           disabled={isLoading}
         >
           Cancel

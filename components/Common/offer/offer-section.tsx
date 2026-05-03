@@ -110,7 +110,10 @@ export default function OfferSection() {
             const favourited = isOfferFavourited(offer._id);
 
             return (
-              <Link key={offer._id} href={`/offer/${offer?._id}`}>
+              <Link
+                key={offer._id}
+                href={`${offer?.place ? `/places/${offer?.place}` : `/offer/${offer?._id}`}`}
+              >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
                   <div className="relative h-72 w-full">

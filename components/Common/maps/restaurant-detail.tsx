@@ -28,7 +28,7 @@ export default function RestaurantDetail() {
   });
   const offer = offerRes?.data;
 
-  // console.log("offer", offer?.redemptionDuration);
+  console.log("offer", offer);
 
   const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
 
@@ -269,8 +269,9 @@ export default function RestaurantDetail() {
                   <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
                     <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 sm:border-6 md:border-8 border-yellow-400 flex items-center justify-center bg-gray-50">
                       <div className="text-center">
-                        <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-                          {timeLeft} <span className="text-base">Min</span>
+                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                          {timeLeft || "0"}{" "}
+                          <span className="text-base">Min</span>
                         </div>
                         <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
                           {isTimerActive ? "Time Left" : "Redeem Now"}
