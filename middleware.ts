@@ -27,6 +27,7 @@ export function middleware(request: NextRequest) {
   if (isAdminRoute && accessToken) {
     const isAdmin =
       userRole === "admin" ||
+      userRole === "map_editor" ||
       userRole === "superadmin" ||
       userRole === "super_admin";
 

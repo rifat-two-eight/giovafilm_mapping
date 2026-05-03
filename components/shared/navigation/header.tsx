@@ -113,6 +113,7 @@ export default function Header() {
   );
 
   const { data: user } = useGetProfileQuery({});
+  console.log("current user", user);
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
@@ -341,7 +342,9 @@ export default function Header() {
                     </div>
                   </div>
                   <div className="py-2">
-                    {user?.role === "super_admin" || user?.role === "admin" ? (
+                    {user?.role === "super_admin" ||
+                    user?.role === "admin" ||
+                    user?.role === "map_editor" ? (
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />

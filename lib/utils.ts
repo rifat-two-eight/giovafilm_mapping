@@ -1,4 +1,18 @@
 import { clsx, type ClassValue } from "clsx";
+import {
+  LayoutDashboard,
+  Map,
+  MapPin,
+  Tag,
+  BadgePercent,
+  Users,
+  Bell,
+  Building2,
+  BarChart3,
+  Settings,
+  LogOut,
+  CreditCard,
+} from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -69,5 +83,91 @@ export const mapStyles = [
   {
     featureType: "poi.business",
     stylers: [{ visibility: "on" }],
+  },
+];
+
+export const adminMenuItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Maps",
+    url: "/dashboard/maps",
+    icon: Map,
+  },
+  {
+    title: "Places",
+    url: "/dashboard/places",
+    icon: MapPin,
+  },
+  {
+    title: "Categories",
+    url: "/dashboard/categories",
+    icon: Tag,
+  },
+  {
+    title: "Offers",
+    url: "/dashboard/offers",
+    icon: BadgePercent,
+  },
+  {
+    title: "Users & Roles",
+    url: "/dashboard/users-roles",
+    icon: Users,
+  },
+  // {
+  //   title: "Notification",
+  //   url: "/dashboard/notification",
+  //   icon: Bell,
+  // },
+  {
+    title: "Business",
+    url: "/dashboard/business",
+    icon: Building2,
+  },
+  {
+    title: "Reports & Statistics",
+    url: "/dashboard/reports",
+    icon: BarChart3,
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+  },
+  {
+    title: "Subscription",
+    url: "/dashboard/subscription",
+    icon: CreditCard,
+  },
+];
+
+export const mapEditorMenuItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Maps",
+    url: "/dashboard/maps",
+    icon: Map,
+  },
+  {
+    title: "Places",
+    url: "/dashboard/places",
+    icon: MapPin,
+  },
+  {
+    title: "Categories",
+    url: "/dashboard/categories",
+    icon: Tag,
+  },
+  {
+    title: "Offers",
+    url: "/dashboard/offers",
+    icon: BadgePercent,
   },
 ];

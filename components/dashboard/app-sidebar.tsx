@@ -10,91 +10,30 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import {
-  LayoutDashboard,
-  Map,
-  MapPin,
-  Tag,
-  BadgePercent,
-  Users,
-  Bell,
-  Building2,
-  BarChart3,
-  Settings,
-  LogOut,
-  CreditCard,
-} from "lucide-react";
+import { adminMenuItems, mapEditorMenuItems } from "@/lib/utils";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
-import { useAppDispatch } from "@/redux/hook";
 import { logout } from "@/redux/features/auth/authSlice";
-import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
-
-const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Maps",
-    url: "/dashboard/maps",
-    icon: Map,
-  },
-  {
-    title: "Places",
-    url: "/dashboard/places",
-    icon: MapPin,
-  },
-  {
-    title: "Categories",
-    url: "/dashboard/categories",
-    icon: Tag,
-  },
-  {
-    title: "Offers",
-    url: "/dashboard/offers",
-    icon: BadgePercent,
-  },
-  {
-    title: "Users & Roles",
-    url: "/dashboard/users-roles",
-    icon: Users,
-  },
-  // {
-  //   title: "Notification",
-  //   url: "/dashboard/notification",
-  //   icon: Bell,
-  // },
-  {
-    title: "Business",
-    url: "/dashboard/business",
-    icon: Building2,
-  },
-  {
-    title: "Reports & Statistics",
-    url: "/dashboard/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-  },
-  {
-    title: "Subscription",
-    url: "/dashboard/subscription",
-    icon: CreditCard,
-  },
-];
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useAppDispatch } from "@/redux/hook";
+import { LogOut } from "lucide-react";
+import { broadcastLogout } from "../shared/cross-tab-logout-listener";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { data: user } = useGetProfileQuery({});
+
+  const menuItems =
+    user?.role === "admin" || user?.role === "super_admin"
+      ? adminMenuItems
+      : user?.role === "map-editor"
+        ? mapEditorMenuItems
+        : [];
 
   const [logoutApi] = useLogoutMutation();
 
@@ -129,7 +68,7 @@ export function AppSidebar() {
         <SidebarGroup className="p-0 shadow-none">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3 px-2">
-              {menuItems.map((item) => {
+              {menuItems?.map((item) => {
                 const isActive =
                   item.url === "/dashboard"
                     ? pathname === "/dashboard"
