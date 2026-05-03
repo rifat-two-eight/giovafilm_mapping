@@ -32,6 +32,7 @@ interface PlaceFormContentProps {
   categories: any[];
   onSave: (data: any) => Promise<void>;
   isSaving: boolean;
+  isFetchingAddress?: boolean;
   onClose: () => void;
   initialData?: {
     name: string;
@@ -64,6 +65,7 @@ export const PlaceFormContent = ({
   categories,
   onSave,
   isSaving,
+  isFetchingAddress,
   onClose,
   initialData,
 }: PlaceFormContentProps) => {
@@ -124,6 +126,12 @@ export const PlaceFormContent = ({
       previews.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
+
+  useEffect(() => {
+    if (initialData?.address !== undefined) {
+      setFormData((prev) => ({ ...prev, address: initialData.address || "" }));
+    }
+  }, [initialData?.address]);
 
   const handleSave = async (publish: boolean = false) => {
     await onSave({
@@ -352,13 +360,21 @@ export const PlaceFormContent = ({
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 />
                 <Input
-                  placeholder="Full address"
+                  placeholder={
+                    isFetchingAddress ? "Fetching address..." : "Full address"
+                  }
                   value={formData.address}
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
-                  className="bg-white border-gray-200 rounded-lg h-10 pl-10 text-sm italic"
+                  className={`bg-white border-gray-200 rounded-lg h-10 pl-10 text-sm italic ${isFetchingAddress ? "animate-pulse text-gray-400" : ""}`}
+                  disabled={isFetchingAddress}
                 />
+                {isFetchingAddress && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
               </div>
             </div>
 

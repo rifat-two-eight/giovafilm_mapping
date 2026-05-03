@@ -158,6 +158,25 @@ export default function AddPlacePage() {
   const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
   const [formData, setFormData] = useState({ name: "", description: "" });
+  const [isFetchingAddress, setIsFetchingAddress] = useState(false);
+
+  const updateAddressFromCoords = async (lat: number, lng: number) => {
+    setIsFetchingAddress(true);
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`
+      );
+      const data = await response.json();
+      if (data.status === "OK" && data.results.length > 0) {
+        const address = data.results[0].formatted_address;
+        setSelectedPlace((prev: any) => (prev ? { ...prev, address } : null));
+      }
+    } catch (error) {
+      console.error("Error fetching address:", error);
+    } finally {
+      setIsFetchingAddress(false);
+    }
+  };
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
 
@@ -253,7 +272,12 @@ export default function AddPlacePage() {
       const newLat = extractedCoords.lat;
       const newLng = extractedCoords.lng;
       setTempMarker({ lat: newLat, lng: newLng });
-      setSelectedPlace({ position: { lat: newLat, lng: newLng }, isNew: true });
+      setSelectedPlace({
+        position: { lat: newLat, lng: newLng },
+        isNew: true,
+        address: "",
+      });
+      updateAddressFromCoords(newLat, newLng);
       setFormData({ name: "", description: "" });
       setMapUrl("");
       setIsAddingMarker(false);
@@ -276,7 +300,12 @@ export default function AddPlacePage() {
     const newLng = e.detail.latLng.lng;
 
     setTempMarker({ lat: newLat, lng: newLng });
-    setSelectedPlace({ position: { lat: newLat, lng: newLng }, isNew: true });
+    setSelectedPlace({
+      position: { lat: newLat, lng: newLng },
+      isNew: true,
+      address: "",
+    });
+    updateAddressFromCoords(newLat, newLng);
     setFormData({ name: "", description: "" });
     setIsAddingMarker(false);
   };
@@ -693,8 +722,23 @@ export default function AddPlacePage() {
               {tempMarker && (
                 <AdvancedMarker
                   position={tempMarker}
+                  draggable={true}
+                  onDragEnd={(e: any) => {
+                    const newLat = e.latLng.lat();
+                    const newLng = e.latLng.lng();
+                    const newPos = { lat: newLat, lng: newLng };
+                    setTempMarker(newPos);
+                    setSelectedPlace((prev: any) =>
+                      prev ? { ...prev, position: newPos } : null,
+                    );
+                    updateAddressFromCoords(newLat, newLng);
+                  }}
                   onClick={() =>
-                    setSelectedPlace({ position: tempMarker, isNew: true })
+                    setSelectedPlace({
+                      position: tempMarker,
+                      isNew: true,
+                      address: selectedPlace?.address || "",
+                    })
                   }
                 >
                   <CategoryMarker
@@ -714,6 +758,7 @@ export default function AddPlacePage() {
                   categories={categories}
                   onSave={handleSavePlace}
                   isSaving={isCreating}
+                  isFetchingAddress={isFetchingAddress}
                   initialData={{
                     ...selectedPlace,
                     category: selectedCategoryId || "",

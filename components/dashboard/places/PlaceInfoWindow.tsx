@@ -7,6 +7,7 @@ interface PlaceInfoWindowProps {
   categories: any[];
   onSave: (data: any) => Promise<void>;
   isSaving: boolean;
+  isFetchingAddress?: boolean;
   initialData?: {
     name: string;
     description: string;
@@ -31,6 +32,7 @@ export const PlaceInfoWindow = ({
   categories,
   onSave,
   isSaving,
+  isFetchingAddress,
   initialData,
 }: PlaceInfoWindowProps) => {
   return (
@@ -39,6 +41,7 @@ export const PlaceInfoWindow = ({
         <PlaceFormContent
           categories={categories}
           isSaving={isSaving}
+          isFetchingAddress={isFetchingAddress}
           onClose={onClose}
           onSave={onSave}
           initialData={initialData}
