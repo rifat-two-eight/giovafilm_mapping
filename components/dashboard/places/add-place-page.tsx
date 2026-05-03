@@ -94,7 +94,11 @@ function GeolocationOnLoad() {
   return null;
 }
 
-function MapPanner({ position }: { position: { lat: number; lng: number } | null }) {
+function MapPanner({
+  position,
+}: {
+  position: { lat: number; lng: number } | null;
+}) {
   const map = useMap();
   useEffect(() => {
     if (map && position) {
@@ -111,7 +115,9 @@ export default function AddPlacePage() {
   // filterCategoryId: the category clicked in the sidebar for map filtering
   // null = show all, otherwise show only places in that category
   const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(
+    null,
+  );
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
@@ -285,9 +291,7 @@ export default function AddPlacePage() {
     setSelectedPlace({ ...place, position, isNew: false });
 
     const catId =
-      typeof place.category === "object"
-        ? place.category?._id
-        : place.category;
+      typeof place.category === "object" ? place.category?._id : place.category;
     setSelectedCategoryId(catId || null);
 
     setFormData({
@@ -338,8 +342,8 @@ export default function AddPlacePage() {
         schedules: finalData.schedules || "",
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
-        atmosphere: finalData.atmosphere || "",
-        difficulty: finalData.difficulty || "",
+        ...(finalData.atmosphere ? { atmosphere: finalData.atmosphere } : {}),
+        ...(finalData.difficulty ? { difficulty: finalData.difficulty } : {}),
       };
 
       let payload: any = placeData;
@@ -531,7 +535,10 @@ export default function AddPlacePage() {
                   const isFilterActive = filterCategoryId === cat._id;
                   const isExpanded = expandedCategoryId === cat._id;
                   const placesInCat = fetchedPlaces.filter((p: any) => {
-                    const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+                    const pCatId =
+                      typeof p.category === "object"
+                        ? p.category?._id
+                        : p.category;
                     return pCatId === cat._id;
                   });
 
@@ -553,10 +560,16 @@ export default function AddPlacePage() {
                           <ChevronRight
                             size={14}
                             className={`transition-transform duration-200 ${
-                              isExpanded ? "rotate-90 text-blue-500" : "text-gray-300"
+                              isExpanded
+                                ? "rotate-90 text-blue-500"
+                                : "text-gray-300"
                             }`}
                           />
-                          <CategoryIcon icon={cat.icon} size={22} color={cat.color} />
+                          <CategoryIcon
+                            icon={cat.icon}
+                            size={22}
+                            color={cat.color}
+                          />
                           <span className="truncate">{cat.name}</span>
                         </div>
                         <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
@@ -579,8 +592,12 @@ export default function AddPlacePage() {
                             >
                               <div className="flex flex-col">
                                 <span className="truncate">{place.name}</span>
-                                <span className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}>
-                                  {place.address ? place.address.split(',')[0] : "No address"}
+                                <span
+                                  className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
+                                >
+                                  {place.address
+                                    ? place.address.split(",")[0]
+                                    : "No address"}
                                 </span>
                               </div>
                             </button>
@@ -702,7 +719,8 @@ export default function AddPlacePage() {
                     category: selectedCategoryId || "",
                     address: selectedPlace.address || "",
                     accessDescription: selectedPlace.details?.access || "",
-                    recommendations: selectedPlace.details?.recommendations || "",
+                    recommendations:
+                      selectedPlace.details?.recommendations || "",
                     isNew: selectedPlace.isNew,
                   }}
                 />

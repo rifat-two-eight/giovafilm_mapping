@@ -397,14 +397,24 @@ export const PlaceFormContent = ({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Atmosphere</Label>
-                  <Input
-                    placeholder='e.g., "Relaxing"'
-                    value={formData.atmosphere}
-                    onChange={(e) =>
-                      setFormData({ ...formData, atmosphere: e.target.value })
+                  <Select
+                    value={formData.atmosphere || undefined}
+                    onValueChange={(val) =>
+                      setFormData({ ...formData, atmosphere: val })
                     }
-                    className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
-                  />
+                  >
+                    <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
+                      <SelectValue placeholder="Select atmosphere" />
+                    </SelectTrigger>
+                    <SelectContent
+                      position="popper"
+                      style={{ zIndex: 99999 }}
+                    >
+                      <SelectItem value="Easy">Easy</SelectItem>
+                      <SelectItem value="Moderate">Moderate</SelectItem>
+                      <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {categories

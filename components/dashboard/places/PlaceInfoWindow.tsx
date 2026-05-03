@@ -22,6 +22,7 @@ interface PlaceInfoWindowProps {
     entryCost?: number;
     hikeTime?: number;
     atmosphere?: string;
+    difficulty?: string;
   };
 }
 
