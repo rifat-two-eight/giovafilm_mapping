@@ -85,8 +85,8 @@ export function UpdatePlaceModal({
         schedules: finalData.schedules || "",
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
-        ...(finalData.atmosphere ? { atmosphere: finalData.atmosphere } : {}),
-        ...(finalData.difficulty ? { difficulty: finalData.difficulty } : {}),
+        atmosphere: finalData.atmosphere || "",
+        difficulty: finalData.difficulty || "",
         // Pass retained existing images back so backend knows what to keep
         existingImages: finalData.existingImages || [],
       };

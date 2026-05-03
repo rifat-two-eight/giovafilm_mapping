@@ -2,6 +2,7 @@
 
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
 
+import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
@@ -26,12 +28,10 @@ import {
   Map,
   useMap,
 } from "@vis.gl/react-google-maps";
-import { ChevronRight, Map as MapIcon, Plus, Search } from "lucide-react";
+import { ChevronRight, Map as MapIcon, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { mapStyles } from "@/lib/utils";
-import { CategoryIcon } from "@/components/shared/categories/category-icon";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -342,8 +342,8 @@ export default function AddPlacePage() {
         schedules: finalData.schedules || "",
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
-        ...(finalData.atmosphere ? { atmosphere: finalData.atmosphere } : {}),
-        ...(finalData.difficulty ? { difficulty: finalData.difficulty } : {}),
+        atmosphere: finalData.atmosphere || "",
+        difficulty: finalData.difficulty || "",
       };
 
       let payload: any = placeData;
