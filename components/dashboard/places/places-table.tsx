@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { ReviewModal } from "../../Common/maps/review-modal";
 import { UpdatePlaceModal } from "./UpdatePlaceModal";
 import { ViewPlaceModal } from "./view-place-modal";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 
 interface Place {
   _id: string;
@@ -40,6 +41,8 @@ export function PlacesTable() {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+
+  const { data: user } = useGetProfileQuery({});
 
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
@@ -229,13 +232,16 @@ export function PlacesTable() {
                         Review
                         <MessageSquare size={18} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(place._id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                        aria-label="Delete place"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+
+                      {user?.role !== "map_editor" && (
+                        <button
+                          onClick={() => handleDelete(place._id)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
+                          aria-label="Delete place"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

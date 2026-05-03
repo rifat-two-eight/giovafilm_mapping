@@ -161,11 +161,6 @@ export const mapEditorMenuItems = [
     icon: MapPin,
   },
   {
-    title: "Categories",
-    url: "/dashboard/categories",
-    icon: Tag,
-  },
-  {
     title: "Offers",
     url: "/dashboard/offers",
     icon: BadgePercent,

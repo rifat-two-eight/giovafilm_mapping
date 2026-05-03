@@ -31,7 +31,7 @@ export function AppSidebar() {
   const menuItems =
     user?.role === "admin" || user?.role === "super_admin"
       ? adminMenuItems
-      : user?.role === "map-editor"
+      : user?.role === "map_editor"
         ? mapEditorMenuItems
         : [];
 

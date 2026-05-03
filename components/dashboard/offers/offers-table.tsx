@@ -4,11 +4,13 @@ import {
   useDeleteOfferMutation,
   useGetOffersQuery,
 } from "@/redux/features/offer/offerApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
+  const { data: user } = useGetProfileQuery({});
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const [deleteOffer] = useDeleteOfferMutation();
 
@@ -182,13 +184,16 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                       )}
 
                       {/* Delete */}
-                      <button
-                        onClick={() => handleDelete(offer._id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                        aria-label="Delete offer"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+
+                      {user?.role !== "map_editor" && (
+                        <button
+                          onClick={() => handleDelete(offer._id)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
+                          aria-label="Delete offer"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

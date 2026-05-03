@@ -7,7 +7,8 @@ import {
   useGetMapsQuery,
   useUpdateMapStatusMutation,
 } from "@/redux/features/map/mapApi";
-import { Copy, Edit, Eye, EyeOff, Search, Trash2 } from "lucide-react";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { Edit, Eye, EyeOff, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -37,6 +38,8 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { data: user } = useGetProfileQuery({});
 
   const { data: response, isLoading } = useGetMapsQuery({
     page,
@@ -198,7 +201,9 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                       </button> */}
 
                       <button
-                        onClick={() => handleToggleStatus(map._id, map.isActive)}
+                        onClick={() =>
+                          handleToggleStatus(map._id, map.isActive)
+                        }
                         className="text-orange-500 hover:text-orange-700 transition-colors"
                         aria-label={map.isActive ? "Hide map" : "Show map"}
                       >
@@ -208,14 +213,15 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                           <EyeOff size={18} />
                         )}
                       </button>
-
-                      <button
-                        onClick={() => handleDelete(map._id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                        aria-label="Delete map"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {user?.role !== "map_editor" && (
+                        <button
+                          onClick={() => handleDelete(map._id)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
+                          aria-label="Delete map"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
