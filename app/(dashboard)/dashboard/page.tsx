@@ -19,7 +19,8 @@ import {
 export default function Page() {
   const { data: response, isLoading, isError } = useGetDashboardStatsQuery();
   const { data: profileRes } = useGetProfileQuery({});
-  const user = profileRes?.data;
+
+  console.log(profileRes);
 
   const stats = response?.data?.stats;
   const recentActivity = response?.data?.recentActivity || [];
@@ -67,6 +68,27 @@ export default function Page() {
     },
   ];
 
+  const mapEditorStats = [
+    {
+      label: "Total Maps",
+      value: stats?.totalMaps?.toString() || "0",
+      icon: <LayoutGrid size={24} />,
+      iconBgColor: "bg-blue-500",
+    },
+    {
+      label: "Total Places",
+      value: stats?.totalPlaces?.toString() || "0",
+      icon: <MapPin size={24} />,
+      iconBgColor: "bg-green-500",
+    },
+    {
+      label: "Active Offers",
+      value: stats?.activeOffers?.toString() || "0",
+      icon: <Gift size={24} />,
+      iconBgColor: "bg-purple-500",
+    },
+  ];
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -79,15 +101,8 @@ export default function Page() {
     <div>
       <h1 className="text-3xl font-bold font-arial pb-6">Dashboard Overview</h1>
 
-      {isError ? (
-        <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          <span>
-            {user?.role === "map_editor"
-              ? "Access restricted: You don't have permission to view global statistics."
-              : "Failed to load dashboard statistics. Please try again later."}
-          </span>
-        </div>
+      {profileRes?.role === "map_editor" ? (
+        <StatCard data={mapEditorStats} />
       ) : (
         <StatCard data={statsData} />
       )}
