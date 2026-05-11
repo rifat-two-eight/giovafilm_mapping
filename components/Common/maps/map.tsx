@@ -1,23 +1,8 @@
 "use client";
 
-import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
@@ -33,6 +18,7 @@ import {
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
+import { MapFilters } from "./MapFilters";
 import LocationDialog from "./location-dialog";
 
 export function getCategoryColor(cat: any) {
@@ -100,6 +86,19 @@ export default function MapPage() {
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [detectedCountry, setDetectedCountry] = useState<string>("");
   const [isManualSelection, setIsManualSelection] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const { data: userProfile } = useGetProfileQuery({});
   const geocodingLib = useMapsLibrary("geocoding");
@@ -185,6 +184,8 @@ export default function MapPage() {
     return enabledCategories[id] !== false;
   });
 
+  if (!hasMounted) return null;
+
   return (
     <div className="">
       <div style={{ height: "calc(100vh - 90px)", width: "100%" }}>
@@ -207,7 +208,7 @@ export default function MapPage() {
             gestureHandling={"greedy"}
             disableDefaultUI={false}
             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-            mapTypeControl={true}
+            mapTypeControl={!isMobile}
             mapTypeControlOptions={{
               position: ControlPosition.TOP_RIGHT,
             }}
@@ -282,134 +283,21 @@ export default function MapPage() {
               );
             })}
 
-            {/* Categories panel — top-left overlay via MapControl */}
             <MapControl position={ControlPosition.TOP_LEFT}>
               <div className="flex items-start gap-2 m-3">
-                {/* Category Filter */}
-                <div className="flex items-start gap-2">
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
-                    <Accordion type="single" collapsible className="w-full">
-                      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
-                        <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-                          Map Categories
-                        </span>
-                      </div>
-                      <div className="max-h-[50vh] overflow-y-auto ">
-                        {fetchedCategories.map((cat: any) => {
-                          const enabled = enabledCategories[cat._id] ?? true;
-                          const placesInCat = fetchedPlaces.filter((p: any) => {
-                            const pCatId =
-                              typeof p.category === "object"
-                                ? p.category?._id
-                                : p.category;
-                            return pCatId === cat._id;
-                          });
-
-                          return (
-                            <AccordionItem
-                              key={cat._id}
-                              value={cat._id}
-                              className=""
-                            >
-                              <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0">
-                                <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
-                                  <div className="flex items-center gap-3 w-full">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                                      <CategoryIcon
-                                        icon={cat.icon}
-                                        size={18}
-                                        color="#fff"
-                                      />
-                                    </div>
-                                    <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize truncate">
-                                      {cat.name}
-                                    </span>
-                                    {/* <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mr-2">
-                                      {placesInCat.length}
-                                    </span> */}
-                                  </div>
-                                </AccordionTrigger>
-                                <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
-                                  <Switch
-                                    checked={enabled}
-                                    onCheckedChange={(val) =>
-                                      handleToggle(cat._id, val)
-                                    }
-                                    className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
-                                  />
-                                </div>
-                              </div>
-                              <AccordionContent className="bg-gray-50/30 px-0 pb-0">
-                                <div className="py-1">
-                                  {placesInCat.length > 0 ? (
-                                    placesInCat.map((place: any) => (
-                                      <button
-                                        key={place._id}
-                                        onClick={() =>
-                                          setSelectedLocation({ id: place._id })
-                                        }
-                                        className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
-                                          selectedLocation?.id === place._id
-                                            ? "bg-blue-600 text-white font-bold shadow-md"
-                                            : "text-gray-600 hover:bg-white hover:text-blue-600"
-                                        }`}
-                                      >
-                                        <div
-                                          className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`}
-                                        />
-                                        <div className="flex flex-col min-w-0">
-                                          <span className="truncate">
-                                            {place.name}
-                                          </span>
-                                        </div>
-                                      </button>
-                                    ))
-                                  ) : (
-                                    <div className="px-10 py-3 text-gray-400 italic">
-                                      No places in this category yet.
-                                    </div>
-                                  )}
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          );
-                        })}
-                      </div>
-                    </Accordion>
-                  </div>
-
-                  {/* Country Filter */}
-                  <div className="w-40 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <Select
-                      onValueChange={(val) => {
-                        setSelectedCountry(val);
-                        setIsManualSelection(true);
-                      }}
-                      value={selectedCountry}
-                    >
-                      <SelectTrigger className="w-full py-6 border-none focus:ring-0 font-semibold text-gray-800 bg-white">
-                        <SelectValue placeholder="Select Country" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
-                        <SelectItem
-                          value="all"
-                          className="capitalize font-medium"
-                        >
-                          All Countries
-                        </SelectItem>
-                        {availableCountries.map((country: string) => (
-                          <SelectItem
-                            key={country}
-                            value={country}
-                            className="capitalize font-medium"
-                          >
-                            {country}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                <MapFilters
+                  isMobile={isMobile}
+                  fetchedCategories={fetchedCategories}
+                  enabledCategories={enabledCategories}
+                  fetchedPlaces={fetchedPlaces}
+                  handleToggle={handleToggle}
+                  setSelectedLocation={setSelectedLocation}
+                  selectedLocation={selectedLocation}
+                  selectedCountry={selectedCountry}
+                  setSelectedCountry={setSelectedCountry}
+                  setIsManualSelection={setIsManualSelection}
+                  availableCountries={availableCountries}
+                />
               </div>
             </MapControl>
           </Map>
