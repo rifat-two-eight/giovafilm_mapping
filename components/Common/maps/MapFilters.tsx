@@ -46,16 +46,19 @@ export function MapFilters({
   return (
     <div className="flex flex-col md:flex-row items-start gap-2">
       {/* Category Filter */}
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-60">
+      <div
+        className="bg-white rounded-lg shadow-lg border border-gray-200"
+        style={{ width: "350px" }}
+      >
         {!isMobile ? (
           /* Desktop View: Static Header */
-          <div className="w-full">
+          <div className="min-w-full">
             <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
               <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
                 Map Categories
               </span>
             </div>
-            <div className="max-h-[50vh] overflow-y-auto ">
+            <div style={{ overflowY: "auto", height: "80vh" }}>
               <Accordion type="single" collapsible className="w-full">
                 {fetchedCategories.map((cat: any) => {
                   const enabled = enabledCategories[cat._id] ?? true;
@@ -79,15 +82,19 @@ export function MapFilters({
                                 color="#fff"
                               />
                             </div>
-                            <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize truncate">
-                              {cat.name}
+                            <span className="text-left text-sm font-semibold text-gray-700 capitalize">
+                              {cat.name.length > 25
+                                ? `${cat.name.slice(0, 25)}...`
+                                : cat.name}
                             </span>
                           </div>
                         </AccordionTrigger>
                         <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
                           <Switch
                             checked={enabled}
-                            onCheckedChange={(val) => handleToggle(cat._id, val)}
+                            onCheckedChange={(val) =>
+                              handleToggle(cat._id, val)
+                            }
                             className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
                           />
                         </div>
@@ -137,8 +144,11 @@ export function MapFilters({
                   Map Categories
                 </span>
               </AccordionTrigger>
-              <AccordionContent className="pb-0 border-t border-gray-100">
-                <div className="max-h-[50vh] overflow-y-auto">
+              <AccordionContent
+                className="pb-0 border-t border-gray-100"
+                style={{ overflowY: "auto", height: "80vh" }}
+              >
+                <div className="">
                   <Accordion type="single" collapsible className="w-full">
                     {fetchedCategories.map((cat: any) => {
                       const enabled = enabledCategories[cat._id] ?? true;
@@ -157,7 +167,7 @@ export function MapFilters({
                           className=""
                         >
                           <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0">
-                            <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
+                            <AccordionTrigger className="flex-1 py-2 px-0 transition-colors">
                               <div className="flex items-center gap-3 w-full">
                                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                                   <CategoryIcon
@@ -166,12 +176,14 @@ export function MapFilters({
                                     color="#fff"
                                   />
                                 </div>
-                                <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize truncate">
-                                  {cat.name}
+                                <span className="flex-1 text-left text-sm font-bold text-gray-700 capitalize ">
+                                  {cat.name.length > 26
+                                    ? `${cat.name.slice(0, 26)}...`
+                                    : cat.name}
                                 </span>
                               </div>
                             </AccordionTrigger>
-                            <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
+                            <div className=" py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
                               <Switch
                                 checked={enabled}
                                 onCheckedChange={(val) =>

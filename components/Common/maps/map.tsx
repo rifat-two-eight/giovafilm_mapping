@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { MapFilters } from "./MapFilters";
 import LocationDialog from "./location-dialog";
+import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 
 export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
@@ -107,11 +108,19 @@ export default function MapPage() {
     setEnabledCategories((prev) => ({ ...prev, [id]: value }));
   };
 
+  const { data: map } = useGetPublicPlacesBusinessQuery({
+    limit: 100,
+    country: selectedCountry === "all" ? "" : selectedCountry,
+  });
+  console.log("all map data", map?.data);
+
   // --- API Fetches ---
   const { data: placesRes } = useGetPlacesQuery({
     limit: 100,
     country: selectedCountry === "all" ? "" : selectedCountry,
   });
+  console.log("placesRes", placesRes);
+
   const fetchedPlaces = placesRes?.data || [];
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
