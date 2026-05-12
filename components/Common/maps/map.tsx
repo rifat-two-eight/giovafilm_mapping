@@ -6,7 +6,7 @@ import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load"
 import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
-import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
   AdvancedMarker,
@@ -20,7 +20,6 @@ import {
 import { useEffect, useState } from "react";
 import { MapFilters } from "./MapFilters";
 import LocationDialog from "./location-dialog";
-import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 
 export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
@@ -108,18 +107,18 @@ export default function MapPage() {
     setEnabledCategories((prev) => ({ ...prev, [id]: value }));
   };
 
-  const { data: map } = useGetPublicPlacesBusinessQuery({
-    limit: 100,
+  const { data: placesRes } = useGetPublicPlacesBusinessQuery({
+    limit: 1000,
     country: selectedCountry === "all" ? "" : selectedCountry,
   });
-  console.log("all map data", map?.data);
+  console.log("all map data", placesRes?.data);
 
   // --- API Fetches ---
-  const { data: placesRes } = useGetPlacesQuery({
-    limit: 100,
-    country: selectedCountry === "all" ? "" : selectedCountry,
-  });
-  console.log("placesRes", placesRes);
+  // const { data: placesRes } = useGetPlacesQuery({
+  //   limit: 100,
+  //   country: selectedCountry === "all" ? "" : selectedCountry,
+  // });
+  // console.log("placesRes", placesRes);
 
   const fetchedPlaces = placesRes?.data || [];
 
@@ -173,10 +172,10 @@ export default function MapPage() {
 
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
-  const displayPlaces = fetchedPlaces.filter((place: any) => {
+  const displayPlaces = fetchedPlaces?.filter((place: any) => {
     // Country filter (Strict: must match selected country unless "all" is selected)
     if (selectedCountry && selectedCountry !== "all") {
-      const placeCountry = place.location?.country || place.country;
+      const placeCountry = place?.location?.country || place?.country;
       if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
         return false;
     }
@@ -239,10 +238,10 @@ export default function MapPage() {
                     ? {
                         lat: displayPlaces.find(
                           (p: any) => p._id === selectedLocation.id,
-                        ).location.coordinates[1],
+                        )?.location?.coordinates?.[1],
                         lng: displayPlaces.find(
                           (p: any) => p._id === selectedLocation.id,
-                        ).location.coordinates[0],
+                        )?.location?.coordinates?.[0],
                       }
                     : null
                   : null
@@ -254,10 +253,10 @@ export default function MapPage() {
             <AdvancedMarker position={markerPos} />
 
             {/* Render all fetched places as category-icon markers */}
-            {displayPlaces.map((place: any) => {
+            {displayPlaces?.map((place: any) => {
               const position = {
-                lat: place.location?.coordinates[1] || place.latitude,
-                lng: place.location?.coordinates[0] || place.longitude,
+                lat: place?.location?.coordinates?.[1] || place?.latitude,
+                lng: place?.location?.coordinates?.[0] || place?.longitude,
               };
 
               if (!position.lat || !position.lng) return null;

@@ -16,6 +16,7 @@ export const publicApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Place"],
+      transformResponse: (response: any) => response.data,
     }),
   }),
 });
