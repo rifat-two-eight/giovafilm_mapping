@@ -94,7 +94,7 @@ export default function LocationDialog({ id, onClose }: Props) {
           <p className="text-sm text-gray-600 mb-6">{location?.description}</p>
 
           <div className="flex gap-3">
-            <Link href={`/maps/${location?.id}`} className="flex-1">
+            <Link href={`/maps/${placeId}?type=${type}`} className="flex-1">
               <Button className="w-full bg-[#FFC107] text-black font-bold rounded-xl h-12">
                 View Details
               </Button>
