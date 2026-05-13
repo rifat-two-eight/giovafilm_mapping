@@ -5,9 +5,9 @@
     "data": {
         "meta": {
             "page": 1,
-            "limit": 100,
+            "limit": 1000,
             "total": 101,
-            "totalPage": 2
+            "totalPage": 1
         },
         "data": [
             {
@@ -3300,6 +3300,68 @@
                 "updatedAt": "2026-05-11T21:30:41.131Z",
                 "__v": 0,
                 "type": "place"
+            },
+            {
+                "_id": "69f105ebdb7c37669f8ee0ff",
+                "user": "69f0383ccfb7e37bdc0c62be",
+                "name": "Anne Case",
+                "category": {
+                    "_id": "69ecfef107e42b9b2e865e7d",
+                    "name": "Business",
+                    "color": "#3b82f6",
+                    "icon": "🏗️",
+                    "status": "Active",
+                    "createdAt": "2026-04-25T17:50:41.975Z",
+                    "updatedAt": "2026-04-25T17:50:41.975Z",
+                    "__v": 0
+                },
+                "description": "Enim qui sit expedit",
+                "contact": {
+                    "phone": "+1 (574) 931-4337",
+                    "website": "https://www.tag.com.au",
+                    "instagram": "walizim"
+                },
+                "location": {
+                    "address": "RF4C+P84",
+                    "city": "Dhaka District",
+                    "country": "Bangladesh",
+                    "mapLocation": {
+                        "type": "Point",
+                        "coordinates": [
+                            90.47042887671586,
+                            23.80698788486385
+                        ]
+                    }
+                },
+                "hours": {
+                    "customHours": true,
+                    "schedule": [
+                        {
+                            "days": "Mon - Sun",
+                            "openTime": "09:00",
+                            "closeTime": "18:00",
+                            "_id": "69f105ebdb7c37669f8ee100"
+                        }
+                    ]
+                },
+                "media": {
+                    "photos": [
+                        "/uploads/images/1777403371381-fiu6a4.jpg"
+                    ]
+                },
+                "privateInfo": {
+                    "ownerPhone": "+1 (941) 374-5122",
+                    "contactEmail": "hohu@mailinator.com"
+                },
+                "plan": "69effe8fbb140891247b3174",
+                "status": "Approved",
+                "isAccuracyVerified": false,
+                "viewCount": 0,
+                "hasActiveSubscription": false,
+                "createdAt": "2026-04-28T19:09:31.747Z",
+                "updatedAt": "2026-04-28T20:12:55.046Z",
+                "__v": 0,
+                "type": "business"
             }
         ]
     }

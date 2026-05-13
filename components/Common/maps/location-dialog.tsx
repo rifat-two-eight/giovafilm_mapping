@@ -6,22 +6,47 @@ import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 
 import { getImageUrl } from "@/lib/utils";
+import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 type Props = {
-  id: { id: string };
+  id: { id: string; type: string };
   onClose: () => void;
 };
 
 export default function LocationDialog({ id, onClose }: Props) {
   const placeId = id?.id;
+  const type = id?.type;
 
-  const { data } = useGetPlaceDetailsQuery(placeId);
+  // Fetch based on type
+  const { data: businessRes, isLoading: isBusinessLoading } =
+    useGetSingleBusinessQuery(placeId, {
+      skip: type !== "business",
+    });
 
-  const location: TPlace = data?.data;
+  const { data: placeRes, isLoading: isPlaceLoading } = useGetPlaceDetailsQuery(
+    placeId,
+    {
+      skip: type !== "place",
+    },
+  );
+
+  const isLoading = isBusinessLoading || isPlaceLoading;
+  const location: TPlace =
+    type === "business" ? businessRes?.data : placeRes?.data;
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
+        <div className="bg-white rounded-[32px] p-10 shadow-2xl flex items-center justify-center pointer-events-auto">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">

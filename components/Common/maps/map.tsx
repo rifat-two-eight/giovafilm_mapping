@@ -111,7 +111,7 @@ export default function MapPage() {
     limit: 1000,
     country: selectedCountry === "all" ? "" : selectedCountry,
   });
-  console.log("all map data", placesRes?.data);
+  console.log("all map data", placesRes);
 
   // --- API Fetches ---
   // const { data: placesRes } = useGetPlacesQuery({
@@ -279,6 +279,7 @@ export default function MapPage() {
                   onClick={() => {
                     setSelectedLocation({
                       id: place._id,
+                      type: place.type,
                     });
                   }}
                 >

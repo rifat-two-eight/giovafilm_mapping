@@ -333,7 +333,7 @@ export function BusinessTable() {
                           >
                             Reject
                           </DropdownMenuItem>
-                          
+
                           <DropdownMenuItem
                             onClick={() => handleDeleteSingle(business._id)}
                             className="text-red-600 font-bold focus:bg-red-50"

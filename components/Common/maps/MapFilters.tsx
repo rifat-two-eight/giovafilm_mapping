@@ -106,7 +106,10 @@ export function MapFilters({
                               <button
                                 key={place._id}
                                 onClick={() =>
-                                  setSelectedLocation({ id: place._id })
+                                  setSelectedLocation({
+                                    id: place._id,
+                                    type: place.type,
+                                  })
                                 }
                                 className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
                                   selectedLocation?.id === place._id
@@ -200,7 +203,10 @@ export function MapFilters({
                                   <button
                                     key={place._id}
                                     onClick={() =>
-                                      setSelectedLocation({ id: place._id })
+                                      setSelectedLocation({
+                                        id: place._id,
+                                        type: place.type,
+                                      })
                                     }
                                     className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
                                       selectedLocation?.id === place._id
