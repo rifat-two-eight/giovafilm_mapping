@@ -30,7 +30,7 @@ export function AuthLayout({
         <div className="flex flex-col justify-center space-y-6 ml-28 text-white">
           {/* Logo */}
           <div className="shrink-0">
-            <Link href="/maps">
+            <Link href="/">
               <Image
                 src={require("@/public/white-logo.png")}
                 alt="Dashboard Logo"

@@ -109,7 +109,7 @@ export default function MapDetails() {
     {
       icon: Timer,
       label: "HIKE TIME",
-      value: placeData?.hikeTime || "N/A",
+      value: placeData?.hikeTime ? `${placeData.hikeTime} Hours` : "N/A",
     },
   ];
 
@@ -367,7 +367,7 @@ export default function MapDetails() {
 
               <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
                 <p className="leading-relaxed">
-                  {placeData?.description ||
+                  {placeData?.access || placeData?.accessDescription || placeData?.details?.access ||
                     "No specific access details available for this location."}
                 </p>
                 {placeData?.details?.access && (

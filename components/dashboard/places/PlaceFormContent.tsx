@@ -180,11 +180,10 @@ export const PlaceFormContent = ({
             <button
               key={tab}
               onClick={() => setActiveTab(index)}
-              className={`px-4 py-4 text-sm tracking-wider transition-all relative min-w-[100px] ${
-                activeTab === index
+              className={`px-4 py-4 text-sm tracking-wider transition-all relative min-w-[100px] ${activeTab === index
                   ? "text-primary font-semibold"
                   : "text-black hover:text-gray-600 font-medium"
-              }`}
+                }`}
             >
               {tab}
               {activeTab === index && (
@@ -426,60 +425,60 @@ export const PlaceFormContent = ({
                 {categories
                   .find((c: any) => c._id === formData.category)
                   ?.name?.toLowerCase() !== "restaurant" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Entry Cost</Label>
-                      <Input
-                        placeholder='e.g., "$15.00 / vehicle"'
-                        type="number"
-                        min={0}
-                        value={formData.entryCost}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            entryCost: e.target.value,
-                          })
-                        }
-                        className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Difficulty</Label>
-                      <Select
-                        value={formData.difficulty || undefined}
-                        onValueChange={(val) =>
-                          setFormData({ ...formData, difficulty: val })
-                        }
-                      >
-                        <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
-                          <SelectValue placeholder="Select difficulty" />
-                        </SelectTrigger>
-                        <SelectContent
-                          position="popper"
-                          style={{ zIndex: 99999 }}
+                    <>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Entry Cost</Label>
+                        <Input
+                          placeholder='e.g., "$15.00 / vehicle"'
+                          type="number"
+                          min={0}
+                          value={formData.entryCost}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              entryCost: e.target.value,
+                            })
+                          }
+                          className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Difficulty</Label>
+                        <Select
+                          value={formData.difficulty || undefined}
+                          onValueChange={(val) =>
+                            setFormData({ ...formData, difficulty: val })
+                          }
                         >
-                          <SelectItem value="Easy">Easy</SelectItem>
-                          <SelectItem value="Moderate">Moderate</SelectItem>
-                          <SelectItem value="Hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Hike Time</Label>
-                      <Input
-                        placeholder='e.g., "~ 3.5 Hours"'
-                        value={formData.hikeTime}
-                        type="number"
-                        step={0.5}
-                        min={0}
-                        onChange={(e) =>
-                          setFormData({ ...formData, hikeTime: e.target.value })
-                        }
-                        className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
-                      />
-                    </div>
-                  </>
-                )}
+                          <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
+                            <SelectValue placeholder="Select difficulty" />
+                          </SelectTrigger>
+                          <SelectContent
+                            position="popper"
+                            style={{ zIndex: 99999 }}
+                          >
+                            <SelectItem value="Easy">Easy</SelectItem>
+                            <SelectItem value="Moderate">Moderate</SelectItem>
+                            <SelectItem value="Hard">Hard</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Hike Time (hours)</Label>
+                        <Input
+                          placeholder='e.g., "~ 3.5 Hours"'
+                          value={formData.hikeTime}
+                          type="number"
+                          step={0.5}
+                          min={0}
+                          onChange={(e) =>
+                            setFormData({ ...formData, hikeTime: e.target.value })
+                          }
+                          className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                        />
+                      </div>
+                    </>
+                  )}
               </div>
             )}
           </div>
@@ -637,11 +636,10 @@ export const PlaceFormContent = ({
                 <div
                   key={service.id}
                   onClick={() => toggleService(service.id)}
-                  className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
-                    formData.services.includes(service.id)
+                  className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${formData.services.includes(service.id)
                       ? "bg-blue-50 border-blue-200"
                       : "bg-white border-gray-100 hover:border-gray-200"
-                  }`}
+                    }`}
                 >
                   <Checkbox
                     checked={formData.services.includes(service.id)}

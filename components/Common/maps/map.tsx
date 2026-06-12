@@ -5,7 +5,7 @@ import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
 import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
-import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
+import { useGetAvailableCountriesQuery, useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
@@ -125,7 +125,8 @@ export default function MapPage() {
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   const fetchedCategories = categoriesRes?.data || [];
 
-  const { data: availableCountries = [] } = useGetAvailableCountriesQuery();
+  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
+  const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
 
   // Detect country from markerPos (current location)
   useEffect(() => {

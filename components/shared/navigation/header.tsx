@@ -158,7 +158,7 @@ export default function Header() {
         <nav className="flex items-center justify-between px-1 md:px-6 py-4 max-w-360 mx-auto gap-4">
           {/* Logo */}
           <div className="shrink-0">
-            <Link href="/maps">
+            <Link href="/">
               <Image
                 src={require("@/public/logo.png")}
                 alt="Dashboard Logo"
@@ -240,9 +240,8 @@ export default function Header() {
                 <Link
                   key={index}
                   href={link.href}
-                  className={`font-semibold text-black font-inter transition-colors py-1 rounded-lg ${
-                    isActive ? "bg-primary px-3 " : ""
-                  }`}
+                  className={`font-semibold text-black font-inter transition-colors py-1 rounded-lg ${isActive ? "bg-primary px-3 " : ""
+                    }`}
                 >
                   {link.name}
                 </Link>
@@ -343,8 +342,8 @@ export default function Header() {
                   </div>
                   <div className="py-2">
                     {user?.role === "super_admin" ||
-                    user?.role === "admin" ||
-                    user?.role === "map_editor" ? (
+                      user?.role === "admin" ||
+                      user?.role === "map_editor" ? (
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />
@@ -482,9 +481,8 @@ export default function Header() {
 
         {/* Mobile & Tablet Search Slide-in */}
         <div
-          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${
-            isSearchOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${isSearchOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -563,9 +561,8 @@ export default function Header() {
 
         {/* Mobile & Tablet Menu Slide-in */}
         <div
-          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${
-            isMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${isMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
           <div className="p-6">
             <div className="flex justify-between items-center mb-0">
@@ -588,9 +585,8 @@ export default function Header() {
                     key={index}
                     href={link.href}
                     onClick={closeMenus}
-                    className={`block px-4 py-2 font-semibold text-black font-inter transition-colors rounded-lg ${
-                      isActive ? "bg-primary" : "hover:bg-gray-100"
-                    }`}
+                    className={`block px-4 py-2 font-semibold text-black font-inter transition-colors rounded-lg ${isActive ? "bg-primary" : "hover:bg-gray-100"
+                      }`}
                   >
                     {link.name}
                   </Link>

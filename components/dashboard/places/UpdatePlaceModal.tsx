@@ -77,8 +77,8 @@ export function UpdatePlaceModal({
             : [],
           notes: finalData.accessibility?.notes || "",
         },
+        access: finalData.accessDescription || "",
         details: {
-          access: finalData.accessDescription || "",
           recommendations: finalData.recommendations || "",
         },
         // New fields
@@ -165,7 +165,7 @@ export function UpdatePlaceModal({
                     ? place.category?._id
                     : place.category || "",
                 address: place.address || "",
-                accessDescription: place.details?.access || "",
+                accessDescription: place.access || place.details?.access || "",
                 recommendations:
                   place.details?.recommendations || place.recommendations || "",
                 services: place.services || [],

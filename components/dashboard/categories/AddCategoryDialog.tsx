@@ -279,6 +279,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getImageUrl } from "@/lib/utils";
 
 interface AddCategoryDialogProps {
   open: boolean;
@@ -407,7 +408,11 @@ export function AddCategoryDialog({
   useEffect(() => {
     if (open) {
       if (initialData) {
-        const isCustom = initialData.icon?.startsWith("data:");
+        const isCustom =
+          initialData.icon?.startsWith("http") ||
+          initialData.icon?.startsWith("data:") ||
+          initialData.icon?.includes("/") ||
+          initialData.icon?.includes(".");
         reset({
           categoryName: initialData.name,
           color: initialData.color,
@@ -415,7 +420,7 @@ export function AddCategoryDialog({
           iconType: isCustom ? "custom" : "iconify",
         });
         if (isCustom) {
-          setCustomIconPreview(initialData.icon);
+          setCustomIconPreview(getImageUrl(initialData.icon));
           setCustomIconName(initialData.iconFileName || "custom-icon");
           setActiveTab("custom");
         } else {
@@ -537,10 +542,9 @@ export function AddCategoryDialog({
         color: data.color,
         status: initialData?.status || "Active",
         // If it's Iconify, send the icon name.
-        // If it's custom and we have a new file, the backend will handle it from 'images'.
-        // If it's custom but NO new file, we might want to send the old URL if needed,
-        // but typically the backend keeps it.
-        icon: data.iconType === "iconify" ? data.icon : initialData?.icon,
+        // If it's custom and we have a new file, omit the icon field so backend uses the uploaded file.
+        // If it's custom but NO new file, send the old URL.
+        icon: data.iconType === "iconify" ? data.icon : (selectedFile ? undefined : initialData?.icon),
         iconType: data.iconType,
         iconFileName: data.iconType === "custom" ? customIconName : undefined,
       };

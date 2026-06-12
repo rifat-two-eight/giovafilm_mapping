@@ -27,6 +27,7 @@ import {
   APIProvider,
   Map,
   useMap,
+  useMapsLibrary,
 } from "@vis.gl/react-google-maps";
 import { ChevronRight, Map as MapIcon, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -94,6 +95,29 @@ function GeolocationOnLoad() {
   return null;
 }
 
+function CountryPanner({ countryName }: { countryName: string | null }) {
+  const map = useMap();
+  const geocodingLib = useMapsLibrary("geocoding");
+
+  useEffect(() => {
+    if (!map || !geocodingLib || !countryName) return;
+
+    const geocoder = new geocodingLib.Geocoder();
+    geocoder.geocode({ address: countryName }, (results, status) => {
+      if (status === "OK" && results?.[0]) {
+        if (results[0].geometry.viewport) {
+          map.fitBounds(results[0].geometry.viewport);
+        } else {
+          map.setCenter(results[0].geometry.location);
+          map.setZoom(6);
+        }
+      }
+    });
+  }, [countryName, map, geocodingLib]);
+
+  return null;
+}
+
 function MapPanner({
   position,
 }: {
@@ -135,16 +159,26 @@ export default function AddPlacePage() {
   const fetchedPlaces = placesRes?.data || [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);
 
-  // Filter places by the sidebar-selected category (null = show all)
-  const displayPlaces = filterCategoryId
-    ? fetchedPlaces.filter((place: any) => {
-        const catId =
-          typeof place.category === "object"
-            ? place.category?._id
-            : place.category;
-        return catId === filterCategoryId;
-      })
-    : fetchedPlaces;
+  // Track which place IDs are manually disabled (hidden from map)
+  const [disabledPlaces, setDisabledPlaces] = useState<Set<string>>(new Set());
+
+  const togglePlaceVisibility = (placeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDisabledPlaces((prev) => {
+      const next = new Set(prev);
+      if (next.has(placeId)) {
+        next.delete(placeId);
+      } else {
+        next.add(placeId);
+      }
+      return next;
+    });
+  };
+
+  // Map shows ALL places by default — only manually disabled ones are hidden
+  const displayPlaces = fetchedPlaces.filter(
+    (place: any) => !disabledPlaces.has(place._id),
+  );
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -363,8 +397,8 @@ export default function AddPlacePage() {
             : [],
           notes: finalData.accessibility?.notes || "",
         },
+        access: finalData.accessDescription || "",
         details: {
-          access: finalData.accessDescription || "",
           recommendations: finalData.recommendations || "",
         },
         // New fields
@@ -609,28 +643,54 @@ export default function AddPlacePage() {
                       {/* Expandable Place List */}
                       {isExpanded && (
                         <div className="ml-9 mt-1 mb-2 pl-4 border-l-2 border-blue-100 space-y-1 animate-in slide-in-from-top-1 duration-200">
-                          {placesInCat.map((place: any) => (
-                            <button
+                          {placesInCat.map((place: any) => {
+                            const isDisabled = disabledPlaces.has(place._id);
+                            return (
+                            <div
                               key={place._id}
-                              onClick={() => handleSelectPlace(place)}
-                              className={`w-full text-left px-3 py-2 rounded-md text-xs transition-all ${
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-all ${
                                 selectedPlace?._id === place._id
                                   ? "bg-blue-600 text-white font-bold shadow-sm"
                                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                              }`}
+                              } ${isDisabled ? "opacity-50" : ""}`}
                             >
-                              <div className="flex flex-col">
-                                <span className="truncate">{place.name}</span>
-                                <span
-                                  className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
-                                >
-                                  {place.address
-                                    ? place.address.split(",")[0]
-                                    : "No address"}
-                                </span>
-                              </div>
-                            </button>
-                          ))}
+                              {/* Visibility checkbox */}
+                              <button
+                                onClick={(e) => togglePlaceVisibility(place._id, e)}
+                                title={isDisabled ? "Show on map" : "Hide from map"}
+                                className={`flex-shrink-0 w-4 h-4 rounded border transition-colors ${
+                                  isDisabled
+                                    ? "border-gray-300 bg-white"
+                                    : selectedPlace?._id === place._id
+                                    ? "border-blue-200 bg-blue-500"
+                                    : "border-gray-400 bg-blue-500"
+                                }`}
+                              >
+                                {!isDisabled && (
+                                  <svg viewBox="0 0 10 10" className="w-full h-full p-0.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <polyline points="1.5,5 4,7.5 8.5,2.5" />
+                                  </svg>
+                                )}
+                              </button>
+                              {/* Place name button */}
+                              <button
+                                onClick={() => handleSelectPlace(place)}
+                                className="flex-1 text-left min-w-0"
+                              >
+                                <div className="flex flex-col">
+                                  <span className="truncate">{place.name}</span>
+                                  <span
+                                    className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
+                                  >
+                                    {place.address
+                                      ? place.address.split(",")[0]
+                                      : "No address"}
+                                  </span>
+                                </div>
+                              </button>
+                            </div>
+                            );
+                          })}
                           {placesInCat.length === 0 && (
                             <p className="text-[10px] text-gray-400 italic py-2 pl-3">
                               No places in this category yet.
@@ -685,6 +745,9 @@ export default function AddPlacePage() {
               <GeolocationOnLoad />
 
               <CustomLocationButton />
+
+              {/* Pans to selected country when map/country is chosen */}
+              <CountryPanner countryName={selectedMap?.name || null} />
 
               <MapPanner position={selectedPlace?.position} />
 
@@ -763,7 +826,7 @@ export default function AddPlacePage() {
                     ...selectedPlace,
                     category: selectedCategoryId || "",
                     address: selectedPlace.address || "",
-                    accessDescription: selectedPlace.details?.access || "",
+                    accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
                     recommendations:
                       selectedPlace.details?.recommendations || "",
                     isNew: selectedPlace.isNew,
