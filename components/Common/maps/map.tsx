@@ -107,26 +107,24 @@ export default function MapPage() {
     setEnabledCategories((prev) => ({ ...prev, [id]: value }));
   };
 
+  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
+  const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
+
+  const selectedMapObj = mapsResponse?.data?.find((m: any) => m.name === selectedCountry);
+  const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
+
   const { data: placesRes } = useGetPublicPlacesBusinessQuery({
     limit: 1000,
-    country: selectedCountry === "all" ? "" : selectedCountry,
+    map: selectedCountry === "all" ? "" : mapIdFilter,
+    // country: selectedCountry === "all" ? "" : selectedCountry, // keep map query parameter only to match what the user is selecting
   });
-  console.log("all map data", placesRes);
-
-  // --- API Fetches ---
-  // const { data: placesRes } = useGetPlacesQuery({
-  //   limit: 100,
-  //   country: selectedCountry === "all" ? "" : selectedCountry,
-  // });
-  // console.log("placesRes", placesRes);
 
   const fetchedPlaces = placesRes?.data || [];
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   const fetchedCategories = categoriesRes?.data || [];
 
-  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
-  const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
+
 
   // Detect country from markerPos (current location)
   useEffect(() => {
@@ -175,10 +173,16 @@ export default function MapPage() {
 
   const displayPlaces = fetchedPlaces?.filter((place: any) => {
     // Country filter (Strict: must match selected country unless "all" is selected)
+    // "Select Country" acts as Map selector in our setup
     if (selectedCountry && selectedCountry !== "all") {
-      const placeCountry = place?.location?.country || place?.country;
-      if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
-        return false;
+      if (selectedMapObj) {
+        const placeMapId = typeof place.map === 'object' ? place.map._id : place.map;
+        if (placeMapId !== selectedMapObj._id) return false;
+      } else {
+        const placeCountry = place?.location?.country || place?.country;
+        if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
+          return false;
+      }
     }
 
     // Category filter:
@@ -234,16 +238,16 @@ export default function MapPage() {
               position={
                 selectedLocation
                   ? displayPlaces.find(
-                      (p: any) => p._id === selectedLocation.id,
-                    )?.location?.coordinates
+                    (p: any) => p._id === selectedLocation.id,
+                  )?.location?.coordinates
                     ? {
-                        lat: displayPlaces.find(
-                          (p: any) => p._id === selectedLocation.id,
-                        )?.location?.coordinates?.[1],
-                        lng: displayPlaces.find(
-                          (p: any) => p._id === selectedLocation.id,
-                        )?.location?.coordinates?.[0],
-                      }
+                      lat: displayPlaces.find(
+                        (p: any) => p._id === selectedLocation.id,
+                      )?.location?.coordinates?.[1],
+                      lng: displayPlaces.find(
+                        (p: any) => p._id === selectedLocation.id,
+                      )?.location?.coordinates?.[0],
+                    }
                     : null
                   : null
               }
@@ -267,8 +271,8 @@ export default function MapPage() {
                 typeof place.category === "object"
                   ? place.category
                   : fetchedCategories.find(
-                      (c: any) => c._id === place.category,
-                    );
+                    (c: any) => c._id === place.category,
+                  );
 
               const icon = cat?.icon || "📍";
               const color = getCategoryColor(cat);

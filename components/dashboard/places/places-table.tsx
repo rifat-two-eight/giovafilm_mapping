@@ -162,11 +162,10 @@ export function PlacesTable() {
               places.map((place, index) => (
                 <tr
                   key={place._id}
-                  className={`${
-                    index !== places.length - 1
+                  className={`${index !== places.length - 1
                       ? "border-b border-gray-100"
                       : ""
-                  } hover:bg-gray-50 transition-colors`}
+                    } hover:bg-gray-50 transition-colors`}
                 >
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <div className="flex flex-col">
