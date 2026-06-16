@@ -162,43 +162,68 @@ export default function ExplorePlaces() {
         </div>
 
         {/* Pagination */}
-        {meta && meta.totalPage > 1 && (
-          <div className="flex justify-center mt-12 gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={page === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg"
-            >
-              ‹
-            </Button>
+        {meta && meta.totalPage > 1 && (() => {
+          const total = meta.totalPage;
+          const pages: (number | "dots")[] = [];
 
-            {[...Array(meta.totalPage)].map((_, i) => (
+          if (total <= 7) {
+            for (let i = 1; i <= total; i++) pages.push(i);
+          } else {
+            // Always show first 4
+            for (let i = 1; i <= 4; i++) pages.push(i);
+            // Dots
+            pages.push("dots");
+            // Last 2
+            pages.push(total - 1, total);
+          }
+
+          return (
+            <div className="flex justify-center mt-12 gap-1.5 flex-wrap">
               <Button
-                key={i + 1}
-                className={
-                  page === i + 1
-                    ? "bg-yellow-400 text-black font-bold hover:bg-yellow-500 rounded-lg shadow-sm"
-                    : "bg-white text-gray-600 hover:bg-gray-100 rounded-lg border border-gray-200"
-                }
-                onClick={() => setPage(i + 1)}
+                variant="outline"
+                size="icon"
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg"
               >
-                {i + 1}
+                ‹
               </Button>
-            ))}
 
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={page === meta.totalPage}
-              onClick={() => setPage((p) => Math.min(meta.totalPage, p + 1))}
-              className="rounded-lg"
-            >
-              ›
-            </Button>
-          </div>
-        )}
+              {pages.map((p, idx) =>
+                p === "dots" ? (
+                  <span
+                    key={`dots-${idx}`}
+                    className="flex items-center justify-center w-9 h-9 text-gray-400 font-bold select-none"
+                  >
+                    ⋯
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={
+                      page === p
+                        ? "bg-yellow-400 text-black font-bold hover:bg-yellow-500 rounded-lg shadow-sm min-w-[36px]"
+                        : "bg-white text-gray-600 hover:bg-gray-100 rounded-lg border border-gray-200 min-w-[36px]"
+                    }
+                  >
+                    {p}
+                  </Button>
+                )
+              )}
+
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={page === total}
+                onClick={() => setPage((p) => Math.min(total, p + 1))}
+                className="rounded-lg"
+              >
+                ›
+              </Button>
+            </div>
+          );
+        })()}
       </div>
     </section>
   );
