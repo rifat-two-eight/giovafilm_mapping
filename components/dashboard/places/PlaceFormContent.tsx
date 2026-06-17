@@ -40,7 +40,7 @@ interface PlaceFormContentProps {
     category: string;
     address?: string;
     accessDescription?: string;
-    recommendations?: string;
+    tips?: string;
     services?: string[];
     accessibility?: any;
     images?: string[];
@@ -90,7 +90,7 @@ export const PlaceFormContent = ({
       senior: initialData?.accessibility?.senior || false,
       notes: initialData?.accessibility?.notes || "",
     },
-    recommendations: initialData?.recommendations || "",
+    tips: initialData?.tips || "",
     services: initialData?.services || ([] as string[]),
     schedules: initialData?.schedules || "",
     entryCost: initialData?.entryCost || "",
@@ -611,11 +611,11 @@ export const PlaceFormContent = ({
               </div>
               <Textarea
                 placeholder="List recommended items to bring..."
-                value={formData.recommendations}
+                value={formData.tips}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    recommendations: e.target.value,
+                    tips: e.target.value,
                   })
                 }
                 className="min-h-[160px] border-gray-100 italic text-sm bg-gray-50 focus:bg-white"

@@ -1,41 +1,22 @@
-API Documentation: Update Place (PATCH)
-এই এপিআই-এর মাধ্যমে যেকোনো বিদ্যমান প্লেস (Place) আপডেট করা যাবে। এটি একই সাথে প্লেইন ডাটা এবং নতুন ফাইল আপলোড সাপোর্ট করে।
-১. এপিআই বেসিকস (API Basics)
-URL Path: /api/v1/place/:id (যেমন: /api/v1/place/660c1d1234abcd001e123456)
-Method: PATCH
-Authorization Header: Authorization: Bearer <token>
-Required Role: ADMIN, SUPER_ADMIN, বা MAP_EDITOR
-২. রিকোয়েস্ট পে-লোড মেথড (Payload Methods)
-আপডেটের জন্য ফ্রন্টএন্ড থেকে ২টি উপায়ে রিকোয়েস্ট পাঠানো যাবে:
-ক. শুধু টেক্সট ডাটা আপডেট করলে (JSON Format)
-যদি কোনো নতুন ছবি আপলোড করার প্রয়োজন না থাকে, সরাসরি JSON বডি পাঠান।
-Header: Content-Type: application/json
-Payload:
-json{  "name": "Eiffel Tower",  "description": "Historical landmark in Paris.",  "media": ["/uploads/images/old-photo-1.jpg"] // আগের ছবিগুলো রাখতে চাইলে তাদের পাথ দিতে হবে}
-খ. নতুন ছবি আপলোড করলে (FormData Format)
-নতুন ছবি যোগ করতে হলে অবশ্যই FormData অবজেক্ট ব্যবহার করতে হবে।
-Header: Content-Type: multipart/form-data (ব্রাউজার অটোমেটিক্যালি এটি ডিটেক্ট করে বাউন্ডারি সহ সেট করবে)
-FormData-তে ২টি নির্দিষ্ট Key থাকতে হবে:
-data (Text/String): আপনার আপডেট করার পুরো পে-লোড অবজেক্টটিকে স্ট্রিংফাই করে এখানে দিন: formData.append('data', JSON.stringify(payload))
-images (File Array): নতুন আপলোড করা ছবিগুলো ফাইল আকারে এই কি-তে একের পর এক অ্যাপেন্ড করুন: formData.append('images', imageFile)
-৩. গুরুত্বপূর্ণ রিকোয়েস্ট ফিল্ডসমূহ (Payload Schema)
-সবগুলো ফিল্ড ঐচ্ছিক (Optional)। শুধুমাত্র যে ফিল্ডগুলো আপডেট করা প্রয়োজন সেগুলোই বডিতে পাঠাবেন:
-ফিল্ডের নাম	ডাটা টাইপ	বিবরণ
-name	string	প্লেসের নাম
-description	string	প্লেসের বিস্তারিত বিবরণ
-address	string	প্লেসের ঠিকানা
-map	string (ObjectId)	ম্যাপের আইডি
-category	string (ObjectId)	ক্যাটাগরির আইডি
-location	object	{ type: "Point", coordinates: [lng, lat] }
-schedules	string	প্লেসটির শিডিউল বা খোলার সময় (যেমন: "Always Open")
-difficulty	string	'Easy' | 'Moderate' | 'Hard'
-status	string	'Draft' | 'Published'
-media	array	ডাটাবেজে আগে থেকে থাকা ইমেজের পাথের তালিকা (যা আপনি রাখতে চান)
-WARNING
-ইমেজ রিমুভ করার নিয়ম: পূর্বের কোনো ছবি ডিলিট করতে চাইলে, তা media অ্যারে থেকে বাদ দিন। ডাটাবেজে শুধুমাত্র media অ্যারেতে পাঠানো ইমেজগুলোই সংরক্ষিত থাকবে। আর নতুন আপলোড করা ইমেজগুলো ব্যাকএন্ড নিজে থেকেই এই অ্যারের সাথে যুক্ত করে নেবে।
-৪. এপিআই রেসপন্স (API Response Format)
-সফল রেসপন্স (200 OK)
-
-
-
-json{  "statusCode": 200,  "success": true,  "message": "Place updated successfully",  "data": {    "_id": "660c1d1234abcd001e123456",    "name": "Updated Name",    "media": [      "/uploads/images/old-photo-1.jpg",       "/uploads/images/images/1718873099-new-photo.jpg"    ],    "schedules": "Always Open",    "status": "Published"    // অন্যান্য অবজেক্ট ডিটেইলস...  }}
+API Documentation: Handling recommendations.tips
+ডাটাবেজ স্কিমা অনুযায়ী recommendations হলো একটি অবজেক্ট, যার ভেতরে tips নামে একটি string ফিল্ড রয়েছে।
+typescriptrecommendations: {  tips: string // প্লেসটি ভ্রমণের জন্য ইউজারদের জন্য কোনো পরামর্শ বা টিপস}
+১. প্লেস তৈরি করার সময় (Create Place - POST /api/v1/place)
+নতুন প্লেস তৈরি করার সময় recommendations অবজেক্টটি রিকোয়েস্ট বডিতে পাঠাতে হবে।
+ক. JSON ফরম্যাটে পাঠালে (application/json)
+সরাসরি রিকোয়েস্ট বডির প্রধান অবজেক্টের ভেতরে recommendations অবজেক্টটি দিন:
+json{  "name": "Sajek Valley",  "description": "A beautiful hill station...",  "address": "Rangamati, Bangladesh",  "map": "6512f718c8942b001f30abcd",  "category": "6512f718c8942b001f30efgh",  "location": {    "type": "Point",    "coordinates": [92.2900, 23.3833]  },  "recommendations": {    "tips": "Best time to visit is during the winter or rainy season to enjoy the cloud play. Make sure to book your cottage in advance."  }}
+খ. ইমেজ আপলোড সহ FormData ফরম্যাটে পাঠালে (multipart/form-data)
+ফাইল আপলোডের কারণে পে-লোডটি স্ট্রিংফাই করে data কি-তে পাঠাতে হবে:
+javascriptconst payload = {  name: "Sajek Valley",  description: "A beautiful hill station...",  address: "Rangamati, Bangladesh",  map: "6512f718c8942b001f30abcd",  category: "6512f718c8942b001f30efgh",  location: {    "type": "Point",    "coordinates": [92.2900, 23.3833]  },  recommendations: {    "tips": "Best time to visit is during the winter or rainy season."  }};const formData = new FormData();formData.append("data", JSON.stringify(payload));formData.append("images", imageFile); // নতুন ফাইল
+২. প্লেস আপডেট করার সময় (Update Place - PATCH /api/v1/place/:id)
+আপডেট করার সময় আপনি পুরো অবজেক্ট অথবা শুধুমাত্র recommendations ফিল্ডটি পাঠাতে পারেন।
+ক. JSON ফরম্যাটে পাঠালে (application/json)
+json{  "recommendations": {    "tips": "Updated tip: Bring mosquito repellent creams."  }}
+খ. ইমেজ আপলোড সহ FormData ফরম্যাটে পাঠালে (multipart/form-data)
+javascriptconst updatePayload = {  recommendations: {    tips: "Updated tip: Bring mosquito repellent creams."  }};const formData = new FormData();formData.append("data", JSON.stringify(updatePayload));
+৩. গুরুত্বপূর্ণ নোট (Developer Note)
+Zod Validation: ব্যাকএন্ডে place.validation.ts ফাইলে recommendations এবং এর ভেতরে থাকা tips ফিল্ড দুটিকে optional রাখা হয়েছে। তাই ডাটা না পাঠালে বা ফর্মে কোনো ইনপুট না দিলে কোনো এরর (validation error) আসবে না।
+ফাঁকা বা খালি করতে চাইলে: আপনি যদি কোনো প্লেস থেকে পূর্বের টিপস রিমুভ করে দিতে চান, তাহলে বডিতে এভাবে খালি স্ট্রিং ("") পাঠাবেন:
+json"recommendations": {  "tips": ""}
+ 

@@ -81,8 +81,9 @@ export function UpdatePlaceModal({
           notes: finalData.accessibility?.notes || "",
         },
         access: finalData.accessDescription || "",
+        recommendations: { tips: finalData.tips || "" },
         details: {
-          recommendations: finalData.recommendations || "",
+          recommendations: finalData.tips || "",
         },
         // New fields
         schedules: finalData.schedules || "",
@@ -177,15 +178,15 @@ export function UpdatePlaceModal({
                     : place.category || "",
                 address: place.address || "",
                 accessDescription: place.access || place.details?.access || "",
-                recommendations:
-                  place.details?.recommendations || place.recommendations || "",
+                tips:
+                  place.recommendations?.tips || place.details?.recommendations || "",
                 services: place.services || [],
                 accessibility: {
                   wheelchair:
-                    place.accessibility?.features?.includes("wheelchair"),
-                  children: place.accessibility?.features?.includes("children"),
-                  pets: place.accessibility?.features?.includes("pets"),
-                  senior: place.accessibility?.features?.includes("senior"),
+                    (place.accessibility?.features || []).includes("wheelchair"),
+                  children: (place.accessibility?.features || []).includes("children"),
+                  pets: (place.accessibility?.features || []).includes("pets"),
+                  senior: (place.accessibility?.features || []).includes("senior"),
                   notes: place.accessibility?.notes || "",
                 },
                 images: place.media || [],

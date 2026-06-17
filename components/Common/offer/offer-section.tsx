@@ -108,17 +108,23 @@ export default function OfferSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
             const favourited = isOfferFavourited(offer._id);
-
+            console.log("offer data:", offer);
+            console.log("offer.photo:", offer.photo);
+            console.log("offer.place:", offer.place);
+            
+            // Handle case where offer.place is an object
+            const placeId = typeof offer.place === 'object' ? offer.place._id : offer.place;
+            
             return (
               <Link
                 key={offer._id}
-                href={`${offer?.place ? `/places/${offer?.place}` : `/offer/${offer?._id}`}`}
+                href={`${placeId ? `/places/${placeId}` : `/offer/${offer?._id}`}`}
               >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
                   <div className="relative h-72 w-full">
                     <Image
-                      src={getImageUrl(offer?.photo)}
+                      src={getImageUrl(offer?.images || offer?.photo || offer?.photos)}
                       alt={offer.title}
                       width={500}
                       height={500}

@@ -20,7 +20,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getImageUrl = (media?: any) => {
-  if (!media) return "/placeholder.png";
+  if (!media) return "/exploring-today.jpg";
 
   let mediaPath = "";
 
@@ -38,7 +38,7 @@ export const getImageUrl = (media?: any) => {
     mediaPath === "null" ||
     mediaPath.trim() === ""
   ) {
-    return "/placeholder.png";
+    return "/exploring-today.jpg";
   }
 
   // If it's already a full URL, return it

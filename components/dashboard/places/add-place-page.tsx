@@ -399,8 +399,9 @@ export default function AddPlacePage() {
           notes: finalData.accessibility?.notes || "",
         },
         access: finalData.accessDescription || "",
+        recommendations: { tips: finalData.tips || "" },
         details: {
-          recommendations: finalData.recommendations || "",
+          recommendations: finalData.tips || "",
         },
         // New fields
         schedules: finalData.schedules || "",
@@ -816,8 +817,8 @@ export default function AddPlacePage() {
                     category: selectedCategoryId || "",
                     address: selectedPlace.address || "",
                     accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
-                    recommendations:
-                      selectedPlace.details?.recommendations || "",
+                    tips:
+                      selectedPlace.recommendations?.tips || selectedPlace.details?.recommendations || "",
                     images: selectedPlace.media || [],
                     isNew: selectedPlace.isNew,
                   }}

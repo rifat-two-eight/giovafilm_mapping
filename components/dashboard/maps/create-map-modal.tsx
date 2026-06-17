@@ -22,6 +22,7 @@ type FormValues = {
   description: string;
   price: number;
   features: string;
+  tips: string;
   image?: FileList;
 };
 
@@ -52,6 +53,7 @@ export default function CreateMapModal({
           description: initialData.description,
           price: initialData.price,
           features: initialData.features?.join(", "),
+          tips: initialData.recommendations?.tips || "",
         });
 
         // Resolve Image URL
@@ -66,7 +68,7 @@ export default function CreateMapModal({
         
         setPreview(imagePath ? getImageUrl(imagePath) : null);
       } else {
-        reset({ name: "", description: "", price: 0, features: "" });
+        reset({ name: "", description: "", price: 0, features: "", tips: "" });
         setPreview(null);
       }
     }
@@ -78,6 +80,7 @@ export default function CreateMapModal({
       description: data.description,
       price: Number(data.price) || 0,
       features: data.features ? data.features.split(",").map((f) => f.trim()).filter(Boolean) : [],
+      recommendations: { tips: data.tips || "" },
       places: initialData?.places ? initialData.places.map((p: any) => (typeof p === 'string' ? p : p._id)) : [], 
       status: initialData?.status || "Published",
       isPaid: true,
@@ -179,6 +182,16 @@ export default function CreateMapModal({
               placeholder="Top rated, Hidden gems"
               {...register("features")}
               className="py-6 bg-gray-100/80"
+            />
+          </div>
+
+          {/* Tips */}
+          <div className="space-y-2">
+            <Label className="ml-1">Tips</Label>
+            <Textarea
+              placeholder="Write tips for this map..."
+              {...register("tips")}
+              className="pl-12 bg-gray-100/80"
             />
           </div>
 
