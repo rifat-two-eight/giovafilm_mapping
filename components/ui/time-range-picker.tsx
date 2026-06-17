@@ -12,7 +12,9 @@ interface TimeValue {
 const HOURS = Array.from({ length: 12 }, (_, i) =>
   String(i + 1).padStart(2, "0"),
 );
-const MINUTES = ["00", "15", "30", "45"];
+const MINUTES = Array.from({ length: 60 }, (_, i) =>
+  String(i).padStart(2, "0"),
+);
 
 function parseTimeString(value: string): { start: TimeValue; end: TimeValue } {
   const defaultTime: TimeValue = { hour: "09", minute: "00", period: "AM" };

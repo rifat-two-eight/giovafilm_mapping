@@ -61,6 +61,9 @@ export function UpdatePlaceModal({
     if (!placeId) return;
 
     try {
+      console.log("handleUpdate called, placeId:", placeId);
+      console.log("finalData received:", finalData);
+
       const placeData = {
         name: finalData.name,
         map: finalData.map || place.map?._id || place.map || defaultMapId,
@@ -72,8 +75,8 @@ export function UpdatePlaceModal({
         accessibility: {
           features: finalData.accessibility
             ? Object.entries(finalData.accessibility)
-                .filter(([k, v]) => v === true && k !== "notes")
-                .map(([k]) => k)
+              .filter(([k, v]) => v === true && k !== "notes")
+              .map(([k]) => k)
             : [],
           notes: finalData.accessibility?.notes || "",
         },
@@ -88,8 +91,10 @@ export function UpdatePlaceModal({
         atmosphere: finalData.atmosphere || "",
         difficulty: finalData.difficulty || "",
         // Pass retained existing images back so backend knows what to keep
-        existingImages: finalData.existingImages || [],
+        media: finalData.existingImages || [],
       };
+
+      console.log("placeData constructed:", placeData);
 
       let payload: any = placeData;
 
@@ -100,20 +105,26 @@ export function UpdatePlaceModal({
           formDataPayload.append("images", file);
         });
         payload = formDataPayload;
+        console.log("Sending FormData payload");
       } else if (
         finalData.existingImages &&
         finalData.existingImages.length !== (place?.media?.length ?? 0)
       ) {
         // Images were removed but no new files — still send JSON so backend can prune
         payload = placeData;
+        console.log("Sending JSON payload (images removed)");
+      } else {
+        console.log("Sending JSON payload (no image changes)");
       }
 
+      console.log("Sending request to updatePlace...", { id: placeId, data: payload });
       await updatePlace({ id: placeId, data: payload }).unwrap();
+      console.log("updatePlace request completed successfully!");
       toast.success("Place updated successfully!");
       onOpenChange(false);
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update place");
-      console.error("Failed to update place:", error);
+      console.error("Failed to update place error detail:", error);
     }
   };
 

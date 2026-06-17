@@ -20,6 +20,7 @@ import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
   useCreatePlaceMutation,
+  useUpdatePlaceMutation,
 } from "@/redux/features/place/placeApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import {
@@ -213,6 +214,7 @@ export default function AddPlacePage() {
   };
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
+  const [updatePlace, { isLoading: isUpdating }] = useUpdatePlaceMutation();
 
   const extractFromUrlString = (
     urlString: string,
@@ -366,8 +368,7 @@ export default function AddPlacePage() {
   const handleSavePlace = async (data?: any) => {
     const finalData = data || formData;
     console.log("finalData", finalData);
-    const saveMarker =
-      tempMarker || (selectedPlace?.isNew ? selectedPlace.position : null);
+    const saveMarker = tempMarker || selectedPlace?.position || null;
 
     if (!saveMarker || !selectedMapId) return;
 
@@ -407,6 +408,7 @@ export default function AddPlacePage() {
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
         difficulty: finalData.difficulty || "",
+        media: finalData.existingImages || [],
       };
 
       let payload: any = placeData;
@@ -420,7 +422,12 @@ export default function AddPlacePage() {
         payload = formDataPayload;
       }
 
-      await createPlace(payload).unwrap();
+      if (selectedPlace && !selectedPlace.isNew) {
+        await updatePlace({ id: selectedPlace._id, data: payload }).unwrap();
+      } else {
+        await createPlace(payload).unwrap();
+      }
+
       toast.success(
         `Place ${finalData.status === "Published" ? "published" : "saved as draft"} successfully!`,
       );
@@ -495,8 +502,8 @@ export default function AddPlacePage() {
                     setIsAddingMarker((prev) => !prev);
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 border rounded-lg text-sm font-medium transition-colors ${isAddingMarker
-                      ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                      : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                    ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                 >
                   <Plus size={16} />
@@ -571,8 +578,8 @@ export default function AddPlacePage() {
                   setExpandedCategoryId(null);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${filterCategoryId === null
-                    ? "bg-gray-100 text-blue-600"
-                    : "text-gray-400 hover:bg-gray-50"
+                  ? "bg-gray-100 text-blue-600"
+                  : "text-gray-400 hover:bg-gray-50"
                   }`}
               >
                 <MapIcon size={14} />
@@ -599,16 +606,16 @@ export default function AddPlacePage() {
                         setExpandedCategoryId(isExpanded ? null : cat._id);
                       }}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${isFilterActive
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-gray-600 hover:bg-gray-50"
+                        ? "bg-blue-50 text-blue-700 font-semibold"
+                        : "text-gray-600 hover:bg-gray-50"
                         }`}
                     >
                       <div className="flex items-center gap-3">
                         <ChevronRight
                           size={14}
                           className={`transition-transform duration-200 ${isExpanded
-                              ? "rotate-90 text-blue-500"
-                              : "text-gray-300"
+                            ? "rotate-90 text-blue-500"
+                            : "text-gray-300"
                             }`}
                         />
                         <CategoryIcon
@@ -632,8 +639,8 @@ export default function AddPlacePage() {
                             <div
                               key={place._id}
                               className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-all ${selectedPlace?._id === place._id
-                                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                ? "bg-blue-600 text-white font-bold shadow-sm"
+                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                 } ${isDisabled ? "opacity-50" : ""}`}
                             >
                               {/* Visibility checkbox */}
@@ -641,10 +648,10 @@ export default function AddPlacePage() {
                                 onClick={(e) => togglePlaceVisibility(place._id, e)}
                                 title={isDisabled ? "Show on map" : "Hide from map"}
                                 className={`flex-shrink-0 w-4 h-4 rounded border transition-colors ${isDisabled
-                                    ? "border-gray-300 bg-white"
-                                    : selectedPlace?._id === place._id
-                                      ? "border-blue-200 bg-blue-500"
-                                      : "border-gray-400 bg-blue-500"
+                                  ? "border-gray-300 bg-white"
+                                  : selectedPlace?._id === place._id
+                                    ? "border-blue-200 bg-blue-500"
+                                    : "border-gray-400 bg-blue-500"
                                   }`}
                               >
                                 {!isDisabled && (
@@ -802,7 +809,7 @@ export default function AddPlacePage() {
                   onClose={() => setSelectedPlace(null)}
                   categories={categories}
                   onSave={handleSavePlace}
-                  isSaving={isCreating}
+                  isSaving={isCreating || isUpdating}
                   isFetchingAddress={isFetchingAddress}
                   initialData={{
                     ...selectedPlace,
@@ -811,6 +818,7 @@ export default function AddPlacePage() {
                     accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
                     recommendations:
                       selectedPlace.details?.recommendations || "",
+                    images: selectedPlace.media || [],
                     isNew: selectedPlace.isNew,
                   }}
                 />

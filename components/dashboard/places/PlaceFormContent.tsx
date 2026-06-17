@@ -181,8 +181,8 @@ export const PlaceFormContent = ({
               key={tab}
               onClick={() => setActiveTab(index)}
               className={`px-4 py-4 text-sm tracking-wider transition-all relative min-w-[100px] ${activeTab === index
-                  ? "text-primary font-semibold"
-                  : "text-black hover:text-gray-600 font-medium"
+                ? "text-primary font-semibold"
+                : "text-black hover:text-gray-600 font-medium"
                 }`}
             >
               {tab}
@@ -637,8 +637,8 @@ export const PlaceFormContent = ({
                   key={service.id}
                   onClick={() => toggleService(service.id)}
                   className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${formData.services.includes(service.id)
-                      ? "bg-blue-50 border-blue-200"
-                      : "bg-white border-gray-100 hover:border-gray-200"
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-white border-gray-100 hover:border-gray-200"
                     }`}
                 >
                   <Checkbox
@@ -669,13 +669,13 @@ export const PlaceFormContent = ({
           Cancel
         </Button>
         <div className="flex gap-3">
-          <Button
+          {/* <Button
             onClick={() => handleSave(false)}
             disabled={isSaving}
             className="px-6 h-10 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100"
           >
             Save
-          </Button>
+          </Button> */}
           <Button
             onClick={() => handleSave(true)}
             disabled={isSaving}
