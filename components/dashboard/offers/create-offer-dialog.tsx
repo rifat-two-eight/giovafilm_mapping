@@ -41,6 +41,7 @@ interface FormData {
   maxRedemptions: string;
   redemptionDuration: string;
   buttonLabel: string;
+  status: string;
 }
 
 export function CreateOfferDialog({
@@ -123,22 +124,31 @@ export function CreateOfferDialog({
     if (!open) return; // Only run when dialog is open
 
     if (initialData) {
-      const id = initialData.place?._id || initialData.place;
+      // Check for both place and business in initialData
+      const placeId = initialData.place?._id || initialData.place;
+      const businessId = initialData.business?._id || initialData.business;
 
-      // Detect if ID belongs to a place or a business
-      const isPlace = places.some((p: any) => p._id === id);
-      const detectedType = isPlace ? "place" : "business";
+      let id: string | undefined;
+      let detectedType: "business" | "place" = "business";
+
+      if (placeId && places.some((p: any) => p._id === placeId)) {
+        id = placeId;
+        detectedType = "place";
+      } else if (businessId && businesses.some((b: any) => b._id === businessId)) {
+        id = businessId;
+        detectedType = "business";
+      }
 
       // Only update if different to avoid cycles
       setSelectionType((prev) => (prev !== detectedType ? detectedType : prev));
 
       reset({
         title: initialData.title,
-        business: id,
-        place: isPlace ? id : "",
+        business: id || "",
+        place: detectedType === "place" ? (id || "") : "",
         description: initialData.description,
         discountType: initialData.discountType,
-        discountValue: initialData.discountValue.toString(),
+        discountValue: initialData.discountValue?.toString() || "",
         validFrom: initialData.validFrom
           ? new Date(initialData.validFrom).toISOString().split("T")[0]
           : "",
@@ -148,9 +158,10 @@ export function CreateOfferDialog({
         noExpiration: initialData.noExpiration || false,
         maxRedemptions: initialData.maxRedemptions?.toString() || "",
         redemptionDuration: initialData.redemptionDuration?.toString() || "",
-        buttonLabel: initialData.buttonLabel,
+        buttonLabel: initialData.buttonLabel || "Redeem Offer",
+        status: initialData.status || "Active",
       });
-      setPreview(getImageUrl(initialData.photo));
+      setPreview(getImageUrl(initialData.images || initialData.photo));
       setPhotoFile(null);
       setRules(
         Array.isArray(initialData.redemptionRules)
@@ -172,7 +183,8 @@ export function CreateOfferDialog({
         noExpiration: false,
         maxRedemptions: "",
         redemptionDuration: "",
-        buttonLabel: "",
+        buttonLabel: "Redeem Offer",
+        status: "Active",
       });
       setPreview(null);
       setPhotoFile(null);
@@ -180,7 +192,7 @@ export function CreateOfferDialog({
       setRuleInput("");
       setRuleError("");
     }
-  }, [initialData, reset, open, places]);
+  }, [initialData, reset, open, places, businesses]);
 
   const openFileWindow = () => fileRef.current?.click();
 
@@ -218,8 +230,9 @@ export function CreateOfferDialog({
         redemptionDuration: Number(data.redemptionDuration) || 0,
         redemptionRules: rules,
         buttonLabel: data.buttonLabel,
-        status: "Active",
-        redemptionsCount: isEdit ? initialData.redemptionsCount : 0,
+        status: data.status || "Active",
+        ...(isEdit && {
+          redemptionsCount: initialData.redemptionsCount }),
       };
 
       // Set the correct ID field based on selection type
@@ -713,6 +726,27 @@ export function CreateOfferDialog({
               {...register("buttonLabel")}
             />
           </div>
+
+          {/* Status - only for edit */}
+          {isEdit && (
+            <div>
+              <Label
+                htmlFor="status"
+                className="text-sm font-medium text-gray-700"
+              >
+                Status
+              </Label>
+              <select
+                id="status"
+                className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {...register("status")}
+              >
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="Paused">Paused</option>
+              </select>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">

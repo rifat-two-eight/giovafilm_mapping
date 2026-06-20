@@ -1,22 +1,4 @@
-API Documentation: Handling recommendations.tips
-ডাটাবেজ স্কিমা অনুযায়ী recommendations হলো একটি অবজেক্ট, যার ভেতরে tips নামে একটি string ফিল্ড রয়েছে।
-typescriptrecommendations: {  tips: string // প্লেসটি ভ্রমণের জন্য ইউজারদের জন্য কোনো পরামর্শ বা টিপস}
-১. প্লেস তৈরি করার সময় (Create Place - POST /api/v1/place)
-নতুন প্লেস তৈরি করার সময় recommendations অবজেক্টটি রিকোয়েস্ট বডিতে পাঠাতে হবে।
-ক. JSON ফরম্যাটে পাঠালে (application/json)
-সরাসরি রিকোয়েস্ট বডির প্রধান অবজেক্টের ভেতরে recommendations অবজেক্টটি দিন:
-json{  "name": "Sajek Valley",  "description": "A beautiful hill station...",  "address": "Rangamati, Bangladesh",  "map": "6512f718c8942b001f30abcd",  "category": "6512f718c8942b001f30efgh",  "location": {    "type": "Point",    "coordinates": [92.2900, 23.3833]  },  "recommendations": {    "tips": "Best time to visit is during the winter or rainy season to enjoy the cloud play. Make sure to book your cottage in advance."  }}
-খ. ইমেজ আপলোড সহ FormData ফরম্যাটে পাঠালে (multipart/form-data)
-ফাইল আপলোডের কারণে পে-লোডটি স্ট্রিংফাই করে data কি-তে পাঠাতে হবে:
-javascriptconst payload = {  name: "Sajek Valley",  description: "A beautiful hill station...",  address: "Rangamati, Bangladesh",  map: "6512f718c8942b001f30abcd",  category: "6512f718c8942b001f30efgh",  location: {    "type": "Point",    "coordinates": [92.2900, 23.3833]  },  recommendations: {    "tips": "Best time to visit is during the winter or rainy season."  }};const formData = new FormData();formData.append("data", JSON.stringify(payload));formData.append("images", imageFile); // নতুন ফাইল
-২. প্লেস আপডেট করার সময় (Update Place - PATCH /api/v1/place/:id)
-আপডেট করার সময় আপনি পুরো অবজেক্ট অথবা শুধুমাত্র recommendations ফিল্ডটি পাঠাতে পারেন।
-ক. JSON ফরম্যাটে পাঠালে (application/json)
-json{  "recommendations": {    "tips": "Updated tip: Bring mosquito repellent creams."  }}
-খ. ইমেজ আপলোড সহ FormData ফরম্যাটে পাঠালে (multipart/form-data)
-javascriptconst updatePayload = {  recommendations: {    tips: "Updated tip: Bring mosquito repellent creams."  }};const formData = new FormData();formData.append("data", JSON.stringify(updatePayload));
-৩. গুরুত্বপূর্ণ নোট (Developer Note)
-Zod Validation: ব্যাকএন্ডে place.validation.ts ফাইলে recommendations এবং এর ভেতরে থাকা tips ফিল্ড দুটিকে optional রাখা হয়েছে। তাই ডাটা না পাঠালে বা ফর্মে কোনো ইনপুট না দিলে কোনো এরর (validation error) আসবে না।
-ফাঁকা বা খালি করতে চাইলে: আপনি যদি কোনো প্লেস থেকে পূর্বের টিপস রিমুভ করে দিতে চান, তাহলে বডিতে এভাবে খালি স্ট্রিং ("") পাঠাবেন:
-json"recommendations": {  "tips": ""}
- 
+1. **ফাইল আপলোড এবং ডাটা একসাথে পাঠানো:**
+   - যখন আপনি কোনো ইমেজসহ অফার আপডেট করবেন, তখন অবশ্যই রিকোয়েস্টটি **`multipart/form-data`** বা `FormData` অবজেক্টের মাধ্যমে পাঠাতে হবে।
+   - ইমেজের জন্য ফিল্ডের নাম (Key) হিসেবে **`images`** ব্যবহার করুন।
+   - অন্যান্য টেক্সট ফিল্ডগুলোও `FormData` অবজেক্টে যোগ করে পাঠাতে পারেন। Backend Middleware (`fileAndBodyProcessorUsingDiskStorage`) এটি প্রসেস করে রিকোয়েস্ট বডিকে সঠিকভাবে পার্স করে নিবে।
