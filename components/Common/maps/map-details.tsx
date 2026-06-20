@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import {
   Carousel,
@@ -155,12 +155,70 @@ export default function MapDetails() {
     null,
   );
 
+  const [zoom, setZoom] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Reset zoom and position when selected media changes
+  useEffect(() => {
+    if (selectedMediaIndex !== null) {
+      setZoom(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [selectedMediaIndex]);
+
   const mediaList = useMemo(() => {
     return placeData?.media || [];
   }, [placeData]);
 
   const isVideo = (url: string) => {
     return /\.(mp4|webm|ogg)$/i.test(url);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY > 0) {
+      handleZoomOut();
+    } else {
+      handleZoomIn();
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
   };
 
   const handleDirections = () => {
@@ -254,7 +312,7 @@ export default function MapDetails() {
             </Carousel>
 
             {/* overlay */}
-            <div className="absolute inset-0 bg-black/40"></div>
+            <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
             <FavouriteButton
               placeId={id}
@@ -700,75 +758,147 @@ export default function MapDetails() {
       {/* Media Modal */}
       <Dialog
         open={selectedMediaIndex !== null}
-        onOpenChange={(open) => !open && setSelectedMediaIndex(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedMediaIndex(null);
+            setZoom(1);
+            setPosition({ x: 0, y: 0 });
+          }
+        }}
       >
-        <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 bg-black/95 border-none flex flex-col items-center justify-center overflow-hidden">
+        <DialogContent className="max-w-[100vw] w-full h-[100vh] p-0 bg-black/98 border-none flex flex-col items-center justify-center overflow-hidden">
           <DialogHeader className="sr-only">
             <DialogTitle>Media Gallery</DialogTitle>
           </DialogHeader>
-          <div className="relative w-full h-full flex items-center justify-center px-4 md:px-16">
+          
+          {/* Top Bar */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50">
+            <div className="flex items-center gap-2">
+              <span className="text-white/70 text-sm font-medium">
+                {selectedMediaIndex !== null && selectedMediaIndex + 1} /{" "}
+                {mediaList.length}
+              </span>
+            </div>
+            
+            {/* Zoom Controls */}
+            {selectedMediaIndex !== null && !isVideo(mediaList[selectedMediaIndex]) && (
+              <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-full px-3 py-2">
+                <button
+                  onClick={handleZoomOut}
+                  className="text-white hover:text-yellow-400 p-1 transition-colors"
+                  disabled={zoom <= 0.5}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </button>
+                <span className="text-white text-sm font-medium min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
+                <button
+                  onClick={handleZoomIn}
+                  className="text-white hover:text-yellow-400 p-1 transition-colors"
+                  disabled={zoom >= 3}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="11" y1="8" x2="11" y2="14" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </button>
+                <div className="w-px h-6 bg-white/30 mx-1"></div>
+                <button
+                  onClick={handleResetZoom}
+                  className="text-white hover:text-yellow-400 p-1 transition-colors"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setSelectedMediaIndex(null);
+                setZoom(1);
+                setPosition({ x: 0, y: 0 });
+              }}
+              className="text-white/70 hover:text-white transition-colors p-2 bg-black/40 backdrop-blur-md rounded-full"
+            >
+              <X size={28} />
+            </button>
+          </div>
+
+          <div 
+            className="relative w-full h-full flex items-center justify-center"
+            onWheel={handleWheel}
+          >
             {selectedMediaIndex !== null && (
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div 
+                className="relative w-full h-full flex items-center justify-center"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
+                style={{ 
+                  cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' 
+                }}
+              >
                 {isVideo(mediaList[selectedMediaIndex]) ? (
                   <video
                     src={getImageUrl(mediaList[selectedMediaIndex])}
-                    className="max-w-full max-h-full object-contain"
+                    className="max-w-[95vw] max-h-[95vh] object-contain"
                     controls
                     autoPlay
                   />
                 ) : (
-                  <Image
-                    src={getImageUrl(mediaList[selectedMediaIndex])}
-                    alt="Gallery view"
-                    width={1600}
-                    height={900}
-                    unoptimized
-                    className="max-w-full max-h-full object-contain"
-                  />
+                  <div style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                  }}>
+                    <Image
+                      src={getImageUrl(mediaList[selectedMediaIndex])}
+                      alt="Gallery view"
+                      width={2400}
+                      height={1600}
+                      unoptimized
+                      className="max-w-[95vw] max-h-[95vh] object-contain"
+                    />
+                  </div>
                 )}
 
                 {/* Navigation Buttons in Modal */}
                 {mediaList.length > 1 && (
                   <>
                     <button
-                      onClick={() =>
+                      onClick={() => {
                         setSelectedMediaIndex(
                           (selectedMediaIndex - 1 + mediaList.length) %
                             mediaList.length,
-                        )
-                      }
-                      className="absolute left-0 md:left-4 top-1/2 -translate-y-1/2 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
+                        );
+                      }}
+                      className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
                     >
-                      <ChevronLeft size={48} strokeWidth={1} />
+                      <ChevronLeft size={56} strokeWidth={1.5} />
                     </button>
                     <button
-                      onClick={() =>
+                      onClick={() => {
                         setSelectedMediaIndex(
                           (selectedMediaIndex + 1) % mediaList.length,
-                        )
-                      }
-                      className="absolute right-0 md:right-4 top-1/2 -translate-y-1/2 p-2 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
+                        );
+                      }}
+                      className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
                     >
-                      <ChevronRight size={48} strokeWidth={1} />
+                      <ChevronRight size={56} strokeWidth={1.5} />
                     </button>
                   </>
                 )}
-
-                {/* Close Button overlay */}
-                <button
-                  onClick={() => setSelectedMediaIndex(null)}
-                  className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors z-[110]"
-                >
-                  <X size={32} />
-                </button>
               </div>
             )}
-          </div>
-
-          {/* Media Info overlay */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
-            {selectedMediaIndex !== null && selectedMediaIndex + 1} /{" "}
-            {mediaList.length}
           </div>
         </DialogContent>
       </Dialog>

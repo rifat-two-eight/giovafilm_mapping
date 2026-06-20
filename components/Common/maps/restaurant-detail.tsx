@@ -22,8 +22,9 @@ export default function RestaurantDetail() {
   const router = useRouter();
   const offerId = params.id as string;
   const user = useAppSelector(selectCurrentUser);
+  const STORAGE_KEY = `offer_redeem_${offerId}_expiry`;
 
-  const { data: offerRes, isLoading } = useGetSingleOfferQuery(offerId, {
+  const { data: offerRes, isLoading, refetch } = useGetSingleOfferQuery(offerId, {
     skip: !offerId,
   });
   const offer = offerRes?.data;
@@ -36,12 +37,34 @@ export default function RestaurantDetail() {
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [expiry, setExpiry] = useState<string | null>(null);
 
+  // Refetch the offer when component mounts and when user comes back
   useEffect(() => {
-    // If the offer has an active redemption, start the timer
-    if (offer?.activeRedemption?.expiresAt) {
-      setExpiry(offer.activeRedemption.expiresAt);
+    if (offerId) {
+      refetch();
     }
-  }, [offer]);
+  }, [offerId, refetch]);
+
+  useEffect(() => {
+    // Check both localStorage and offer.activeRedemption
+    const storedExpiry = localStorage.getItem(STORAGE_KEY);
+    let activeExpiry = offer?.activeRedemption?.expiresAt;
+
+    // If storedExpiry exists and is still valid, use it
+    if (storedExpiry) {
+      const now = new Date().getTime();
+      const storedTime = new Date(storedExpiry).getTime();
+      if (storedTime > now) {
+        activeExpiry = storedExpiry;
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    if (activeExpiry) {
+      setExpiry(activeExpiry);
+      localStorage.setItem(STORAGE_KEY, activeExpiry);
+    }
+  }, [offer, offerId, STORAGE_KEY]);
 
   useEffect(() => {
     if (!expiry) return;
@@ -56,6 +79,7 @@ export default function RestaurantDetail() {
         setTimeLeft("00:00");
         setIsTimerActive(false);
         setExpiry(null);
+        localStorage.removeItem(STORAGE_KEY);
         return;
       }
 
@@ -68,7 +92,7 @@ export default function RestaurantDetail() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [expiry]);
+  }, [expiry, STORAGE_KEY]);
 
   const handleRedeem = async () => {
     if (!user) {
@@ -82,6 +106,7 @@ export default function RestaurantDetail() {
       if (res.data?.expiresAt) {
         toast.success("Offer redeemed successfully!");
         setExpiry(res.data.expiresAt);
+        localStorage.setItem(STORAGE_KEY, res.data.expiresAt);
       }
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to redeem offer");
