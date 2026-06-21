@@ -100,7 +100,9 @@ export default function MapPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const { data: userProfile } = useGetProfileQuery({});
+  const { data: userProfile, isLoading: isLoadingUser } = useGetProfileQuery({});
+  const isLoggedIn = !!userProfile;
+  
   const geocodingLib = useMapsLibrary("geocoding");
 
   const handleToggle = (id: string, value: boolean) => {
@@ -119,10 +121,26 @@ export default function MapPage() {
     // country: selectedCountry === "all" ? "" : selectedCountry, // keep map query parameter only to match what the user is selecting
   });
 
-  const fetchedPlaces = placesRes?.data || [];
+  const fetchedPlaces = Array.isArray(placesRes?.data)
+    ? placesRes.data
+    : Array.isArray(placesRes)
+    ? placesRes
+    : [];
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
-  const fetchedCategories = categoriesRes?.data || [];
+  let fetchedCategories = Array.isArray(categoriesRes?.data)
+    ? categoriesRes.data
+    : Array.isArray(categoriesRes)
+    ? categoriesRes
+    : [];
+
+  // If user is not logged in, filter to only business categories
+  if (!isLoggedIn && !isLoadingUser) {
+    fetchedCategories = fetchedCategories.filter(
+      (cat: any) =>
+        cat.type === "business" || cat.name?.toLowerCase().includes("business"),
+    );
+  }
 
 
 
@@ -189,6 +207,14 @@ export default function MapPage() {
     // Show the place unless its category switch is explicitly set to false.
     const categoryId = place.category?._id || place.category;
     if (!categoryId) return true; // no category → always show
+
+    // If user is not logged in, only show places in business categories
+    if (!isLoggedIn && !isLoadingUser) {
+      const isBusinessCategory = fetchedCategories.some(
+        (cat: any) => cat._id === categoryId,
+      );
+      if (!isBusinessCategory) return false;
+    }
 
     const id =
       typeof categoryId === "string" ? categoryId : categoryId.toString();

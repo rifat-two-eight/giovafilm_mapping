@@ -55,14 +55,14 @@ export default function FeaturedMaps() {
                     transition={{ duration: 0.3 }}
                     className="bg-white rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
-                    <div className="relative h-64 mb-2">
+                    <div className="relative aspect-square mb-2">
                       <Image
                         src={getImageUrl(map.images?.[0])}
                         alt={map.name}
                         unoptimized
                         width={500}
                         height={500}
-                        className="w-full h-full object-bottom"
+                        className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
 
@@ -194,7 +194,7 @@ export default function FeaturedMaps() {
                     className="bg-white rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
                     {/* Image Container */}
-                    <div className="relative h-96 w-96 mb-2 overflow-hidden">
+                    <div className="relative aspect-square mb-2 overflow-hidden">
                       <Image
                         src={getImageUrl(map.images?.[0])}
                         alt={map.name}

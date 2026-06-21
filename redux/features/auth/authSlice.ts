@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
+import { baseApi } from "../../api/baseApi";
 
 export const roles = {
   ADMIN: "admin" as const,

@@ -31,10 +31,13 @@ const businessApi = baseApi.injectEndpoints({
     }),
 
     updateBusinessStatus: builder.mutation({
-      query: ({ id, status }) => ({
-        url: `/business/${id}`,
+      query: ({ id, status, isAccuracyVerified }) => ({
+        url: `/business/${id}/status`,
         method: "PATCH",
-        body: { status },
+        body: { 
+          status,
+          ...(isAccuracyVerified !== undefined && { isAccuracyVerified })
+        },
       }),
       invalidatesTags: ["Business"],
     }),

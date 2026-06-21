@@ -21,6 +21,8 @@ import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useAppDispatch } from "@/redux/hook";
 import { LogOut } from "lucide-react";
 import { broadcastLogout } from "../shared/cross-tab-logout-listener";
+import { persistor } from "@/redux/store";
+import { baseApi } from "@/redux/api/baseApi";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -44,8 +46,10 @@ export function AppSidebar() {
     } finally {
       broadcastLogout(); // signal all other tabs
       dispatch(logout());
+      dispatch(baseApi.util.resetApiState());
+      await persistor.purge();
       localStorage.clear();
-      router.push("/");
+      router.push("/login");
     }
   };
 

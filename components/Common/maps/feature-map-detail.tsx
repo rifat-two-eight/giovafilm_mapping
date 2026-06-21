@@ -134,7 +134,7 @@ export default function FeatureMapDetailPage() {
           {/* Left Side - Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="bg-gray-200 rounded-2xl overflow-hidden h-96 flex items-center justify-center">
+            <div className="bg-gray-200 rounded-2xl overflow-hidden aspect-square flex items-center justify-center">
               {mainImage ? (
                 <img
                   src={mainImage}
@@ -276,8 +276,6 @@ export default function FeatureMapDetailPage() {
           </div>
         </div>
       </div>
-
-      <SimilarMaps />
     </div>
   );
 }

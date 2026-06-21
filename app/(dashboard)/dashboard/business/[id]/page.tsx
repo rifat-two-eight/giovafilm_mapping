@@ -38,7 +38,11 @@ export default function BusinessDetailPage() {
 
   const handleStatusUpdate = async (newStatus: string) => {
     try {
-      await updateStatus({ id: id as string, status: newStatus }).unwrap();
+      await updateStatus({ 
+        id: id as string, 
+        status: newStatus,
+        isAccuracyVerified: business?.isAccuracyVerified 
+      }).unwrap();
       toast.success(`Business ${newStatus} successfully!`);
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to update status");

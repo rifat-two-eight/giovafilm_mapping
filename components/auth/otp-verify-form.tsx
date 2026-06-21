@@ -11,6 +11,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Lock } from "lucide-react";
 import { decodeJwtPayload } from "@/lib/utils";
 
 export default function OtpVerify() {
@@ -20,6 +22,8 @@ export default function OtpVerify() {
   const authType = searchParams.get("authType") || "";
 
   const [otp, setOtp] = useState(Array(6).fill(""));
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [countdown, setCountdown] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -92,33 +96,47 @@ export default function OtpVerify() {
       return;
     }
 
+    // Check if we have password fields (single-step flow)
+    const includePassword = password.length > 0;
+    if (includePassword) {
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters long");
+        return;
+      }
+    }
+
     const toastId = toast.loading("Verifying OTP...");
 
     try {
-      const response = await verifyAccount({
+      const requestData: any = {
         email: email,
         oneTimeCode: otpCode,
-      });
+      };
+      if (includePassword) {
+        requestData.password = password;
+      }
 
-      console.log("api res", response?.data.data);
+      const response = await verifyAccount(requestData).unwrap();
 
-      if (response.data?.success) {
-        const userData = response.data.data;
+      if (response.success) {
+        const userData = response.data;
 
-        console.log("token", userData);
-
-        toast.success("Account verified successfully!", {
-          id: toastId,
-          description: "Your account is now active.",
-        });
-
-        if (userData?.token) {
+        // Check if we need to set password (multi-step flow)
+        if (userData?.needPassword && userData?.token) {
+          toast.success("OTP verified successfully! Please set your password.", {
+            id: toastId,
+          });
           setTimeout(() => {
             router.push(`/reset-password?token=${userData.token}`);
           }, 1000);
           return;
         }
 
+        // Single-step flow - logged in directly
         if (userData?.accessToken) {
           // Robustly get user data
           let currentUser = userData.user;
@@ -143,34 +161,35 @@ export default function OtpVerify() {
 
           // Set accessToken in cookies
           document.cookie = `accessToken=${userData.accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
-        }
 
-        // Robustly get user data (from userData.user or decode from accessToken)
-        let userRole = userData?.user?.role;
+          toast.success("Account verified successfully!", {
+            id: toastId,
+            description: "Your account is now active.",
+          });
 
-        if (!userRole && userData?.accessToken) {
-          const decoded = decodeJwtPayload(userData.accessToken);
-          userRole = decoded?.role;
-        }
+          // Robustly get user role
+          let userRole = userData?.user?.role;
+          if (!userRole && userData?.accessToken) {
+            const decoded = decodeJwtPayload(userData.accessToken);
+            userRole = decoded?.role;
+          }
 
-        if (userRole === "user") {
-          router.push("/profile/contributions-reviews");
-        } else {
-          router.push("/dashboard");
+          if (userRole === "user") {
+            router.push("/profile/contributions-reviews");
+          } else {
+            router.push("/dashboard");
+          }
         }
       } else {
-        const errorData = (response.error as any)?.data;
-
         const errorMessage =
-          errorData?.message ||
-          response.data?.message ||
-          "Verification failed. Please try again.";
-
+          response.message || "Verification failed. Please try again.";
         toast.error(errorMessage, { id: toastId });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Verification error:", err);
-      toast.error("Verification failed. Please try again.", { id: toastId });
+      const errorMessage =
+        err?.data?.message || err?.data?.error || "Verification failed. Please try again.";
+      toast.error(errorMessage, { id: toastId });
     }
   };
 
@@ -190,6 +209,8 @@ export default function OtpVerify() {
         });
 
         setOtp(Array(6).fill(""));
+        setPassword("");
+        setConfirmPassword("");
         setCountdown(60);
         inputRefs.current[0]?.focus();
       } else {
@@ -209,12 +230,12 @@ export default function OtpVerify() {
     }
   };
 
-  const isComplete = otp.every(Boolean);
+  const isOtpComplete = otp.every(Boolean);
   const isLoading = isVerifying;
 
   return (
     <div className="flex flex-col justify-center">
-      {/* Header (same as login style) */}
+      {/* Header */}
       <div className="mb-8 text-left">
         <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">
           Two-Step Verification
@@ -225,7 +246,7 @@ export default function OtpVerify() {
             {email || "your email"}
           </span>
           .
-          <br className="hidden md:block" /> Please enter it below.
+          <br className="hidden md:block" /> Please enter it below and set your password.
         </p>
       </div>
 
@@ -249,13 +270,48 @@ export default function OtpVerify() {
         ))}
       </div>
 
+      {/* Password Fields (Single-step flow option) */}
+      <div className="space-y-5 mb-6">
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold text-[#424242] ml-1">
+            Set Password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold text-[#424242] ml-1">
+            Confirm Password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Verify Button */}
       <Button
         onClick={handleVerify}
-        disabled={!isComplete || isLoading}
+        disabled={!isOtpComplete || isLoading}
         className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 mb-4"
       >
-        {isLoading ? "Verifying..." : "Verify OTP"}
+        {isLoading ? "Verifying..." : "Verify & Set Password"}
       </Button>
 
       {/* Resend */}

@@ -23,7 +23,11 @@ export const authApi = baseApi.injectEndpoints({
 
     // OTP Verify
     verifyAccount: builder.mutation({
-      query: (data: { email: string; oneTimeCode: string }) => ({
+      query: (data: { 
+        email: string; 
+        oneTimeCode: string; 
+        password?: string; 
+      }) => ({
         url: "/auth/verify-account",
         method: "POST",
         body: data,

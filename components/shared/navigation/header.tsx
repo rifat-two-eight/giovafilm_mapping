@@ -33,6 +33,8 @@ import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { persistor } from "@/redux/store";
+import { baseApi } from "@/redux/api/baseApi";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -127,6 +129,10 @@ export default function Header() {
     } finally {
       broadcastLogout(); // signal all other tabs
       dispatch(logout());
+      dispatch(baseApi.util.resetApiState());
+      await persistor.purge();
+      // Clear only auth-related localStorage items instead of all localStorage.clear()
+      // But if needed, clear all
       localStorage.clear();
       closeMenus();
       router.push("/login");

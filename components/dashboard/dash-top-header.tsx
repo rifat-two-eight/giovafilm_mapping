@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/redux/hook";
 import { logout } from "@/redux/features/auth/authSlice";
 import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
+import { persistor } from "@/redux/store";
+import { baseApi } from "@/redux/api/baseApi";
 
 export default function DashTopHeader() {
   const [open, setOpen] = useState(false);
@@ -37,8 +39,10 @@ export default function DashTopHeader() {
     } finally {
       broadcastLogout(); // signal all other tabs
       dispatch(logout());
+      dispatch(baseApi.util.resetApiState());
+      await persistor.purge();
       localStorage.clear();
-      router.push("/");
+      router.push("/login");
     }
   };
 

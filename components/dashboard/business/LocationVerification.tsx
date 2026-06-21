@@ -2,7 +2,7 @@
 
 import { Switch } from "@/components/ui/switch";
 import { mapStyles } from "@/lib/utils";
-import { useUpdateAccuracyVerifiedStatusMutation } from "@/redux/features/business/businessApi";
+import { useUpdateBusinessStatusMutation } from "@/redux/features/business/businessApi";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";
 
@@ -20,13 +20,13 @@ export default function LocationVerification({
   const hasCoords = lat !== undefined && lng !== undefined;
   const center = hasCoords ? { lat, lng } : { lat: 23.8103, lng: 90.4125 }; // fallback: Dhaka
 
-  const [updateAccuracy, { isLoading }] =
-    useUpdateAccuracyVerifiedStatusMutation();
+  const [updateStatus, { isLoading }] =
+    useUpdateBusinessStatusMutation();
 
   const handleToggle = async (checked: boolean) => {
     if (!businessId) return;
     try {
-      await updateAccuracy({
+      await updateStatus({
         id: businessId,
         isAccuracyVerified: checked,
       }).unwrap();

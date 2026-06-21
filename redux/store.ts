@@ -27,4 +27,9 @@ export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
+// Helper to purge persisted state
+export const purgePersistedState = async () => {
+  await persistor.purge();
+};
+
 export default store;

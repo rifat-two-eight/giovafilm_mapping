@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import {
   useGetAllUsersQuery,
   useDeleteUserMutation,
+  useUpdateUserRoleMutation,
+  useGetProfileQuery,
 } from "@/redux/features/user/userApi";
 import { useState } from "react";
 import Swal from "sweetalert2";
@@ -34,6 +36,8 @@ export function UsersTable(): React.ReactElement {
   const [status, setStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const { data: currentUser } = useGetProfileQuery({});
+
   const queryParams: any = {
     page,
     limit,
@@ -49,9 +53,10 @@ export function UsersTable(): React.ReactElement {
     isError,
   } = useGetAllUsersQuery(queryParams);
   const [deleteUser] = useDeleteUserMutation();
+  const [updateUserRole] = useUpdateUserRoleMutation();
 
   const users = response?.data || [];
-  const meta = response?.meta;
+  const meta = response?.meta || { page: 1, limit: 10, total: 0, totalPage: 1 };
 
   const handleDelete = async (userId: string) => {
     const result = await Swal.fire({
@@ -72,6 +77,29 @@ export function UsersTable(): React.ReactElement {
         toast.success("User deleted successfully!");
       } catch (error: any) {
         toast.error(error?.data?.message || "Failed to delete user");
+      }
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Are you sure you want to change this user's role to ${newRole}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+      background: "#fff",
+      color: "#1a1a1a",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await updateUserRole({ userId, role: newRole }).unwrap();
+        toast.success("User role updated successfully!");
+      } catch (error: any) {
+        toast.error(error?.data?.message || "Failed to update user role");
       }
     }
   };
@@ -107,6 +135,8 @@ export function UsersTable(): React.ReactElement {
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="user">User</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="map_editor">Map Editor</SelectItem>
+              <SelectItem value="super_admin">Super Admin</SelectItem>
             </SelectContent>
           </Select>
 
@@ -117,7 +147,8 @@ export function UsersTable(): React.ReactElement {
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="blocked">Blocked</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="deleted">Deleted</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -182,15 +213,36 @@ export function UsersTable(): React.ReactElement {
                       {user.email}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200 inline-block text-[10px] font-bold uppercase tracking-wider">
-                        {user.role}
-                      </div>
+                      {currentUser?._id === user._id ? (
+                        <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200 inline-block text-[10px] font-bold uppercase tracking-wider">
+                          {user.role}
+                        </div>
+                      ) : (
+                        <Select
+                          value={user.role}
+                          onValueChange={(newRole) =>
+                            handleRoleChange(user._id, newRole)
+                          }
+                        >
+                          <SelectTrigger className="w-[140px] h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="map_editor">Map Editor</SelectItem>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       <div
                         className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-block ${
                           user.status === "active"
                             ? "bg-green-100 text-green-700"
+                            : user.status === "inactive"
+                            ? "bg-yellow-100 text-yellow-700"
                             : "bg-red-100 text-red-700"
                         }`}
                       >
@@ -203,7 +255,8 @@ export function UsersTable(): React.ReactElement {
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-3">
                         {user.role !== "admin" &&
-                          user.role !== "super_admin" && (
+                          user.role !== "super_admin" &&
+                          currentUser?._id !== user._id && (
                             <button
                               onClick={() => handleDelete(user._id)}
                               className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded"
@@ -221,12 +274,12 @@ export function UsersTable(): React.ReactElement {
           </table>
         </div>
 
-        {/* Pagination placeholder */}
-        {meta && meta.totalPages > 1 && (
+        {/* Pagination */}
+        {meta && meta.totalPage > 1 && (
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
             <div className="text-sm text-gray-600">
               Showing{" "}
-              <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
+              <span className="font-medium">{users.length > 0 ? (page - 1) * limit + 1 : 0}</span>–
               <span className="font-medium">
                 {Math.min(page * limit, meta.total)}
               </span>{" "}
@@ -235,14 +288,31 @@ export function UsersTable(): React.ReactElement {
             <div className="flex gap-2">
               <button
                 disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() => setPage(page - 1)}
                 className="px-3 py-1 border border-gray-300 rounded bg-white text-sm disabled:opacity-50"
               >
                 Previous
               </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: meta.totalPage }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-8 h-8 flex items-center justify-center rounded-md border transition-all font-medium ${
+                        page === p
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+              </div>
               <button
-                disabled={page === meta.totalPages}
-                onClick={() => setPage((p) => p + 1)}
+                disabled={page === meta.totalPage}
+                onClick={() => setPage(page + 1)}
                 className="px-3 py-1 border border-gray-300 rounded bg-white text-sm disabled:opacity-50"
               >
                 Next
