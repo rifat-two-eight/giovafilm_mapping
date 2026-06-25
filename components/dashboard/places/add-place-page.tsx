@@ -382,6 +382,7 @@ export default function AddPlacePage() {
         name: finalData.name || "Untitled Place",
         map: selectedMapId,
         category: finalData.category || selectedCategoryId,
+        type: finalData.type || "Regular",
         description: finalData.description,
         location: {
           type: "Point",

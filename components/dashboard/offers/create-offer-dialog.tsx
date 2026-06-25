@@ -61,13 +61,9 @@ export function CreateOfferDialog({
   const { data: businessesRes } = useGetBusinessesQuery({ limit: 100 });
   const businesses = businessesRes?.data || [];
 
-  const { data: placeData, isLoading: placeLoading } = useGetPlacesQuery({});
+  const { data: placeData, isLoading: placeLoading } = useGetPlacesQuery({ limit: 1000 });
   const places = useMemo(() => {
-    return (
-      placeData?.data?.filter((place: any) => {
-        return place.category?.name === "restaurant";
-      }) || []
-    );
+    return placeData?.data || [];
   }, [placeData]);
 
   console.log("categoryNames", places);

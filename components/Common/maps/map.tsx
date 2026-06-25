@@ -40,7 +40,6 @@ function CountryPanner({
       !map ||
       !geocodingLib ||
       !selectedCountry ||
-      selectedCountry === "all" ||
       !isManualSelection
     )
       return;
@@ -83,7 +82,7 @@ export default function MapPage() {
     Record<string, boolean>
   >({});
 
-  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [detectedCountry, setDetectedCountry] = useState<string>("");
   const [isManualSelection, setIsManualSelection] = useState(false);
 
@@ -102,7 +101,7 @@ export default function MapPage() {
 
   const { data: userProfile, isLoading: isLoadingUser } = useGetProfileQuery({});
   const isLoggedIn = !!userProfile;
-  
+
   const geocodingLib = useMapsLibrary("geocoding");
 
   const handleToggle = (id: string, value: boolean) => {
@@ -117,22 +116,21 @@ export default function MapPage() {
 
   const { data: placesRes } = useGetPublicPlacesBusinessQuery({
     limit: 1000,
-    map: selectedCountry === "all" ? "" : mapIdFilter,
-    // country: selectedCountry === "all" ? "" : selectedCountry, // keep map query parameter only to match what the user is selecting
+    map: !selectedCountry ? "" : mapIdFilter,
   });
 
   const fetchedPlaces = Array.isArray(placesRes?.data)
     ? placesRes.data
     : Array.isArray(placesRes)
-    ? placesRes
-    : [];
+      ? placesRes
+      : [];
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   let fetchedCategories = Array.isArray(categoriesRes?.data)
     ? categoriesRes.data
     : Array.isArray(categoriesRes)
-    ? categoriesRes
-    : [];
+      ? categoriesRes
+      : [];
 
   // If user is not logged in, filter to only business categories
   if (!isLoggedIn && !isLoadingUser) {
@@ -161,17 +159,29 @@ export default function MapPage() {
     });
   }, [markerPos, geocodingLib]);
 
-  // Set initial selectedCountry based on detection, profile, or default to "all"
+  // Set initial selectedCountry based on detection, profile, or default
   useEffect(() => {
-    // Only set automatically if it's currently "all" and not manually changed
-    if (selectedCountry !== "all" || isManualSelection) return;
+    // Only set automatically if it's currently empty and not manually changed
+    if (selectedCountry || isManualSelection || availableCountries.length === 0) return;
 
-    if (detectedCountry) {
+    const savedCountry = localStorage.getItem("selectedCountryFilter");
+
+    if (savedCountry && availableCountries.includes(savedCountry)) {
+      setSelectedCountry(savedCountry);
+    } else if (detectedCountry && availableCountries.includes(detectedCountry)) {
       setSelectedCountry(detectedCountry);
-    } else if (userProfile?.country) {
+    } else if (userProfile?.country && availableCountries.includes(userProfile.country)) {
       setSelectedCountry(userProfile.country);
+    } else {
+      setSelectedCountry(availableCountries[0]);
     }
-  }, [detectedCountry, userProfile, isManualSelection, selectedCountry]);
+  }, [detectedCountry, userProfile, isManualSelection, selectedCountry, availableCountries]);
+
+  useEffect(() => {
+    if (selectedCountry) {
+      localStorage.setItem("selectedCountryFilter", selectedCountry);
+    }
+  }, [selectedCountry]);
 
   // Initialize all categories to true (visible) once loaded
   useEffect(() => {
@@ -192,7 +202,7 @@ export default function MapPage() {
   const displayPlaces = fetchedPlaces?.filter((place: any) => {
     // Country filter (Strict: must match selected country unless "all" is selected)
     // "Select Country" acts as Map selector in our setup
-    if (selectedCountry && selectedCountry !== "all") {
+    if (selectedCountry) {
       if (selectedMapObj) {
         const placeMapId = typeof place.map === 'object' ? place.map._id : place.map;
         if (placeMapId !== selectedMapObj._id) return false;
@@ -205,7 +215,10 @@ export default function MapPage() {
 
     // Category filter:
     // Show the place unless its category switch is explicitly set to false.
-    const categoryId = place.category?._id || place.category;
+    const categoryId =
+      typeof place.category === "object" && place.category !== null
+        ? place.category._id || place.category.id
+        : place.category;
     if (!categoryId) return true; // no category → always show
 
     // If user is not logged in, only show places in business categories
@@ -294,7 +307,7 @@ export default function MapPage() {
 
               // Resolve category — may be a populated object or just an ID
               const cat =
-                typeof place.category === "object"
+                typeof place.category === "object" && place.category !== null
                   ? place.category
                   : fetchedCategories.find(
                     (c: any) => c._id === place.category,

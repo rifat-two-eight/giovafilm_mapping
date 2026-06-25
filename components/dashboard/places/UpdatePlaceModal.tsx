@@ -68,6 +68,7 @@ export function UpdatePlaceModal({
         name: finalData.name,
         map: finalData.map || place.map?._id || place.map || defaultMapId,
         category: finalData.category,
+        type: finalData.type || "Regular",
         description: finalData.description,
         address: finalData.address,
         status: finalData.status,
@@ -176,6 +177,7 @@ export function UpdatePlaceModal({
                   typeof place.category === "object"
                     ? place.category?._id
                     : place.category || "",
+                type: place.type || "Regular",
                 address: place.address || "",
                 accessDescription: place.access || place.details?.access || "",
                 tips:

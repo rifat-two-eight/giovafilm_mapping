@@ -68,8 +68,8 @@ export function MapFilters({
                     const enabled = enabledCategories[cat._id] ?? true;
                     const placesInCat = fetchedPlaces.filter((p: any) => {
                       const pCatId =
-                        typeof p.category === "object"
-                          ? p.category?._id
+                        typeof p.category === "object" && p.category !== null
+                          ? p.category._id || p.category.id
                           : p.category;
                       return pCatId === cat._id;
                     });
@@ -160,12 +160,10 @@ export function MapFilters({
           value={selectedCountry}
         >
           <SelectTrigger className="w-full py-6 border-none focus:ring-0 font-semibold text-gray-800 bg-white">
-            <SelectValue placeholder="Select Country" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
-            <SelectItem value="all" className="capitalize font-medium">
-              All Countries
-            </SelectItem>
+
             {availableCountries.map((country: string) => (
               <SelectItem
                 key={country}

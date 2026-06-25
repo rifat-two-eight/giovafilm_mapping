@@ -202,11 +202,10 @@ export function ViewPlaceModal({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-bold uppercase tracking-widest transition-all relative ${
-                    activeTab === tab.id
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id
                       ? "text-blue-600"
                       : "text-gray-400 hover:text-gray-600"
-                  }`}
+                    }`}
                 >
                   {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -373,13 +372,13 @@ export function ViewPlaceModal({
                                     size={16}
                                     fill={
                                       i <
-                                      Math.round(
-                                        reviews?.data?.reduce(
-                                          (acc: number, rev: any) =>
-                                            acc + rev.rating,
-                                          0,
-                                        ) / reviews?.data?.length,
-                                      )
+                                        Math.round(
+                                          reviews?.data?.reduce(
+                                            (acc: number, rev: any) =>
+                                              acc + rev.rating,
+                                            0,
+                                          ) / reviews?.data?.length,
+                                        )
                                         ? "currentColor"
                                         : "none"
                                     }

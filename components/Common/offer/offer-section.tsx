@@ -15,7 +15,6 @@ import Link from "next/link";
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
   console.log(offersData);

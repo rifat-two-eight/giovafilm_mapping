@@ -38,6 +38,7 @@ interface PlaceFormContentProps {
     name: string;
     description: string;
     category: string;
+    type?: string;
     address?: string;
     accessDescription?: string;
     tips?: string;
@@ -80,6 +81,7 @@ export const PlaceFormContent = ({
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     category: initialData?.category || "",
+    type: initialData?.type || "Regular",
     description: initialData?.description || "",
     address: initialData?.address || "",
     accessDescription: initialData?.accessDescription || "",
@@ -251,6 +253,24 @@ export const PlaceFormContent = ({
                         </div>
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Location Type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(val) =>
+                    setFormData({ ...formData, type: val })
+                  }
+                >
+                  <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" style={{ zIndex: 99999 }}>
+                    <SelectItem value="Regular">Regular Location</SelectItem>
+                    <SelectItem value="Business">Business</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

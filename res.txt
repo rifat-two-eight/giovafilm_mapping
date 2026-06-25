@@ -1,132 +1,84 @@
-# Invited User Verification & Password Setup Flow
+# Location Access Integration Guide (Website & Dashboard)
  
-এই ডকুমেন্টেশনটি ব্যাখ্যা করে কীভাবে কোনো ইউজারকে ইনভাইট করার পর তার OTP ভেরিফিকেশন এবং পাসওয়ার্ড সেটআপ সম্পন্ন করতে হবে।
+This guide documents the frontend changes required on the **Admin Dashboard** and the **Customer Website** to support the new location-level access control (`type: 'Business' | 'Regular'`).
  
 ---
  
-## ১. পুরো প্রক্রিয়াটির সংক্ষিপ্ত রূপ (Flow Diagram)
+## 1. Admin Dashboard Changes (Location Management Form)
  
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin
-    actor InvitedUser as Invited User
-    participant Frontend
-    participant Backend
-    participant DB as MongoDB
+Admins must be able to specify the location type when creating or editing a Location (Place).
  
-    Admin->>Backend: POST /api/v1/user/invite {email, role}
-    Backend->>DB: User তৈরি (verified: false, password: NULL)
-    Backend->>InvitedUser: ইমেইলে OTP কোড পাঠানো
-    InvitedUser->>Frontend: লিংকে ক্লিক (/otp-verify?email=...)
-    Note over Frontend, InvitedUser: ২ উপায়ে ভেরিফাই করা সম্ভব
+### UI/Form Updates:
+Add a new dropdown or radio group field labeled **"Location Type"** directly in the Location (Place) Create and Edit forms.
  
-    alt Option A: Single-step (একসাথে OTP + Password পাঠানো)
-        InvitedUser->>Frontend: OTP ও Password ইনপুট দেন
-        Frontend->>Backend: POST /api/v1/auth/verify-account {email, oneTimeCode, password}
-        Backend->>DB: Password হ্যাশ ও সংরক্ষণ এবং verified = true
-        Backend-->>Frontend: JWT Tokens (Login successful)
-    else Option B: Multi-step (প্রথমে OTP ভেরিফিকেশন, তারপর Password)
-        InvitedUser->>Frontend: শুধুমাত্র OTP ইনপুট দেন
-        Frontend->>Backend: POST /api/v1/auth/verify-account {email, oneTimeCode}
-        Backend->>DB: OTP কোড মুছে দেয় এবং resetPassword = true করে
-        Backend-->>Frontend: { needPassword: true, token: "JWT_TEMP_TOKEN" }
-        InvitedUser->>Frontend: পাসওয়ার্ড ইনপুট দেন
-        Frontend->>Backend: POST /api/v1/auth/reset-password {newPassword, confirmPassword} (Headers.Authorization = token)
-        Backend->>DB: Password হ্যাশ ও সংরক্ষণ এবং verified = true
-        Backend-->>Frontend: Success Message (Password set successfully)
-    end
+- **Field Name:** `type`
+- **Options:**
+  - **Regular Location:** Sends `"Regular"` (default)
+  - **Business:** Sends `"Business"`
+ 
+### Payload Changes:
+ 
+#### Create Location (`POST /api/places`)
+Modify the request payload to include the `type` field:
+```json
+{
+  "name": "La Parguera Jet Ski Rentals",
+  "map": "65abcdef1234567890abcdef",
+  "category": "65abcdef1234567890abcde2",
+  "type": "Business", // "Business" or "Regular"
+  "description": "Premium jet ski rental services in La Parguera.",
+  "address": "La Parguera, Lajas",
+  "location": {
+    "type": "Point",
+    "coordinates": [-67.015, 17.973]
+  }
+}
+```
+ 
+#### Edit Location (`PATCH /api/places/:id`)
+Include the updated `type` field in the patch payload:
+```json
+{
+  "type": "Regular"
+}
 ```
  
 ---
  
-## ২. এপিআই এর বিবরণ (API Reference)
+## 2. Customer Website Changes (Map Page & Details)
  
-### ১. User Invitation (Admin বা Super Admin দ্বারা)
-* **Endpoint:** `POST /api/v1/user/invite`
-* **Headers:** `Authorization: Bearer <ADMIN_ACCESS_TOKEN>`
-* **Request Body:**
-  ```json
-  {
-    "email": "mofit85267@hotkev.com",
-    "role": "user"
-  }
-  ```
-* **কাজ:** এটি ডাটাবেজে ইউজারটিকে `verified: false` এবং কোনো `password` ছাড়াই তৈরি করবে। এরপর ইউজারের ইমেইলে একটি OTP পাঠানো হবে এবং ফ্রন্টএন্ড লিংক (`/otp-verify?email=mofit85267@hotkev.com`) পাঠানো হবে।
+Since the backend automatically filters out `"Regular"` locations from unpaid maps for guests and free users, the customer website will naturally receive only authorized pins.
  
----
+### Map Rendering (Pins):
+- **No changes needed for filtering:** The `GET /api/maps/:id` and `GET /api/places` endpoints will only return `"Business"` locations if the map is locked, and all locations if the map is purchased/free. The website can simply render all pins returned by the API.
  
-### ২. Account Verification (ইউজার দ্বারা OTP ভেরিফিকেশন)
-* **Endpoint:** `POST /api/v1/auth/verify-account`
-* **Request Body (পাসওয়ার্ড ছাড়া - Multi-step):**
-  ```json
-  {
-    "email": "mofit85267@hotkev.com",
-    "oneTimeCode": "123456"
-  }
-  ```
-* **Response (পাসওয়ার্ড ছাড়া - Multi-step):**
-  ```json
-  {
-    "statusCode": 200,
-    "success": true,
-    "message": "OTP verified successfully, please set your password to complete your account.",
-    "data": {
-      "token": "eyJhbGciOi...",
-      "needPassword": true
-    }
-  }
-  ```
-  > [!IMPORTANT]
-  > এখানে `needPassword: true` রেসপন্স দেখে ফ্রন্টএন্ড বুঝতে পারবে যে ইউজারটির পাসওয়ার্ড সেট করা আবশ্যক এবং তাকে পাসওয়ার্ড ইনপুট নেওয়ার পেজে রিডাইরেক্ট করতে হবে। এই ধাপে ডাটাবেজে `verified` স্ট্যাটাসটি এখনও `false` থাকে।
+### Place Details View (`GET /api/places/:id`):
+If a user directly accesses a locked location URL (e.g., deep-linking or refreshing a place page) without purchasing the map, the API will respond with `403 Forbidden`.
  
-* **Request Body (একসাথে পাসওয়ার্ড সহ - Single-step):**
-  যদি ফ্রন্টএন্ডে একই স্ক্রিনে OTP এবং পাসওয়ার্ড উভয়ই ইনপুট নেওয়া হয়:
-  ```json
-  {
-    "email": "mofit85267@hotkev.com",
-    "oneTimeCode": "123456",
-    "password": "mySecurePassword123"
-  }
-  ```
-* **Response (পাসওয়ার্ড সহ - Single-step):**
-  ```json
-  {
-    "statusCode": 200,
-    "success": true,
-    "message": "Welcome mofit85267 to our platform. Your account is now verified and password set.",
-    "data": {
-      "accessToken": "ey...",
-      "refreshToken": "ey...",
-      "role": "user"
-    }
-  }
-  ```
-  > [!TIP]
-  > পাসওয়ার্ড সহ রিকোয়েস্ট পাঠালে ডাটাবেজে সরাসরি `verified` ফিল্ডটি `true` হয়ে যায় এবং ইউজার সরাসরি লগইন হয়ে টোকেন পেয়ে যায়।
+- **Action Required:**
+  - Detect HTTP Status `403` when fetching place details.
+  - Show a user-friendly modal or block the view with a message prompting them to purchase the map.
+  - **Example Message:**
+    > *"Unlock this Location! This spot is part of a premium map. Purchase the map to get access to all hidden viewpoints, waterfalls, and locations."*
+  - Add a **"Purchase Map"** button linking to the checkout flow.
  
 ---
  
-### ৩. Password Setup (যদি ভেরিফিকেশনের সময় পাসওয়ার্ড না পাঠানো হয়)
-* **Endpoint:** `POST /api/v1/auth/reset-password`
-* **Headers:** `Authorization: <verify-account এপিআই থেকে প্রাপ্ত token>`
-* **Request Body:**
-  ```json
-  {
-    "newPassword": "mySecurePassword123",
-    "confirmPassword": "mySecurePassword123"
-  }
-  ```
-* **Response:**
-  ```json
-  {
-    "statusCode": 200,
-    "success": true,
-    "message": "Password reset successfully, please login now.",
-    "data": {
-      "message": "Password reset successfully"
-    }
-  }
-  ```
-  > [!NOTE]
-  > এই রিকোয়েস্টটি সফল হওয়ার সাথে সাথে ডাটাবেজে ইউজারের `password` সেভ হয়ে যাবে এবং `verified` স্ট্যাটাসটি `true` হবে। এরপর ইউজার ইমেইল ও নতুন পাসওয়ার্ড দিয়ে সাধারণ লগইন করতে পারবেন।
+## 3. Backward Compatibility & Deployment Safety (No-Breakage Guarantee)
+ 
+Since the frontend codebase is already integrated and live, we have designed the backend changes to be **fully backward-compatible**. This means deploying the backend will **NOT** break the current website or dashboard:
+ 
+### 1. Existing Data is Preserved
+- All existing places in the database do not have a `type` field.
+- The Mongoose schema will automatically treat these places as `"Regular"`.
+- Since `"Regular"` places are restricted until a map is purchased (which matches the existing paid map logic), **no old data will become exposed or corrupted**.
+ 
+### 2. Frontend Form Submission is Safe
+- The Zod validation schema has the `type` field marked as `.optional()`.
+- If the current Admin Dashboard form sends payloads *without* the `type` field (before you update the frontend code), the backend will accept it and save it as `"Regular"`.
+- **Recommendation:** You can deploy the backend code first. The Admin Panel will continue working normally. Then, you can update the dashboard form to add the "Location Type" dropdown at your convenience.
+ 
+### 3. API Response Structure is Unchanged
+- The payload format (keys, nested category, structure, pagination meta) returned by `GET /api/maps/:id`, `GET /api/places`, and `GET /api/maps/discovery` is **exactly identical** to before.
+- The backend only performs filtering of values (i.e. removing locked items), not structural modifications.
+- The website's current rendering logic will display pins and search results without any modification.

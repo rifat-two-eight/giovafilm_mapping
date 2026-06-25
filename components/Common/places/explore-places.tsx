@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
   Flame,
   MapPin,
@@ -10,7 +11,7 @@ import {
   SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlaceCard } from "./place-card";
 
 const filters = [
@@ -37,6 +38,14 @@ export default function ExplorePlaces() {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedCountryFilter");
+    if (saved) {
+      setSelectedCountry(saved);
+    }
+  }, []);
 
   const getSortValue = (filterLabel: string) => {
     switch (filterLabel) {
@@ -49,11 +58,18 @@ export default function ExplorePlaces() {
     }
   };
 
+  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
+  const selectedMapObj = mapsResponse?.data?.find(
+    (m: any) => m.name === selectedCountry
+  );
+  const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
+
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
     limit: 9,
     searchTerm,
     sort: activeFilter ? getSortValue(activeFilter) : "",
+    map: selectedCountry ? mapIdFilter : "",
   });
 
   const places = response?.data || [];

@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Clock,
   Dog,
+  Lock,
   Map,
   MapPin,
   MessageSquare,
@@ -64,7 +65,7 @@ export default function MapDetails() {
   const id = params?.id as string;
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  const { data: placeRes, isLoading } = useGetPlaceDetailsQuery(id, {
+  const { data: placeRes, isLoading, error } = useGetPlaceDetailsQuery(id, {
     skip: !id,
   });
   const { data: reviews, isLoading: isReviewsLoading } =
@@ -238,6 +239,35 @@ export default function MapDetails() {
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-500 font-medium">Loading place details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && ((error as any).status === 403 || (error as any).originalStatus === 403)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center space-y-6 max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-yellow-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Unlock this Location!</h2>
+          <p className="text-gray-600 leading-relaxed">
+            This spot is part of a premium map. Purchase the map to get access to all hidden viewpoints, waterfalls, and locations.
+          </p>
+          <div className="pt-4">
+            <Link href="/maps">
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl shadow-lg shadow-yellow-200 transition-all text-lg">
+                <Ticket className="w-5 h-5 mr-2" />
+                Purchase Map
+              </Button>
+            </Link>
+          </div>
+          <div className="pt-2">
+            <Link href="/maps">
+              <Button variant="ghost" className="text-gray-500 w-full">Back to Maps</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -451,7 +481,7 @@ export default function MapDetails() {
 
                 <AccordionContent className="px-6 pb-6 space-y-5">
                   <p className="text-muted-foreground leading-relaxed">
-                    {placeData?.details?.recommendations ||
+                    {placeData?.recommendations?.tips || placeData?.details?.recommendations ||
                       "No specific recommendations available for this place."}
                   </p>
 

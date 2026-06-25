@@ -3,7 +3,7 @@ import { baseApi } from "@/redux/api/baseApi";
 const offerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOffers: builder.query({
-      query: () => "/offer",
+      query: ({ map = "" }: { map?: string } = {}) => `/offer${map ? `?map=${map}` : ""}`,
       providesTags: ["Offer"],
     }),
     getSingleOffer: builder.query({
