@@ -44,7 +44,9 @@ export const getImageUrl = (media?: any) => {
   // If it's already a full URL, return it
   if (mediaPath.startsWith("http")) return mediaPath;
 
-  const baseURL = (process.env.NEXT_PUBLIC_BASEURL || "").trim();
+  const baseURL = (process.env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
+
+  console.log(baseURL)
 
   // Ensure there's a leading slash on media if not present and baseURL doesn't end with one
   const separator =
