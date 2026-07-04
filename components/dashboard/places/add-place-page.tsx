@@ -479,7 +479,7 @@ export default function AddPlacePage() {
                   <SelectTrigger className="w-full bg-gray-50 border-gray-200">
                     <SelectValue placeholder="Choose a map..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" style={{ zIndex: 99999 }}>
                     {maps.map((map: any) => (
                       <SelectItem key={map._id} value={map._id}>
                         <div className="flex items-center gap-2">
@@ -714,19 +714,12 @@ export default function AddPlacePage() {
             <Map
               defaultCenter={defaultPosition}
               defaultZoom={13}
-              restriction={{
-                latLngBounds: {
-                  north: 85,
-                  south: -85,
-                  west: -180,
-                  east: 180,
-                },
-                strictBounds: true,
-              }}
+              minZoom={3}
+              maxZoom={19}
+              renderingType={"RASTER"}
               gestureHandling={"greedy"}
               disableDefaultUI={false}
               mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-              styles={mapStyles}
               onClick={handleMapClick}
               style={{ cursor: isAddingMarker ? "crosshair" : "grab" }}
             >

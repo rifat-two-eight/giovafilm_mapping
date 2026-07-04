@@ -132,15 +132,26 @@ export default function MapPage() {
       ? categoriesRes
       : [];
 
-  // If user is not logged in, filter to only business categories
+  // Identify categories that are inherently "business"
+  const inherentlyBusinessCatIds = new Set(
+    fetchedCategories
+      .filter((cat: any) => cat.type === "business" || cat.name?.toLowerCase().includes("business"))
+      .map((cat: any) => cat._id)
+  );
+
+  // If user is not logged in, filter categories to only those that are business categories 
+  // OR have at least one business place.
   if (!isLoggedIn && !isLoadingUser) {
+    const businessPlaceCatIds = new Set(
+      fetchedPlaces
+        .filter((p: any) => p.type === "Business")
+        .map((p: any) => typeof p.category === "object" && p.category !== null ? p.category._id || p.category.id : p.category)
+    );
+
     fetchedCategories = fetchedCategories.filter(
-      (cat: any) =>
-        cat.type === "business" || cat.name?.toLowerCase().includes("business"),
+      (cat: any) => inherentlyBusinessCatIds.has(cat._id) || businessPlaceCatIds.has(cat._id)
     );
   }
-
-
 
   // Detect country from markerPos (current location)
   useEffect(() => {
@@ -221,12 +232,12 @@ export default function MapPage() {
         : place.category;
     if (!categoryId) return true; // no category → always show
 
-    // If user is not logged in, only show places in business categories
+    // If user is not logged in, only show places that are explicitly marked as "Business" 
+    // OR belong to an inherently business category.
     if (!isLoggedIn && !isLoadingUser) {
-      const isBusinessCategory = fetchedCategories.some(
-        (cat: any) => cat._id === categoryId,
-      );
-      if (!isBusinessCategory) return false;
+      const isBusinessPlace = place.type === "Business";
+      const isInherentlyBusiness = inherentlyBusinessCatIds.has(categoryId);
+      if (!isBusinessPlace && !isInherentlyBusiness) return false;
     }
 
     const id =
@@ -248,15 +259,8 @@ export default function MapPage() {
             defaultCenter={defaultPosition}
             defaultZoom={13}
             minZoom={3}
-            restriction={{
-              latLngBounds: {
-                north: 85,
-                south: -85,
-                west: -180,
-                east: 180,
-              },
-              strictBounds: true,
-            }}
+            maxZoom={19}
+            renderingType={"RASTER"}
             gestureHandling={"greedy"}
             disableDefaultUI={false}
             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
@@ -265,7 +269,6 @@ export default function MapPage() {
               position: ControlPosition.TOP_RIGHT,
             }}
             clickableIcons={false}
-            styles={mapStyles}
           >
             <GeolocationOnLoad onLocation={setMarkerPos} />
             <CountryPanner

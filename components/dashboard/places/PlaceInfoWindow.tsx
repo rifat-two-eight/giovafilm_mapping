@@ -21,7 +21,7 @@ interface PlaceInfoWindowProps {
     isNew: boolean;
     schedules?: string;
     entryCost?: number;
-    hikeTime?: number;
+    hikeTime?: string | number;
     atmosphere?: string;
   };
 }

@@ -59,19 +59,11 @@ export function MapLocationPicker({
           defaultCenter={defaultPosition}
           defaultZoom={13}
           minZoom={3}
-          restriction={{
-            latLngBounds: {
-              north: 85,
-              south: -85,
-              west: -180,
-              east: 180,
-            },
-            strictBounds: true,
-          }}
+          maxZoom={19}
+          renderingType={"RASTER"}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-          styles={mapStyles}
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}
           clickableIcons={false}

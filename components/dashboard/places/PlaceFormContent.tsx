@@ -48,7 +48,7 @@ interface PlaceFormContentProps {
     isNew: boolean;
     schedules?: string;
     entryCost?: number;
-    hikeTime?: number;
+    hikeTime?: string | number;
     atmosphere?: string;
     difficulty?: string;
   };
@@ -484,13 +484,11 @@ export const PlaceFormContent = ({
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Hike Time (hours)</Label>
+                        <Label className="text-sm font-medium">Walking Time</Label>
                         <Input
-                          placeholder='e.g., "~ 3.5 Hours"'
+                          placeholder='e.g., "30 minutes" or "~ 3.5 Hours"'
                           value={formData.hikeTime}
-                          type="number"
-                          step={0.5}
-                          min={0}
+                          type="text"
                           onChange={(e) =>
                             setFormData({ ...formData, hikeTime: e.target.value })
                           }

@@ -34,20 +34,12 @@ function MapContent() {
           defaultCenter={position}
           defaultZoom={15}
           minZoom={3}
-          restriction={{
-            latLngBounds: {
-              north: 85,
-              south: -85,
-              west: -180,
-              east: 180,
-            },
-            strictBounds: true,
-          }}
+          maxZoom={19}
+          renderingType={"RASTER"}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
           clickableIcons={false}
-          styles={mapStyles}
         >
           <AdvancedMarker position={position}>
             <Pin

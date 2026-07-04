@@ -59,18 +59,10 @@ export default function LocationVerification({
             center={center}
             zoom={15}
             minZoom={3}
-            restriction={{
-              latLngBounds: {
-                north: 85,
-                south: -85,
-                west: -180,
-                east: 180,
-              },
-              strictBounds: true,
-            }}
+            maxZoom={19}
+            renderingType={"RASTER"}
             gestureHandling="greedy"
             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-            styles={mapStyles}
             disableDefaultUI={true}
             clickableIcons={false}
           >

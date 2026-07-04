@@ -64,11 +64,13 @@ function MapContent({
         style={{ width: "100%", height: "100%" }}
         defaultCenter={{ lat: 23.7806, lng: 90.407 }}
         defaultZoom={13}
+        minZoom={3}
+        maxZoom={19}
+        renderingType={"RASTER"}
         gestureHandling={"greedy"}
         disableDefaultUI={false}
         mapId={mapId}
         mapTypeControl={true}
-        styles={styles as any}
         onClick={isAddMode ? onMapClick : undefined}
       >
         <CustomLocationButton />
@@ -336,7 +338,6 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
             markerPosition={markerPosition}
             onMapClick={handleMapClick}
             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-            styles={mapStyles}
           />
         </div>
       </APIProvider>

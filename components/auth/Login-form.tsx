@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { Lock, Mail, Loader2 } from "lucide-react";
@@ -26,9 +27,23 @@ export const LoginForm = () => {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  const { register, handleSubmit } = useForm<FormValues>({
+  const { register, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: { rememberMe: false },
   });
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    const rememberedPassword = localStorage.getItem("rememberedPassword");
+    
+    if (rememberedEmail && rememberedPassword) {
+      setValue("email", rememberedEmail);
+      setValue("password", rememberedPassword);
+      setValue("rememberMe", true);
+    } else if (rememberedEmail) {
+      setValue("email", rememberedEmail);
+      setValue("rememberMe", true);
+    }
+  }, [setValue]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -37,6 +52,14 @@ export const LoginForm = () => {
         password: data.password,
         rememberMe: data.rememberMe,
       }).unwrap();
+
+      if (data.rememberMe) {
+        localStorage.setItem("rememberedEmail", data.email);
+        localStorage.setItem("rememberedPassword", data.password);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
+      }
 
       console.log(res);
 
