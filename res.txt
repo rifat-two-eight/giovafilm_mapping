@@ -1,28 +1,28 @@
-API Specification: Update Profile Image Only
-অন্যান্য টেক্সট ফিল্ড ছাড়া শুধুমাত্র প্রোফাইল পিকচার আপলোড বা চেঞ্জ করার এপিআই রিকোয়েস্ট স্পেসিফিকেশন।
-১. জেনারেল ইনফরমেশন (General Info)
-HTTP Method: PATCH
-Request URL: /api/v1/user/profile
-Request Content-Type: multipart/form-data
-Authentication: Bearer Token (প্রয়োজনীয়)
-২. হেডার কনফিগারেশন (Request Headers)
-Header Key	Header Value	Description
-Authorization	Bearer <JWT_TOKEN>	ব্যবহারকারীর অ্যাক্সেস টোকেন
-Content-Type	multipart/form-data	মাল্টিপার্ট ফরম্যাট (ফাইল আপলোডের জন্য)
-৩. রিকোয়েস্ট বডি (Request Body - Form Data)
-শুধুমাত্র একটি ফাইল ফিল্ড পাঠাতে হবে:
-Parameter Key	Type	Value / File Type	Required	Description
-images	File (Blob)	.jpeg, .jpg, .png (সর্বোচ্চ 10MB)	Yes	ব্যবহারকারীর নতুন প্রোফাইল ইমেজ ফাইল।
-IMPORTANT
-ফর্ম-ডাটার কী (Key) নামটি অবশ্যই images হতে হবে। ব্যাকএন্ডে Multer শুধুমাত্র এই নির্দিষ্ট কী-এর মাধ্যমেই প্রোফাইল পিকচার রিসিভ করে।
-৪. রেসপন্স ফরম্যাট (Expected Responses)
-ক. সফল রেসপন্স (Success Response - 200 OK)
-ছবিটি সার্ভারে আপলোড ও অপ্টিমাইজ হওয়ার পর ডাটাবেজে প্রোফাইল পাথ আপডেট হয়ে যাবে এবং নিচের রেসপন্সটি আসবে:
-json{  "statusCode": 200,  "success": true,  "message": "Profile updated successfully",  "data": "Profile updated successfully."}
-খ. ব্যর্থ রেসপন্স (Error Response)
-ফাইল ফরম্যাট ভুল হলে (400 Bad Request):
-টোকেন না দিলে বা ইনভ্যালিড হলে (401 Unauthorized):
-json{  "success": false,  "message": "You are not authorized"}
-json{  "success": false,  "message": "Invalid file type for images"}
- 
+Frontend Integration Guide: Google Maps Coordinate Extraction API
+This document details how the frontend should communicate with the newly added backend coordinate extraction endpoint to resolve Google Maps links (both short and long links) and extract coordinates.
+1. API Specifications
+Endpoint: /api/v1/place/extract-coordinates
+Method: POST
+Headers:
+Content-Type: application/json
+Authorization: Bearer <ADMIN_OR_EDITOR_TOKEN> (Must be logged in as an Admin, Super Admin, or Map Editor)
+Request Body
+json{  "url": "https://maps.app.goo.gl/wJkZ4tPqZ4y2e8L47"}
+Success Response (200 OK)
+json{  "success": true,  "statusCode": 200,  "message": "Coordinates extracted successfully",  "data": {    "lat": 23.7808875,    "lng": 90.2680875  }}
+Error Response (400 Bad Request)
+If the URL cannot be resolved or does not contain coordinates:
+json{  "success": false,  "message": "Could not extract coordinates. Try using the full URL from your browser address bar.",  "errorMessages": [ ... ]}
+2. Recommended Frontend Workflow (React / Next.js)
+To implement this before the user clicks the "Add Place" button:
+Provide a Google Maps Link input field in the Form.
+In the onChange or onBlur (when focus leaves the input) event, check if the input is a valid URL.
+Show a loading spinner/indicator near the coordinates fields.
+Send the POST request to the backend.
+On success:
+Extract lat and lng from response.data.data.
+Update your form's coordinates state (e.g. latitude and longitude fields).
+Pre-populate these values in the form or automatically place a marker on your interactive frontend map.
+On error:
+Alert the user using the error message returned by the server.
  

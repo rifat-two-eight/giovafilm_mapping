@@ -12,6 +12,7 @@ import {
   MapMouseEvent,
   useMap,
 } from "@vis.gl/react-google-maps";
+import { useExtractCoordinatesMutation } from "@/redux/features/place/placeApi";
 import { useCallback, useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
@@ -95,54 +96,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     setIsAddMode((prev) => !prev);
   };
 
-  const extractFromUrlString = (urlString: string): MarkerPosition | null => {
-    let lat: number | null = null;
-    let lng: number | null = null;
-    let zoom: number | undefined = undefined;
-
-    // First try to find exact marker coordinates !3d(lat)!4d(lng) or !2d(lng)!3d(lat)
-    const bangMatch3d4d = urlString.match(
-      /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
-    );
-    if (bangMatch3d4d) {
-      lat = parseFloat(bangMatch3d4d[1]);
-      lng = parseFloat(bangMatch3d4d[2]);
-    } else {
-      const bangMatch2d3d = urlString.match(
-        /!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/,
-      );
-      if (bangMatch2d3d) {
-        lng = parseFloat(bangMatch2d3d[1]);
-        lat = parseFloat(bangMatch2d3d[2]);
-      }
-    }
-
-    // Try to find viewport coordinates and zoom
-    const atMatch = urlString.match(
-      /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)z)?/,
-    );
-    if (atMatch) {
-      if (lat === null) lat = parseFloat(atMatch[1]);
-      if (lng === null) lng = parseFloat(atMatch[2]);
-      if (atMatch[3]) zoom = parseFloat(atMatch[3]);
-    }
-
-    // Try search query or other params if still not found
-    if (lat === null || lng === null) {
-      const llMatch =
-        urlString.match(/[?&]ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/) ||
-        urlString.match(/[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-      if (llMatch) {
-        lat = parseFloat(llMatch[1]);
-        lng = parseFloat(llMatch[2]);
-      }
-    }
-
-    if (lat !== null && lng !== null) {
-      return { lat, lng, zoom };
-    }
-    return null;
-  };
+  const [extractCoordinates] = useExtractCoordinatesMutation();
 
   const reverseGeocodeAndSetAddress = async (lat: number, lng: number) => {
     try {
@@ -192,8 +146,6 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
           country,
         };
 
-        // console.log("Reverse Geocoded Address Data:", addressData);
-
         if (addressData.streetAddress)
           form.setValue("streetAddress", addressData.streetAddress);
         if (addressData.city) form.setValue("city", addressData.city);
@@ -211,53 +163,39 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       return;
     }
 
-    setIsExtracting(true);
-    let extractedCoords = extractFromUrlString(url);
-
-    // If we couldn't extract coordinates and it looks like a short URL, try expanding it
-    if (
-      !extractedCoords &&
-      (url.includes("goo.gl") || url.includes("maps.app.goo.gl"))
-    ) {
-      try {
-        // Ensure the url has http/https
-        if (!url.startsWith("http")) {
-          url = `https://${url}`;
-        }
-        const res = await fetch("/api/expand-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-        });
-        const data = await res.json();
-        if (data.expandedUrl) {
-          extractedCoords = extractFromUrlString(data.expandedUrl);
-        }
-      } catch (error) {
-        console.error("Failed to expand URL", error);
-      }
+    if (!url.startsWith("http")) {
+      url = `https://${url}`;
     }
 
-    setIsExtracting(false);
+    setIsExtracting(true);
 
-    if (extractedCoords) {
-      setMarkerPosition(extractedCoords);
-      form.setValue("mapLocation", extractedCoords);
-      // console.log("Extracted Location:", extractedCoords);
+    try {
+      const response = await extractCoordinates({ url }).unwrap();
+      
+      if (response.success && response.data) {
+        const extractedCoords = { lat: response.data.lat, lng: response.data.lng };
+        setMarkerPosition(extractedCoords);
+        form.setValue("mapLocation", extractedCoords);
 
-      // Attempt to extract address components and fill form
-      await reverseGeocodeAndSetAddress(
-        extractedCoords.lat,
-        extractedCoords.lng,
-      );
+        // Attempt to extract address components and fill form
+        await reverseGeocodeAndSetAddress(
+          extractedCoords.lat,
+          extractedCoords.lng,
+        );
 
-      toast.success("Location and address extracted successfully!");
-      setIsAddMode(false);
-    } else {
+        toast.success("Location and address extracted successfully!");
+        setIsAddMode(false);
+      } else {
+        toast.error("Could not extract coordinates from this URL.");
+      }
+    } catch (error: any) {
+      console.error("Failed to extract location:", error);
       toast.error(
-        "Could not extract coordinates. Try using the full URL from your browser address bar.",
+        error?.data?.message || "Could not extract coordinates. Try using the full URL from your browser address bar.",
       );
       console.warn("Extraction failed for URL:", url);
+    } finally {
+      setIsExtracting(false);
     }
   };
 

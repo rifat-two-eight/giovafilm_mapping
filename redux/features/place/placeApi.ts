@@ -57,6 +57,13 @@ const placeApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Place"],
     }),
+    extractCoordinates: builder.mutation({
+      query: (data: { url: string }) => ({
+        url: "/place/extract-coordinates",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -66,4 +73,5 @@ export const {
   useCreatePlaceMutation,
   useUpdatePlaceMutation,
   useDeletePlaceMutation,
+  useExtractCoordinatesMutation,
 } = placeApi;
