@@ -8,7 +8,9 @@ import {
 import { RootState } from "../store";
 import { logout, setAccessToken } from "../features/auth/authSlice";
 
-const baseURL = process.env.NEXT_PUBLIC_BASEURL as string;
+import { env } from "@/lib/config";
+
+const baseURL = env.NEXT_PUBLIC_BASEURL;
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${baseURL}/api/v1`,

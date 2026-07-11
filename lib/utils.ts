@@ -1,4 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
+import { env } from "@/lib/config";
+
 import {
   LayoutDashboard,
   Map,
@@ -44,9 +46,7 @@ export const getImageUrl = (media?: any) => {
   // If it's already a full URL, return it
   if (mediaPath.startsWith("http")) return mediaPath;
 
-  const baseURL = (process.env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
-
-  console.log(baseURL)
+  const baseURL = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
 
   // Ensure there's a leading slash on media if not present and baseURL doesn't end with one
   const separator =
@@ -75,6 +75,43 @@ export function decodeJwtPayload(token: string) {
     return null;
   }
 }
+
+// Extract human-readable error messages from RTK Query error responses
+export function getApiErrorMessage(error: unknown): string {
+  if (!error) return "An unexpected error occurred.";
+
+  if (typeof error === "object") {
+    // Check for RTK query FetchBaseQueryError
+    if ("status" in error) {
+      const fetchError = error as any;
+      if (fetchError.data && typeof fetchError.data === "object") {
+        if ("message" in fetchError.data) {
+          return String(fetchError.data.message);
+        }
+        if ("error" in fetchError.data) {
+          return String(fetchError.data.error);
+        }
+      }
+      if (fetchError.error) {
+        return String(fetchError.error);
+      }
+      return `Error: ${fetchError.status}`;
+    }
+
+    // Check for SerializedError
+    if ("message" in error) {
+      const serializedError = error as any;
+      return String(serializedError.message);
+    }
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "An unexpected error occurred.";
+}
+
 
 export const mapStyles = [
   {

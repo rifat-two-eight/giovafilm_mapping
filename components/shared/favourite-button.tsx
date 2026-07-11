@@ -5,10 +5,12 @@ import {
   useAddToFavouriteMutation,
   useGetFavouritesQuery,
 } from "@/redux/features/favourite/favouriteApi";
+import { TFavouriteItem, TAddFavouritePayload } from "@/lib/types/favourite";
 import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hook";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
 type Props = {
   placeId: string;
@@ -20,12 +22,12 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
   const [addToFavourite, { isLoading }] = useAddToFavouriteMutation();
 
   const { data: favouritesData } = useGetFavouritesQuery();
-  const favouritesList: any[] = favouritesData?.data || [];
+  const favouritesList: TFavouriteItem[] = favouritesData?.data || [];
 
   const key = type === "Map" ? "map" : type === "Place" ? "place" : "offer";
-  const isFavourite = favouritesList.some((fav: any) => {
+  const isFavourite = favouritesList.some((fav: TFavouriteItem) => {
     if (fav.type !== type) return false;
-    const id = typeof fav[key] === "string" ? fav[key] : fav[key]?._id;
+    const id = typeof fav[key] === "string" ? fav[key] : (fav[key] as { _id: string })?._id;
     return id === placeId;
   });
 
@@ -48,7 +50,7 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
 
     try {
       // POST /favourite acts as a toggle on the backend
-      const payload =
+      const payload: TAddFavouritePayload =
         type === "Map"
           ? { type, map: placeId }
           : type === "Place"
@@ -62,8 +64,8 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
       toast.success(
         isFavourite ? "Removed from favourites" : "Added to favourites",
       );
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update favourites");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -87,3 +89,4 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
     </Button>
   );
 }
+

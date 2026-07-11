@@ -17,5 +17,7 @@ export interface MapLocation extends BaseDocument {
   viewCount: number;
 
   isPaid: boolean;
+  isActive: boolean;
   status: Status;
 }
+

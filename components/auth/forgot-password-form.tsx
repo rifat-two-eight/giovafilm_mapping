@@ -1,8 +1,10 @@
 "use client";
 
-import { Loader, Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -10,32 +12,38 @@ import { Label } from "../ui/label";
 import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
-type FormValues = {
-  email: string;
-};
+const forgotPasswordSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+});
+
+type FormValues = z.infer<typeof forgotPasswordSchema>;
 
 export const ForgotPasswordForm = () => {
   const router = useRouter();
-  const { register, handleSubmit } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
 
   const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
 
   const onSubmit = async (data: FormValues) => {
-    // console.log("Reset email sent to:", data.email);
     try {
-      const res = await forgetPassword({ email: data?.email });
+      const res = await forgetPassword({ email: data.email }).unwrap();
 
-      if (res?.data?.success) {
-        // ✅ Show success toast
-        toast.success(res.data.message || "Reset OTP sent successfully!");
-
-        // ✅ Redirect to OTP page (optionally pass email)
+      if (res?.success) {
+        toast.success(res.message || "Reset OTP sent successfully!");
         router.push(`/otp-verify?email=${data.email}`);
+      } else {
+        toast.error(res?.message || "Failed to send reset link.");
       }
-      // console.log(res);
-    } catch (error) {
-      console.log(error);
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -67,14 +75,25 @@ export const ForgotPasswordForm = () => {
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
+          {errors.email && (
+            <p className="text-xs text-red-500 ml-1">{errors.email.message}</p>
+          )}
         </div>
 
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
+          disabled={isLoading}
+          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 disabled:opacity-70"
         >
-          {isLoading ? <Loader /> : "Send Reset Link"}
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send Reset Link"
+          )}
         </Button>
       </form>
 
@@ -91,3 +110,4 @@ export const ForgotPasswordForm = () => {
     </div>
   );
 };
+

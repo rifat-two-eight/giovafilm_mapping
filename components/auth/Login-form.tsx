@@ -9,26 +9,39 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { decodeJwtPayload } from "@/lib/utils";
+import { decodeJwtPayload, getApiErrorMessage } from "@/lib/utils";
 
-type FormValues = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-};
+const loginSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  rememberMe: z.boolean(),
+});
+
+type FormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  const { register, handleSubmit, setValue } = useForm<FormValues>({
-    defaultValues: { rememberMe: false },
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
   });
 
   useEffect(() => {
@@ -61,8 +74,6 @@ export const LoginForm = () => {
         localStorage.removeItem("rememberedPassword");
       }
 
-      console.log(res);
-
       // Extract tokens from API response
       const { accessToken } = res.data;
 
@@ -90,8 +101,8 @@ export const LoginForm = () => {
       } else {
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message ?? "Login failed. Please try again.");
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err));
     }
   };
 
@@ -117,10 +128,13 @@ export const LoginForm = () => {
             <Input
               type="email"
               placeholder="your@email.com"
-              {...register("email", { required: true })}
+              {...register("email")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
+          {errors.email && (
+            <p className="text-xs text-red-500 ml-1">{errors.email.message}</p>
+          )}
         </div>
 
         {/* Password */}
@@ -133,10 +147,13 @@ export const LoginForm = () => {
             <Input
               type="password"
               placeholder="••••••••"
-              {...register("password", { required: true })}
+              {...register("password")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
+          {errors.password && (
+            <p className="text-xs text-red-500 ml-1">{errors.password.message}</p>
+          )}
         </div>
 
         {/* Remember Me & Forgot Password */}
@@ -174,18 +191,6 @@ export const LoginForm = () => {
         </Button>
       </form>
 
-      {/* Divider */}
-      {/* <div className="w-full flex items-center my-8">
-        <div className="flex-1 h-px bg-[#EEEEEE]"></div>
-        <span className="px-4 text-[10px] font-medium text-[#9E9E9E] uppercase tracking-wider">
-          Or continue with
-        </span>
-        <div className="flex-1 h-px bg-[#EEEEEE]"></div>
-      </div> */}
-
-      {/* Social Login */}
-      {/* <SocialLogin /> */}
-
       {/* Footer */}
       <div className="text-sm text-center mt-6">
         <span className="text-[#0A0A0A]">Don't have an account? </span>
@@ -199,3 +204,4 @@ export const LoginForm = () => {
     </div>
   );
 };
+

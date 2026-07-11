@@ -110,12 +110,9 @@ export default function Header() {
   );
   const places = placesRes?.data || [];
 
-  const isAuthenticated = useAppSelector(
-    (state: any) => state.auth?.accessToken,
-  );
+  const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
 
   const { data: user } = useGetProfileQuery({});
-  console.log("current user", user);
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 

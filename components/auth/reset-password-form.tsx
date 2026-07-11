@@ -2,33 +2,46 @@
 
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { getApiErrorMessage } from "@/lib/utils";
 
-type FormValues = {
-  password: string;
-  confirmPassword: string;
-};
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type FormValues = z.infer<typeof resetPasswordSchema>;
 
 export const ResetPasswordForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const { register, handleSubmit } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const onSubmit = async (data: FormValues) => {
-    if (data.password !== data.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
     if (!token) {
       toast.error("Invalid or missing reset token.");
       return;
@@ -49,8 +62,8 @@ export const ResetPasswordForm = () => {
       } else {
         toast.error(response.message || "Failed to reset password.", { id: toastId });
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || err?.data?.error || "Reset failed. Try again.", { id: toastId });
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err), { id: toastId });
     }
   };
 
@@ -78,10 +91,13 @@ export const ResetPasswordForm = () => {
             <Input
               type="password"
               placeholder="••••••••"
-              {...register("password", { required: true })}
+              {...register("password")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
+          {errors.password && (
+            <p className="text-xs text-red-500 ml-1">{errors.password.message}</p>
+          )}
         </div>
 
         {/* Confirm Password */}
@@ -94,19 +110,31 @@ export const ResetPasswordForm = () => {
             <Input
               type="password"
               placeholder="••••••••"
-              {...register("confirmPassword", { required: true })}
+              {...register("confirmPassword")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
+          {errors.confirmPassword && (
+            <p className="text-xs text-red-500 ml-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </div>
 
         {/* Submit Button */}
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20"
+          className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 disabled:opacity-70"
         >
-          {isLoading ? "Resetting..." : "Reset Password"}
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Resetting...
+            </>
+          ) : (
+            "Reset Password"
+          )}
         </Button>
       </form>
 
@@ -122,3 +150,4 @@ export const ResetPasswordForm = () => {
     </div>
   );
 };
+
