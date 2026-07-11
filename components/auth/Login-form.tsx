@@ -34,7 +34,7 @@ export const LoginForm = () => {
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     const rememberedPassword = localStorage.getItem("rememberedPassword");
-    
+
     if (rememberedEmail && rememberedPassword) {
       setValue("email", rememberedEmail);
       setValue("password", rememberedPassword);
@@ -175,16 +175,16 @@ export const LoginForm = () => {
       </form>
 
       {/* Divider */}
-      <div className="w-full flex items-center my-8">
+      {/* <div className="w-full flex items-center my-8">
         <div className="flex-1 h-px bg-[#EEEEEE]"></div>
         <span className="px-4 text-[10px] font-medium text-[#9E9E9E] uppercase tracking-wider">
           Or continue with
         </span>
         <div className="flex-1 h-px bg-[#EEEEEE]"></div>
-      </div>
+      </div> */}
 
       {/* Social Login */}
-      <SocialLogin />
+      {/* <SocialLogin /> */}
 
       {/* Footer */}
       <div className="text-sm text-center mt-6">

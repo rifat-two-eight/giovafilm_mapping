@@ -61,12 +61,7 @@ export default function Footer() {
               <li className="hover:text-black cursor-pointer">
                 <Link href="/how-it-works">How it Works</Link>
               </li>
-              <li className="hover:text-black cursor-pointer">
-                Explorers Stories
-              </li>
-              <li className="hover:text-black cursor-pointer">
-                Affiliate Program
-              </li>
+
             </ul>
           </div>
 
@@ -81,13 +76,7 @@ export default function Footer() {
                 <Link href={"/for-business"}>Add Your Business</Link>
               </li>
               <li className="hover:text-black cursor-pointer">
-                Partner Dashboard
-              </li>
-              <li className="hover:text-black cursor-pointer">
                 <Link href={"/pricing"}>Pricing Plan</Link>
-              </li>
-              <li className="hover:text-black cursor-pointer">
-                Success Stories
               </li>
             </ul>
           </div>
@@ -99,7 +88,7 @@ export default function Footer() {
             </h3>
 
             <ul className="space-y-3 text-sm">
-              <li className="hover:text-black cursor-pointer">About Us</li>
+
               <li className="hover:text-black cursor-pointer">
                 <Link href={"/contact"}>Contact</Link>
               </li>

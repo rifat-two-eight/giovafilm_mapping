@@ -135,7 +135,7 @@ export default function Header() {
       // But if needed, clear all
       localStorage.clear();
       closeMenus();
-      router.push("/login");
+      router.push("/");
     }
   };
 

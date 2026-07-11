@@ -28,7 +28,7 @@ export function CrossTabLogoutListener() {
         // Another tab just logged out — clear state here too
         dispatch(logout());
         dispatch(baseApi.util.resetApiState());
-        router.push("/login");
+        router.push("/");
       }
     };
 

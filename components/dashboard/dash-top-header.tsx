@@ -42,7 +42,7 @@ export default function DashTopHeader() {
       dispatch(baseApi.util.resetApiState());
       await persistor.purge();
       localStorage.clear();
-      router.push("/login");
+      router.push("/");
     }
   };
 

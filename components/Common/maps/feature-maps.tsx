@@ -7,8 +7,10 @@ import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function FeaturedMaps() {
+  const router = useRouter();
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps = mapsRes?.data || [];
 
@@ -191,6 +193,7 @@ export default function FeaturedMaps() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
+                    onClick={() => router.push(`/catalog/${map._id}`)}
                     className="bg-white rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
                     {/* Image Container */}
@@ -227,7 +230,7 @@ export default function FeaturedMaps() {
                         <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
                           ${map.price || "0.00"}
                         </span>
-                        <Link href={`/catalog/${map._id}`}>
+                        <Link href={`/catalog/${map._id}`} onClick={(e) => e.stopPropagation()}>
                           <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
                             Buy Now
                           </Button>
