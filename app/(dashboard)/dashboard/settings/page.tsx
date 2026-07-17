@@ -10,7 +10,7 @@ export default function page() {
       <h1 className="text-2xl font-semibold text-gray-800 mb-6">Settings</h1>
 
       <div className="space-y-6">
-        <GeneralSettings />
+        {/* <GeneralSettings /> */}
 
         <NotificationSettings />
 

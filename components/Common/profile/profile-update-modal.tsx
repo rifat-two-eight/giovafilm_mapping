@@ -31,11 +31,17 @@ export default function ProfileUpdateModal({
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [name, setName] = useState<string>(data?.name ?? "");
+  const [phone, setPhone] = useState<string>(data?.phone ?? "");
+  const [website, setWebsite] = useState<string>(data?.website ?? "");
+  const [instagram, setInstagram] = useState<string>(data?.instagram ?? "");
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (open && data) {
       setName(data.name ?? "");
+      setPhone(data.phone ?? "");
+      setWebsite(data.website ?? "");
+      setInstagram(data.instagram ?? "");
       setPreview(null);
       setImageFile(null);
     }
@@ -68,6 +74,9 @@ export default function ProfileUpdateModal({
 
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("phone", phone);
+    formData.append("website", website);
+    formData.append("instagram", instagram);
 
     if (imageFile) {
       // ✅ Explicitly construct a new File with the correct MIME type
@@ -139,6 +148,36 @@ export default function ProfileUpdateModal({
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="text-sm font-medium">Phone</label>
+            <Input
+              placeholder="Enter your phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          {/* Website */}
+          <div>
+            <label className="text-sm font-medium">Website</label>
+            <Input
+              placeholder="Enter your website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+          </div>
+
+          {/* Instagram */}
+          <div>
+            <label className="text-sm font-medium">Instagram</label>
+            <Input
+              placeholder="Enter your instagram"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
             />
           </div>
 
