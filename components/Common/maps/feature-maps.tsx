@@ -94,7 +94,7 @@ export default function FeaturedMaps() {
                         </span>
                         <Link href={`/catalog/${map._id}`} onClick={(e) => e.stopPropagation()}>
                           <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
-                            Buy Now
+                            View details
                           </Button>
                         </Link>
                       </div>

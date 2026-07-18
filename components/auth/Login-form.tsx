@@ -5,7 +5,7 @@ import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { Lock, Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ type FormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
@@ -96,7 +98,9 @@ export const LoginForm = () => {
 
       toast.success(res.message || "Logged in successfully!");
 
-      if (decoded?.role === "user") {
+      if (redirect) {
+        router.push(redirect);
+      } else if (decoded?.role === "user") {
         router.push("/maps");
       } else {
         router.push("/dashboard");
@@ -204,4 +208,3 @@ export const LoginForm = () => {
     </div>
   );
 };
-

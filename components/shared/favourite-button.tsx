@@ -44,7 +44,7 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
       toast.error("Login Required", {
         description: "You must be logged in to add items to favorites.",
       });
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 

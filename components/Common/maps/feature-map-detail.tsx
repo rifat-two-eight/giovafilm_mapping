@@ -53,7 +53,7 @@ export default function FeatureMapDetailPage() {
     const hasToken = document.cookie.includes("accessToken=");
     if (!hasToken) {
       toast.error("Please log in to purchase this map.");
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 

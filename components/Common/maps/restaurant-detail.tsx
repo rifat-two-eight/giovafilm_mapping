@@ -97,7 +97,7 @@ export default function RestaurantDetail() {
   const handleRedeem = async () => {
     if (!user) {
       toast.error("Please login to redeem this offer");
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
