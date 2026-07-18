@@ -30,6 +30,7 @@ export function AddBusinessForm() {
   const router = useRouter();
 
   const form = useForm({
+    mode: "all",
     defaultValues: {
       businessName: "",
       category: "",
@@ -190,7 +191,7 @@ export function AddBusinessForm() {
 
       // Append menu file if provided
       if (menuFile) {
-        formData.append("images", menuFile);
+        formData.append("documents", menuFile);
       }
 
       const res = await addBusiness(formData).unwrap();
@@ -212,12 +213,12 @@ export function AddBusinessForm() {
               description: step4InputValues.offerDescription,
               discountType: step4InputValues.offerDiscountType,
               discountValue: Number(step4InputValues.offerDiscount) || 0,
-              validFrom: step4InputValues.offerValidFrom
+              validFrom: step4InputValues.offerValidFrom && step4InputValues.offerValidFrom.trim() !== ""
                 ? new Date(step4InputValues.offerValidFrom).toISOString()
                 : new Date().toISOString(),
               validUntil: step4InputValues.offerNoExpiration
                 ? null
-                : step4InputValues.offerValidUntil
+                : step4InputValues.offerValidUntil && step4InputValues.offerValidUntil.trim() !== ""
                   ? new Date(step4InputValues.offerValidUntil).toISOString()
                   : null,
               noExpiration: step4InputValues.offerNoExpiration,
@@ -325,7 +326,7 @@ export function AddBusinessForm() {
                   type="button"
                   onClick={async () => {
                     const validationKeys: Record<number, any[]> = {
-                      1: ["businessName", "category", "phoneNumber"],
+                      1: ["businessName", "category", "phoneNumber", "streetAddress", "city", "country"],
                       2: ["mapLocation"],
                       3: [],
                       4: [],
@@ -334,6 +335,16 @@ export function AddBusinessForm() {
                       (validationKeys[currentStep] || []) as any,
                     );
                     if (isValid) {
+                      if (currentStep === 3) {
+                        if (businessPhotos.length === 0) {
+                          toast.error("Please upload at least one business photo.");
+                          return;
+                        }
+                        if (!menuFile) {
+                          toast.error("Please upload a menu or price list.");
+                          return;
+                        }
+                      }
                       setCurrentStep(currentStep + 1);
                     } else if (
                       currentStep === 2 &&

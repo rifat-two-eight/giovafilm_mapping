@@ -97,6 +97,7 @@ export function BusinessFormStep3({
                     className="w-full h-40 object-cover rounded-lg"
                   />
                   <button
+                    type="button"
                     onClick={() => removePhoto(idx)}
                     className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
@@ -117,12 +118,13 @@ export function BusinessFormStep3({
             </div>
           )}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900">Business Photos</h3>
+            <h3 className="font-semibold text-gray-900">Business Photos <span className="text-red-500">*</span></h3>
             <p className="text-sm text-gray-600">
               Upload high-quality images of your establishment, products, or
               services. Recommended size: 1200x800px.
             </p>
             <Button
+              type="button"
               onClick={() => photosInputRef.current?.click()}
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
             >
@@ -163,6 +165,7 @@ export function BusinessFormStep3({
                 )}
               </div>
               <button
+                type="button"
                 onClick={removeMenu}
                 className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
               >
@@ -180,18 +183,16 @@ export function BusinessFormStep3({
                   <p className="text-sm text-gray-500">TAP TO PREVIEW</p>
                 </div>
               </div>
-              <span className="absolute top-3 right-3 bg-gray-800 text-white text-xs font-semibold px-2 py-1 rounded">
-                OPTIONAL
-              </span>
             </div>
           )}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900">Menu / Price List</h3>
+            <h3 className="font-semibold text-gray-900">Menu / Price List <span className="text-red-500">*</span></h3>
             <p className="text-sm text-gray-600">
               Help customers understand your pricing and offerings. PDF or JPG
               formats accepted.
             </p>
             <Button
+              type="button"
               onClick={() => menuInputRef.current?.click()}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold"
             >

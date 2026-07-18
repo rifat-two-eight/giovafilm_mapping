@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
-import { Clock, Earth, Mail, Plus, X } from "lucide-react";
+import { Clock, Earth, Mail, Plus, X, MapPin } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
@@ -144,10 +144,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="businessName"
+            rules={{ required: "Business name is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Business Name
+                  Business Name <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -165,10 +166,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="category"
+            rules={{ required: "Category is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold ">
-                  Category
+                  Category <span className="text-red-500">*</span>
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -203,10 +205,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         <FormField
           control={form.control}
           name="businessDescription"
+          rules={{ required: "Business description is required" }}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-900 font-semibold">
-                Business Description
+                Business Description <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -234,10 +237,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="phoneNumber"
+            rules={{ 
+              required: "Public phone number is required",
+              pattern: {
+                value: /^[+]?[0-9\s-]{7,15}$/,
+                message: "Please enter a valid phone number (7 to 15 digits, optionally starting with +)",
+              }
+            }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Phone Number
+                  Phone Number <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -255,6 +265,12 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="website"
+            rules={{
+              pattern: {
+                value: /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9-._~:?#[\]@!$&'()*+,;=]*)?$/,
+                message: "Please enter a valid website URL",
+              }
+            }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
@@ -296,7 +312,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
       </div>
 
       {/* Location Section */}
-      {/* <div className="space-y-4">
+      <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <MapPin className="w-5 h-5 text-yellow-400" />
           <h3 className="text-base font-semibold text-gray-500 uppercase tracking-wide">
@@ -307,10 +323,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         <FormField
           control={form.control}
           name="streetAddress"
+          rules={{ required: "Street address is required" }}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-900 font-semibold">
-                Street Address
+                Street Address <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -328,10 +345,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="city"
+            rules={{ required: "City is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  City
+                  City <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -348,10 +366,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="country"
+            rules={{ required: "Country is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Country
+                  Country <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -365,7 +384,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
             )}
           />
         </div>
-      </div> */}
+      </div>
 
       {/* Hours Section */}
       <div className="space-y-4">
@@ -379,7 +398,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <button className="text-base font-semibold text-yellow-600 hover:text-yellow-700 flex items-center gap-1">
+              <button type="button" className="text-base font-semibold text-yellow-600 hover:text-yellow-700 flex items-center gap-1">
                 <Plus size={14} />
                 Add Custom Hours
               </button>

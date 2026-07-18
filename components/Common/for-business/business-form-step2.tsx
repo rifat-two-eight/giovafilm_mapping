@@ -83,7 +83,7 @@ function MapContent({
 }
 
 export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
-  const [isAddMode, setIsAddMode] = useState(false);
+  const [isAddMode, setIsAddMode] = useState(true);
   const [isExtracting, setIsExtracting] = useState(false);
   const [markerPosition, setMarkerPosition] = useState<MarkerPosition | null>(
     () => {
@@ -230,7 +230,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
           onClick={handleAddLocationClick}
           variant={isAddMode ? "destructive" : "default"}
         >
-          {isAddMode ? "Cancel" : "Add Location"}
+          {isAddMode ? "Cancel" : "Marker Enable"}
         </Button>
       </div>
       <div className="space-y-2">

@@ -29,9 +29,16 @@ export function BusinessFormStep5({ form }: BusinessFormStep5Props) {
         <FormField
           control={form.control}
           name="ownerPhone"
+          rules={{ 
+            required: "Owner's Direct Phone is required",
+            pattern: {
+              value: /^[+]?[0-9\s-]{7,15}$/,
+              message: "Please enter a valid phone number (7 to 15 digits, optionally starting with +)",
+            }
+          }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-900 font-semibold">Owner's Direct Phone</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Owner's Direct Phone <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   placeholder="+880 1XXXXXXXXX"
@@ -50,9 +57,16 @@ export function BusinessFormStep5({ form }: BusinessFormStep5Props) {
         <FormField
           control={form.control}
           name="invoicingEmail"
+          rules={{ 
+            required: "Contact email is required",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Invalid email address"
+            }
+          }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-900 font-semibold">Contact Email for Invoicing</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Contact Email for Invoicing <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   placeholder="billing@yourbusiness.com"
