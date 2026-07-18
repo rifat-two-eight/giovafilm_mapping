@@ -10,6 +10,8 @@ import {
   Search,
   SlidersHorizontal,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PlaceCard } from "./place-card";
@@ -35,6 +37,7 @@ const filters = [
 
 export default function ExplorePlaces() {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(9);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -66,7 +69,7 @@ export default function ExplorePlaces() {
 
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
-    limit: 9,
+    limit,
     searchTerm,
     sort: activeFilter ? getSortValue(activeFilter) : "",
     map: selectedCountry ? mapIdFilter : "",
@@ -189,63 +192,100 @@ export default function ExplorePlaces() {
         {/* Pagination */}
         {meta && meta.totalPage > 1 && (() => {
           const total = meta.totalPage;
-          const pages: (number | "dots")[] = [];
+          
+          // Generate professional pagination range
+          const getPaginationRange = (current: number, totalPages: number) => {
+            const delta = 1; // Number of pages to show around current page
+            const range: (number | "dots")[] = [];
 
-          if (total <= 7) {
-            for (let i = 1; i <= total; i++) pages.push(i);
-          } else {
-            // Always show first 4
-            for (let i = 1; i <= 4; i++) pages.push(i);
-            // Dots
-            pages.push("dots");
-            // Last 2
-            pages.push(total - 1, total);
-          }
+            for (let i = 1; i <= totalPages; i++) {
+              if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= current - delta && i <= current + delta)
+              ) {
+                range.push(i);
+              } else if (range[range.length - 1] !== "dots") {
+                range.push("dots");
+              }
+            }
+            return range;
+          };
+
+          const pages = getPaginationRange(page, total);
 
           return (
-            <div className="flex justify-center mt-12 gap-1.5 flex-wrap">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-lg"
-              >
-                ‹
-              </Button>
+            <div className="flex flex-col items-center gap-6 mt-16">
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="rounded-xl border-gray-200 h-10 w-10 hover:bg-gray-50 disabled:opacity-50 transition-all"
+                >
+                  <ChevronLeft size={16} className="text-gray-500" />
+                </Button>
 
-              {pages.map((p, idx) =>
-                p === "dots" ? (
-                  <span
-                    key={`dots-${idx}`}
-                    className="flex items-center justify-center w-9 h-9 text-gray-400 font-bold select-none"
-                  >
-                    ⋯
-                  </span>
-                ) : (
-                  <Button
-                    key={p}
-                    onClick={() => setPage(p as number)}
-                    className={
-                      page === p
-                        ? "bg-yellow-400 text-black font-bold hover:bg-yellow-500 rounded-lg shadow-sm min-w-[36px]"
-                        : "bg-white text-gray-600 hover:bg-gray-100 rounded-lg border border-gray-200 min-w-[36px]"
-                    }
-                  >
-                    {p}
-                  </Button>
-                )
-              )}
+                {pages.map((p, idx) =>
+                  p === "dots" ? (
+                    <span
+                      key={`dots-${idx}`}
+                      className="flex items-center justify-center w-10 h-10 text-gray-400 font-medium select-none"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <Button
+                      key={p}
+                      onClick={() => setPage(p as number)}
+                      className={`h-10 min-w-[40px] rounded-xl font-medium transition-all text-sm ${
+                        page === p
+                          ? "bg-[#3B82F6] text-white hover:bg-blue-600 shadow-sm border-[#3B82F6]"
+                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                      }`}
+                    >
+                      {p}
+                    </Button>
+                  )
+                )}
 
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page === total}
-                onClick={() => setPage((p) => Math.min(total, p + 1))}
-                className="rounded-lg"
-              >
-                ›
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={page === total}
+                  onClick={() => setPage((p) => Math.min(total, p + 1))}
+                  className="rounded-xl border-gray-200 h-10 w-10 hover:bg-gray-50 disabled:opacity-50 transition-all"
+                >
+                  <ChevronRight size={16} className="text-gray-500" />
+                </Button>
+              </div>
+
+              {/* Status and dropdown limit selector */}
+              <div className="w-full max-w-[500px] flex items-center justify-between mt-2 px-2 text-sm text-gray-700">
+                {/* Result Info */}
+                <div className="font-semibold text-gray-700 text-base">
+                  Results: {(page - 1) * limit + 1} - {Math.min(page * limit, meta.total || 0)} of {meta.total || 0}
+                </div>
+
+                {/* Dropdown Limit Selector */}
+                <div className="flex items-center gap-2">
+                  <select
+                    value={limit}
+                    onChange={(e) => {
+                      setLimit(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="bg-[#eef2f6] text-gray-700 font-semibold px-4 py-2 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer appearance-none pr-8 relative bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B5563%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.65rem_auto] bg-[right_0.75rem_center] bg-no-repeat"
+                  >
+                    <option value={9}>9</option>
+                    <option value={18}>18</option>
+                    <option value={27}>27</option>
+                    <option value={45}>45</option>
+                  </select>
+                </div>
+              </div>
             </div>
           );
         })()}
