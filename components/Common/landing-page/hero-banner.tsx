@@ -64,7 +64,7 @@ export default function HeroBanner() {
           <div className="flex flex-wrap gap-4 mb-12">
             <Link href={"/places"}>
               <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
-                Explore Maps
+                Explore Places
               </Button>
             </Link>
             <Link href={"/catalog"}>

@@ -75,6 +75,15 @@ export default function ExplorePlaces() {
   const places = response?.data || [];
   const meta = response?.meta;
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setSearchTerm(searchInput);
+      setPage(1);
+    }, 400); // 400ms debounce delay
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchInput]);
+
   const handleSearch = () => {
     setSearchTerm(searchInput);
     setActiveFilter(null);
