@@ -144,11 +144,14 @@ export default function RestaurantDetail() {
     );
   }
 
-  const redemptionRules = offer.redemptionRules || [
-    "One redemption per user",
-    "Valid for all days",
-    "Cannot combine with other promotions",
-  ];
+  const redemptionRules =
+    offer.redemptionRules && offer.redemptionRules.length > 0
+      ? offer.redemptionRules
+      : [
+          "One redemption per user",
+          "Valid for all days",
+          "Cannot combine with other promotions",
+        ];
 
   return (
     <div className="bg-gray-50 py-4 sm:py-6 md:py-8 pb-10 sm:pb-12 md:pb-14">
@@ -343,26 +346,26 @@ export default function RestaurantDetail() {
                 </div>
 
                 {/* Help Section */}
-                <div className="border rounded-lg bg-gray-100/50 border-gray-200 p-3 sm:p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="">
-                      <button className="w-full">
+                <Link href="/contact" className="block">
+                  <div className="border rounded-lg bg-gray-100/50 hover:bg-gray-100 border-gray-200 p-3 sm:p-4 transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="">
                         <div className="flex items-center gap-2">
                           <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                           <span className="text-sm sm:text-base font-medium text-gray-900">
                             Need help?
                           </span>
                         </div>
-                      </button>
-                      <p className="text-[10px] sm:text-xs text-gray-500 px-2 sm:px-3">
-                        Contact support
-                      </p>
-                    </div>
-                    <div className="">
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <p className="text-[10px] sm:text-xs text-gray-500 px-6 sm:px-7">
+                          Contact support
+                        </p>
+                      </div>
+                      <div className="">
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>

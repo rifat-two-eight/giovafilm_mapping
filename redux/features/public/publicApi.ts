@@ -18,7 +18,17 @@ export const publicApi = baseApi.injectEndpoints({
       providesTags: ["Place"],
       transformResponse: (response: any) => response.data,
     }),
+    submitContactForm: builder.mutation({
+      query: (data) => ({
+        url: "/contact",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useGetPublicPlacesBusinessQuery } = publicApi;
+export const {
+  useGetPublicPlacesBusinessQuery,
+  useSubmitContactFormMutation,
+} = publicApi;

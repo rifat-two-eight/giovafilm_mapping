@@ -11,6 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { useSubmitContactFormMutation } from "@/redux/features/public/publicApi";
+import { toast } from "sonner";
+
 interface FormData {
   name: string;
   email: string;
@@ -19,6 +22,8 @@ interface FormData {
 }
 
 export function ContactForm() {
+  const [submitContact, { isLoading }] = useSubmitContactFormMutation();
+
   // State to manage form inputs
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -36,16 +41,21 @@ export function ContactForm() {
   };
 
   // Handler for form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Reset form after submission
-    setFormData({
-      name: "",
-      email: "",
-      subject: "General Inquiry",
-      message: "",
-    });
+    try {
+      await submitContact(formData).unwrap();
+      toast.success("Message sent successfully! We will get back to you soon.");
+      // Reset form after submission
+      setFormData({
+        name: "",
+        email: "",
+        subject: "General Inquiry",
+        message: "",
+      });
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to send message. Please try again.");
+    }
   };
 
   return (
@@ -138,9 +148,10 @@ export function ContactForm() {
         {/* Submit button */}
         <Button
           type="submit"
-          className="px-10 h-14 w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg  text-base shadow-lg shadow-yellow-500/20"
+          disabled={isLoading}
+          className="px-10 h-14 w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg text-base shadow-lg shadow-yellow-500/20 disabled:opacity-75"
         >
-          Send Message →
+          {isLoading ? "Sending..." : "Send Message →"}
         </Button>
       </form>
     </div>
