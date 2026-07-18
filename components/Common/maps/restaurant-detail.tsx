@@ -250,7 +250,9 @@ export default function RestaurantDetail() {
                             UNTIL
                           </p>
                           <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
-                            {new Date(offer.validUntil).toLocaleDateString()}
+                            {offer.noExpiration || !offer.validUntil
+                              ? "No Expiration"
+                              : new Date(offer.validUntil).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -296,7 +298,7 @@ export default function RestaurantDetail() {
                       <div className="text-center">
                         <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                           {timeLeft || "0"}{" "}
-                          <span className="text-base">Min</span>
+                          {!isTimerActive && <span className="text-base">Min</span>}
                         </div>
                         <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
                           {isTimerActive ? "Time Left" : "Redeem Now"}

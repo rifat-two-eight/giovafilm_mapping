@@ -117,7 +117,7 @@ export default function OfferSection() {
             return (
               <Link
                 key={offer._id}
-                href={`${placeId ? `/places/${placeId}` : `/offer/${offer?._id}`}`}
+                href={`/offer/${offer?._id}`}
               >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
