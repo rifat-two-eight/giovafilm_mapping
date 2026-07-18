@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
 import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
 import { useCreateMapCheckoutSessionMutation } from "@/redux/features/payment/paymentApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { Star } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -43,6 +44,23 @@ export default function FeatureMapDetailPage() {
   const mapData = response?.data;
 
   console.log("mapData", mapData);
+
+  const { data: userProfile } = useGetProfileQuery({});
+  const purchasedMaps = userProfile?.purchasedMaps || [];
+
+  const isPurchased = purchasedMaps.some((m: any) => {
+    const mapId = typeof m === "object" ? m._id || m.id : m;
+    return mapId === id;
+  });
+
+  const hasAccess = mapData?.isPaid === false || isPurchased;
+
+  const handleViewMap = () => {
+    if (mapData?.name) {
+      localStorage.setItem("selectedCountryFilter", mapData.name);
+    }
+    router.push("/maps");
+  };
 
   const [createCheckout, { isLoading: isCheckingOut }] =
     useCreateMapCheckoutSessionMutation();
@@ -218,14 +236,23 @@ export default function FeatureMapDetailPage() {
               </div>
             </div>
 
-            {/* Buy Button */}
-            <Button
-              onClick={handleBuyNow}
-              disabled={isCheckingOut}
-              className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none disabled:opacity-70"
-            >
-              {isCheckingOut ? "PROCESSING..." : "BUY NOW"}
-            </Button>
+            {/* Buy / View Button */}
+            {hasAccess ? (
+              <Button
+                onClick={handleViewMap}
+                className="w-full text-black py-6 px-13.5 text-lg bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none"
+              >
+                ALREADY PURCHASED, VIEW MAP
+              </Button>
+            ) : (
+              <Button
+                onClick={handleBuyNow}
+                disabled={isCheckingOut}
+                className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none disabled:opacity-70"
+              >
+                {isCheckingOut ? "PROCESSING..." : "BUY NOW"}
+              </Button>
+            )}
 
             {/* Features Icons */}
             {/* <div className="grid grid-cols-3 gap-4">

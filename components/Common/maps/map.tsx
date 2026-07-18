@@ -179,6 +179,7 @@ export default function MapPage() {
 
     if (savedCountry && availableCountries.includes(savedCountry)) {
       setSelectedCountry(savedCountry);
+      setIsManualSelection(true);
     } else if (detectedCountry && availableCountries.includes(detectedCountry)) {
       setSelectedCountry(detectedCountry);
     } else if (userProfile?.country && availableCountries.includes(userProfile.country)) {
