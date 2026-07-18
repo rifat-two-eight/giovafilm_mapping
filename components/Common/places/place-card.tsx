@@ -8,7 +8,7 @@ import Link from "next/link";
 export function PlaceCard({ data }: { data: TPlace }) {
   console.log(data);
   return (
-    <Link href={`/places/${data?.id}`}>
+    <Link href={`/places/${data?._id || data?.id}`}>
       <div className="rounded-xl overflow-hidden bg-white border hover:shadow-lg transition">
         {/* Image Section */}
         <div className="relative h-64 w-full">
