@@ -28,13 +28,12 @@ export default function ExploreMaps() {
       <div className="max-w-360 mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-16 items-center">
         {/* Map Image */}
         <div className="w-full md:w-135 md:h-135 relative rounded-3xl p-4 bg-blue-900/30">
-          <div className=" rounded-2xl overflow-hidden">
+          <div className="rounded-2xl overflow-hidden w-full h-full relative min-h-[350px]">
             <Image
-              src={require("@/public/explore-maps.png")}
+              src={require("@/public/map-img.jpg")}
               alt="Interactive Map"
-              width={1000}
-              height={1000}
-              className="w-full h-auto object-cover"
+              fill
+              className="object-cover"
             />
           </div>
         </div>
