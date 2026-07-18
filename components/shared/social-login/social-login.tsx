@@ -1,6 +1,7 @@
 "use client";
-
 import Image from "next/image";
+import googleIcon from "@/public/google.png";
+import facebookIcon from "@/public/facebook.png";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BASEURL ?? "http://10.10.7.50:4009";
@@ -20,7 +21,7 @@ export default function SocialLogin() {
         className="flex items-center justify-center gap-3 py-3.5 bg-white border border-[#EEEEEE] rounded-2xl shadow-sm hover:bg-gray-50 transition-all cursor-pointer"
       >
         <Image
-          src={require("@/public/google.png")}
+          src={googleIcon}
           alt="Google"
           width={200}
           height={200}
@@ -30,7 +31,7 @@ export default function SocialLogin() {
       </button>
       <button className="flex items-center justify-center gap-3 py-3.5 bg-white border border-[#EEEEEE] rounded-2xl shadow-sm hover:bg-gray-50 transition-all cursor-pointer">
         <Image
-          src={require("@/public/facebook.png")}
+          src={facebookIcon}
           alt="Facebook"
           width={200}
           height={200}

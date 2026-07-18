@@ -32,7 +32,7 @@ export default function Footer() {
             </div>
 
             <p className="mt-4 text-sm leading-relaxed">
-              Curating the world's most authentic travel experiences through
+              Curating the world&apos;s most authentic travel experiences through
               interactive, community-driven digital maps.
             </p>
 

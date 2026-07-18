@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-export default function page() {
+export default function Page() {
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState<any>(null);
 

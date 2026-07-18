@@ -36,6 +36,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { persistor } from "@/redux/store";
 import { baseApi } from "@/redux/api/baseApi";
 import Image from "next/image";
+import logo from "@/public/logo.png";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -163,7 +164,7 @@ export default function Header() {
           <div className="shrink-0">
             <Link href="/">
               <Image
-                src={require("@/public/logo.png")}
+                src={logo}
                 alt="Dashboard Logo"
                 height={200}
                 width={200}

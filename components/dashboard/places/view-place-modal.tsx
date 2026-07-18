@@ -435,7 +435,7 @@ export function ViewPlaceModal({
                               </div>
                             </div>
                             <p className="text-sm text-gray-600 leading-relaxed italic">
-                              "{review.review}"
+                              &quot;{review.review}&quot;
                             </p>
                           </div>
                         ))}

@@ -2,30 +2,30 @@
 
 import { useState } from "react";
 
+const Toggle = ({
+  enabled,
+  onChange,
+}: {
+  enabled: boolean;
+  onChange: (value: boolean) => void;
+}) => (
+  <button
+    onClick={() => onChange(!enabled)}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      enabled ? "bg-yellow-400" : "bg-gray-300"
+    }`}
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+        enabled ? "translate-x-6" : "translate-x-1"
+      }`}
+    />
+  </button>
+);
+
 export function NotificationSettings() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
-
-  const Toggle = ({
-    enabled,
-    onChange,
-  }: {
-    enabled: boolean;
-    onChange: (value: boolean) => void;
-  }) => (
-    <button
-      onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-        enabled ? "bg-yellow-400" : "bg-gray-300"
-      }`}
-    >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          enabled ? "translate-x-6" : "translate-x-1"
-        }`}
-      />
-    </button>
-  );
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">

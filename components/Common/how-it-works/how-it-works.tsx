@@ -16,7 +16,7 @@ import Image from "next/image";
  * 3. Explore the City - Navigate and discover locations
  */
 
-export default function () {
+export default function HowItWorks() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Page container with max width and padding */}
