@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { useAppSelector } from "@/redux/hook";
+import { useRouter } from "next/navigation";
 
 export interface Plan {
   _id: string;
@@ -29,6 +31,8 @@ export function PricingCard({
   onSelect,
   isFormStep = false,
 }: PricingCardProps) {
+  const router = useRouter();
+  const token = useAppSelector((state) => state.auth.accessToken);
   const isEnterprise = plan.name.toLowerCase() === "enterprise";
   const isPro = plan.name.toLowerCase() === "pro";
   const [createCheckoutSession, { isLoading }] =
@@ -37,6 +41,12 @@ export function PricingCard({
   // console.log(plan);
 
   const handleClick = async () => {
+    if (!token) {
+      toast.info("Please login to choose a subscription plan.");
+      router.push(`/login?redirect=/pricing`);
+      return;
+    }
+
     if (isFormStep) {
       if (onSelect) {
         onSelect(plan._id);

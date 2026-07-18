@@ -4,15 +4,21 @@ import { useGetSubscriptionPlansQuery, useGetMySubscriptionQuery } from "@/redux
 import { PricingCard, Plan } from "@/components/Common/pricing/PricingCard";
 import { Button } from "@/components/ui/button";
 
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAppSelector } from "@/redux/hook";
+
 export default function PricingPage() {
+  const token = useAppSelector((state) => state.auth.accessToken);
+
   const { data: plansRes, isLoading: plansLoading, error } = useGetSubscriptionPlansQuery();
-  const { data: subRes, isLoading: subLoading } = useGetMySubscriptionQuery();
+  const { data: subRes, isLoading: subLoading } = useGetMySubscriptionQuery(undefined, { skip: !token });
   
   const plans: Plan[] = plansRes?.data || [];
   const currentSub = subRes?.data;
   const currentPlanId = currentSub?.status !== "canceled" ? currentSub?.planId?._id : null;
   
-  const isLoading = plansLoading || subLoading;
+  const isLoading = plansLoading || (token ? subLoading : false);
 
   return (
     <main className="min-h-screen bg-gray-50 py-20 px-6">
