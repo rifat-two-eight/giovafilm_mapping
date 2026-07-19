@@ -1,6 +1,6 @@
 "use client";
 
-import { Twitter, Instagram, Globe } from "lucide-react";
+import { Instagram, Globe, Facebook, Youtube } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo.png";
@@ -38,13 +38,43 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex gap-4 mt-6">
-              <div className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer">
-                <Twitter size={18} />
-              </div>
+              <a
+                href="https://www.facebook.com/share/19EaG6cYHv/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer text-gray-600 hover:text-black transition-colors"
+              >
+                <Facebook size={18} />
+              </a>
 
-              <div className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer">
+              <a
+                href="https://www.instagram.com/roadtripeado?igsh=MTNra3VwbGdwNzd5bw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer text-gray-600 hover:text-black transition-colors"
+              >
                 <Instagram size={18} />
-              </div>
+              </a>
+
+              <a
+                href="https://youtube.com/@roadtripeado?si=hKx3FtiXlL5dTFzQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer text-gray-600 hover:text-black transition-colors"
+              >
+                <Youtube size={18} />
+              </a>
+
+              <a
+                href="https://www.tiktok.com/@roadtripeado?_r=1&_t=ZT-989KjXNc92E"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 cursor-pointer text-gray-600 hover:text-black transition-colors flex items-center justify-center"
+              >
+                <svg className="w-[18px] h-[18px] fill-current" viewBox="0 0 24 24">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.21-.42-.45-.61-.7-.02 3.68-.03 7.36-.04 11.04-.01 1.25-.33 2.51-.95 3.6-1.39 2.5-4.22 3.97-7.07 3.77-3-.21-5.75-2.42-6.52-5.36-.93-3.21.36-6.84 3.09-8.49.88-.53 1.88-.83 2.9-.91.02.13.04.26.06.39v4.09c-.44.07-.88.23-1.27.47-1.12.67-1.76 1.99-1.57 3.28.18 1.13.97 2.13 2.05 2.5 1.15.4 2.45.15 3.37-.62.86-.71 1.28-1.84 1.24-2.96-.02-3.87-.02-7.74-.02-11.61.9-.01 1.8.01 2.69-.02z"/>
+                </svg>
+              </a>
             </div>
           </div>
 

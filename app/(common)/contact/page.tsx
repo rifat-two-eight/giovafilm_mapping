@@ -11,7 +11,7 @@ const contactInfoData: ContactInfo[] = [
     icon: "mail",
     title: "Email Support",
     description: "Our team usually responds within 24 hours.",
-    content: "hello@roadtripeado.com",
+    content: "Roadtripeado@gmail.com",
     contentType: "email",
   },
   {
@@ -19,7 +19,7 @@ const contactInfoData: ContactInfo[] = [
     icon: "globe",
     title: "Social Media",
     description: "Follow our latest updates and travel tips.",
-    content: ["share", "instagram", "youtube"],
+    content: ["facebook", "instagram", "youtube", "tiktok"],
     contentType: "social",
   },
 ];

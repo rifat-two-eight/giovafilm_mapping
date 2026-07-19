@@ -63,11 +63,11 @@ export function BillingSettings() {
               Loading subscription details...
             </p>
           </div>
-        ) : sub && sub.status !== "canceled" ? (
+        ) : sub && sub.status !== "canceled" && sub.planId?.name ? (
           <div className="p-4 rounded-lg border border-blue-500 bg-blue-500/10">
             <div className="flex justify-between items-center mb-1">
               <p className="font-bold text-gray-900">
-                {sub.planId?.name || "Premium"} Plan
+                {sub.planId.name} Plan
               </p>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${
@@ -80,12 +80,11 @@ export function BillingSettings() {
               </span>
             </div>
             <p className="text-sm text-gray-600 font-medium">
-              ${sub.planId?.price}/{sub.planId?.interval} • Next billing date:{" "}
-              {new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {sub.planId?.price != null ? `$${sub.planId.price}` : ""}
+              {sub.planId?.interval ? `/${sub.planId.interval}` : ""}
+              {sub.currentPeriodEnd
+                ? ` • Next billing date: ${new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
+                : ""}
             </p>
             {sub.cancelAtPeriodEnd && (
               <p className="text-xs text-red-500 font-medium mt-2">
@@ -108,6 +107,15 @@ export function BillingSettings() {
                 </Button>
               </div>
             )}
+          </div>
+        ) : sub && sub.status !== "canceled" ? (
+          // Subscription exists in DB but plan details not yet synced
+          <div className="p-4 rounded-lg border border-amber-400 bg-amber-50">
+            <p className="font-bold text-amber-700 mb-1">⏳ Subscription Pending Sync</p>
+            <p className="text-sm text-amber-600">
+              Your payment was received. Subscription details will be fully visible once
+              the system syncs your plan information. This usually takes a few moments.
+            </p>
           </div>
         ) : (
           <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
