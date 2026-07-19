@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
+import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { toast } from "sonner";
 import {
   AlertCircle,
   ArrowLeft,
@@ -31,6 +33,26 @@ export default function BusinessDetails() {
   const router = useRouter();
   const { data: response, isLoading } = useGetSingleBusinessQuery(id as string);
   const business = response?.data;
+
+  const [createPayment, { isLoading: isPaymentLoading }] =
+    useCreateCheckoutSessionMutation();
+
+  const handlePayNow = async (planId: string) => {
+    const data = {
+      planId,
+      successUrl: `${window.location.origin}/success`,
+      cancelUrl: `${window.location.origin}/cancel`,
+    };
+    try {
+      const res = await createPayment(data).unwrap();
+      if (res?.data?.url || res?.url) {
+        window.location.href = res.data?.url || res.url;
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to initiate checkout session");
+    }
+  };
 
   console.log(business, "business");
 
@@ -141,10 +163,9 @@ export default function BusinessDetails() {
                   <Image
                     src={getImageUrl(business.media.photos[0])}
                     alt={business.name}
-                    width={1920}
-                    height={1080}
+                    fill
                     unoptimized
-                    className="object-cover"
+                    className="object-cover w-full h-full"
                   />
                 ) : (
                   <div className="w-full h-full bg-slate-100 flex items-center justify-center">
@@ -295,6 +316,7 @@ export default function BusinessDetails() {
                       src={getImageUrl(photo)}
                       alt={`Gallery ${index}`}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -308,6 +330,38 @@ export default function BusinessDetails() {
 
           {/* Sidebar (Right) */}
           <div className="space-y-8">
+            {business?.hasActiveSubscription === false && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 rounded-[2rem] p-6 space-y-4 shadow-sm"
+              >
+                <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                  <AlertCircle size={18} className="text-amber-600 shrink-0" />
+                  Premium Required
+                </div>
+                <p className="text-xs text-amber-700 font-semibold leading-relaxed">
+                  This business is currently hidden from travelers because it lacks an active subscription. Upgrade to a premium plan to publish this listing on the map.
+                </p>
+                {business.plan ? (
+                  <Button
+                    onClick={() => handlePayNow(business.plan)}
+                    disabled={isPaymentLoading}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11"
+                  >
+                    {isPaymentLoading ? "Processing..." : "Activate Listing"}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => router.push("/pricing")}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11"
+                  >
+                    Upgrade to Premium
+                  </Button>
+                )}
+              </motion.div>
+            )}
+
             {/* Quick Stats Card */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}

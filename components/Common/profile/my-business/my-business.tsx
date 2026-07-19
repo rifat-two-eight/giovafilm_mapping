@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetMyBusinessesQuery } from "@/redux/features/business/businessApi";
+import { useGetMyBusinessesQuery, useDeleteBusinessMutation } from "@/redux/features/business/businessApi";
 import { getImageUrl } from "@/lib/utils";
 import {
   Building2,
@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Settings,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,6 +30,7 @@ import { NoImage } from "@/lib/others/others";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export default function MyBusinessPage() {
   const router = useRouter();
@@ -38,6 +40,32 @@ export default function MyBusinessPage() {
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
+
+  const [deleteBusiness] = useDeleteBusinessMutation();
+
+  const handleDeleteBusiness = async (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete this business? This action cannot be undone and will permanently remove all associated data.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await deleteBusiness(id).unwrap();
+          if (res?.success === true || res?.data) {
+            toast.success("Business deleted successfully");
+          }
+        } catch (error: any) {
+          console.error(error);
+          toast.error(error?.data?.message || "Failed to delete business");
+        }
+      }
+    });
+  };
 
   // ['Pending', 'Approved', 'Rejected']
 
@@ -230,20 +258,70 @@ export default function MyBusinessPage() {
                         >
                           <ExternalLink size={16} /> View on Map
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteBusiness(business._id)}
+                          className="rounded-lg gap-2 font-medium text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+                        >
+                          <Trash2 size={16} strokeWidth={2.5} /> Delete Business
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-slate-500 mb-4">
+                  <div className="flex items-center gap-1.5 text-slate-500 mb-2">
                     <MapPin size={16} />
                     <span className="text-xs font-medium truncate">
                       {business.location?.city}, {business.location?.country}
                     </span>
                   </div>
 
-                  <p className="text-sm text-slate-600 line-clamp-2 mb-6 font-medium leading-relaxed">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xs font-bold text-slate-500">Subscription:</span>
+                    <Badge
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        business.hasActiveSubscription
+                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                          : "bg-rose-500/10 text-rose-600 border-rose-500/20"
+                      }`}
+                      variant="outline"
+                    >
+                      {business.hasActiveSubscription ? "Active" : "Inactive / Unpaid"}
+                    </Badge>
+                  </div>
+
+                  <p className="text-sm text-slate-600 line-clamp-2 mb-4 font-medium leading-relaxed">
                     {business.description}
                   </p>
+
+                  {business.hasActiveSubscription === false && (
+                    <div className="flex flex-col gap-3 bg-amber-50/50 rounded-xl p-4 mb-6 border border-amber-200/50">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-amber-700 font-semibold leading-relaxed">
+                          This business is not visible on the map because it lacks an active subscription.
+                        </p>
+                      </div>
+                      {business.plan ? (
+                        <Button
+                          onClick={() => handlePayNow(business.plan)}
+                          size="sm"
+                          disabled={isPaymentLoading}
+                          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg h-9 text-xs"
+                        >
+                          {isPaymentLoading ? "Processing..." : "Activate Listing (Pay Now)"}
+                        </Button>
+                      ) : (
+                        <Link href="/pricing">
+                          <Button
+                            size="sm"
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg h-9 text-xs"
+                          >
+                            Upgrade to Premium
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  )}
 
                   {/* Stats Bar */}
                   <div className="flex items-center justify-between border-t pt-5 border-slate-100">
@@ -267,18 +345,6 @@ export default function MyBusinessPage() {
                           Approval Needed
                         </Button>
                       )}
-
-                      {business?.hasActiveSubscription === false &&
-                        business?.status === "Approved" && (
-                          <Button
-                            onClick={() => handlePayNow(business.plan)}
-                            size="sm"
-                            className="bg-primary text-white hover:bg-primary/90"
-                            disabled={isPaymentLoading}
-                          >
-                            {isPaymentLoading ? "Processing..." : "Pay Now"}
-                          </Button>
-                        )}
 
                       {business?.hasActiveSubscription === true &&
                         business.status === "Approved" && (

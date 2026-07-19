@@ -174,7 +174,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value || ""}
                   disabled={isLoadingCats}
                 >
                   <FormControl className="w-full">

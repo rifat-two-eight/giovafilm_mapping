@@ -111,10 +111,6 @@ export function AddBusinessForm() {
   // ── Step 6 submit: send ALL data + planID in one addBusiness call ─────────
   const onFinalSubmit = async (values: any) => {
     console.log("Form submission values:", values);
-    if (!values.selectedPlan) {
-      toast.error("Please select a pricing plan to continue.");
-      return;
-    }
     console.log(values.selectedPlan, "selected plan");
 
     try {
@@ -173,16 +169,19 @@ export function AddBusinessForm() {
               },
             }
           : {}),
-        plan: values.selectedPlan,
+        plan: values.selectedPlan || undefined,
       };
 
       const formData = new FormData();
       // Send structured business data as JSON string
       formData.append("data", JSON.stringify(businessData));
-      // Renamed to 'plan' to match the Zod error (path: ["body", "plan"])
-      formData.append("plan", values.selectedPlan);
-      // Keeping planID just in case other parts of the system still need it
-      formData.append("planID", values.selectedPlan);
+      
+      if (values.selectedPlan) {
+        // Renamed to 'plan' to match the Zod error (path: ["body", "plan"])
+        formData.append("plan", values.selectedPlan);
+        // Keeping planID just in case other parts of the system still need it
+        formData.append("planID", values.selectedPlan);
+      }
 
       // Append business photos
       businessPhotos.forEach((photo) => {
@@ -239,11 +238,7 @@ export function AddBusinessForm() {
               offerFormDataPayload.append("images", photo);
             });
 
-            const offerRes = await createOffer(offerFormDataPayload).unwrap();
-            // console.log("offer res", offerRes);
-            if (offerRes?.success) {
-              router.push("/profile/my-business");
-            }
+            await createOffer(offerFormDataPayload).unwrap();
             toast.success("Offer created successfully!");
           } catch (offerErr: any) {
             console.error("Offer creation error:", offerErr);
@@ -254,6 +249,8 @@ export function AddBusinessForm() {
             );
           }
         }
+
+        router.push("/profile/my-business");
       }
     } catch (err: any) {
       const message =
@@ -326,7 +323,7 @@ export function AddBusinessForm() {
                   type="button"
                   onClick={async () => {
                     const validationKeys: Record<number, any[]> = {
-                      1: ["businessName", "category", "phoneNumber", "streetAddress", "city", "country"],
+                      1: ["businessName", "category", "phoneNumber", "businessDescription", "streetAddress", "city", "country"],
                       2: ["mapLocation"],
                       3: [],
                       4: [],
@@ -335,6 +332,13 @@ export function AddBusinessForm() {
                       (validationKeys[currentStep] || []) as any,
                     );
                     if (isValid) {
+                      if (currentStep === 2) {
+                        const mapLocation = form.getValues("mapLocation");
+                        if (!mapLocation) {
+                          toast.error("Please set a map location pointer.");
+                          return;
+                        }
+                      }
                       if (currentStep === 3) {
                         if (businessPhotos.length === 0) {
                           toast.error("Please upload at least one business photo.");
@@ -388,11 +392,6 @@ export function AddBusinessForm() {
                         }
                       }
                       setCurrentStep(currentStep + 1);
-                    } else if (
-                      currentStep === 2 &&
-                      !form.getValues("mapLocation")
-                    ) {
-                      toast.error("Please set a map location pointer.");
                     }
                   }}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"

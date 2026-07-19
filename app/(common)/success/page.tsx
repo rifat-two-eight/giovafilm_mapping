@@ -20,9 +20,9 @@ export default function SuccessPage() {
         </div>
 
         <div className="pt-4 space-y-3">
-          <Link href="/dashboard" className="block w-full">
+          <Link href="/profile/my-business" className="block w-full">
             <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold h-14 rounded-2xl shadow-lg shadow-yellow-100 transition-all active:scale-95">
-              GO TO DASHBOARD
+              GO TO MY BUSINESSES
             </Button>
           </Link>
           <Link href="/" className="block w-full">
