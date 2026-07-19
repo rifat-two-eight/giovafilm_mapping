@@ -153,6 +153,31 @@ export default function MapPage() {
     );
   }
 
+  // Filter out categories that have no places at all for the current country/map
+  const validPlacesForCurrentCountry = fetchedPlaces?.filter((place: any) => {
+    if (selectedCountry) {
+      if (selectedMapObj) {
+        const placeMapId = typeof place.map === 'object' ? place.map._id : place.map;
+        if (placeMapId !== selectedMapObj._id) return false;
+      } else {
+        const placeCountry = place?.location?.country || place?.country;
+        if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
+          return false;
+      }
+    }
+    return true;
+  }) || [];
+
+  const validCatIds = new Set(
+    validPlacesForCurrentCountry.map((p: any) => 
+      typeof p.category === "object" && p.category !== null ? p.category._id || p.category.id : p.category
+    )
+  );
+
+  fetchedCategories = fetchedCategories.filter(
+    (cat: any) => validCatIds.has(cat._id)
+  );
+
   // Detect country from markerPos (current location)
   useEffect(() => {
     if (!geocodingLib || !markerPos.lat || !markerPos.lng) return;
