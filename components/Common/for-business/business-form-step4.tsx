@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
@@ -31,6 +32,19 @@ export const step4Inputs = [
 ] as const;
 
 export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
+  const handleResetOffer = () => {
+    form.setValue("offerTitle", "");
+    form.setValue("offerDescription", "");
+    form.setValue("offerMaxRedemptions", "");
+    form.setValue("offerDuration", "");
+    form.setValue("offerDiscountType", "");
+    form.setValue("offerDiscount", "");
+    form.setValue("offerValidFrom", "");
+    form.setValue("offerValidUntil", "");
+    form.setValue("offerNoExpiration", false);
+    form.setValue("offerRedemptionRules", "");
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -44,6 +58,17 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
           their chances of attracting more customers and generating higher
           sales.
         </p>
+      </div>
+
+      <div className="flex justify-end -mb-4">
+        <Button
+          type="button"
+          onClick={handleResetOffer}
+          variant="outline"
+          className="text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+        >
+          Reset Offer Details
+        </Button>
       </div>
       {/* 
       <div className="bg-yellow-400 rounded-2xl p-6 space-y-4">

@@ -345,6 +345,48 @@ export function AddBusinessForm() {
                           return;
                         }
                       }
+                      if (currentStep === 4) {
+                        const offerTitle = form.getValues("offerTitle");
+                        if (offerTitle && offerTitle.trim() !== "") {
+                          const offerDescription = form.getValues("offerDescription");
+                          const offerDiscountType = form.getValues("offerDiscountType");
+                          const offerDiscount = form.getValues("offerDiscount");
+                          const offerDuration = form.getValues("offerDuration");
+                          const offerMaxRedemptions = form.getValues("offerMaxRedemptions");
+                          const offerValidFrom = form.getValues("offerValidFrom");
+                          const offerValidUntil = form.getValues("offerValidUntil");
+                          const offerNoExpiration = form.getValues("offerNoExpiration");
+
+                          if (!offerDescription || offerDescription.trim() === "") {
+                            toast.error("Please enter an offer description.");
+                            return;
+                          }
+                          if (!offerDiscountType) {
+                            toast.error("Please select a discount type.");
+                            return;
+                          }
+                          if (!offerDiscount || Number(offerDiscount) <= 0) {
+                            toast.error("Please enter a valid discount value greater than 0.");
+                            return;
+                          }
+                          if (!offerDuration || Number(offerDuration) <= 0) {
+                            toast.error("Please enter a valid offer duration in minutes.");
+                            return;
+                          }
+                          if (!offerMaxRedemptions || Number(offerMaxRedemptions) < 0) {
+                            toast.error("Please enter a valid max redemptions count.");
+                            return;
+                          }
+                          if (!offerValidFrom) {
+                            toast.error("Please select a valid from date.");
+                            return;
+                          }
+                          if (!offerNoExpiration && !offerValidUntil) {
+                            toast.error("Please select a valid until date or check 'No Expiration'.");
+                            return;
+                          }
+                        }
+                      }
                       setCurrentStep(currentStep + 1);
                     } else if (
                       currentStep === 2 &&
