@@ -116,24 +116,28 @@ export default function Header() {
   const { data: user } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const maxPoints = 1000;
   const progress = ((user?.points || 0) / maxPoints) * 100;
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
+      // Must await API to clear httpOnly refreshToken cookie before clearing local state.
+      // Otherwise, concurrent API calls on redirect will get 401 and refresh the token automatically!
       await logoutApi({}).unwrap();
     } catch {
+      // Ignore errors
     } finally {
       broadcastLogout(); // signal all other tabs
       dispatch(logout());
       dispatch(baseApi.util.resetApiState());
-      await persistor.purge();
-      // Clear only auth-related localStorage items instead of all localStorage.clear()
-      // But if needed, clear all
+      persistor.purge();
       localStorage.clear();
       closeMenus();
       router.push("/");
+      setIsLoggingOut(false);
     }
   };
 
@@ -377,9 +381,10 @@ export default function Header() {
                   {/* ✅ Logout button wired up */}
                   <Button
                     onClick={handleLogout}
+                    disabled={isLoggingOut}
                     className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
                   >
-                    Log Out
+                    {isLoggingOut ? "Logging out..." : "Log Out"}
                   </Button>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -452,12 +457,13 @@ export default function Header() {
                   <DropdownMenuSeparator />
 
                   {/* ✅ Logout button wired up - Mobile dropdown */}
-                  <button
+                  <Button
                     onClick={handleLogout}
+                    disabled={isLoggingOut}
                     className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
                   >
-                    Log Out
-                  </button>
+                    {isLoggingOut ? "Logging out..." : "Log Out"}
+                  </Button>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
