@@ -21,6 +21,10 @@ export function InviteUserForm(): React.ReactElement {
   });
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  
+  // Search states for improved UX
+  const [mapSearch, setMapSearch] = useState("");
+  const [countrySearch, setCountrySearch] = useState("");
 
   const [inviteUser, { isLoading }] = useInviteUserMutation();
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
@@ -28,6 +32,16 @@ export function InviteUserForm(): React.ReactElement {
 
   const maps = mapsRes?.data || [];
   const countries = countriesRes || [];
+
+  // Filtered lists based on search
+  const filteredMaps = maps.filter((map: any) =>
+    map.name?.toLowerCase().includes(mapSearch.toLowerCase()) ||
+    (map.country && map.country.toLowerCase().includes(mapSearch.toLowerCase()))
+  );
+
+  const filteredCountries = countries.filter((country: string) =>
+    country.toLowerCase().includes(countrySearch.toLowerCase())
+  );
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -61,6 +75,8 @@ export function InviteUserForm(): React.ReactElement {
       setFormData({ email: "", role: "user" });
       setSelectedMaps([]);
       setSelectedCountries([]);
+      setMapSearch("");
+      setCountrySearch("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to send invitation");
     }
@@ -70,6 +86,8 @@ export function InviteUserForm(): React.ReactElement {
     setFormData({ email: "", role: "user" });
     setSelectedMaps([]);
     setSelectedCountries([]);
+    setMapSearch("");
+    setCountrySearch("");
   };
 
   return (
@@ -116,61 +134,137 @@ export function InviteUserForm(): React.ReactElement {
         {formData.role === "map_editor" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-1 md:col-span-2">
             {/* Assigned Maps */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-semibold">
-                Assign Maps
-              </label>
-              <div className="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2 bg-gray-50/50">
-                {maps.length === 0 ? (
-                  <p className="text-sm text-gray-500">No maps found.</p>
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700">
+                  Assign Maps ({selectedMaps.length} selected)
+                </label>
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMaps(maps.map((m: any) => m._id))}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    Select All
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMaps([])}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Map Search Input */}
+              <Input
+                placeholder="Search maps..."
+                value={mapSearch}
+                onChange={(e) => setMapSearch(e.target.value)}
+                className="h-9 text-xs"
+              />
+
+              <div className="border border-gray-200 rounded-lg p-2 max-h-48 overflow-y-auto space-y-1.5 bg-gray-50/50">
+                {filteredMaps.length === 0 ? (
+                  <p className="text-xs text-gray-500 py-4 text-center">No maps found.</p>
                 ) : (
-                  maps.map((map: any) => (
-                    <label key={map._id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={selectedMaps.includes(map._id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedMaps((prev) => [...prev, map._id]);
-                          } else {
-                            setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                      />
-                      <span>{map.name} {map.country ? `(${map.country})` : ""}</span>
-                    </label>
-                  ))
+                  filteredMaps.map((map: any) => {
+                    const isChecked = selectedMaps.includes(map._id);
+                    return (
+                      <label
+                        key={map._id}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
+                          isChecked 
+                            ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
+                            : "text-gray-700 border border-transparent hover:bg-gray-100/70"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedMaps((prev) => [...prev, map._id]);
+                            } else {
+                              setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>
+                      </label>
+                    );
+                  })
                 )}
               </div>
             </div>
 
             {/* Assigned Countries */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-semibold">
-                Assign Countries
-              </label>
-              <div className="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2 bg-gray-50/50">
-                {countries.length === 0 ? (
-                  <p className="text-sm text-gray-500">No countries found.</p>
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700">
+                  Assign Countries ({selectedCountries.length} selected)
+                </label>
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCountries(countries)}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    Select All
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCountries([])}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Country Search Input */}
+              <Input
+                placeholder="Search countries..."
+                value={countrySearch}
+                onChange={(e) => setCountrySearch(e.target.value)}
+                className="h-9 text-xs"
+              />
+
+              <div className="border border-gray-200 rounded-lg p-2 max-h-48 overflow-y-auto space-y-1.5 bg-gray-50/50">
+                {filteredCountries.length === 0 ? (
+                  <p className="text-xs text-gray-500 py-4 text-center">No countries found.</p>
                 ) : (
-                  countries.map((country: string) => (
-                    <label key={country} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={selectedCountries.includes(country)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedCountries((prev) => [...prev, country]);
-                          } else {
-                            setSelectedCountries((prev) => prev.filter((c) => c !== country));
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                      />
-                      <span>{country}</span>
-                    </label>
-                  ))
+                  filteredCountries.map((country: string) => {
+                    const isChecked = selectedCountries.includes(country);
+                    return (
+                      <label
+                        key={country}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
+                          isChecked 
+                            ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
+                            : "text-gray-700 border border-transparent hover:bg-gray-100/70"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCountries((prev) => [...prev, country]);
+                            } else {
+                              setSelectedCountries((prev) => prev.filter((c) => c !== country));
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className="truncate">{country}</span>
+                      </label>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -190,7 +284,7 @@ export function InviteUserForm(): React.ReactElement {
         </Button>
         <Button
           onClick={handleSubmit}
-          className="bg-primary/80 hover:bg-primary text-black px-6 min-w-[140px]"
+          className="bg-primary hover:bg-primary/95 text-black px-6 min-w-[140px]"
           disabled={isLoading}
         >
           {isLoading ? (

@@ -54,6 +54,10 @@ export function UsersTable(): React.ReactElement {
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
+  // Search states for Modal
+  const [modalMapSearch, setModalMapSearch] = useState("");
+  const [modalCountrySearch, setModalCountrySearch] = useState("");
+
   const { data: currentUser } = useGetProfileQuery({});
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const { data: countriesRes } = useGetAvailableCountriesQuery();
@@ -61,6 +65,16 @@ export function UsersTable(): React.ReactElement {
 
   const maps = mapsRes?.data || [];
   const countries = countriesRes || [];
+
+  // Filtered lists for Modal
+  const filteredModalMaps = maps.filter((map: any) =>
+    map.name?.toLowerCase().includes(modalMapSearch.toLowerCase()) ||
+    (map.country && map.country.toLowerCase().includes(modalMapSearch.toLowerCase()))
+  );
+
+  const filteredModalCountries = countries.filter((country: string) =>
+    country.toLowerCase().includes(modalCountrySearch.toLowerCase())
+  );
 
   const queryParams: any = {
     page,
@@ -173,6 +187,8 @@ export function UsersTable(): React.ReactElement {
       setSelectedUser(null);
       setSelectedMaps([]);
       setSelectedCountries([]);
+      setModalMapSearch("");
+      setModalCountrySearch("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to save editor access");
     }
@@ -428,63 +444,137 @@ export function UsersTable(): React.ReactElement {
               Select the maps and countries this editor can manage.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {/* Maps list */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Assign Maps
-                </label>
-                <div className="border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-gray-50/50">
-                  {maps.length === 0 ? (
-                    <p className="text-xs text-gray-500">No maps found.</p>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Assign Maps ({selectedMaps.length} selected)
+                  </label>
+                  <div className="flex items-center gap-2 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMaps(maps.map((m: any) => m._id))}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMaps([])}
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+
+                <Input
+                  placeholder="Search maps..."
+                  value={modalMapSearch}
+                  onChange={(e) => setModalMapSearch(e.target.value)}
+                  className="h-9 text-xs"
+                />
+
+                <div className="border border-gray-200 rounded-lg p-2 max-h-40 overflow-y-auto space-y-1.5 bg-gray-50/50">
+                  {filteredModalMaps.length === 0 ? (
+                    <p className="text-xs text-gray-500 py-4 text-center">No maps found.</p>
                   ) : (
-                    maps.map((map: any) => (
-                      <label key={map._id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={selectedMaps.includes(map._id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedMaps((prev) => [...prev, map._id]);
-                            } else {
-                              setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                        />
-                        <span>{map.name} {map.country ? `(${map.country})` : ""}</span>
-                      </label>
-                    ))
+                    filteredModalMaps.map((map: any) => {
+                      const isChecked = selectedMaps.includes(map._id);
+                      return (
+                        <label
+                          key={map._id}
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
+                            isChecked 
+                              ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
+                              : "text-gray-700 border border-transparent hover:bg-gray-100/70"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedMaps((prev) => [...prev, map._id]);
+                              } else {
+                                setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>
+                        </label>
+                      );
+                    })
                   )}
                 </div>
               </div>
 
               {/* Countries list */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Assign Countries
-                </label>
-                <div className="border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-gray-50/50">
-                  {countries.length === 0 ? (
-                    <p className="text-xs text-gray-500">No countries found.</p>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Assign Countries ({selectedCountries.length} selected)
+                  </label>
+                  <div className="flex items-center gap-2 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCountries(countries)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCountries([])}
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+
+                <Input
+                  placeholder="Search countries..."
+                  value={modalCountrySearch}
+                  onChange={(e) => setModalCountrySearch(e.target.value)}
+                  className="h-9 text-xs"
+                />
+
+                <div className="border border-gray-200 rounded-lg p-2 max-h-40 overflow-y-auto space-y-1.5 bg-gray-50/50">
+                  {filteredModalCountries.length === 0 ? (
+                    <p className="text-xs text-gray-500 py-4 text-center">No countries found.</p>
                   ) : (
-                    countries.map((country: string) => (
-                      <label key={country} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={selectedCountries.includes(country)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCountries((prev) => [...prev, country]);
-                            } else {
-                              setSelectedCountries((prev) => prev.filter((c) => c !== country));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                        />
-                        <span>{country}</span>
-                      </label>
-                    ))
+                    filteredModalCountries.map((country: string) => {
+                      const isChecked = selectedCountries.includes(country);
+                      return (
+                        <label
+                          key={country}
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
+                            isChecked 
+                              ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
+                              : "text-gray-700 border border-transparent hover:bg-gray-100/70"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedCountries((prev) => [...prev, country]);
+                              } else {
+                                setSelectedCountries((prev) => prev.filter((c) => c !== country));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                          />
+                          <span className="truncate">{country}</span>
+                        </label>
+                      );
+                    })
                   )}
                 </div>
               </div>
