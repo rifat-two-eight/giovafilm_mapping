@@ -32,7 +32,7 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { ChevronRight, Map as MapIcon, Plus } from "lucide-react";
+import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
@@ -171,6 +171,8 @@ export default function AddPlacePage() {
 
   // Track which place IDs are manually disabled (hidden from map)
   const [disabledPlaces, setDisabledPlaces] = useState<Set<string>>(new Set());
+  // Track which category IDs are manually disabled (hidden from map)
+  const [disabledCategories, setDisabledCategories] = useState<Set<string>>(new Set());
 
   const togglePlaceVisibility = (placeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -185,10 +187,24 @@ export default function AddPlacePage() {
     });
   };
 
+  const toggleCategoryVisibility = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDisabledCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
+  };
+
   // Map shows ALL places by default — only manually disabled ones are hidden
-  const displayPlaces = fetchedPlaces.filter(
-    (place: any) => !disabledPlaces.has(place._id),
-  );
+  const displayPlaces = fetchedPlaces.filter((place: any) => {
+    const pCatId = typeof place.category === "object" ? place.category?._id : place.category;
+    return !disabledPlaces.has(place._id) && (!pCatId || !disabledCategories.has(pCatId));
+  });
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -538,49 +554,68 @@ export default function AddPlacePage() {
                 Show All Places
               </button>
 
-              {categories.map((cat: any) => {
-                const isFilterActive = filterCategoryId === cat._id;
-                const isExpanded = expandedCategoryId === cat._id;
-                const placesInCat = fetchedPlaces.filter((p: any) => {
-                  const pCatId =
-                    typeof p.category === "object"
-                      ? p.category?._id
-                      : p.category;
-                  return pCatId === cat._id;
-                });
+              {categories
+                .map((cat: any) => {
+                  const placesInCat = fetchedPlaces.filter((p: any) => {
+                    const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+                    return pCatId === cat._id;
+                  });
+                  return { cat, placesInCat };
+                })
+                .filter(({ placesInCat }: { placesInCat: any[] }) => {
+                  return placesInCat.length > 0;
+                })
+                .map(({ cat, placesInCat }: { cat: any; placesInCat: any[] }) => {
+                  const isFilterActive = filterCategoryId === cat._id;
+                  const isExpanded = expandedCategoryId === cat._id;
 
-                return (
+                  return (
                   <div key={cat._id} className="flex flex-col">
-                    <button
-                      onClick={() => {
-                        setFilterCategoryId(cat._id);
-                        setSelectedCategoryId(cat._id);
-                        setExpandedCategoryId(isExpanded ? null : cat._id);
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${isFilterActive
-                        ? "bg-blue-50 text-blue-700 font-semibold"
-                        : "text-gray-600 hover:bg-gray-50"
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <ChevronRight
-                          size={14}
-                          className={`transition-transform duration-200 ${isExpanded
-                            ? "rotate-90 text-blue-500"
-                            : "text-gray-300"
-                            }`}
-                        />
-                        <CategoryIcon
-                          icon={cat.icon}
-                          size={22}
-                          color={cat.color}
-                        />
-                        <span className="truncate">{cat.name}</span>
-                      </div>
-                      <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                        {placesInCat.length}
-                      </span>
-                    </button>
+                    <div className="flex items-center hover:bg-gray-50 rounded-lg transition-colors w-full min-w-0">
+                      <button
+                        onClick={() => {
+                          setFilterCategoryId(cat._id);
+                          setSelectedCategoryId(cat._id);
+                          setExpandedCategoryId(isExpanded ? null : cat._id);
+                        }}
+                        className={`flex-1 flex items-center justify-between px-4 py-2.5 text-sm transition-colors min-w-0 text-left ${isFilterActive
+                          ? "bg-blue-50/50 text-blue-700 font-semibold rounded-l-lg"
+                          : "text-gray-600"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <ChevronRight
+                            size={14}
+                            className={`flex-shrink-0 transition-transform duration-200 ${isExpanded
+                              ? "rotate-90 text-blue-500"
+                              : "text-gray-300"
+                              }`}
+                          />
+                          <CategoryIcon
+                            icon={cat.icon}
+                            size={22}
+                            color={cat.color}
+                          />
+                          <span className="truncate pr-2">{cat.name}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 ml-1">
+                          {placesInCat.length}
+                        </span>
+                      </button>
+
+                      {/* Category Visibility Toggle Button */}
+                      <button
+                        onClick={(e) => toggleCategoryVisibility(cat._id, e)}
+                        title={disabledCategories.has(cat._id) ? "Show category on map" : "Hide category from map"}
+                        className="px-3 py-2.5 text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0 border-l border-gray-100/50"
+                      >
+                        {disabledCategories.has(cat._id) ? (
+                          <EyeOff size={16} className="text-gray-400" />
+                        ) : (
+                          <Eye size={16} className="text-blue-500" />
+                        )}
+                      </button>
+                    </div>
 
                     {/* Expandable Place List */}
                     {isExpanded && (
