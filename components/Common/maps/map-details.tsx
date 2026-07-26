@@ -127,17 +127,9 @@ export default function MapDetails() {
     },
   ];
 
-  const isBusiness = placeData?.type === "Business";
-
-  const businessInfoData = [
-    {
-      icon: Ticket,
-      label: "Atmosphere:",
-      value: placeData?.atmosphere || "N/A",
-    },
-  ];
-
-  const dataToRender = isBusiness ? businessInfoData : infoData;
+  const isRestaurant =
+    placeData?.category?.name?.toLowerCase() === "restaurant";
+  const dataToRender = isRestaurant ? restaurantData : infoData;
 
   const reviewData = reviews?.data;
   // console.log("placeRes", reviewData);
@@ -396,25 +388,6 @@ export default function MapDetails() {
               })}
             </div>
 
-            {/* Operating Hours — Business only */}
-            {isBusiness && placeData?.operatingHours && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2">
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock size={14} className="text-gray-500" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-gray-700">Operating Hours</span>
-                </div>
-                {Object.entries(placeData.operatingHours as Record<string, { open: string; close: string; closed: boolean }>).map(([day, hours]) => (
-                  <div key={day} className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
-                    <span className={`text-xs font-semibold w-24 ${hours.closed ? "text-gray-400" : "text-gray-700"}`}>{day}</span>
-                    {hours.closed
-                      ? <span className="text-xs text-red-400 font-semibold">Closed</span>
-                      : <span className="text-xs text-gray-600">{hours.open} — {hours.close}</span>
-                    }
-                  </div>
-                ))}
-              </div>
-            )}
-
             <Button
               onClick={handleViewOnMap}
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
@@ -424,7 +397,7 @@ export default function MapDetails() {
             </Button>
 
             {/* directions button */}
-            {!isBusiness && (
+            {!isRestaurant && (
               <Button
                 onClick={handleDirections}
                 className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
@@ -434,7 +407,7 @@ export default function MapDetails() {
               </Button>
             )}
 
-            {isBusiness && (
+            {isRestaurant && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
                   <Button
@@ -444,22 +417,10 @@ export default function MapDetails() {
                     <Send size={18} className="mr-2" />
                     DIRECTIONS
                   </Button>
-                  {placeData.phone ? (
-                    <a href={`tel:${placeData.phone}`} className="flex-1">
-                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
-                        <Phone size={18} className="mr-2" />
-                        Call
-                      </Button>
-                    </a>
-                  ) : (
-                    <Button
-                      disabled
-                      className="flex-1 bg-gray-100 text-gray-400 font-semibold py-6 text-base rounded-xl cursor-not-allowed border"
-                    >
-                      <Phone size={18} className="mr-2" />
-                      No Phone
-                    </Button>
-                  )}
+                  <Button className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                    <Phone size={18} className="mr-2" />
+                    Call
+                  </Button>
                 </div>
 
                 {offerId && (
@@ -489,7 +450,7 @@ export default function MapDetails() {
               className="border rounded-xl bg-white"
             >
               <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                {isBusiness ? "DESCRIPTION & ACCESS" : "ACCESS"}
+                {isRestaurant ? "DESCRIPTION & ACCESS" : "ACCESS"}
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
@@ -509,7 +470,7 @@ export default function MapDetails() {
             </AccordionItem>
 
             {/* RECOMMENDATIONS */}
-            {!isBusiness && (
+            {!isRestaurant && (
               <AccordionItem
                 value="recommendations"
                 className="border rounded-xl bg-white"
@@ -553,7 +514,7 @@ export default function MapDetails() {
             )}
 
             {/* SERVICES */}
-            {!isBusiness && placeData?.services?.length > 0 && (
+            {!isRestaurant && placeData?.services?.length > 0 && (
               <AccordionItem
                 value="services"
                 className="border rounded-xl bg-white"
@@ -649,13 +610,13 @@ export default function MapDetails() {
           </Accordion>
         </div>
 
-        {isBusiness && (
+        {isRestaurant && (
           <div className="px-2 mt-10">
             <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-6">
               Online Presence
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
-              {/* WEBSITE */}
+              {/* WEBSITE placeholder or real data if available in details */}
               <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
                   <div className="bg-blue-50 p-3 rounded-xl">🌐</div>
@@ -663,34 +624,17 @@ export default function MapDetails() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       WEBSITE
                     </p>
-                    <p className="font-bold text-gray-900 truncate max-w-[180px]">
-                      {placeData.website ? "Official Site" : "No Website"}
+                    <p className="font-bold text-gray-900 truncate max-w-[150px]">
+                      Official Site
                     </p>
                   </div>
                 </div>
-                {placeData.website ? (
-                  <button
-                    onClick={() => {
-                      const url = placeData.website.startsWith("http")
-                        ? placeData.website
-                        : `https://${placeData.website}`;
-                      window.open(url, "_blank");
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors"
-                  >
-                    VISIT
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    className="bg-gray-100 text-gray-400 border px-5 py-2 rounded-xl font-bold text-xs uppercase cursor-not-allowed"
-                  >
-                    N/A
-                  </button>
-                )}
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
+                  VISIT
+                </button>
               </div>
 
-              {/* INSTAGRAM */}
+              {/* SOCIAL placeholder */}
               <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
                   <div className="bg-pink-50 p-3 rounded-xl">📸</div>
@@ -698,31 +642,14 @@ export default function MapDetails() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       INSTAGRAM
                     </p>
-                    <p className="font-bold text-gray-900 truncate max-w-[180px]">
-                      {placeData.instagram
-                        ? `@${placeData.instagram.replace("@", "")}`
-                        : "No Instagram"}
+                    <p className="font-bold text-gray-900">
+                      @visit_{placeData.name.toLowerCase().replace(/\s+/g, "_")}
                     </p>
                   </div>
                 </div>
-                {placeData.instagram ? (
-                  <button
-                    onClick={() => {
-                      const username = placeData.instagram.replace("@", "").trim();
-                      window.open(`https://instagram.com/${username}`, "_blank");
-                    }}
-                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors"
-                  >
-                    VIEW
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    className="bg-gray-100 text-gray-400 border px-5 py-2 rounded-xl font-bold text-xs uppercase cursor-not-allowed"
-                  >
-                    N/A
-                  </button>
-                )}
+                <button className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
+                  VIEW
+                </button>
               </div>
             </div>
           </div>
@@ -749,7 +676,7 @@ export default function MapDetails() {
           <DialogHeader className="sr-only">
             <DialogTitle>Media Gallery</DialogTitle>
           </DialogHeader>
-          
+
           {/* Top Bar */}
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50">
             <div className="flex items-center gap-2">
@@ -758,7 +685,7 @@ export default function MapDetails() {
                 {mediaList.length}
               </span>
             </div>
-            
+
             {/* Zoom Controls */}
             {selectedMediaIndex !== null && !isVideo(mediaList[selectedMediaIndex]) && (
               <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-full px-3 py-2">
@@ -798,7 +725,7 @@ export default function MapDetails() {
                 </button>
               </div>
             )}
-            
+
             {/* Close Button */}
             <button
               onClick={() => {
@@ -812,19 +739,19 @@ export default function MapDetails() {
             </button>
           </div>
 
-          <div 
+          <div
             className="relative w-full h-full flex items-center justify-center"
             onWheel={handleWheel}
           >
             {selectedMediaIndex !== null && (
-              <div 
+              <div
                 className="relative w-full h-full flex items-center justify-center"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}
-                style={{ 
-                  cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' 
+                style={{
+                  cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
                 }}
               >
                 {isVideo(mediaList[selectedMediaIndex]) ? (
@@ -857,7 +784,7 @@ export default function MapDetails() {
                       onClick={() => {
                         setSelectedMediaIndex(
                           (selectedMediaIndex - 1 + mediaList.length) %
-                            mediaList.length,
+                          mediaList.length,
                         );
                       }}
                       className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 text-white hover:bg-white/10 rounded-full transition-colors z-[100]"
