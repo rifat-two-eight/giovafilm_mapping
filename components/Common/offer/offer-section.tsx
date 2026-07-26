@@ -10,11 +10,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import Link from "next/link";
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+
+  const { data: profile } = useGetProfileQuery({});
+  const isPremium = profile && (
+    ["super_admin", "admin", "map_editor"].includes(profile.role) ||
+    ["active", "trialing"].includes(profile.subscriptionStatus)
+  );
+
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
   console.log(offersData);
@@ -60,6 +68,39 @@ export default function OfferSection() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Skeleton key={i} className="h-[400px] w-full rounded-xl" />
             ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+  if (!isPremium) {
+    return (
+      <section className="bg-gray-50 min-h-[80vh] flex items-center justify-center py-20 font-sans">
+        <div className="max-w-md w-full mx-auto px-6 text-center space-y-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full animate-bounce">
+            <span className="text-4xl">🎁</span>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight">Exclusive Offers</h2>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Unlock special discounts, deals, and coupon codes from local businesses and premium hotspots across Puerto Rico.
+            </p>
+          </div>
+          <div className="bg-white border border-gray-100 p-6 rounded-2xl shadow-xl space-y-4">
+            <div className="flex items-center gap-3 text-left">
+              <span className="text-xl">⭐</span>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">Premium Feature</p>
+                <p className="text-xs text-gray-400">
+                  {profile ? "This feature is reserved for Paid members only." : "Log in to upgrade and unlock exclusive deals."}
+                </p>
+              </div>
+            </div>
+            <Link href={profile ? "/pricing" : "/login"} className="block">
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-extrabold py-5 rounded-xl transition-all">
+                {profile ? "Upgrade to Premium" : "Log In to Unlock"}
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

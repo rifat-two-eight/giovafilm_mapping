@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import Link from "next/link";
 import {
   Flame,
   MapPin,
@@ -12,6 +14,7 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PlaceCard } from "./place-card";
@@ -36,6 +39,12 @@ const filters = [
 ];
 
 export default function ExplorePlaces() {
+  const { data: profile } = useGetProfileQuery({});
+  const isPremium = profile && (
+    ["super_admin", "admin", "map_editor"].includes(profile.role) ||
+    ["active", "trialing"].includes(profile.subscriptionStatus)
+  );
+
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(9);
   const [searchInput, setSearchInput] = useState("");
@@ -179,6 +188,28 @@ export default function ExplorePlaces() {
             );
           })}
         </div>
+
+        {/* Premium Upgrade Banner for Free Users / Guests */}
+        {!isPremium && (
+          <div className="mb-8 p-4 bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-yellow-500/10 border border-yellow-200/50 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-center gap-3 text-left">
+              <span className="text-2xl">✨</span>
+              <div>
+                <p className="font-extrabold text-gray-900 text-sm md:text-base">Unlock 100+ Standard Adventure Locations & Hidden Gems!</p>
+                <p className="text-xs text-gray-500 font-medium">
+                  {profile 
+                    ? "You are currently viewing the free version. Upgrade to Premium to access full travel maps and exclusive offers."
+                    : "Log in or subscribe to Premium to access full travel maps and exclusive local offers."}
+                </p>
+              </div>
+            </div>
+            <Link href={profile ? "/pricing" : "/login"}>
+              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all whitespace-nowrap">
+                {profile ? "Upgrade to Premium" : "Log In to Unlock"}
+              </Button>
+            </Link>
+          </div>
+        )}
 
         {/* Places Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
