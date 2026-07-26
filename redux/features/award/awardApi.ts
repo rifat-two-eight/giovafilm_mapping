@@ -22,7 +22,27 @@ export const awardApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Award", "User"],
     }),
+    getAwardConfigs: builder.query<any, void>({
+      query: () => ({
+        url: "/awards/configs",
+        method: "GET",
+      }),
+      providesTags: ["Award"],
+    }),
+    updateAwardConfig: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/awards/configs/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Award"],
+    }),
   }),
 });
 
-export const { useGetAwardsQuery, useRedeemFreeMapMutation } = awardApi;
+export const {
+  useGetAwardsQuery,
+  useRedeemFreeMapMutation,
+  useGetAwardConfigsQuery,
+  useUpdateAwardConfigMutation,
+} = awardApi;

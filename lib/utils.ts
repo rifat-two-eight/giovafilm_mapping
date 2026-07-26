@@ -14,6 +14,7 @@ import {
   Settings,
   LogOut,
   CreditCard,
+  Trophy,
 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
@@ -165,6 +166,11 @@ export const adminMenuItems = [
     title: "Business",
     url: "/dashboard/business",
     icon: Building2,
+  },
+  {
+    title: "Rewards",
+    url: "/dashboard/rewards",
+    icon: Trophy,
   },
   {
     title: "Reports & Statistics",
