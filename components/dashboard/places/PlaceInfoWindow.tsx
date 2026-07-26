@@ -23,6 +23,7 @@ interface PlaceInfoWindowProps {
     entryCost?: number;
     hikeTime?: string | number;
     atmosphere?: string;
+    operatingHours?: Record<string, { open: string; close: string; closed: boolean }>;
   };
 }
 

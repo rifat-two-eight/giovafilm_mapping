@@ -127,9 +127,17 @@ export default function MapDetails() {
     },
   ];
 
-  const isRestaurant =
-    placeData?.category?.name?.toLowerCase() === "restaurant";
-  const dataToRender = isRestaurant ? restaurantData : infoData;
+  const isBusiness = placeData?.type === "Business";
+
+  const businessInfoData = [
+    {
+      icon: Ticket,
+      label: "Atmosphere:",
+      value: placeData?.atmosphere || "N/A",
+    },
+  ];
+
+  const dataToRender = isBusiness ? businessInfoData : infoData;
 
   const reviewData = reviews?.data;
   // console.log("placeRes", reviewData);
@@ -388,6 +396,25 @@ export default function MapDetails() {
               })}
             </div>
 
+            {/* Operating Hours — Business only */}
+            {isBusiness && placeData?.operatingHours && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock size={14} className="text-gray-500" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-gray-700">Operating Hours</span>
+                </div>
+                {Object.entries(placeData.operatingHours as Record<string, { open: string; close: string; closed: boolean }>).map(([day, hours]) => (
+                  <div key={day} className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
+                    <span className={`text-xs font-semibold w-24 ${hours.closed ? "text-gray-400" : "text-gray-700"}`}>{day}</span>
+                    {hours.closed
+                      ? <span className="text-xs text-red-400 font-semibold">Closed</span>
+                      : <span className="text-xs text-gray-600">{hours.open} — {hours.close}</span>
+                    }
+                  </div>
+                ))}
+              </div>
+            )}
+
             <Button
               onClick={handleViewOnMap}
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
@@ -397,7 +424,7 @@ export default function MapDetails() {
             </Button>
 
             {/* directions button */}
-            {!isRestaurant && (
+            {!isBusiness && (
               <Button
                 onClick={handleDirections}
                 className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all"
@@ -407,7 +434,7 @@ export default function MapDetails() {
               </Button>
             )}
 
-            {isRestaurant && (
+            {isBusiness && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
                   <Button
@@ -450,7 +477,7 @@ export default function MapDetails() {
               className="border rounded-xl bg-white"
             >
               <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                {isRestaurant ? "DESCRIPTION & ACCESS" : "ACCESS"}
+                {isBusiness ? "DESCRIPTION & ACCESS" : "ACCESS"}
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
@@ -470,7 +497,7 @@ export default function MapDetails() {
             </AccordionItem>
 
             {/* RECOMMENDATIONS */}
-            {!isRestaurant && (
+            {!isBusiness && (
               <AccordionItem
                 value="recommendations"
                 className="border rounded-xl bg-white"
@@ -514,7 +541,7 @@ export default function MapDetails() {
             )}
 
             {/* SERVICES */}
-            {!isRestaurant && placeData?.services?.length > 0 && (
+            {!isBusiness && placeData?.services?.length > 0 && (
               <AccordionItem
                 value="services"
                 className="border rounded-xl bg-white"
@@ -610,7 +637,7 @@ export default function MapDetails() {
           </Accordion>
         </div>
 
-        {isRestaurant && (
+        {isBusiness && (
           <div className="px-2 mt-10">
             <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-6">
               Online Presence

@@ -61,6 +61,7 @@ interface PlaceFormContentProps {
     hikeTime?: string | number;
     atmosphere?: string;
     difficulty?: string;
+    operatingHours?: Record<string, { open: string; close: string; closed: boolean }>;
   };
 }
 
@@ -110,6 +111,15 @@ export const PlaceFormContent = ({
     hikeTime: initialData?.hikeTime || "",
     atmosphere: initialData?.atmosphere || "",
     difficulty: initialData?.difficulty || "",
+    operatingHours: (initialData?.operatingHours as Record<string, { open: string; close: string; closed: boolean }>) || {
+      Monday:    { open: "09:00", close: "18:00", closed: false },
+      Tuesday:   { open: "09:00", close: "18:00", closed: false },
+      Wednesday: { open: "09:00", close: "18:00", closed: false },
+      Thursday:  { open: "09:00", close: "18:00", closed: false },
+      Friday:    { open: "09:00", close: "18:00", closed: false },
+      Saturday:  { open: "10:00", close: "16:00", closed: false },
+      Sunday:    { open: "10:00", close: "16:00", closed: true },
+    },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +200,19 @@ export const PlaceFormContent = ({
       services: prev.services.includes(service)
         ? prev.services.filter((s) => s !== service)
         : [...prev.services, service],
+    }));
+  };
+
+  const updateOperatingHours = (
+    day: string,
+    patch: Partial<{ open: string; close: string; closed: boolean }>,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      operatingHours: {
+        ...prev.operatingHours,
+        [day]: { ...prev.operatingHours[day], ...patch },
+      },
     }));
   };
 
@@ -357,6 +380,53 @@ export const PlaceFormContent = ({
               </div>
             </div>
 
+            {/* Operating Hours — shown only for Business type */}
+            {formData.type === "Business" && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">Operating Hours</Label>
+                  <span className="text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Business</span>
+                </div>
+                <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+                  {Object.entries(formData.operatingHours).map(([day, hours]) => (
+                    <div key={day} className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${hours.closed ? "bg-gray-50" : "bg-white"}`}>
+                      <span className={`w-24 text-xs font-semibold shrink-0 ${hours.closed ? "text-gray-400" : "text-gray-700"}`}>
+                        {day}
+                      </span>
+                      <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={hours.closed}
+                          onChange={(e) => updateOperatingHours(day, { closed: e.target.checked })}
+                          className="w-3.5 h-3.5 accent-red-500 cursor-pointer"
+                        />
+                        <span className="text-[11px] text-gray-500 select-none">Closed</span>
+                      </label>
+                      {!hours.closed ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <input
+                            type="time"
+                            value={hours.open}
+                            onChange={(e) => updateOperatingHours(day, { open: e.target.value })}
+                            className="h-8 px-2 rounded-lg border border-gray-200 bg-white text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all cursor-pointer"
+                          />
+                          <span className="text-gray-400 text-xs font-bold">—</span>
+                          <input
+                            type="time"
+                            value={hours.close}
+                            onChange={(e) => updateOperatingHours(day, { close: e.target.value })}
+                            className="h-8 px-2 rounded-lg border border-gray-200 bg-white text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all cursor-pointer"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-red-400 font-semibold italic flex-1">Closed all day</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label className="text-sm font-medium">Short Description <span className="text-red-500">*</span></Label>
               <Textarea
@@ -486,6 +556,8 @@ export const PlaceFormContent = ({
             {/* Conditionally Rendered New Fields */}
             {formData.category && (
               <div className="grid grid-cols-2 gap-4">
+                {/* Schedules — hidden for Business type (uses Operating Hours instead) */}
+                {formData.type !== "Business" && (
                 <div className="space-y-2 col-span-2">
                   <Label className="text-sm font-medium">Schedules</Label>
                   <div className="flex items-center gap-2 mb-2">
@@ -515,6 +587,7 @@ export const PlaceFormContent = ({
                     />
                   )}
                 </div>
+                )}
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Atmosphere</Label>

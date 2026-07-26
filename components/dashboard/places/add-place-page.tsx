@@ -371,7 +371,8 @@ export default function AddPlacePage() {
           recommendations: finalData.tips || "",
         },
         // New fields
-        schedules: finalData.schedules || "",
+        schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
+        operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",

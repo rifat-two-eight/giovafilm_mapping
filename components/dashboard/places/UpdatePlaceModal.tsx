@@ -87,7 +87,8 @@ export function UpdatePlaceModal({
           recommendations: finalData.tips || "",
         },
         // New fields
-        schedules: finalData.schedules || "",
+        schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
+        operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
@@ -199,6 +200,7 @@ export function UpdatePlaceModal({
                 hikeTime: place.hikeTime || "",
                 atmosphere: place.atmosphere || "",
                 difficulty: place.difficulty || "",
+                operatingHours: place.operatingHours || undefined,
               }}
             />
           </div>
