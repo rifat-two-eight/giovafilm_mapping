@@ -112,7 +112,7 @@ export default function OfferSection() {
             console.log("offer.place:", offer.place);
             
             // Handle case where offer.place is an object
-            const placeId = typeof offer.place === 'object' ? offer.place._id : offer.place;
+            const placeId = (offer.place && typeof offer.place === 'object') ? offer.place._id : (offer.place || null);
             
             return (
               <Link
@@ -153,7 +153,7 @@ export default function OfferSection() {
                       {offer.title}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {offer.place?.name || "Multiple Locations"}
+                      {offer.business?.name || offer.place?.name || "Multiple Locations"}
                     </p>
                   </div>
                 </div>

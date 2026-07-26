@@ -146,7 +146,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(offer.validUntil).toLocaleDateString()}
+                    {offer.validUntil ? new Date(offer.validUntil).toLocaleDateString() : "No Expiration"}
                   </td>
 
                   <td className="px-6 py-4 text-sm">
