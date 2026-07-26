@@ -55,6 +55,14 @@ export function PlacesTable() {
   const places: Place[] = response?.data || [];
   const meta = response?.meta;
 
+  const displayedPlaces = user?.role === "map_editor"
+    ? places.filter((place: any) => 
+        user.assignedMaps?.includes(place.map?._id) || 
+        (place.country && user.assignedCountries?.includes(place.country)) ||
+        (place.map?.country && user.assignedCountries?.includes(place.map.country))
+      )
+    : places;
+
   const handleDelete = async (id: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -98,29 +106,27 @@ export function PlacesTable() {
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
       {/* Table Toolbar */}
       <div className="p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 bg-white">
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search places..."
-            className="pl-9 h-9"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search places..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              className="pl-10 h-10 w-full"
+            />
+          </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Filter by Status:</span>
           <select
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
               setPage(1);
             }}
-            className="border border-gray-300 rounded-md h-9 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
             <option value="">All Status</option>
             <option value="Published">Published</option>
@@ -132,37 +138,37 @@ export function PlacesTable() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
+            <tr className="bg-gray-50 border-b border-gray-200">
               {tableHeaders.map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-4 text-left text-sm font-semibold text-gray-900"
+                  className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider"
                 >
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-200">
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   Loading places...
                 </td>
               </tr>
-            ) : places.length === 0 ? (
+            ) : displayedPlaces.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   No places found.
                 </td>
               </tr>
             ) : (
-              places.map((place, index) => (
+              displayedPlaces.map((place, index) => (
                 <tr
                   key={place._id}
-                  className={`${index !== places.length - 1
+                  className={`${index !== displayedPlaces.length - 1
                       ? "border-b border-gray-100"
                       : ""
                     } hover:bg-gray-50 transition-colors`}

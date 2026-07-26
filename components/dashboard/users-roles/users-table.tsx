@@ -1,13 +1,15 @@
 "use client";
 
-import { Trash2, Search, Filter } from "lucide-react";
+import { Trash2, Search, Filter, Map, ShieldAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   useGetAllUsersQuery,
   useDeleteUserMutation,
   useUpdateUserRoleMutation,
   useGetProfileQuery,
+  useAssignEditorAccessMutation,
 } from "@/redux/features/user/userApi";
+import { useGetMapsQuery, useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
@@ -19,6 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const userTableHeaders = [
   "Name",
@@ -36,7 +46,21 @@ export function UsersTable(): React.ReactElement {
   const [status, setStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Modal State for Map Editor access control
+  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"change_role" | "edit_access">("change_role");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [tempRole, setTempRole] = useState("");
+  const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+
   const { data: currentUser } = useGetProfileQuery({});
+  const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
+  const { data: countriesRes } = useGetAvailableCountriesQuery();
+  const [assignEditorAccess] = useAssignEditorAccessMutation();
+
+  const maps = mapsRes?.data || [];
+  const countries = countriesRes || [];
 
   const queryParams: any = {
     page,
@@ -82,6 +106,18 @@ export function UsersTable(): React.ReactElement {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    const userToUpdate = users.find((u: any) => u._id === userId);
+    
+    if (newRole === "map_editor") {
+      setModalMode("change_role");
+      setSelectedUser(userToUpdate);
+      setTempRole(newRole);
+      setSelectedMaps(userToUpdate?.assignedMaps || []);
+      setSelectedCountries(userToUpdate?.assignedCountries || []);
+      setIsAccessModalOpen(true);
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: `Are you sure you want to change this user's role to ${newRole}?`,
@@ -101,6 +137,44 @@ export function UsersTable(): React.ReactElement {
       } catch (error: any) {
         toast.error(error?.data?.message || "Failed to update user role");
       }
+    }
+  };
+
+  const handleEditAccess = (user: any) => {
+    setModalMode("edit_access");
+    setSelectedUser(user);
+    setTempRole(user.role);
+    setSelectedMaps(user.assignedMaps || []);
+    setSelectedCountries(user.assignedCountries || []);
+    setIsAccessModalOpen(true);
+  };
+
+  const handleSaveAccess = async () => {
+    if (!selectedUser) return;
+
+    try {
+      if (modalMode === "change_role") {
+        await updateUserRole({
+          userId: selectedUser._id,
+          role: tempRole,
+          assignedMaps: selectedMaps,
+          assignedCountries: selectedCountries,
+        }).unwrap();
+        toast.success("User role updated with assignments successfully!");
+      } else {
+        await assignEditorAccess({
+          userId: selectedUser._id,
+          assignedMaps: selectedMaps,
+          assignedCountries: selectedCountries,
+        }).unwrap();
+        toast.success("Editor access updated successfully!");
+      }
+      setIsAccessModalOpen(false);
+      setSelectedUser(null);
+      setSelectedMaps([]);
+      setSelectedCountries([]);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to save editor access");
     }
   };
 
@@ -218,22 +292,30 @@ export function UsersTable(): React.ReactElement {
                           {user.role}
                         </div>
                       ) : (
-                        <Select
-                          value={user.role}
-                          onValueChange={(newRole) =>
-                            handleRoleChange(user._id, newRole)
-                          }
-                        >
-                          <SelectTrigger className="w-[140px] h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="user">User</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="map_editor">Map Editor</SelectItem>
-                            <SelectItem value="super_admin">Super Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-1">
+                          <Select
+                            value={user.role}
+                            onValueChange={(newRole) =>
+                              handleRoleChange(user._id, newRole)
+                            }
+                          >
+                            <SelectTrigger className="w-[140px] h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="map_editor">Map Editor</SelectItem>
+                              <SelectItem value="super_admin">Super Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {user.role === "map_editor" && (
+                            <div className="text-[10px] text-gray-500 flex flex-col gap-0.5 mt-1 font-semibold bg-gray-50 p-1.5 rounded border border-gray-150">
+                              <span>Maps: {user.assignedMaps?.length || 0} assigned</span>
+                              <span>Countries: {user.assignedCountries?.length || 0} assigned</span>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
@@ -254,6 +336,16 @@ export function UsersTable(): React.ReactElement {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-3">
+                        {user.role === "map_editor" && (
+                          <button
+                            onClick={() => handleEditAccess(user)}
+                            className="text-blue-500 hover:text-blue-700 transition-colors p-2 hover:bg-blue-50 rounded"
+                            title="Edit Map Editor Access"
+                            aria-label="Edit editor access"
+                          >
+                            <Map size={18} />
+                          </button>
+                        )}
                         {user.role !== "admin" &&
                           user.role !== "super_admin" &&
                           currentUser?._id !== user._id && (
@@ -321,6 +413,94 @@ export function UsersTable(): React.ReactElement {
           </div>
         )}
       </Card>
+
+      {/* Editor Access Control Modal */}
+      <Dialog open={isAccessModalOpen} onOpenChange={setIsAccessModalOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 font-bold text-lg">
+              {modalMode === "change_role" ? "Assign Map Editor Access" : "Edit Map Editor Access"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 my-2">
+            <p className="text-sm text-gray-600">
+              Select the maps and countries this editor can manage.
+            </p>
+
+            <div className="space-y-3">
+              {/* Maps list */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Assign Maps
+                </label>
+                <div className="border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-gray-50/50">
+                  {maps.length === 0 ? (
+                    <p className="text-xs text-gray-500">No maps found.</p>
+                  ) : (
+                    maps.map((map: any) => (
+                      <label key={map._id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={selectedMaps.includes(map._id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedMaps((prev) => [...prev, map._id]);
+                            } else {
+                              setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span>{map.name} {map.country ? `(${map.country})` : ""}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Countries list */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Assign Countries
+                </label>
+                <div className="border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-gray-50/50">
+                  {countries.length === 0 ? (
+                    <p className="text-xs text-gray-500">No countries found.</p>
+                  ) : (
+                    countries.map((country: string) => (
+                      <label key={country} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={selectedCountries.includes(country)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCountries((prev) => [...prev, country]);
+                            } else {
+                              setSelectedCountries((prev) => prev.filter((c) => c !== country));
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span>{country}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setIsAccessModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAccess} className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
+              Save Access
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

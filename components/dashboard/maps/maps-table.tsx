@@ -55,6 +55,13 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   const mapsData: Map[] = response?.data || [];
   const meta = response?.meta;
 
+  const displayedMaps = user?.role === "map_editor"
+    ? mapsData.filter((map: any) => 
+        user.assignedMaps?.includes(map._id) || 
+        (map.country && user.assignedCountries?.includes(map.country))
+      )
+    : mapsData;
+
   const handleDelete = async (id: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -141,18 +148,18 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                   Loading maps...
                 </td>
               </tr>
-            ) : mapsData.length === 0 ? (
+            ) : displayedMaps.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                   No maps found.
                 </td>
               </tr>
             ) : (
-              mapsData.map((map, index) => (
+              displayedMaps.map((map, index) => (
                 <tr
                   key={map._id}
                   className={`${
-                    index !== mapsData.length - 1
+                    index !== displayedMaps.length - 1
                       ? "border-b border-gray-100"
                       : ""
                   } hover:bg-gray-50 transition-colors`}

@@ -35,10 +35,19 @@ const userApi = baseApi.injectEndpoints({
     }),
 
     updateUserRole: builder.mutation({
-      query: ({ userId, role }) => ({
+      query: ({ userId, role, assignedMaps, assignedCountries }) => ({
         url: `/user/update-role/${userId}`,
         method: "PATCH",
-        body: { role },
+        body: { role, assignedMaps, assignedCountries },
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    assignEditorAccess: builder.mutation({
+      query: ({ userId, assignedMaps, assignedCountries }) => ({
+        url: `/user/assign-editor-access/${userId}`,
+        method: "PATCH",
+        body: { assignedMaps, assignedCountries },
       }),
       invalidatesTags: ["User"],
     }),
@@ -61,5 +70,6 @@ export const {
   useDeleteUserMutation,
   useUpdateUserRoleMutation,
   useInviteUserMutation,
+  useAssignEditorAccessMutation,
 } = userApi;
 

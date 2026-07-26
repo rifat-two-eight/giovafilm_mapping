@@ -15,6 +15,16 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   const [deleteOffer] = useDeleteOfferMutation();
 
   const offersData = offersRes?.data || [];
+  
+  const displayedOffers = user?.role === "map_editor"
+    ? offersData.filter((offer: any) => {
+        const businessMapId = offer.business?.map?._id || offer.business?.map;
+        const businessCountry = offer.business?.country || offer.business?.map?.country;
+        
+        return (businessMapId && user.assignedMaps?.includes(businessMapId)) ||
+               (businessCountry && user.assignedCountries?.includes(businessCountry));
+      })
+    : offersData;
 
   console.log("offersData", offersData);
 
@@ -102,7 +112,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   </div>
                 </td>
               </tr>
-            ) : offersData.length === 0 ? (
+            ) : displayedOffers.length === 0 ? (
               <tr>
                 <td
                   colSpan={7}
@@ -112,11 +122,11 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 </td>
               </tr>
             ) : (
-              offersData.map((offer: any, index: number) => (
+              displayedOffers.map((offer: any, index: number) => (
                 <tr
                   key={offer._id}
                   className={`${
-                    index !== offersData.length - 1
+                    index !== displayedOffers.length - 1
                       ? "border-b border-gray-100"
                       : ""
                   } hover:bg-gray-50 transition-colors`}

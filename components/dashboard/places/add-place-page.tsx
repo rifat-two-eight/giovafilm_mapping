@@ -18,6 +18,7 @@ import {
 import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
   useCreatePlaceMutation,
   useUpdatePlaceMutation,
@@ -149,6 +150,7 @@ export default function AddPlacePage() {
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
 
   // --- API Fetches ---
+  const { data: user } = useGetProfileQuery({});
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
   const { data: placesRes } = useGetPublicPlacesBusinessQuery({
@@ -156,7 +158,13 @@ export default function AddPlacePage() {
     map: selectedMapId || ""
   });
 
-  const maps = mapsRes?.data || [];
+  const rawMaps = mapsRes?.data || [];
+  const maps = user?.role === "map_editor"
+    ? rawMaps.filter((map: any) => 
+        user.assignedMaps?.includes(map._id) || 
+        (map.country && user.assignedCountries?.includes(map.country))
+      )
+    : rawMaps;
   const categories = categoriesRes?.data || [];
   const fetchedPlaces = (placesRes?.data?.data ? placesRes.data.data : placesRes?.data) || [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);
