@@ -18,8 +18,9 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   
   const displayedOffers = user?.role === "map_editor"
     ? offersData.filter((offer: any) => {
-        const businessMapId = offer.business?.map?._id || offer.business?.map;
-        const businessCountry = offer.business?.country || offer.business?.map?.country;
+        const entity = offer.business || offer.place;
+        const businessMapId = entity?.map?._id || entity?.map;
+        const businessCountry = entity?.country || entity?.map?.country;
         
         return (businessMapId && user.assignedMaps?.includes(businessMapId)) ||
                (businessCountry && user.assignedCountries?.includes(businessCountry));
@@ -136,7 +137,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {offer.business?.name || "N/A"}
+                    {offer.business?.name || offer.place?.name || "N/A"}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">

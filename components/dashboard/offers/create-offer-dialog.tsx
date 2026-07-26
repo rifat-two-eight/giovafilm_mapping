@@ -75,23 +75,30 @@ export function CreateOfferDialog({
   const [preview, setPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
-  const [selectionType, setSelectionType] = useState<"business" | "place">(
-    "business",
-  );
+  const combinedOptions = useMemo(() => {
+    const busOpts = businesses.map((b: any) => ({
+      _id: b._id,
+      name: b.name,
+      type: "business" as const,
+    }));
+    const plcOpts = places.map((p: any) => ({
+      _id: p._id,
+      name: p.name,
+      type: "place" as const,
+    }));
+    return [...busOpts, ...plcOpts];
+  }, [businesses, places]);
 
   // ── Searchable dropdown state ───────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const selectedId = watch("business");
 
-  // Determine the list based on selectionType
-  const currentOptions = selectionType === "business" ? businesses : places;
-
-  const selectedEntity = currentOptions.find(
+  const selectedEntity = combinedOptions.find(
     (item: any) => item._id === selectedId,
   );
 
-  const filteredOptions = currentOptions.filter((item: any) =>
+  const filteredOptions = combinedOptions.filter((item: any) =>
     (item.name || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -123,25 +130,12 @@ export function CreateOfferDialog({
       // Check for both place and business in initialData
       const placeId = initialData.place?._id || initialData.place;
       const businessId = initialData.business?._id || initialData.business;
-
-      let id: string | undefined;
-      let detectedType: "business" | "place" = "business";
-
-      if (placeId && places.some((p: any) => p._id === placeId)) {
-        id = placeId;
-        detectedType = "place";
-      } else if (businessId && businesses.some((b: any) => b._id === businessId)) {
-        id = businessId;
-        detectedType = "business";
-      }
-
-      // Only update if different to avoid cycles
-      setSelectionType((prev) => (prev !== detectedType ? detectedType : prev));
+      const id = placeId || businessId || "";
 
       reset({
         title: initialData.title,
         business: id || "",
-        place: detectedType === "place" ? (id || "") : "",
+        place: placeId ? (id || "") : "",
         description: initialData.description,
         discountType: initialData.discountType,
         discountValue: initialData.discountValue?.toString() || "",
@@ -232,7 +226,8 @@ export function CreateOfferDialog({
       };
 
       // Set the correct ID field based on selection type
-      if (selectionType === "business") {
+      const selectedOption = combinedOptions.find((o) => o._id === data.business);
+      if (selectedOption?.type === "business") {
         offerData.business = data.business;
       } else {
         offerData.place = data.business;
@@ -346,51 +341,19 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Selection Toggle and Searchable Dropdown */}
+          {/* Searchable Dropdown for choosing Business or Place */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium text-gray-700">
-                Choose {selectionType === "business" ? "Business" : "Place"}
+                Choose Business or Place
               </Label>
-              <div className="flex bg-gray-100 p-1 rounded-md">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectionType("business");
-                    setValue("business", "");
-                    setSearchQuery("");
-                  }}
-                  className={`px-3 py-1 text-xs rounded-md transition-all ${
-                    selectionType === "business"
-                      ? "bg-white shadow-sm text-blue-600 font-bold"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Business
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectionType("place");
-                    setValue("business", "");
-                    setSearchQuery("");
-                  }}
-                  className={`px-3 py-1 text-xs rounded-md transition-all ${
-                    selectionType === "place"
-                      ? "bg-white shadow-sm text-blue-600 font-bold"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Place
-                </button>
-              </div>
             </div>
 
             {/* Hidden input keeps react-hook-form happy */}
             <input
               type="hidden"
               {...register("business", {
-                required: `${selectionType === "business" ? "Business" : "Place"} is required`,
+                required: "Business or Place is required",
               })}
             />
 
@@ -399,14 +362,14 @@ export function CreateOfferDialog({
               <button
                 type="button"
                 onClick={() => setDropdownOpen((o) => !o)}
-                className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full flex items-center justify-between px-3 py-2.5 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
                 <span
                   className={selectedEntity ? "text-gray-900" : "text-gray-400"}
                 >
                   {selectedEntity
-                    ? selectedEntity.name
-                    : `Choose ${selectionType === "business" ? "Business" : "Place"}`}
+                    ? `${selectedEntity.name} (${selectedEntity.type === "business" ? "Business" : "Place"})`
+                    : "Choose Business or Place"}
                 </span>
                 <ChevronDown
                   size={16}
@@ -424,7 +387,7 @@ export function CreateOfferDialog({
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={`Search ${selectionType === "business" ? "business" : "place"}...`}
+                      placeholder="Search business or place..."
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -441,16 +404,13 @@ export function CreateOfferDialog({
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-50"
                       >
-                        Choose{" "}
-                        {selectionType === "business" ? "Business" : "Place"}
+                        Choose Business or Place
                       </button>
                     </li>
 
                     {filteredOptions.length === 0 ? (
                       <li className="px-3 py-3 text-sm text-gray-400 text-center">
-                        No{" "}
-                        {selectionType === "business" ? "businesses" : "places"}{" "}
-                        found.
+                        No businesses or places found.
                       </li>
                     ) : (
                       filteredOptions.map((item: any) => (
@@ -464,13 +424,22 @@ export function CreateOfferDialog({
                               setSearchQuery("");
                               setDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
+                            className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
                               selectedId === item._id
                                 ? "bg-blue-50 text-blue-700 font-medium"
                                 : "text-gray-700"
                             }`}
                           >
-                            {item.name}
+                            <span>{item.name}</span>
+                            <span
+                              className={`text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded ${
+                                item.type === "business"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-green-100 text-green-700"
+                              }`}
+                            >
+                              {item.type}
+                            </span>
                           </button>
                         </li>
                       ))
