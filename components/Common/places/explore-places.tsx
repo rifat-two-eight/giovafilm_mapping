@@ -109,20 +109,45 @@ export default function ExplorePlaces() {
         </div>
 
         {/* Search */}
-        <div className="flex items-center gap-3 bg-white border rounded-lg px-2 mb-6 shadow-sm">
-          <Search className="text-gray-400 ml-2" size={20} />
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-6">
+          <div className="flex-1 flex items-center gap-3 bg-white border rounded-lg px-2 shadow-sm">
+            <Search className="text-gray-400 ml-2" size={20} />
 
-          <Input
-            placeholder="Search locations, parks, or beaches..."
-            className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
+            <Input
+              placeholder="Search locations, parks, or beaches..."
+              className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+
+          {/* Country Filter Selector */}
+          <select
+            value={selectedCountry}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedCountry(val);
+              if (val) {
+                localStorage.setItem("selectedCountryFilter", val);
+              } else {
+                localStorage.removeItem("selectedCountryFilter");
+              }
+              setPage(1);
+            }}
+            className="h-12 px-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer min-w-[200px] shadow-sm"
+          >
+            <option value="">All Countries</option>
+            {mapsResponse?.data?.map((map: any) => (
+              <option key={map._id} value={map.name}>
+                {map.name}
+              </option>
+            ))}
+          </select>
 
           <Button
             onClick={handleSearch}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg px-8 h-10 font-bold"
+            className="bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg px-8 h-12 font-bold"
           >
             Search
           </Button>
@@ -176,6 +201,8 @@ export default function ExplorePlaces() {
                   setSearchInput("");
                   setSearchTerm("");
                   setActiveFilter(null);
+                  setSelectedCountry("");
+                  localStorage.removeItem("selectedCountryFilter");
                   setPage(1);
                 }}
               >

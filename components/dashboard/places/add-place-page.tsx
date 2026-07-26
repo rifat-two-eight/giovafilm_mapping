@@ -795,6 +795,7 @@ export default function AddPlacePage() {
                   initialData={{
                     ...selectedPlace,
                     category: selectedCategoryId || "",
+                    type: selectedPlace.type || "Regular",
                     address: selectedPlace.address || "",
                     accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
                     tips:

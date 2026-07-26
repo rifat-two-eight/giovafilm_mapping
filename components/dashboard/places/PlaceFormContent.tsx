@@ -111,7 +111,9 @@ export const PlaceFormContent = ({
     hikeTime: initialData?.hikeTime || "",
     atmosphere: initialData?.atmosphere || "",
     difficulty: initialData?.difficulty || "",
-    operatingHours: (initialData?.operatingHours as Record<string, { open: string; close: string; closed: boolean }>) || {
+    operatingHours: (initialData?.operatingHours && Object.keys(initialData.operatingHours).length > 0
+      ? (initialData.operatingHours as Record<string, { open: string; close: string; closed: boolean }>)
+      : null) || {
       Monday:    { open: "09:00", close: "18:00", closed: false },
       Tuesday:   { open: "09:00", close: "18:00", closed: false },
       Wednesday: { open: "09:00", close: "18:00", closed: false },
@@ -314,7 +316,12 @@ export const PlaceFormContent = ({
                 {errors.name && <p className="text-[11px] text-red-500 font-semibold">{errors.name}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Category <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-medium">
+                  Category <span className="text-red-500">*</span>
+                  {formData.type === "Business" && (
+                    <span className="ml-2 text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Business</span>
+                  )}
+                </Label>
                 <Select
                   value={formData.category || undefined}
                   onValueChange={(val) => {
@@ -339,7 +346,7 @@ export const PlaceFormContent = ({
                           }
                         />
                       )}
-                      <SelectValue placeholder="Choose a category" />
+                      <SelectValue placeholder={formData.type === "Business" ? "Choose a business category" : "Choose a category"} />
                     </div>
                   </SelectTrigger>
                   <SelectContent position="popper" style={{ zIndex: 99999 }}>
@@ -364,7 +371,8 @@ export const PlaceFormContent = ({
                 <Select
                   value={formData.type}
                   onValueChange={(val) => {
-                    setFormData({ ...formData, type: val });
+                    // Reset category when switching type to avoid stale selection
+                    setFormData({ ...formData, type: val, category: "" });
                     if (errors.type) setErrors((prev) => ({ ...prev, type: "" }));
                   }}
                 >
