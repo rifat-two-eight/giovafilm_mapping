@@ -24,9 +24,19 @@ import {
   Users,
   Utensils,
   Wifi,
+  FileText,
+  Compass,
+  Accessibility,
+  Heart,
+  Grid,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface PlaceFormContentProps {
   categories: any[];
@@ -55,11 +65,11 @@ interface PlaceFormContentProps {
 }
 
 const TABS = [
-  "Basic Info",
-  "Access",
-  "Accessibility",
-  "Recommendations",
-  "Services",
+  { label: "Basic Info", icon: FileText },
+  { label: "Access", icon: Compass },
+  { label: "Accessibility", icon: Accessibility },
+  { label: "Recommendations", icon: Heart },
+  { label: "Services", icon: Grid },
 ];
 
 export const PlaceFormContent = ({
@@ -77,6 +87,7 @@ export const PlaceFormContent = ({
     initialData?.images || [],
   );
   const [previews, setPreviews] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -106,6 +117,7 @@ export const PlaceFormContent = ({
     if (files.length === 0) return;
 
     setMediaFiles((prev) => [...prev, ...files]);
+    if (errors.media) setErrors((prev) => ({ ...prev, media: "" }));
 
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]);
@@ -136,6 +148,34 @@ export const PlaceFormContent = ({
   }, [initialData?.address]);
 
   const handleSave = async (publish: boolean = false) => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.name.trim()) {
+      newErrors.name = "Place name is required";
+    }
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+    if (mediaFiles.length === 0 && existingImages.length === 0) {
+      newErrors.media = "At least one media file (image/video) is required";
+    }
+    if (!formData.type) {
+      newErrors.type = "Location type is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setActiveTab(0); // Switch to Basic Info tab
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setErrors({});
     await onSave({
       ...formData,
       status: publish ? "Published" : "Draft",
@@ -173,26 +213,62 @@ export const PlaceFormContent = ({
     { id: "Pet Friendly", icon: <Dog size={14} /> },
   ];
 
+  const isBasicInfoValid = formData.name.trim() !== "" && formData.category !== "" && formData.description.trim() !== "" && formData.address.trim() !== "";
+  const hasBasicInfoErrors = !!(errors.name || errors.category || errors.description || errors.address);
+
   return (
     <div className="w-full bg-white flex flex-col font-arial">
       {/* Navigation Header */}
-      <div className="bg-white border-b border-gray-200 px-2 overflow-x-auto no-scrollbar">
-        <div className="flex items-center min-w-max">
-          {TABS.map((tab, index) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(index)}
-              className={`px-4 py-4 text-sm tracking-wider transition-all relative min-w-[100px] ${activeTab === index
-                ? "text-primary font-semibold"
-                : "text-black hover:text-gray-600 font-medium"
+      <div className="bg-white border-b border-gray-200 px-4 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 min-w-max">
+          {TABS.map((tab, index) => {
+            const TabIcon = tab.icon;
+            const isSelected = activeTab === index;
+            
+            // Validation indicator logic
+            let indicator = null;
+            if (index === 0) {
+              if (hasBasicInfoErrors) {
+                indicator = <AlertCircle size={12} className="text-red-500 animate-pulse flex-shrink-0" />;
+              } else if (isBasicInfoValid) {
+                indicator = <CheckCircle2 size={12} className="text-green-500 flex-shrink-0" />;
+              }
+            }
+
+            return (
+              <button
+                key={tab.label}
+                type="button"
+                onClick={() => {
+                  if (index > 0) {
+                    const newErrors: Record<string, string> = {};
+                    if (!formData.name.trim()) newErrors.name = "Place name is required";
+                    if (!formData.category) newErrors.category = "Category is required";
+                    if (!formData.description.trim()) newErrors.description = "Description is required";
+                    if (!formData.address.trim()) newErrors.address = "Address is required";
+                    if (mediaFiles.length === 0 && existingImages.length === 0) newErrors.media = "At least one media file (image/video) is required";
+                    if (!formData.type) newErrors.type = "Location type is required";
+
+                    if (Object.keys(newErrors).length > 0) {
+                      setErrors(newErrors);
+                      toast.error("Please fill in all required fields first.");
+                      return;
+                    }
+                  }
+                  setActiveTab(index);
+                }}
+                className={`flex items-center gap-2 px-4 py-4 text-xs font-semibold uppercase tracking-wider transition-all relative ${
+                  isSelected
+                    ? "text-blue-600 font-bold border-b-2 border-blue-500"
+                    : "text-gray-500 hover:text-gray-800"
                 }`}
-            >
-              {tab}
-              {activeTab === index && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[4px] bg-yellow-400 rounded-t-full" />
-              )}
-            </button>
-          ))}
+              >
+                <TabIcon size={14} className="flex-shrink-0" />
+                <span>{tab.label}</span>
+                {indicator}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -202,25 +278,28 @@ export const PlaceFormContent = ({
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Place Name</Label>
+                <Label className="text-sm font-medium">Place Name <span className="text-red-500">*</span></Label>
                 <Input
                   placeholder="e.g., Golden Gate Park"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                  }}
+                  className={`w-full bg-white rounded-lg h-9 text-sm italic ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}
                 />
+                {errors.name && <p className="text-[11px] text-red-500 font-semibold">{errors.name}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Category</Label>
+                <Label className="text-sm font-medium">Category <span className="text-red-500">*</span></Label>
                 <Select
                   value={formData.category || undefined}
-                  onValueChange={(val) =>
-                    setFormData({ ...formData, category: val })
-                  }
+                  onValueChange={(val) => {
+                    setFormData({ ...formData, category: val });
+                    if (errors.category) setErrors((prev) => ({ ...prev, category: "" }));
+                  }}
                 >
-                  <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
+                  <SelectTrigger className={`w-full h-10 bg-white rounded-lg text-sm italic ${errors.category ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}>
                     <div className="flex items-center gap-2">
                       {formData.category && (
                         <CategoryIcon
@@ -258,14 +337,15 @@ export const PlaceFormContent = ({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Location Type</Label>
+                <Label className="text-sm font-medium">Location Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={formData.type}
-                  onValueChange={(val) =>
-                    setFormData({ ...formData, type: val })
-                  }
+                  onValueChange={(val) => {
+                    setFormData({ ...formData, type: val });
+                    if (errors.type) setErrors((prev) => ({ ...prev, type: "" }));
+                  }}
                 >
-                  <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg text-sm italic">
+                  <SelectTrigger className={`w-full h-10 bg-white rounded-lg text-sm italic ${errors.type ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent position="popper" style={{ zIndex: 99999 }}>
@@ -273,26 +353,29 @@ export const PlaceFormContent = ({
                     <SelectItem value="Business">Business</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.type && <p className="text-[11px] text-red-500 font-semibold">{errors.type}</p>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Short Description</Label>
+              <Label className="text-sm font-medium">Short Description <span className="text-red-500">*</span></Label>
               <Textarea
                 placeholder="Brief description of this place..."
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                className="w-full bg-white border-gray-200 rounded-lg min-h-[120px]! text-sm resize-none italic"
+                onChange={(e) => {
+                  setFormData({ ...formData, description: e.target.value });
+                  if (errors.description) setErrors((prev) => ({ ...prev, description: "" }));
+                }}
+                className={`w-full bg-white rounded-lg min-h-[120px]! text-sm resize-none italic ${errors.description ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}
               />
+              {errors.description && <p className="text-[11px] text-red-500 font-semibold">{errors.description}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Media</Label>
+              <Label className="text-sm font-medium">Media <span className="text-red-500">*</span></Label>
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-200 rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 group hover:border-blue-400 transition-all cursor-pointer"
+                className={`border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 group transition-all cursor-pointer ${errors.media ? "border-red-500 hover:border-red-600 bg-red-50/10" : "border-gray-200 hover:border-blue-400"}`}
               >
                 <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
                   <Upload size={20} />
@@ -306,6 +389,7 @@ export const PlaceFormContent = ({
                   </p>
                 </div>
               </div>
+              {errors.media && <p className="text-[11px] text-red-500 font-semibold">{errors.media}</p>}
 
               {/* Existing Images (from Server) */}
               {existingImages.length > 0 && (
@@ -372,7 +456,7 @@ export const PlaceFormContent = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Address</Label>
+              <Label className="text-sm font-medium">Address <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <MapPin
                   size={14}
@@ -383,10 +467,11 @@ export const PlaceFormContent = ({
                     isFetchingAddress ? "Fetching address..." : "Full address"
                   }
                   value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  className={`bg-white border-gray-200 rounded-lg h-10 pl-10 text-sm italic ${isFetchingAddress ? "animate-pulse text-gray-400" : ""}`}
+                  onChange={(e) => {
+                    setFormData({ ...formData, address: e.target.value });
+                    if (errors.address) setErrors((prev) => ({ ...prev, address: "" }));
+                  }}
+                  className={`bg-white rounded-lg h-10 pl-10 text-sm italic ${isFetchingAddress ? "animate-pulse text-gray-400" : ""} ${errors.address ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}
                   disabled={isFetchingAddress}
                 />
                 {isFetchingAddress && (
@@ -395,6 +480,7 @@ export const PlaceFormContent = ({
                   </div>
                 )}
               </div>
+              {errors.address && <p className="text-[11px] text-red-500 font-semibold">{errors.address}</p>}
             </div>
 
             {/* Conditionally Rendered New Fields */}
@@ -681,26 +767,58 @@ export const PlaceFormContent = ({
       <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between sticky bottom-0">
         <Button
           variant="destructive"
+          type="button"
           onClick={onClose}
-          className="px-6 h-10 bg-red-500  font-bold text-xs uppercase tracking-widest rounded-xl"
+          className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
         >
           Cancel
         </Button>
-        <div className="flex gap-3">
-          {/* <Button
-            onClick={() => handleSave(false)}
-            disabled={isSaving}
-            className="px-6 h-10 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100"
-          >
-            Save
-          </Button> */}
-          <Button
-            onClick={() => handleSave(true)}
-            disabled={isSaving}
-            className="px-6 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100"
-          >
-            Save & Publish
-          </Button>
+        <div className="flex gap-2">
+          {activeTab > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setActiveTab(activeTab - 1)}
+              className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5"
+            >
+              <ArrowLeft size={14} /> Back
+            </Button>
+          )}
+          {activeTab < 4 ? (
+            <Button
+              type="button"
+              onClick={() => {
+                if (activeTab === 0) {
+                  const newErrors: Record<string, string> = {};
+                  if (!formData.name.trim()) newErrors.name = "Place name is required";
+                  if (!formData.category) newErrors.category = "Category is required";
+                  if (!formData.description.trim()) newErrors.description = "Description is required";
+                  if (!formData.address.trim()) newErrors.address = "Address is required";
+                  if (mediaFiles.length === 0 && existingImages.length === 0) newErrors.media = "At least one media file (image/video) is required";
+                  if (!formData.type) newErrors.type = "Location type is required";
+
+                  if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    toast.error("Please fill in all required fields first.");
+                    return;
+                  }
+                }
+                setActiveTab(activeTab + 1);
+              }}
+              className="px-5 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-1.5"
+            >
+              Next <ArrowRight size={14} />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => handleSave(true)}
+              disabled={isSaving}
+              className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5"
+            >
+              Save & Publish
+            </Button>
+          )}
         </div>
       </div>
     </div>
