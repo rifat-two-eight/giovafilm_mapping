@@ -20,6 +20,9 @@ interface PlaceInfoWindowProps {
     accessibility?: any;
     images?: string[];
     isNew: boolean;
+    phone?: string;
+    website?: string;
+    instagram?: string;
     schedules?: string;
     entryCost?: number;
     hikeTime?: string | number;

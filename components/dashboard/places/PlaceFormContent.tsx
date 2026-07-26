@@ -56,6 +56,9 @@ interface PlaceFormContentProps {
     accessibility?: any;
     images?: string[];
     isNew: boolean;
+    phone?: string;
+    website?: string;
+    instagram?: string;
     schedules?: string;
     entryCost?: number;
     hikeTime?: string | number;
@@ -111,6 +114,9 @@ export const PlaceFormContent = ({
     hikeTime: initialData?.hikeTime || "",
     atmosphere: initialData?.atmosphere || "",
     difficulty: initialData?.difficulty || "",
+    phone: initialData?.phone || "",
+    website: initialData?.website || "",
+    instagram: initialData?.instagram || "",
     operatingHours: (initialData?.operatingHours && Object.keys(initialData.operatingHours).length > 0
       ? (initialData.operatingHours as Record<string, { open: string; close: string; closed: boolean }>)
       : null) || {
@@ -387,6 +393,39 @@ export const PlaceFormContent = ({
                 {errors.type && <p className="text-[11px] text-red-500 font-semibold">{errors.type}</p>}
               </div>
             </div>
+
+             {/* Business Contact Info */}
+            {formData.type === "Business" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-100 p-4 rounded-xl bg-gray-50/30">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Phone Number</Label>
+                  <Input
+                    placeholder="e.g. +1 787-123-4567"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="bg-white border-gray-200 text-xs h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Website URL</Label>
+                  <Input
+                    placeholder="e.g. https://mybusiness.com"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    className="bg-white border-gray-200 text-xs h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Instagram username</Label>
+                  <Input
+                    placeholder="e.g. my_business"
+                    value={formData.instagram}
+                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    className="bg-white border-gray-200 text-xs h-9"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Operating Hours — shown only for Business type */}
             {formData.type === "Business" && (

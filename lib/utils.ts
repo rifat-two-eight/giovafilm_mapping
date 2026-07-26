@@ -47,7 +47,25 @@ export const getImageUrl = (media?: any) => {
   // If it's already a full URL, return it
   if (mediaPath.startsWith("http")) return mediaPath;
 
-  const baseURL = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
+  let baseURL = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
+
+  // If active API baseURL is set, align dev image URLs with the active server
+  if (env.NEXT_PUBLIC_BASEURL) {
+    try {
+      const apiURL = new URL(env.NEXT_PUBLIC_BASEURL);
+      const imgURL = baseURL ? new URL(baseURL) : null;
+      if (imgURL && (imgURL.hostname === "10.10.26.173" || imgURL.hostname === "localhost")) {
+        baseURL = apiURL.origin;
+      } else if (!baseURL) {
+        baseURL = apiURL.origin;
+      }
+    } catch (e) {
+      // Fallback to active BASEURL if URL parsing failed
+      if (baseURL.includes("10.10.26.173") || baseURL.includes("localhost")) {
+        baseURL = env.NEXT_PUBLIC_BASEURL;
+      }
+    }
+  }
 
   // Ensure there's a leading slash on media if not present and baseURL doesn't end with one
   const separator =

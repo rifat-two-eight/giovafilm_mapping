@@ -373,6 +373,9 @@ export default function AddPlacePage() {
         // New fields
         schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
         operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
+        phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
+        website: finalData.type === 'Business' ? (finalData.website || "") : undefined,
+        instagram: finalData.type === 'Business' ? (finalData.instagram || "") : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
@@ -796,6 +799,9 @@ export default function AddPlacePage() {
                     ...selectedPlace,
                     category: selectedCategoryId || "",
                     type: selectedPlace.type || "Regular",
+                    phone: selectedPlace.phone || "",
+                    website: selectedPlace.website || "",
+                    instagram: selectedPlace.instagram || "",
                     address: selectedPlace.address || "",
                     accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
                     tips:

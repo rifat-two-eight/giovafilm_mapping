@@ -89,6 +89,9 @@ export function UpdatePlaceModal({
         // New fields
         schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
         operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
+        phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
+        website: finalData.type === 'Business' ? (finalData.website || "") : undefined,
+        instagram: finalData.type === 'Business' ? (finalData.instagram || "") : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
@@ -194,6 +197,9 @@ export function UpdatePlaceModal({
                 },
                 images: place.media || [],
                 isNew: false,
+                phone: place.phone || "",
+                website: place.website || "",
+                instagram: place.instagram || "",
                 // New fields pre-populated from existing place data
                 schedules: place.schedules || "",
                 entryCost: place.entryCost || "",

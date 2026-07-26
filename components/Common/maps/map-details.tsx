@@ -444,10 +444,22 @@ export default function MapDetails() {
                     <Send size={18} className="mr-2" />
                     DIRECTIONS
                   </Button>
-                  <Button className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
-                    <Phone size={18} className="mr-2" />
-                    Call
-                  </Button>
+                  {placeData.phone ? (
+                    <a href={`tel:${placeData.phone}`} className="flex-1">
+                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-6 text-base rounded-xl transition-all">
+                        <Phone size={18} className="mr-2" />
+                        Call
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button
+                      disabled
+                      className="flex-1 bg-gray-100 text-gray-400 font-semibold py-6 text-base rounded-xl cursor-not-allowed border"
+                    >
+                      <Phone size={18} className="mr-2" />
+                      No Phone
+                    </Button>
+                  )}
                 </div>
 
                 {offerId && (
@@ -643,7 +655,7 @@ export default function MapDetails() {
               Online Presence
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
-              {/* WEBSITE placeholder or real data if available in details */}
+              {/* WEBSITE */}
               <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
                   <div className="bg-blue-50 p-3 rounded-xl">🌐</div>
@@ -651,17 +663,34 @@ export default function MapDetails() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       WEBSITE
                     </p>
-                    <p className="font-bold text-gray-900 truncate max-w-[150px]">
-                      Official Site
+                    <p className="font-bold text-gray-900 truncate max-w-[180px]">
+                      {placeData.website ? "Official Site" : "No Website"}
                     </p>
                   </div>
                 </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
-                  VISIT
-                </button>
+                {placeData.website ? (
+                  <button
+                    onClick={() => {
+                      const url = placeData.website.startsWith("http")
+                        ? placeData.website
+                        : `https://${placeData.website}`;
+                      window.open(url, "_blank");
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors"
+                  >
+                    VISIT
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="bg-gray-100 text-gray-400 border px-5 py-2 rounded-xl font-bold text-xs uppercase cursor-not-allowed"
+                  >
+                    N/A
+                  </button>
+                )}
               </div>
 
-              {/* SOCIAL placeholder */}
+              {/* INSTAGRAM */}
               <div className="flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
                   <div className="bg-pink-50 p-3 rounded-xl">📸</div>
@@ -669,14 +698,31 @@ export default function MapDetails() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       INSTAGRAM
                     </p>
-                    <p className="font-bold text-gray-900">
-                      @visit_{placeData.name.toLowerCase().replace(/\s+/g, "_")}
+                    <p className="font-bold text-gray-900 truncate max-w-[180px]">
+                      {placeData.instagram
+                        ? `@${placeData.instagram.replace("@", "")}`
+                        : "No Instagram"}
                     </p>
                   </div>
                 </div>
-                <button className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors">
-                  VIEW
-                </button>
+                {placeData.instagram ? (
+                  <button
+                    onClick={() => {
+                      const username = placeData.instagram.replace("@", "").trim();
+                      window.open(`https://instagram.com/${username}`, "_blank");
+                    }}
+                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors"
+                  >
+                    VIEW
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="bg-gray-100 text-gray-400 border px-5 py-2 rounded-xl font-bold text-xs uppercase cursor-not-allowed"
+                  >
+                    N/A
+                  </button>
+                )}
               </div>
             </div>
           </div>
