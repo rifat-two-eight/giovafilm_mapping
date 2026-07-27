@@ -239,8 +239,8 @@ export function ViewPlaceModal({
                             Coordinates
                           </p>
                           <p className="text-sm font-mono text-blue-600">
-                            {place.location.coordinates[1].toFixed(6)},{" "}
-                            {place.location.coordinates[0].toFixed(6)}
+                            {place?.location?.coordinates?.[1] !== undefined ? place.location.coordinates[1].toFixed(6) : "N/A"},{" "}
+                            {place?.location?.coordinates?.[0] !== undefined ? place.location.coordinates[0].toFixed(6) : "N/A"}
                           </p>
                         </div>
                       </div>
