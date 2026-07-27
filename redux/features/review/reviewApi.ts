@@ -8,7 +8,7 @@ const reviewApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Place", "Review"],
+      invalidatesTags: ["Place", "Review", "User", "Award"],
     }),
     getMyReviews: builder.query({
       query: () => "/review/my-reviews",
@@ -21,7 +21,7 @@ const reviewApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["Review", "Place"],
+      invalidatesTags: ["Review", "Place", "User", "Award"],
     }),
     getReviewsByPlace: builder.query({
       query: (placeId: string) => `/review/${placeId}/place`,

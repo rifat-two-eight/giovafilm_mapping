@@ -110,7 +110,7 @@ export default function MapDetails() {
     {
       icon: Timer,
       label: "HIKE TIME",
-      value: placeData?.hikeTime ? `${placeData.hikeTime} Hours` : "N/A",
+      value: placeData?.hikeTime || "N/A",
     },
   ];
 
