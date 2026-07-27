@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { Clock, Earth, Mail, Plus, X, MapPin } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
@@ -35,16 +36,13 @@ interface BusinessFormStep1Props {
 }
 
 export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
-  const { data: categoriesRes, isLoading: isLoadingCats } =
-    useGetCategoriesQuery({ limit: 100 });
+  const { data: categoriesRes, isLoading: isLoadingCats } = useGetCategoriesQuery({ limit: 100 });
+  const { data: mapsRes, isLoading: isLoadingMaps } = useGetMapsQuery({ limit: 100 });
+  const maps = mapsRes?.data || [];
 
   const allCategories: any[] = categoriesRes?.data || [];
-  // Show only categories that are tagged as "business" type,
-  // or whose name includes "business" (case-insensitive) as a fallback.
-  const categories = allCategories.filter(
-    (cat: any) =>
-      cat.type === "business" || cat.name?.toLowerCase().includes("business"),
-  );
+  // Show all active categories in the dropdown list
+  const categories = allCategories.filter((cat: any) => cat.status !== "Hidden");
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectionType, setSelectionType] = useState<
@@ -366,19 +364,36 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="country"
-            rules={{ required: "Country is required" }}
+            rules={{ required: "Country/Map is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Country <span className="text-red-500">*</span>
+                  Country/Map <span className="text-red-500">*</span>
                 </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Country"
-                    {...field}
-                    className="bg-gray-50 border-gray-200"
-                  />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ""}
+                  disabled={isLoadingMaps}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger className="bg-gray-50 border-gray-200">
+                      <SelectValue
+                        placeholder={
+                          isLoadingMaps
+                            ? "Loading maps..."
+                            : "Select Country/Map"
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {maps.map((map: any) => (
+                      <SelectItem key={map._id} value={map.name}>
+                        {map.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
