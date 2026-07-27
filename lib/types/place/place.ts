@@ -35,4 +35,5 @@ export interface TPlace extends BaseDocument {
   isPaid: boolean;
 
   status: Status;
+  isLocked?: boolean;
 }

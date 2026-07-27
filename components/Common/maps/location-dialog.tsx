@@ -1,5 +1,3 @@
-"use client";
-
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
@@ -8,7 +6,7 @@ import { TPlace } from "@/lib/types/place/place";
 import { getImageUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
-import { Star, X } from "lucide-react";
+import { Star, X, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,7 +25,7 @@ export default function LocationDialog({ id, onClose }: Props) {
       skip: type !== "business",
     });
 
-  const { data: placeRes, isLoading: isPlaceLoading } = useGetPlaceDetailsQuery(
+  const { data: placeRes, isLoading: isPlaceLoading, error: placeError } = useGetPlaceDetailsQuery(
     placeId,
     {
       skip: type !== "place",
@@ -37,6 +35,43 @@ export default function LocationDialog({ id, onClose }: Props) {
   const isLoading = isBusinessLoading || isPlaceLoading;
   const location: TPlace =
     type === "business" ? businessRes?.data : placeRes?.data;
+
+  const isLocked = (placeError as any)?.status === 403;
+
+  if (isLocked) {
+    const message = (placeError as any)?.data?.message || "This information and these benefits can be unlocked by purchasing your favorite map.";
+    return (
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
+        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative p-8 text-center space-y-6">
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow"
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full">
+            <Lock size={28} />
+          </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-gray-900">Locked Location</h2>
+            <p className="text-gray-500 text-sm leading-relaxed px-4">
+              {message}
+            </p>
+          </div>
+
+          <Button 
+            onClick={onClose}
+            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-xl h-12"
+          >
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -100,18 +135,6 @@ export default function LocationDialog({ id, onClose }: Props) {
               </Button>
             </Link>
 
-            {/* <Button variant="outline" className="">
-              <Heart
-                size={20}
-                className={
-                  isFavourite
-                    ? "text-red-500 fill-red-500"
-                    : isFavouriteLoading
-                      ? "animate-pulse"
-                      : "text-gray-400"
-                }
-              />
-            </Button> */}
             <FavouriteButton
               placeId={location?.id}
               type="Place"

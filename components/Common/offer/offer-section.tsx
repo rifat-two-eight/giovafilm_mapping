@@ -12,6 +12,8 @@ import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import Link from "next/link";
+import { Lock } from "lucide-react";
+import { toast } from "sonner";
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,39 +75,6 @@ export default function OfferSection() {
       </section>
     );
   }
-  if (!isPremium) {
-    return (
-      <section className="bg-gray-50 min-h-[80vh] flex items-center justify-center py-20 font-sans">
-        <div className="max-w-md w-full mx-auto px-6 text-center space-y-6">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full animate-bounce">
-            <span className="text-4xl">🎁</span>
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-3xl font-black text-gray-900 tracking-tight">Exclusive Offers</h2>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Unlock special discounts, deals, and coupon codes from local businesses and premium hotspots across Puerto Rico.
-            </p>
-          </div>
-          <div className="bg-white border border-gray-100 p-6 rounded-2xl shadow-xl space-y-4">
-            <div className="flex items-center gap-3 text-left">
-              <span className="text-xl">⭐</span>
-              <div>
-                <p className="font-bold text-gray-800 text-sm">Premium Feature</p>
-                <p className="text-xs text-gray-400">
-                  {profile ? "This feature is reserved for Paid members only." : "Log in to upgrade and unlock exclusive deals."}
-                </p>
-              </div>
-            </div>
-            <Link href={profile ? "/pricing" : "/login"} className="block">
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-extrabold py-5 rounded-xl transition-all">
-                {profile ? "Upgrade to Premium" : "Log In to Unlock"}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="bg-gray-50">
@@ -155,10 +124,18 @@ export default function OfferSection() {
             // Handle case where offer.place is an object
             const placeId = (offer.place && typeof offer.place === 'object') ? offer.place._id : (offer.place || null);
             
+            const handleOfferClick = (e: React.MouseEvent) => {
+              if (offer.isLocked) {
+                e.preventDefault();
+                toast.info("This information and these benefits can be unlocked by purchasing your favorite map.");
+              }
+            };
+
             return (
               <Link
                 key={offer._id}
                 href={`/offer/${offer?._id}`}
+                onClick={handleOfferClick}
               >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
@@ -180,6 +157,14 @@ export default function OfferSection() {
                         Style="rounded-full w-10 h-10 border-none bg-secondary hover:bg-secondary/80 p-0 shadow-sm"
                       />
                     </div>
+
+                    {/* Lock Badge */}
+                    {offer.isLocked && (
+                      <div className="absolute left-3 top-3 bg-red-500 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg">
+                        <Lock className="w-3.5 h-3.5" />
+                        LOCKED
+                      </div>
+                    )}
 
                     {/* Discount Badge */}
                     <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">

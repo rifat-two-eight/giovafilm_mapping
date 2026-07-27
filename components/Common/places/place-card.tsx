@@ -1,14 +1,23 @@
 import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 import { getImageUrl } from "@/lib/utils";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export function PlaceCard({ data }: { data: TPlace }) {
   console.log(data);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (data?.isLocked) {
+      e.preventDefault();
+      toast.info("This information and these benefits can be unlocked by purchasing your favorite map.");
+    }
+  };
+
   return (
-    <Link href={`/places/${data?._id || data?.id}`}>
+    <Link href={`/places/${data?._id || data?.id}`} onClick={handleClick}>
       <div className="rounded-xl overflow-hidden bg-white border hover:shadow-lg transition">
         {/* Image Section */}
         <div className="relative h-64 w-full">
@@ -29,6 +38,14 @@ export function PlaceCard({ data }: { data: TPlace }) {
             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
             {parseFloat(data?.rating?.toFixed(1))}
           </div>
+
+          {/* Lock Badge */}
+          {data?.isLocked && (
+            <div className="absolute top-3 left-3 bg-red-500 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg">
+              <Lock className="w-3.5 h-3.5" />
+              LOCKED
+            </div>
+          )}
         </div>
 
         {/* Content */}

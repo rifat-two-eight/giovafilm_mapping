@@ -1,12 +1,14 @@
 // components/shared/maps/CategoryMarker.tsx
 
 import { CategoryIcon } from "../categories/category-icon";
+import { Lock } from "lucide-react";
 
 interface CategoryMarkerProps {
   icon: string;
   color?: string;
   isTemp?: boolean;
   isSelected?: boolean;
+  isLocked?: boolean;
 }
 
 export function CategoryMarker({
@@ -14,6 +16,7 @@ export function CategoryMarker({
   color = "#3B82F6",
   isTemp = false,
   isSelected = false,
+  isLocked = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
 
@@ -32,6 +35,29 @@ export function CategoryMarker({
         cursor: "pointer",
       }}
     >
+      {/* Lock Icon overlay */}
+      {isLocked && (
+        <div
+          style={{
+            position: "absolute",
+            top: -6,
+            right: -6,
+            background: "#EF4444",
+            color: "#fff",
+            borderRadius: "50%",
+            width: 18,
+            height: 18,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1.5px solid white",
+            zIndex: 10,
+          }}
+        >
+          <Lock size={10} style={{ strokeWidth: 3 }} />
+        </div>
+      )}
+
       {/* Pin Head */}
       <div
         style={{
@@ -48,7 +74,10 @@ export function CategoryMarker({
           overflow: "hidden",
         }}
       >
-        <CategoryIcon icon={icon} size={26} color="#fff" />
+        {/* Undo rotation for icon */}
+        <div style={{ transform: "rotate(45deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <CategoryIcon icon={icon} size={22} color="#fff" />
+        </div>
       </div>
 
       {/* Pin Tail */}

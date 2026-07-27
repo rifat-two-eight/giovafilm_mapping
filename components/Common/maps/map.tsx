@@ -360,6 +360,7 @@ export default function MapPage() {
                     icon={icon}
                     color={color}
                     isSelected={selectedLocation?.id === place._id}
+                    isLocked={place.isLocked}
                   />
                 </AdvancedMarker>
               );
