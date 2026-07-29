@@ -144,75 +144,60 @@ export function AddSubscriptionModal({
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Plan Name</Label>
+              <Label className="text-sm font-semibold text-gray-700">Plan Name</Label>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g. Free Plan"
+                placeholder="e.g. Pro Plan"
+                className="rounded-xl border-gray-200 h-11"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Price</Label>
-              <Input
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                min={0}
-                required
-              />
+              <Label className="text-sm font-semibold text-gray-700">Price ($ USD)</Label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">$</span>
+                <Input
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  min={0}
+                  className="pl-8 rounded-xl border-gray-200 h-11"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Currency</Label>
-              <select
-                name="currency"
-                value={formData.currency}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-                <option value="gbp">GBP</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Interval</Label>
-              <select
-                name="interval"
-                value={formData.interval}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Interval Count</Label>
-              <Input
-                name="intervalCount"
-                type="number"
-                value={formData.intervalCount}
-                onChange={handleChange}
-                min={1}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Trial Period Days</Label>
-              <Input
-                name="trialPeriodDays"
-                type="number"
-                value={formData.trialPeriodDays}
-                onChange={handleChange}
-                min={0}
-              />
+            <div className="space-y-2 col-span-2">
+              <Label className="text-sm font-semibold text-gray-700">Billing Cycle</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={formData.interval === "month" ? "default" : "outline"}
+                  onClick={() => setFormData(prev => ({ ...prev, interval: "month" }))}
+                  className={`flex-1 rounded-xl font-bold h-12 transition-all ${
+                    formData.interval === "month" 
+                      ? "bg-yellow-400 text-black hover:bg-yellow-500 border-none shadow-md" 
+                      : "border-gray-200 text-gray-600"
+                  }`}
+                >
+                  Monthly Plan
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.interval === "year" ? "default" : "outline"}
+                  onClick={() => setFormData(prev => ({ ...prev, interval: "year" }))}
+                  className={`flex-1 rounded-xl font-bold h-12 transition-all ${
+                    formData.interval === "year" 
+                      ? "bg-yellow-400 text-black hover:bg-yellow-500 border-none shadow-md" 
+                      : "border-gray-200 text-gray-600"
+                  }`}
+                >
+                  Yearly Plan
+                </Button>
+              </div>
             </div>
           </div>
 
