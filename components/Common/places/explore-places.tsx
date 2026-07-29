@@ -40,10 +40,7 @@ const filters = [
 
 export default function ExplorePlaces() {
   const { data: profile } = useGetProfileQuery({});
-  const isPremium = profile && (
-    ["super_admin", "admin", "map_editor"].includes(profile.role) ||
-    ["active", "trialing"].includes(profile.subscriptionStatus)
-  );
+  const isPremium = profile && ["super_admin", "admin", "map_editor"].includes(profile.role);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(9);
@@ -198,14 +195,14 @@ export default function ExplorePlaces() {
                 <p className="font-extrabold text-gray-900 text-sm md:text-base">Unlock 100+ Standard Adventure Locations & Hidden Gems!</p>
                 <p className="text-xs text-gray-500 font-medium">
                   {profile 
-                    ? "You are currently viewing the free version. Upgrade to Premium to access full travel maps and exclusive offers."
-                    : "Log in or subscribe to Premium to access full travel maps and exclusive local offers."}
+                    ? "Explore our curated catalog of custom travel maps to unlock full details and hidden spots."
+                    : "Log in or browse the catalog to unlock full travel maps and exclusive local offers."}
                 </p>
               </div>
             </div>
-            <Link href={profile ? "/pricing" : "/login"}>
+            <Link href={profile ? "/catalog" : "/login"}>
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all whitespace-nowrap">
-                {profile ? "Upgrade to Premium" : "Log In to Unlock"}
+                {profile ? "Browse Maps" : "Log In to Unlock"}
               </Button>
             </Link>
           </div>

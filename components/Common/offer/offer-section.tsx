@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -19,11 +18,7 @@ export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const { data: profile } = useGetProfileQuery({});
-  const isPremium = profile && (
-    ["super_admin", "admin", "map_editor"].includes(profile.role) ||
-    ["active", "trialing"].includes(profile.subscriptionStatus)
-  );
+
 
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];

@@ -385,34 +385,38 @@ export function AddBusinessForm() {
                           const offerValidUntil = form.getValues("offerValidUntil");
                           const offerNoExpiration = form.getValues("offerNoExpiration");
 
+                          let hasError = false;
+
                           if (!offerDescription || offerDescription.trim() === "") {
-                            toast.error("Please enter an offer description.");
-                            return;
+                            form.setError("offerDescription", { type: "custom", message: "Please enter an offer description." });
+                            hasError = true;
                           }
                           if (!offerDiscountType) {
-                            toast.error("Please select a discount type.");
-                            return;
+                            form.setError("offerDiscountType", { type: "custom", message: "Please select a discount type." });
+                            hasError = true;
                           }
                           if (!offerDiscount || Number(offerDiscount) <= 0) {
-                            toast.error("Please enter a valid discount value greater than 0.");
-                            return;
+                            form.setError("offerDiscount", { type: "custom", message: "Please enter a valid discount value greater than 0." });
+                            hasError = true;
                           }
                           if (!offerDuration || Number(offerDuration) <= 0) {
-                            toast.error("Please enter a valid offer duration in minutes.");
-                            return;
+                            form.setError("offerDuration", { type: "custom", message: "Please enter a valid offer duration in minutes." });
+                            hasError = true;
                           }
                           if (!offerMaxRedemptions || Number(offerMaxRedemptions) < 0) {
-                            toast.error("Please enter a valid max redemptions count.");
-                            return;
+                            form.setError("offerMaxRedemptions", { type: "custom", message: "Please enter a valid max redemptions count." });
+                            hasError = true;
                           }
                           if (!offerValidFrom) {
-                            toast.error("Please select a valid from date.");
-                            return;
+                            form.setError("offerValidFrom", { type: "custom", message: "Please select a valid from date." });
+                            hasError = true;
                           }
                           if (!offerNoExpiration && !offerValidUntil) {
-                            toast.error("Please select a valid until date or check 'No Expiration'.");
-                            return;
+                            form.setError("offerValidUntil", { type: "custom", message: "Please select a valid until date or check 'No Expiration'." });
+                            hasError = true;
                           }
+
+                          if (hasError) return;
                         }
                       }
                       setCurrentStep(currentStep + 1);

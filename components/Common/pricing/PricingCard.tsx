@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { useGetMyBusinessesQuery } from "@/redux/features/business/businessApi";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hook";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 export interface Plan {
   _id: string;
@@ -38,6 +40,9 @@ export function PricingCard({
   const [createCheckoutSession, { isLoading }] =
     useCreateCheckoutSessionMutation();
 
+  const { data: businessesRes } = useGetMyBusinessesQuery(undefined, { skip: !token });
+  const businesses = businessesRes?.data || [];
+
   // console.log(plan);
 
   const handleClick = async () => {
@@ -52,8 +57,85 @@ export function PricingCard({
         onSelect(plan._id);
       }
     } else {
-      toast.info("Please select a business to subscribe it to a plan.");
-      router.push("/profile/my-business");
+      if (businesses.length === 0) {
+        Swal.fire({
+          title: "No Businesses Found",
+          text: "You must add a business before purchasing a subscription.",
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonText: "Add Business Now",
+          cancelButtonText: "Cancel",
+          confirmButtonColor: "#fbbf24",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push("/for-business");
+          }
+        });
+        return;
+      }
+
+      if (businesses.length === 1) {
+        const business = businesses[0];
+        try {
+          const res = await createCheckoutSession({
+            planId: plan._id,
+            businessId: business._id,
+            successUrl: `${window.location.origin}/success`,
+            cancelUrl: `${window.location.origin}/cancel`,
+          }).unwrap();
+
+          if (res.data?.url || res.url) {
+            window.location.href = res.data?.url || res.url;
+          } else {
+            toast.error("Failed to initiate payment. Please try again.");
+          }
+        } catch (err: any) {
+          toast.error(err?.data?.message || "Something went wrong. Please try again.");
+        }
+        return;
+      }
+
+      // If multiple businesses, show select dropdown using Swal
+      const inputOptions = businesses.reduce((acc: any, b: any) => {
+        acc[b._id] = b.name + (b.hasActiveSubscription ? " (Subscribed)" : " (Unpaid)");
+        return acc;
+      }, {});
+
+      Swal.fire({
+        title: "Choose a Business",
+        text: "Select which business you want to subscribe to this plan:",
+        input: "select",
+        inputOptions,
+        inputPlaceholder: "Select a business",
+        showCancelButton: true,
+        confirmButtonText: "Proceed to Payment",
+        confirmButtonColor: "#fbbf24",
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a business!";
+          }
+        },
+      }).then(async (result) => {
+        if (result.isConfirmed && result.value) {
+          const selectedBusinessId = result.value;
+          try {
+            const res = await createCheckoutSession({
+              planId: plan._id,
+              businessId: selectedBusinessId,
+              successUrl: `${window.location.origin}/success`,
+              cancelUrl: `${window.location.origin}/cancel`,
+            }).unwrap();
+
+            if (res.data?.url || res.url) {
+              window.location.href = res.data?.url || res.url;
+            } else {
+              toast.error("Failed to initiate payment. Please try again.");
+            }
+          } catch (err: any) {
+            toast.error(err?.data?.message || "Something went wrong. Please try again.");
+          }
+        }
+      });
     }
   };
 
