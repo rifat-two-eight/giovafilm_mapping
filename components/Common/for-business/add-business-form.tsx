@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
 import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,7 +25,9 @@ export function AddBusinessForm() {
   const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
   const [createOffer, { isLoading: isCreatingOffer }] =
     useCreateOfferMutation();
-  const isLoading = isSubmitting || isCreatingOffer;
+  const [createCheckoutSession, { isLoading: isCheckoutLoading }] =
+    useCreateCheckoutSessionMutation();
+  const isLoading = isSubmitting || isCreatingOffer || isCheckoutLoading;
 
   const { data: user } = useGetProfileQuery({});
   const router = useRouter();
@@ -246,6 +249,27 @@ export function AddBusinessForm() {
               offerErr?.data?.message ||
                 offerErr?.message ||
                 "Failed to create offer.",
+            );
+          }
+        }
+
+        if (values.selectedPlan && businessId) {
+          try {
+            const checkoutRes = await createCheckoutSession({
+              planId: values.selectedPlan,
+              businessId,
+              successUrl: `${window.location.origin}/success`,
+              cancelUrl: `${window.location.origin}/profile/my-business`,
+            }).unwrap();
+
+            if (checkoutRes.data?.url || checkoutRes.url) {
+              window.location.href = checkoutRes.data?.url || checkoutRes.url;
+              return;
+            }
+          } catch (checkoutErr: any) {
+            console.error("Checkout redirection error:", checkoutErr);
+            toast.error(
+              "Failed to redirect to payment page. You can pay from your business list."
             );
           }
         }

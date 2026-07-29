@@ -52,23 +52,8 @@ export function PricingCard({
         onSelect(plan._id);
       }
     } else {
-      try {
-        const res = await createCheckoutSession({
-          planId: plan._id,
-          successUrl: `${window.location.origin}/success`,
-          cancelUrl: `${window.location.origin}/cancel`,
-        }).unwrap();
-
-        if (res.data?.url) {
-          window.location.href = res.data.url;
-        } else {
-          toast.error("Failed to initiate payment. Please try again.");
-        }
-      } catch (err: any) {
-        toast.error(
-          err?.data?.message || "Something went wrong. Please try again.",
-        );
-      }
+      toast.info("Please select a business to subscribe it to a plan.");
+      router.push("/profile/my-business");
     }
   };
 

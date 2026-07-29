@@ -40,6 +40,7 @@ export default function BusinessDetails() {
   const handlePayNow = async (planId: string) => {
     const data = {
       planId,
+      businessId: business._id,
       successUrl: `${window.location.origin}/success`,
       cancelUrl: `${window.location.origin}/cancel`,
     };

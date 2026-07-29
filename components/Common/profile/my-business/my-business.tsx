@@ -82,9 +82,10 @@ export default function MyBusinessPage() {
     }
   };
 
-  const handlePayNow = async (id: string) => {
+  const handlePayNow = async (planId: string, businessId: string) => {
     const data = {
-      planId: id,
+      planId,
+      businessId,
       successUrl: `${window.location.origin}/success`,
       cancelUrl: `${window.location.origin}/cancel`,
     };
@@ -303,7 +304,7 @@ export default function MyBusinessPage() {
                       </div>
                       {business.plan ? (
                         <Button
-                          onClick={() => handlePayNow(business.plan)}
+                          onClick={() => handlePayNow(business.plan, business._id)}
                           size="sm"
                           disabled={isPaymentLoading}
                           className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg h-9 text-xs"
