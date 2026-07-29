@@ -81,7 +81,6 @@ export default function CreateMapModal({
       price: Number(data.price) || 0,
       features: data.features ? data.features.split(",").map((f) => f.trim()).filter(Boolean) : [],
       recommendations: { tips: data.tips || "" },
-      places: initialData?.places ? initialData.places.map((p: any) => (typeof p === 'string' ? p : p._id)) : [], 
       status: initialData?.status || "Published",
       isPaid: true,
       rating: initialData?.rating || 4.5,

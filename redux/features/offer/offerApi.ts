@@ -5,6 +5,7 @@ const offerApi = baseApi.injectEndpoints({
     getOffers: builder.query({
       query: ({ map = "" }: { map?: string } = {}) => `/offer${map ? `?map=${map}` : ""}`,
       providesTags: ["Offer"],
+      keepUnusedDataFor: 180, // cache for 3 minutes
     }),
     getSingleOffer: builder.query({
       query: (id) => `/offer/${id}`,

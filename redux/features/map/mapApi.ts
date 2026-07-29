@@ -23,6 +23,7 @@ const mapApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Map"],
+      keepUnusedDataFor: 300, // cache for 5 minutes
     }),
 
     getMapById: builder.query<any, string>({
@@ -73,6 +74,7 @@ const mapApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Map"],
+      keepUnusedDataFor: 600, // cache for 10 minutes
       transformResponse: (response: any) => response.data,
     }),
   }),

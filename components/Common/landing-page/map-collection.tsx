@@ -14,8 +14,6 @@ export default function MapCollection() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const mapsData = mapsRes?.data || [];
 
-  console.log(mapsData);
-
   return (
     <section className="max-w-360 mx-auto px-4 md:px-6 py-16 space-y-10 overflow-hidden">
       {/* Header */}
@@ -100,7 +98,7 @@ export default function MapCollection() {
                       </h3>
 
                       <p className="text-sm text-white/80 line-clamp-2">
-                        {map.places?.length} spots •{" "}
+                        {map.placeCount ?? 0} spots •{" "}
                         {map.description ||
                           "Explore the best of the city with this curated guide."}
                       </p>
