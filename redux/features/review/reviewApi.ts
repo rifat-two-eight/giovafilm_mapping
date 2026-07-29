@@ -28,6 +28,25 @@ const reviewApi = baseApi.injectEndpoints({
       providesTags: ["Review"],
       transformResponse: (response: any) => response.data,
     }),
+    getPendingReviews: builder.query({
+      query: () => "/review?status=Pending",
+      providesTags: ["Review"],
+      transformResponse: (response: any) => response.data,
+    }),
+    approveReview: builder.mutation({
+      query: (id: string) => ({
+        url: `/review/approve/${id}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Review", "Place", "User", "Award"],
+    }),
+    rejectReview: builder.mutation({
+      query: (id: string) => ({
+        url: `/review/reject/${id}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Review", "Place", "User", "Award"],
+    }),
   }),
 });
 
@@ -36,4 +55,7 @@ export const {
   useGetMyReviewsQuery,
   useUpdateReviewMutation,
   useGetReviewsByPlaceQuery,
+  useGetPendingReviewsQuery,
+  useApproveReviewMutation,
+  useRejectReviewMutation,
 } = reviewApi;

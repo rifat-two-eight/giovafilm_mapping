@@ -20,6 +20,7 @@ interface Review {
   rating: number;
   createdAt: string;
   review: string;
+  status?: string;
 }
 
 interface ReviewsSectionProps {
@@ -108,16 +109,29 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 </div>
 
                 {/* Review Date */}
-                <p className="text-xs text-gray-500 mb-3">
-                  Reviewed on{" "}
-                  {review.createdAt
-                    ? new Date(review.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "2-digit",
-                        year: "numeric",
-                      })
-                    : "N/A"}
-                </p>
+                <div className="flex items-center gap-3 mb-3">
+                  <p className="text-xs text-gray-500">
+                    Reviewed on{" "}
+                    {review.createdAt
+                      ? new Date(review.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "2-digit",
+                          year: "numeric",
+                        })
+                      : "N/A"}
+                  </p>
+                  {review.status && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
+                      review.status === 'Approved'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : review.status === 'Rejected'
+                        ? 'bg-red-50 text-red-700 border border-red-200'
+                        : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                    }`}>
+                      {review.status}
+                    </span>
+                  )}
+                </div>
 
                 {/* Description */}
                 <p className="text-sm text-gray-600 line-clamp-2">

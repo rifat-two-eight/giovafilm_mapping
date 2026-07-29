@@ -191,6 +191,11 @@ export const adminMenuItems = [
     icon: Trophy,
   },
   {
+    title: "Reviews Verification",
+    url: "/dashboard/reviews-verification",
+    icon: Bell,
+  },
+  {
     title: "Reports & Statistics",
     url: "/dashboard/reports",
     icon: BarChart3,

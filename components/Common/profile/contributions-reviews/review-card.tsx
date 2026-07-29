@@ -76,6 +76,17 @@ export function ReviewCard({ review }: any) {
             <span className="text-sm text-gray-500">
               Reviewed on {formatDate(review?.createdAt)}
             </span>
+            {review?.status && (
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+                review.status === 'Approved'
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : review.status === 'Rejected'
+                  ? 'bg-red-50 text-red-700 border border-red-200'
+                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+              }`}>
+                {review.status}
+              </span>
+            )}
           </div>
         </div>
 

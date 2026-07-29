@@ -71,18 +71,18 @@ export default function ContributionsReviews() {
         {/* Reviews section */}
         <div className="mt-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            My Reviews ({reviewsData.length})
+            My Reviews ({(reviewsData?.data || []).length})
           </h2>
 
           {/* Reviews list */}
           <div className="space-y-6">
-            {reviewsData?.data?.map((review: any) => (
+            {(reviewsData?.data || []).slice(0, displayedReviews).map((review: any) => (
               <ReviewCard key={review._id} review={review} />
             ))}
           </div>
 
           {/* Load more button */}
-          {reviewsData.length > displayedReviews && (
+          {(reviewsData?.data || []).length > displayedReviews && (
             <div className="flex justify-center mt-12">
               <Button
                 onClick={handleLoadMore}

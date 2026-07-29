@@ -397,6 +397,17 @@ export default function MapDetails() {
               View on Map
             </Button>
 
+            {/* write review button */}
+            {!isBusiness && (
+              <Button
+                onClick={() => setIsReviewOpen(true)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-base rounded-xl transition-all"
+              >
+                <MessageSquare size={18} className="mr-2" />
+                Write Review
+              </Button>
+            )}
+
             {/* directions button */}
             {!isBusiness && (
               <Button
@@ -435,6 +446,15 @@ export default function MapDetails() {
                     </Button>
                   )}
                 </div>
+
+                {/* write review button for business */}
+                <Button
+                  onClick={() => setIsReviewOpen(true)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-base rounded-xl transition-all"
+                >
+                  <MessageSquare size={18} className="mr-2" />
+                  Write Review
+                </Button>
 
                 {offerId && (
                   <Link href={`/offer/${offerId}`} className="block">
@@ -701,6 +721,76 @@ export default function MapDetails() {
             </div>
           </div>
         )}
+        {/* REVIEWS LIST SECTION */}
+        <div className="mt-12 bg-white rounded-2xl border p-6 md:p-8 space-y-6">
+          <div className="flex items-center justify-between border-b pb-4">
+            <h3 className="font-black text-xl uppercase tracking-tight text-gray-900">
+              Reviews & Experiences ({reviewData?.length || 0})
+            </h3>
+            <Button
+              onClick={() => setIsReviewOpen(true)}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs uppercase"
+            >
+              Write Review
+            </Button>
+          </div>
+
+          {isReviewsLoading ? (
+            <div className="py-8 text-center text-gray-500">Loading reviews...</div>
+          ) : !reviewData || reviewData.length === 0 ? (
+            <div className="py-8 text-center text-gray-500 italic">No reviews yet. Be the first to share your experience!</div>
+          ) : (
+            <div className="space-y-6 divide-y divide-gray-100">
+              {reviewData.map((rev: any, index: number) => (
+                <div key={rev._id} className={`${index > 0 ? "pt-6" : ""} flex gap-4 items-start`}>
+                  <Avatar className="w-10 h-10 border shrink-0">
+                    <AvatarImage src={getImageUrl(rev.reviewer?.profile)} alt={rev.reviewer?.name} />
+                    <AvatarFallback className="capitalize bg-yellow-100 text-yellow-800 font-bold">
+                      {rev.reviewer?.name?.slice(0, 2) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-900 text-sm">{rev.reviewer?.name || "User"}</span>
+                        {/* Display User level badge in place reviews */}
+                        <span className="text-[9px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-200 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                          Level {rev.reviewer?.level || 0}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(rev.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Star ratings */}
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={14}
+                          className={`${
+                            i < Math.floor(rev.rating)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-sm text-gray-600 leading-relaxed mt-1">
+                      {rev.review || <span className="italic text-gray-400">Rated {rev.rating} stars (star-only review).</span>}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <ReviewModal
         isOpen={isReviewOpen}

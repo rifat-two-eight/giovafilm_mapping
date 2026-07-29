@@ -37,6 +37,8 @@ interface ProfileSidebar {
   role: string;
   createdAt: string;
   profile: string;
+  level?: number;
+  points?: number;
 }
 
 interface ProfileProps {
@@ -66,19 +68,36 @@ export function ProfileSidebar({ data }: ProfileProps) {
               <NoImage />
             )}
 
-            <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
-              ⭐
+            <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-sm">
+              L{data?.level ?? 0}
             </div>
           </div>
 
           {/* User Name */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             {data?.name}
           </h2>
 
-          {/* Level Badge */}
-          <div className="inline-block bg-yellow-50 px-3 py-1 rounded-full mb-2">
-            <span className="text-yellow-500 font-semibold text-sm capitalize">
+          {/* Level Name Badge */}
+          {(() => {
+            const USER_LEVELS = [
+              "Explorador", "Aventurero", "Tlacuilo", "Expedicionario", "Viajero",
+              "Chasqui", "Cronista", "Pochteca", "Navegante", "Cartógrafo",
+              "Gran Explorador", "Conquistador", "Gran Conquistador", "Amauta", "Leyenda"
+            ];
+            const levelName = USER_LEVELS[data?.level ?? 0] || "Explorador";
+            return (
+              <div className="inline-block bg-yellow-400 text-black px-3.5 py-1 rounded-full mb-3 shadow-xs">
+                <span className="font-bold text-xs uppercase tracking-wider">
+                  ⭐ {levelName}
+                </span>
+              </div>
+            );
+          })()}
+
+          {/* Role Badge */}
+          <div className="block mb-2">
+            <span className="text-gray-400 font-semibold text-xs uppercase tracking-wider">
               {data?.role}
             </span>
           </div>
