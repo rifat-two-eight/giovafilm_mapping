@@ -13,6 +13,7 @@ import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +37,7 @@ export default function OfferSection() {
       (fav: any) =>
         fav.type === "Offer" &&
         (typeof fav.offer === "string" ? fav.offer : fav.offer?._id) ===
-          offerId,
+        offerId,
     );
 
   const filteredOffers = offersData.filter((offer: any) => {
@@ -86,11 +87,10 @@ export default function OfferSection() {
               <Button
                 key={filter}
                 variant={activeFilter === filter ? "default" : "outline"}
-                className={`rounded-full ${
-                  activeFilter === filter
-                    ? "bg-yellow-400 text-black hover:bg-yellow-500 border-none"
-                    : ""
-                }`}
+                className={`rounded-full ${activeFilter === filter
+                  ? "bg-yellow-400 text-black hover:bg-yellow-500 border-none"
+                  : ""
+                  }`}
                 onClick={() => setActiveFilter(filter)}
               >
                 {filter}
@@ -115,14 +115,50 @@ export default function OfferSection() {
             console.log("offer data:", offer);
             console.log("offer.photo:", offer.photo);
             console.log("offer.place:", offer.place);
-            
+
             // Handle case where offer.place is an object
             const placeId = (offer.place && typeof offer.place === 'object') ? offer.place._id : (offer.place || null);
-            
+
             const handleOfferClick = (e: React.MouseEvent) => {
               if (offer.isLocked) {
                 e.preventDefault();
-                toast.info("This information and these benefits can be unlocked by purchasing your favorite map.");
+                const mapId = offer.map
+                  ? (typeof offer.map === 'object' ? (offer.map._id || offer.map.id) : offer.map)
+                  : (offer.place && typeof offer.place === 'object' && offer.place.map)
+                    ? (typeof offer.place.map === 'object' ? (offer.place.map._id || offer.place.map.id) : offer.place.map)
+                    : null;
+
+                Swal.fire({
+                  title: "<strong>Unlock Premium Offer</strong>",
+                  html: `
+                    <div class="flex flex-col items-center text-center space-y-3">
+                      <p class="text-gray-500 text-sm">
+                        This exclusive offer and its local benefits are locked. Purchase the curated map to unlock lifetime access to all spots and deals.
+                      </p>
+                    </div>
+                  `,
+                  icon: "info",
+                  iconColor: "#FFC107",
+                  showCancelButton: true,
+                  confirmButtonText: "Unlock Map",
+                  cancelButtonText: "Maybe Later",
+                  customClass: {
+                    popup: "rounded-3xl p-6",
+                    confirmButton: "bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 w-full sm:w-auto font-inter text-sm",
+                    cancelButton: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 ml-3 w-full sm:w-auto font-inter text-sm"
+                  },
+                  buttonsStyling: false,
+                  background: "#ffffff",
+                  color: "#1f2937",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    if (mapId) {
+                      window.location.href = `/catalog/${mapId}`;
+                    } else {
+                      window.location.href = "/catalog";
+                    }
+                  }
+                });
               }
             };
 

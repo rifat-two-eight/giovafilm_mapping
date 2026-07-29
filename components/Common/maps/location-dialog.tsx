@@ -51,23 +51,30 @@ export default function LocationDialog({ id, onClose }: Props) {
             <X size={20} />
           </button>
           
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full">
             <Lock size={28} />
           </div>
           
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-gray-900">Locked Location</h2>
             <p className="text-gray-500 text-sm leading-relaxed px-4">
-              {message}
+              This is a premium spot. {message}
             </p>
           </div>
 
-          <Button 
-            onClick={onClose}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-xl h-12"
-          >
-            Go Back
-          </Button>
+          <div className="flex flex-col gap-3 w-full">
+            <Link href="/catalog" onClick={onClose} className="w-full">
+              <Button className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12">
+                Unlock Map
+              </Button>
+            </Link>
+            <button 
+              onClick={onClose}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl h-12 transition-colors cursor-pointer text-sm"
+            >
+              Maybe Later
+            </button>
+          </div>
         </div>
       </div>
     );

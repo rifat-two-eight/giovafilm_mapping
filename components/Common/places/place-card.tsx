@@ -1,3 +1,5 @@
+"use client";
+
 import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
 import { getImageUrl } from "@/lib/utils";
@@ -5,6 +7,7 @@ import { MapPin, Star, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export function PlaceCard({ data }: { data: TPlace }) {
   console.log(data);
@@ -12,7 +15,41 @@ export function PlaceCard({ data }: { data: TPlace }) {
   const handleClick = (e: React.MouseEvent) => {
     if (data?.isLocked) {
       e.preventDefault();
-      toast.info("This information and these benefits can be unlocked by purchasing your favorite map.");
+      const mapId = data?.map 
+        ? (typeof data.map === 'object' ? (data.map._id || data.map.id) : data.map)
+        : null;
+      
+      Swal.fire({
+        title: "<strong>Unlock Premium Place</strong>",
+        html: `
+          <div class="flex flex-col items-center text-center space-y-3 font-inter">
+            <p class="text-gray-500 text-sm">
+              This beautiful location and its details are locked. Purchase the map to unlock directions, photos, and local insights.
+            </p>
+          </div>
+        `,
+        icon: "info",
+        iconColor: "#FFC107",
+        showCancelButton: true,
+        confirmButtonText: "Unlock Map",
+        cancelButtonText: "Maybe Later",
+        customClass: {
+          popup: "rounded-3xl p-6",
+          confirmButton: "bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 w-full sm:w-auto font-inter text-sm",
+          cancelButton: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 ml-3 w-full sm:w-auto font-inter text-sm"
+        },
+        buttonsStyling: false,
+        background: "#ffffff",
+        color: "#1f2937",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (mapId) {
+            window.location.href = `/catalog/${mapId}`;
+          } else {
+            window.location.href = "/catalog";
+          }
+        }
+      });
     }
   };
 

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Filter, Eye, Heart, Navigation } from "lucide-react";
+import { motion } from "motion/react";
 
 const features = [
   {
@@ -22,12 +23,33 @@ const features = [
   },
 ];
 
+const listVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+} as const;
+
+const itemVariants = {
+  hidden: { opacity: 0, x: 20 },
+  show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100 } },
+} as const;
+
 export default function ExploreMaps() {
   return (
-    <section className="bg-[#0f0f0f] text-white py-24">
+    <section className="bg-[#0f0f0f] text-white py-24 overflow-hidden">
       <div className="max-w-360 mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-16 items-center">
         {/* Map Image */}
-        <div className="w-full md:w-135 md:h-135 relative rounded-3xl p-4 bg-blue-900/30">
+        <motion.div
+          className="w-full md:w-135 md:h-135 relative rounded-3xl p-4 bg-blue-900/30"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          whileHover={{ scale: 1.02 }}
+        >
           <div className="rounded-2xl overflow-hidden w-full h-full relative min-h-[350px]">
             <Image
               src={require("@/public/map-img.jpg")}
@@ -36,10 +58,16 @@ export default function ExploreMaps() {
               className="object-cover"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Content */}
-        <div className="space-y-6">
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <h2 className="text-4xl font-inter font-bold">
             Explore With Interactive Maps
           </h2>
@@ -51,18 +79,28 @@ export default function ExploreMaps() {
           </p>
 
           {/* Features */}
-          <div className="space-y-4 pt-4">
+          <motion.div
+            className="space-y-4 pt-4"
+            variants={listVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div key={index} className="flex items-start gap-3">
+                <motion.div
+                  key={index}
+                  className="flex items-start gap-3"
+                  variants={itemVariants}
+                >
                   <Icon className="text-yellow-400 w-5 h-5 mt-1" />
                   <p className="text-gray-300 text-sm">{feature.text}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

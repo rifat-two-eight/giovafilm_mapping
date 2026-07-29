@@ -4,6 +4,7 @@ import { Zap } from "lucide-react";
 import { Button } from "../../ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 export default function HeroBanner() {
   return (
@@ -48,41 +49,80 @@ export default function HeroBanner() {
 
       <div className="relative z-10 max-w-360 mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
         {/* Left Content */}
-        <div className="max-w-xl">
-          <p className="text-primary font-bold font-inter text-sm tracking-[0.2em] mb-4 leading-4 uppercase">
+        <motion.div
+          className="max-w-xl"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <motion.p
+            className="text-primary font-bold font-inter text-sm tracking-[0.2em] mb-4 leading-4 uppercase"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             Local Insight, Digital Ease
-          </p>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-gray-900 leading-14 md:leading-20 mb-4">
+          </motion.p>
+          
+          <motion.h1
+            className="text-5xl md:text-7xl font-black tracking-tight text-gray-900 leading-14 md:leading-20 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
             Discover Cities <br className="hidden xl:block" />
             <span className="text-[#FFC107]">Like a Local</span>
-          </h1>
-          <p className="text-lg text-gray-600 leading-relaxed mb-10 max-w-lg">
+          </motion.h1>
+
+          <motion.p
+            className="text-lg text-gray-600 leading-relaxed mb-10 max-w-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
             Buy curated digital maps packed with local places, hidden gems, and
             exclusive offers — all in one interactive experience.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-wrap gap-4 mb-12">
+          <motion.div
+            className="flex flex-wrap gap-4 mb-12"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
             <Link href={"/places"}>
-              <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20">
-                Explore Places
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 cursor-pointer">
+                  Explore Places
+                </Button>
+              </motion.div>
             </Link>
             <Link href={"/catalog"}>
-              <Button
-                variant="outline"
-                className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5"
-              >
-                Browse Catalog
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="outline"
+                  className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5 cursor-pointer"
+                >
+                  Browse Catalog
+                </Button>
+              </motion.div>
             </Link>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center gap-4">
+          <motion.div
+            className="flex items-center gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
             <div className="flex -space-x-3">
               {[1, 2, 3].map((i) => (
-                <div
+                <motion.div
                   key={i}
                   className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.6 + i * 0.1, type: "spring", stiffness: 200 }}
                 >
                   <Image
                     src={`https://picsum.photos/seed/user${i}/100/100`}
@@ -92,7 +132,7 @@ export default function HeroBanner() {
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
             <p className="text-sm font-medium text-gray-500">
@@ -100,12 +140,17 @@ export default function HeroBanner() {
               <span className="text-black font-bold">10k+ explorers</span> this
               month
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Right Content - Image & Floating Card */}
         <div className="relative">
-          <div className="relative rounded-[40px] overflow-hidden shadow-2xl transform lg:translate-x-12">
+          <motion.div
+            className="relative rounded-[40px] overflow-hidden shadow-2xl transform lg:translate-x-12"
+            initial={{ opacity: 0, scale: 0.95, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             <Image
               src={require("@/public/hero-banner.png")}
               alt="Tokyo Street"
@@ -114,20 +159,26 @@ export default function HeroBanner() {
               className="w-full h-auto object-cover aspect-4/3"
               referrerPolicy="no-referrer"
             />
-          </div>
+          </motion.div>
 
           {/* Floating Card */}
-          <div className="absolute -bottom-6 left-4 bg-white font-inter p-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-70 animate-bounce-slow">
+          <motion.div
+            className="absolute -bottom-6 left-4 bg-white font-inter p-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-70"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+          >
             <div className="w-12 h-12 bg-[#FFC107] rounded-lg flex items-center justify-center text-black">
               <Zap size={24} fill="currentColor" />
             </div>
             <div>
-              <h4 className="font-black  text-gray-900 leading-tight">
+              <h4 className="font-black text-gray-900 leading-tight">
                 New: Tokyo Guide
               </h4>
-              <p className="text-sm  text-[#6B7280]">50+ Hidden Gems added</p>
+              <p className="text-sm text-[#6B7280]">50+ Hidden Gems added</p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

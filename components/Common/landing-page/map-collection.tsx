@@ -8,6 +8,7 @@ import {
 import { getImageUrl } from "@/lib/utils";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 export default function MapCollection() {
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
@@ -16,9 +17,15 @@ export default function MapCollection() {
   console.log(mapsData);
 
   return (
-    <section className="max-w-360 mx-auto px-4 md:px-6 py-16 space-y-10">
+    <section className="max-w-360 mx-auto px-4 md:px-6 py-16 space-y-10 overflow-hidden">
       {/* Header */}
-      <div className="flex items-end justify-between">
+      <motion.div
+        className="flex items-end justify-between"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         <div>
           <h2 className="text-3xl font-bold">Explore Our Map Collection</h2>
           <p className="text-muted-foreground mt-2">
@@ -27,20 +34,30 @@ export default function MapCollection() {
         </div>
 
         <Link href={"/catalog"}>
-          <button className="text-sm font-medium border-b-2 border-yellow-500 cursor-pointer">
+          <motion.button
+            className="text-sm font-medium border-b-2 border-yellow-500 cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             View Full Catalog
-          </button>
+          </motion.button>
         </Link>
-      </div>
+      </motion.div>
 
       {/* Carousel */}
-      <Carousel
-        className="w-full"
-        opts={{
-          align: "start",
-          loop: true,
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6, delay: 0.2 }}
       >
+        <Carousel
+          className="w-full"
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+        >
         <CarouselContent>
           {isLoading ? (
             [1, 2, 3].map((i) => (
@@ -94,7 +111,8 @@ export default function MapCollection() {
             ))
           )}
         </CarouselContent>
-      </Carousel>
+        </Carousel>
+      </motion.div>
     </section>
   );
 }
