@@ -53,7 +53,7 @@ export default function AwardsPage() {
   const limit = 10;
   const [activeFilter, setActiveFilter] = useState<"all" | "unlocked" | "locked">("all");
 
-  const { data: user } = useGetProfileQuery({});
+  const { data: user, isLoading: isProfileLoading } = useGetProfileQuery({});
   const { data: awardsRes, isLoading } = useGetAwardsQuery({ page, limit });
 
   const awardsData = awardsRes?.data || [];
@@ -108,10 +108,23 @@ export default function AwardsPage() {
             </svg>
 
             <div className="text-center">
-              <p className="text-3xl font-extrabold text-gray-900">
-                {points.toLocaleString()}
-              </p>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">XP POINTS</p>
+              {isProfileLoading ? (
+                <>
+                  <div className="mx-auto h-8 w-16 bg-gray-200 animate-pulse rounded" />
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
+                    XP POINTS
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-extrabold text-gray-900">
+                    {points.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                    XP POINTS
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -119,12 +132,18 @@ export default function AwardsPage() {
           <div className="flex-1 md:ml-10 text-center md:text-left">
             {/* Level badge */}
             <span className="inline-block bg-amber-500/20 text-amber-800 px-4 py-1.5 rounded-full text-xs font-bold mb-3 uppercase tracking-wider">
-              🏆 Level {currentLevel} Explorer
+              {isProfileLoading
+                ? "Loading..."
+                : `🏆 Level ${currentLevel} Explorer`}
             </span>
 
             {/* Name */}
             <h2 className="text-2xl font-bold text-gray-900 capitalize">
-              {user?.name || "Explorer"}
+              {isProfileLoading ? (
+                <span className="inline-block h-7 w-40 bg-gray-200 animate-pulse rounded" />
+              ) : (
+                user?.name || "Explorer"
+              )}
             </h2>
 
             {/* Description */}

@@ -111,13 +111,19 @@ export default function MapPage() {
     setEnabledCategories((prev) => ({ ...prev, [id]: value }));
   };
 
-  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
+  const { data: mapsResponse, isLoading: isLoadingMaps } = useGetMapsQuery({
+    limit: 100,
+  });
   const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
 
   const selectedMapObj = mapsResponse?.data?.find((m: any) => m.name === selectedCountry);
   const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
 
-  const { data: placesRes } = useGetPublicPlacesBusinessQuery({
+  const {
+    data: placesRes,
+    isLoading: isLoadingPlaces,
+    isFetching: isFetchingPlaces,
+  } = useGetPublicPlacesBusinessQuery({
     limit: 1000,
     map: !selectedCountry ? "" : mapIdFilter,
   });
@@ -128,18 +134,29 @@ export default function MapPage() {
       ? placesRes
       : [];
 
-  const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
+  const {
+    data: categoriesRes,
+    isLoading: isLoadingCategories,
+  } = useGetCategoriesQuery({ limit: 100 });
   let fetchedCategories = Array.isArray(categoriesRes?.data)
     ? categoriesRes.data
     : Array.isArray(categoriesRes)
       ? categoriesRes
       : [];
 
+  const isCategoriesLoading =
+    isLoadingUser ||
+    isLoadingMaps ||
+    isLoadingCategories ||
+    isLoadingPlaces ||
+    isFetchingPlaces ||
+    (!!selectedCountry && !mapIdFilter && availableCountries.length > 0);
+
   // Identify categories that are inherently "business"
   const inherentlyBusinessCatIds = new Set(
     fetchedCategories
       .filter((cat: any) => cat.type === "business" || cat.name?.toLowerCase().includes("business"))
-      .map((cat: any) => cat._id)
+      .map((cat: any) => String(cat._id))
   );
 
   // Discovery overwrites Place.type with "place"; original Business|Regular lives in placeType.
@@ -149,43 +166,58 @@ export default function MapPage() {
     p?.type === "Business" ||
     p?.placeType === "Business";
 
+  const getCategoryId = (p: any) => {
+    const raw =
+      typeof p.category === "object" && p.category !== null
+        ? p.category._id || p.category.id
+        : p.category;
+    return raw != null ? String(raw) : "";
+  };
+
+  // Places are scoped by map id; Business docs have no `map` — match by country/map name.
+  const belongsToSelectedMap = (place: any) => {
+    if (!selectedCountry) return true;
+
+    if (place?.type === "business" || place?.map == null) {
+      const placeCountry = place?.location?.country || place?.country || "";
+      const target = selectedMapObj?.name || selectedCountry;
+      return placeCountry.toLowerCase() === String(target).toLowerCase();
+    }
+
+    if (selectedMapObj) {
+      const placeMapId =
+        typeof place.map === "object" ? place.map._id : place.map;
+      return String(placeMapId) === String(selectedMapObj._id);
+    }
+
+    const placeCountry = place?.location?.country || place?.country || "";
+    return placeCountry.toLowerCase() === selectedCountry.toLowerCase();
+  };
+
   // If user is not logged in, filter categories to only those that are business categories
   // OR have at least one business-type location.
   if (!isLoggedIn && !isLoadingUser) {
     const businessPlaceCatIds = new Set(
-      fetchedPlaces
-        .filter(isBusinessLocation)
-        .map((p: any) => typeof p.category === "object" && p.category !== null ? p.category._id || p.category.id : p.category)
+      fetchedPlaces.filter(isBusinessLocation).map(getCategoryId).filter(Boolean),
     );
 
     fetchedCategories = fetchedCategories.filter(
-      (cat: any) => inherentlyBusinessCatIds.has(cat._id) || businessPlaceCatIds.has(cat._id)
+      (cat: any) =>
+        inherentlyBusinessCatIds.has(String(cat._id)) ||
+        businessPlaceCatIds.has(String(cat._id)),
     );
   }
 
-  // Filter out categories that have no places at all for the current country/map
-  const validPlacesForCurrentCountry = fetchedPlaces?.filter((place: any) => {
-    if (selectedCountry) {
-      if (selectedMapObj) {
-        const placeMapId = typeof place.map === 'object' ? place.map._id : place.map;
-        if (placeMapId !== selectedMapObj._id) return false;
-      } else {
-        const placeCountry = place?.location?.country || place?.country;
-        if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
-          return false;
-      }
-    }
-    return true;
-  }) || [];
+  // Filter out categories that have no places/businesses for the current country/map
+  const validPlacesForCurrentCountry =
+    fetchedPlaces?.filter(belongsToSelectedMap) || [];
 
   const validCatIds = new Set(
-    validPlacesForCurrentCountry.map((p: any) => 
-      typeof p.category === "object" && p.category !== null ? p.category._id || p.category.id : p.category
-    )
+    validPlacesForCurrentCountry.map(getCategoryId).filter(Boolean),
   );
 
-  fetchedCategories = fetchedCategories.filter(
-    (cat: any) => validCatIds.has(cat._id)
+  fetchedCategories = fetchedCategories.filter((cat: any) =>
+    validCatIds.has(String(cat._id)),
   );
 
   // Detect country from markerPos (current location)
@@ -251,52 +283,33 @@ export default function MapPage() {
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
 
   const displayPlaces = fetchedPlaces?.filter((place: any) => {
-    // Country filter (Strict: must match selected country unless "all" is selected)
-    // "Select Country" acts as Map selector in our setup
-    if (selectedCountry) {
-      if (selectedMapObj) {
-        const placeMapId = typeof place.map === 'object' ? place.map._id : place.map;
-        if (placeMapId !== selectedMapObj._id) return false;
-      } else {
-        const placeCountry = place?.location?.country || place?.country;
-        if (placeCountry?.toLowerCase() !== selectedCountry.toLowerCase())
-          return false;
+    if (!belongsToSelectedMap(place)) return false;
+
+    const categoryId = getCategoryId(place);
+    if (!categoryId) return true;
+
+    // Guest: only business-type locations OR inherently business categories
+    if (!isLoggedIn && !isLoadingUser) {
+      if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
+        return false;
       }
     }
 
-    // Category filter:
-    // Show the place unless its category switch is explicitly set to false.
-    const categoryId =
-      typeof place.category === "object" && place.category !== null
-        ? place.category._id || place.category.id
-        : place.category;
-    if (!categoryId) return true; // no category → always show
-
-    // If user is not logged in, only show business-type locations
-    // OR places that belong to an inherently business category.
-    if (!isLoggedIn && !isLoadingUser) {
-      const isInherentlyBusiness = inherentlyBusinessCatIds.has(categoryId);
-      if (!isBusinessLocation(place) && !isInherentlyBusiness) return false;
-    }
-
-    const id =
-      typeof categoryId === "string" ? categoryId : categoryId.toString();
-
-    // Missing key defaults to visible; only hide when explicitly false
-    return enabledCategories[id] !== false;
+    return enabledCategories[categoryId] !== false;
   });
 
-  // Guest sidebar: same visibility rules as map markers (business locations + business categories)
+  // Guest sidebar: same visibility rules as map markers
   const sidebarPlaces =
     !isLoggedIn && !isLoadingUser
       ? fetchedPlaces.filter((place: any) => {
-          const categoryId =
-            typeof place.category === "object" && place.category !== null
-              ? place.category._id || place.category.id
-              : place.category;
-          return isBusinessLocation(place) || inherentlyBusinessCatIds.has(categoryId);
+          if (!belongsToSelectedMap(place)) return false;
+          const categoryId = getCategoryId(place);
+          return (
+            isBusinessLocation(place) ||
+            inherentlyBusinessCatIds.has(categoryId)
+          );
         })
-      : fetchedPlaces;
+      : fetchedPlaces.filter(belongsToSelectedMap);
 
   if (!hasMounted) return null;
 
@@ -405,6 +418,8 @@ export default function MapPage() {
                   setSelectedCountry={setSelectedCountry}
                   setIsManualSelection={setIsManualSelection}
                   availableCountries={availableCountries}
+                  isLoggedIn={isLoggedIn}
+                  isLoading={isCategoriesLoading}
                 />
               </div>
             </MapControl>

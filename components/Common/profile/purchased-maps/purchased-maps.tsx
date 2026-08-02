@@ -94,8 +94,9 @@ export default function PurchasedMapsPage() {
         {/* Map List */}
         <div className="space-y-4 mb-12">
           {isLoading ? (
-            <div className="text-center py-10 text-gray-500">
-              Loading your maps...
+            <div className="flex flex-col items-center justify-center gap-3 py-10">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+              <p className="text-sm text-gray-500">Loading your maps...</p>
             </div>
           ) : filteredMaps.length > 0 ? (
             filteredMaps.map((map: PurchasedMap) => (

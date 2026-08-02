@@ -2,22 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useState } from "react";
 import { ContributionsSection } from "../contributions-section";
-import ProfileUpdateModal from "../profile-update-modal";
 import { ReviewCard } from "./review-card";
 
 export default function ContributionsReviews() {
   const [displayedReviews, setDisplayedReviews] = useState(3);
 
-  const { data: user } = useGetProfileQuery({});
   const { data: reviewsData = [], isLoading } = useGetMyReviewsQuery({});
-  console.log(user);
-
-  // ✅ NEW: Progress logic (no UI style change, just text)
-  const currentPoints = 1250;
-  const nextLevelPoints = 2000;
+  const reviews = reviewsData?.data || [];
 
   const handleLoadMore = () => {
     setDisplayedReviews((prev) => prev + 3);
@@ -25,73 +18,43 @@ export default function ContributionsReviews() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 ">
-      {/* Main container */}
       <div className="max-w-360 mx-auto p-6 bg-white rounded-2xl">
-        {/* Profile header */}
-        {/* <div className="flex flex-col items-center py-12 bg-white rounded-2xl mb-8">
-          
-          <div className="w-32 h-32 mb-6 relative">
-            {user?.profile ? (
-              <Image
-                src={getImageUrl(user?.profile)}
-                alt="John Doe"
-                unoptimized
-                width={500}
-                height={500}
-                className="w-full h-full rounded-full object-cover border-4 border-gray-200"
-              />
-            ) : (
-              <NoImage />
-            )}
-          </div>
-
-    
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">John Doe</h1>
-
-          <div className="flex items-center gap-3 text-sm">
-            <span className="bg-yellow-100 text-yellow-700 font-semibold px-4 py-1 rounded-full">
-              Level {user?.level || 0} EXPLORER
-            </span>
-            •
-            <span className="bg-yellow-100 text-yellow-700 font-semibold px-4 py-1 rounded-full">
-              {user?.points.toLocaleString() || 0} POINTS
-            </span>
-            <span className="text-gray-600">• Joined Oct 2023</span>
-          </div>
-
-    
-          <p className="text-gray-500 text-sm mt-2">
-            {currentPoints.toLocaleString()} /{" "}
-            {nextLevelPoints.toLocaleString()} points to next level
-          </p>
-        </div> */}
-
         <ContributionsSection />
 
-        {/* Reviews section */}
         <div className="mt-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            My Reviews ({(reviewsData?.data || []).length})
+            My Reviews {isLoading ? "" : `(${reviews.length})`}
           </h2>
 
-          {/* Reviews list */}
-          <div className="space-y-6">
-            {(reviewsData?.data || []).slice(0, displayedReviews).map((review: any) => (
-              <ReviewCard key={review._id} review={review} />
-            ))}
-          </div>
-
-          {/* Load more button */}
-          {(reviewsData?.data || []).length > displayedReviews && (
-            <div className="flex justify-center mt-12">
-              <Button
-                onClick={handleLoadMore}
-                variant="outline"
-                className="border-2 border-yellow-400 text-gray-900 hover:bg-yellow-50 font-semibold px-8 py-6 rounded-xl text-base"
-              >
-                Load More Contributions
-              </Button>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+              <p className="text-sm text-gray-500">Loading reviews...</p>
             </div>
+          ) : reviews.length === 0 ? (
+            <div className="py-16 text-center text-gray-500 text-sm">
+              No reviews yet. Explore places and share your experience!
+            </div>
+          ) : (
+            <>
+              <div className="space-y-6">
+                {reviews.slice(0, displayedReviews).map((review: any) => (
+                  <ReviewCard key={review._id} review={review} />
+                ))}
+              </div>
+
+              {reviews.length > displayedReviews && (
+                <div className="flex justify-center mt-12">
+                  <Button
+                    onClick={handleLoadMore}
+                    variant="outline"
+                    className="border-2 border-yellow-400 text-gray-900 hover:bg-yellow-50 font-semibold px-8 py-6 rounded-xl text-base"
+                  >
+                    Load More Contributions
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

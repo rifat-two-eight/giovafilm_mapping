@@ -27,8 +27,9 @@ const BillingHistory = () => {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="flex items-center justify-center p-6 text-gray-500">
-            Loading billing history...
+          <div className="flex flex-col items-center justify-center gap-3 p-6">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+            <p className="text-sm text-gray-500">Loading billing history...</p>
           </div>
         ) : subs.length > 0 ? (
           <div className="rounded-md border">

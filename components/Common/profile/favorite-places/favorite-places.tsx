@@ -114,8 +114,9 @@ export default function FavoritePlaces() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="text-center py-16 text-gray-400 text-sm">
-          Loading favourites...
+        <div className="flex flex-col items-center justify-center gap-3 py-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+          <p className="text-sm text-gray-500">Loading favourites...</p>
         </div>
       )}
 

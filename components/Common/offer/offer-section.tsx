@@ -109,6 +109,18 @@ export default function OfferSection() {
         </div>
 
         {/* Offer Grid */}
+        {filteredOffers.length === 0 ? (
+          <div className="py-20 text-center bg-white rounded-xl border border-dashed border-gray-300">
+            <p className="text-xl font-semibold text-gray-400">
+              No offers available
+            </p>
+            <p className="mt-2 text-sm text-gray-500">
+              {searchTerm
+                ? "Try a different search term."
+                : "Check back later for new deals."}
+            </p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
             const favourited = isOfferFavourited(offer._id);
@@ -218,6 +230,7 @@ export default function OfferSection() {
             );
           })}
         </div>
+        )}
       </div>
     </section>
   );

@@ -42,7 +42,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
       {/* Header with View All Link */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
-          My Reviews ({reviews?.length})
+          My Reviews ({reviews?.length || 0})
         </h2>
         <Link
           href="/profile/contributions-reviews"
@@ -53,6 +53,11 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
       </div>
 
       {/* Reviews List */}
+      {!reviews?.length ? (
+        <div className="py-16 text-center text-gray-500 text-sm bg-white rounded-2xl border border-gray-200">
+          No reviews yet. Explore places and share your experience!
+        </div>
+      ) : (
       <div className="space-y-5">
         {reviews?.map((review) => (
           <div
@@ -160,6 +165,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
           </div>
         ))}
       </div>
+      )}
 
       <ReviewModal
         isOpen={isModalOpen}

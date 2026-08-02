@@ -110,7 +110,9 @@ export default function Header() {
     { skip: debouncedSearch.trim().length === 0 },
   );
   const places = placesRes?.data || [];
-
+  const isSearchPending =
+    searchTerm.trim().length > 0 &&
+    (searchTerm !== debouncedSearch || isFetching);
   const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
 
   const { data: user } = useGetProfileQuery({});
@@ -192,8 +194,9 @@ export default function Header() {
               {/* Search Results Dropdown */}
               {searchTerm && (
                 <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                  {isFetching ? (
-                    <div className="p-4 text-center text-sm text-gray-500">
+                  {isSearchPending ? (
+                    <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
                       Searching...
                     </div>
                   ) : places.length > 0 ? (
@@ -518,8 +521,9 @@ export default function Header() {
               {/* Search Results Dropdown Mobile */}
               {searchTerm && (
                 <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                  {isFetching ? (
-                    <div className="p-4 text-center text-sm text-gray-500">
+                  {isSearchPending ? (
+                    <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
                       Searching...
                     </div>
                   ) : places.length > 0 ? (

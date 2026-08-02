@@ -67,13 +67,15 @@ export default function ExplorePlaces() {
     }
   };
 
-  const { data: mapsResponse } = useGetMapsQuery({ limit: 100 });
+  const { data: mapsResponse, isLoading: isLoadingMaps } = useGetMapsQuery({
+    limit: 100,
+  });
   const selectedMapObj = mapsResponse?.data?.find(
     (m: any) => m.name === selectedCountry
   );
   const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
 
-  const { data: response, isLoading } = useGetPlacesQuery({
+  const { data: response, isLoading, isFetching } = useGetPlacesQuery({
     page,
     limit,
     searchTerm,
@@ -83,6 +85,11 @@ export default function ExplorePlaces() {
 
   const places = response?.data || [];
   const meta = response?.meta;
+  const isPlacesLoading =
+    isLoading ||
+    isFetching ||
+    isLoadingMaps ||
+    (!!selectedCountry && !mapIdFilter);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -210,7 +217,7 @@ export default function ExplorePlaces() {
 
         {/* Places Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {isLoading ? (
+          {isPlacesLoading ? (
             [1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}

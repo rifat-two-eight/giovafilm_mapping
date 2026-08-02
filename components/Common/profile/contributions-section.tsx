@@ -11,7 +11,7 @@ interface ContributionsSection {
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 
 export function ContributionsSection() {
-  const { data: user } = useGetProfileQuery({});
+  const { data: user, isLoading } = useGetProfileQuery({});
   
   const currentPoints = user?.points || 0;
   const currentLevel = user?.level || 0;
@@ -55,6 +55,16 @@ export function ContributionsSection() {
       </div>
 
       {/* Statistics Grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-gray-50 rounded-xl p-6 border border-gray-100 h-28 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {/* Total Points */}
         <div className="bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
@@ -80,6 +90,7 @@ export function ContributionsSection() {
           <p className="text-4xl font-bold text-yellow-500">Lv {currentLevel}</p>
         </div>
       </div>
+      )}
 
       {/* Progress Section */}
       <div className="space-y-3 pt-4 border-t border-gray-200">
