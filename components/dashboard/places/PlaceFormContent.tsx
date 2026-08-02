@@ -377,8 +377,8 @@ export const PlaceFormContent = ({
                 <Select
                   value={formData.type}
                   onValueChange={(val) => {
-                    // Reset category when switching type to avoid stale selection
-                    setFormData({ ...formData, type: val, category: "" });
+                    // Keep category — same list for Regular and Business
+                    setFormData({ ...formData, type: val });
                     if (errors.type) setErrors((prev) => ({ ...prev, type: "" }));
                   }}
                 >

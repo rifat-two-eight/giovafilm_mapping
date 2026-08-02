@@ -47,7 +47,8 @@ export function MapFilters({
   isLoggedIn = true,
   isLoading = false,
 }: MapFiltersProps) {
-  const hasCategories = fetchedCategories.length > 0;
+  const hasCategories = !isLoading && fetchedCategories.length > 0;
+  const showEmpty = !isLoading && fetchedCategories.length === 0;
   const mapLabel = selectedCountry || "this map";
 
   return (
@@ -73,14 +74,17 @@ export function MapFilters({
               className="pb-0 border-t border-gray-100"
               style={{
                 overflowY: "auto",
-                height: hasCategories && !isLoading ? "80vh" : "auto",
+                height: hasCategories ? "80vh" : "auto",
               }}
             >
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center gap-3 px-5 py-10">
+                <div className="flex flex-col items-center justify-center gap-3 px-5 py-12 min-h-[180px]">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
                   <p className="text-sm font-medium text-gray-600">
-                    Loading categories...
+                    Loading locations...
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Please wait while we load map data
                   </p>
                 </div>
               ) : hasCategories ? (
@@ -169,8 +173,8 @@ export function MapFilters({
                     })}
                   </Accordion>
                 </div>
-              ) : (
-                <div className="px-5 py-8 text-center">
+              ) : showEmpty ? (
+                <div className="px-5 py-8 text-center min-h-[140px] flex flex-col items-center justify-center">
                   <p className="text-sm font-semibold text-gray-800">
                     No locations available
                   </p>
@@ -180,7 +184,7 @@ export function MapFilters({
                       : `No business locations are available for ${mapLabel} right now. Sign in to explore more maps, or try another map.`}
                   </p>
                 </div>
-              )}
+              ) : null}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

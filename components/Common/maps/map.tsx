@@ -5,9 +5,10 @@ import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
 import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
-import { useGetAvailableCountriesQuery, useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useAppSelector } from "@/redux/hook";
 import {
   AdvancedMarker,
   APIProvider,
@@ -102,8 +103,15 @@ export default function MapPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const { data: userProfile, isLoading: isLoadingUser } = useGetProfileQuery({});
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const {
+    data: userProfile,
+    isLoading: isLoadingUser,
+    isFetching: isFetchingUser,
+  } = useGetProfileQuery({}, { skip: !accessToken });
   const isLoggedIn = !!userProfile;
+  // Guests skip profile; logged-in users wait until profile request finishes
+  const isUserResolved = !accessToken || (!isLoadingUser && !isFetchingUser) || !!userProfile;
 
   const geocodingLib = useMapsLibrary("geocoding");
 
@@ -111,22 +119,57 @@ export default function MapPage() {
     setEnabledCategories((prev) => ({ ...prev, [String(id)]: value }));
   };
 
-  const { data: mapsResponse, isLoading: isLoadingMaps } = useGetMapsQuery({
+  const {
+    data: mapsResponse,
+    isLoading: isLoadingMaps,
+    isFetching: isFetchingMaps,
+    isSuccess: isMapsSuccess,
+  } = useGetMapsQuery({
     limit: 100,
   });
   const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
 
   const selectedMapObj = mapsResponse?.data?.find((m: any) => m.name === selectedCountry);
-  const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
+  const mapIdFilter = selectedMapObj ? String(selectedMapObj._id) : "";
+  const canFetchPlaces = Boolean(mapIdFilter);
 
   const {
     data: placesRes,
     isLoading: isLoadingPlaces,
     isFetching: isFetchingPlaces,
-  } = useGetPublicPlacesBusinessQuery({
-    limit: 1000,
-    map: !selectedCountry ? "" : mapIdFilter,
-  });
+    isSuccess: isPlacesSuccess,
+    isError: isPlacesError,
+  } = useGetPublicPlacesBusinessQuery(
+    {
+      limit: 1000,
+      map: mapIdFilter,
+    },
+    { skip: !canFetchPlaces },
+  );
+
+  // Only treat discovery as settled for the *current* map after its fetch completes.
+  // Cleared immediately when mapId changes so empty-state cannot flash mid-switch.
+  const [settledMapId, setSettledMapId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSettledMapId(null);
+  }, [mapIdFilter]);
+
+  useEffect(() => {
+    if (!mapIdFilter) return;
+    if ((isPlacesSuccess || isPlacesError) && !isFetchingPlaces && !isLoadingPlaces) {
+      setSettledMapId(mapIdFilter);
+    }
+  }, [
+    mapIdFilter,
+    isPlacesSuccess,
+    isPlacesError,
+    isFetchingPlaces,
+    isLoadingPlaces,
+  ]);
+
+  const isPlacesSettledForMap =
+    !!mapIdFilter && settledMapId === mapIdFilter;
 
   const fetchedPlaces = Array.isArray(placesRes?.data)
     ? placesRes.data
@@ -137,31 +180,49 @@ export default function MapPage() {
   const {
     data: categoriesRes,
     isLoading: isLoadingCategories,
+    isSuccess: isCategoriesSuccess,
+    isError: isCategoriesError,
   } = useGetCategoriesQuery({ limit: 100 });
-  let fetchedCategories = Array.isArray(categoriesRes?.data)
+
+  const rawCategories = Array.isArray(categoriesRes?.data)
     ? categoriesRes.data
     : Array.isArray(categoriesRes)
       ? categoriesRes
       : [];
 
-  // Avoid infinite loading if country name doesn't match a map.
-  // Avoid full-panel flash on background refetch when data already exists.
-  const isCategoriesLoading =
-    isLoadingUser ||
-    isLoadingMaps ||
-    isLoadingCategories ||
-    isLoadingPlaces ||
-    (isFetchingPlaces && !placesRes) ||
-    (!!selectedCountry &&
-      !mapIdFilter &&
-      (isLoadingMaps || availableCountries.includes(selectedCountry)));
+  const isCategoriesSettled =
+    (isCategoriesSuccess || isCategoriesError) && !isLoadingCategories;
+
+  const isMapsSettled =
+    (isMapsSuccess || (!isLoadingMaps && !isFetchingMaps)) && !isLoadingMaps;
+
+  // Selected map name exists in list but id not resolved yet, OR still picking a map
+  const mapMissingAfterMapsLoaded =
+    isMapsSettled &&
+    !!selectedCountry &&
+    availableCountries.length > 0 &&
+    !availableCountries.includes(selectedCountry);
+
+  // Strict gate: spinner until EVERY dependency for the sidebar is ready.
+  // Empty state is ONLY allowed after this is false.
+  const isSidebarLoading =
+    !hasMounted ||
+    !isUserResolved ||
+    !isMapsSettled ||
+    !isCategoriesSettled ||
+    !selectedCountry ||
+    (!mapIdFilter && !mapMissingAfterMapsLoaded) ||
+    (canFetchPlaces &&
+      (!isPlacesSettledForMap ||
+        isLoadingPlaces ||
+        (isFetchingPlaces && settledMapId !== mapIdFilter)));
 
   // Identify categories that are inherently "business"
   const inherentlyBusinessCatIds = new Set(
-    fetchedCategories
+    rawCategories
       // Backend Category has no `type` field — detect by name only
       .filter((cat: any) => cat.name?.toLowerCase().includes("business"))
-      .map((cat: any) => String(cat._id))
+      .map((cat: any) => String(cat._id)),
   );
 
   // Discovery overwrites Place.type with "place"; original Business|Regular lives in placeType.
@@ -199,31 +260,38 @@ export default function MapPage() {
     return placeCountry.toLowerCase() === selectedCountry.toLowerCase();
   };
 
-  // If user is not logged in, filter categories to only those that are business categories
-  // OR have at least one business-type location.
-  if (!isLoggedIn && !isLoadingUser) {
-    const businessPlaceCatIds = new Set(
-      fetchedPlaces.filter(isBusinessLocation).map(getCategoryId).filter(Boolean),
+  let fetchedCategories: any[] = [];
+
+  // Never compute empty sidebar lists until loading is fully done for this map.
+  if (!isSidebarLoading && isPlacesSettledForMap) {
+    fetchedCategories = [...rawCategories];
+
+    if (!isLoggedIn) {
+      const businessPlaceCatIds = new Set(
+        fetchedPlaces
+          .filter(isBusinessLocation)
+          .map(getCategoryId)
+          .filter(Boolean),
+      );
+
+      fetchedCategories = fetchedCategories.filter(
+        (cat: any) =>
+          inherentlyBusinessCatIds.has(String(cat._id)) ||
+          businessPlaceCatIds.has(String(cat._id)),
+      );
+    }
+
+    const validPlacesForCurrentCountry =
+      fetchedPlaces?.filter(belongsToSelectedMap) || [];
+
+    const validCatIds = new Set(
+      validPlacesForCurrentCountry.map(getCategoryId).filter(Boolean),
     );
 
-    fetchedCategories = fetchedCategories.filter(
-      (cat: any) =>
-        inherentlyBusinessCatIds.has(String(cat._id)) ||
-        businessPlaceCatIds.has(String(cat._id)),
+    fetchedCategories = fetchedCategories.filter((cat: any) =>
+      validCatIds.has(String(cat._id)),
     );
   }
-
-  // Filter out categories that have no places/businesses for the current country/map
-  const validPlacesForCurrentCountry =
-    fetchedPlaces?.filter(belongsToSelectedMap) || [];
-
-  const validCatIds = new Set(
-    validPlacesForCurrentCountry.map(getCategoryId).filter(Boolean),
-  );
-
-  fetchedCategories = fetchedCategories.filter((cat: any) =>
-    validCatIds.has(String(cat._id)),
-  );
 
   // Detect country from markerPos (current location)
   useEffect(() => {
@@ -294,7 +362,7 @@ export default function MapPage() {
     if (!categoryId) return true;
 
     // Guest: only business-type locations OR inherently business categories
-    if (!isLoggedIn && !isLoadingUser) {
+    if (!isLoggedIn && isUserResolved) {
       if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
         return false;
       }
@@ -305,7 +373,7 @@ export default function MapPage() {
 
   // Guest sidebar: same visibility rules as map markers
   const sidebarPlaces =
-    !isLoggedIn && !isLoadingUser
+    !isLoggedIn && isUserResolved
       ? fetchedPlaces.filter((place: any) => {
           if (!belongsToSelectedMap(place)) return false;
           const categoryId = getCategoryId(place);
@@ -426,7 +494,7 @@ export default function MapPage() {
                   setIsManualSelection={setIsManualSelection}
                   availableCountries={availableCountries}
                   isLoggedIn={isLoggedIn}
-                  isLoading={isCategoriesLoading}
+                  isLoading={isSidebarLoading}
                 />
               </div>
             </MapControl>
