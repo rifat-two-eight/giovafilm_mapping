@@ -159,7 +159,8 @@ export default function MapPage() {
   // Identify categories that are inherently "business"
   const inherentlyBusinessCatIds = new Set(
     fetchedCategories
-      .filter((cat: any) => cat.type === "business" || cat.name?.toLowerCase().includes("business"))
+      // Backend Category has no `type` field — detect by name only
+      .filter((cat: any) => cat.name?.toLowerCase().includes("business"))
       .map((cat: any) => String(cat._id))
   );
 

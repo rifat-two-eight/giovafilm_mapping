@@ -19,7 +19,8 @@ import { Textarea } from "@/components/ui/textarea";
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  placeId: string | undefined;
+  placeId?: string;
+  businessId?: string;
   initialData?: {
     _id: string;
     rating: number;
@@ -31,6 +32,7 @@ export function ReviewModal({
   isOpen,
   onClose,
   placeId,
+  businessId,
   initialData,
 }: ReviewModalProps) {
   const [rating, setRating] = useState(0);
@@ -53,8 +55,8 @@ export function ReviewModal({
   }, [initialData, isOpen]);
 
   const handleSubmit = async () => {
-    if (!placeId) {
-      toast.error("Place ID is missing");
+    if (!placeId && !businessId) {
+      toast.error("Location ID is missing");
       return;
     }
     if (rating === 0) {
@@ -75,7 +77,7 @@ export function ReviewModal({
         }).unwrap();
       } else {
         res = await createReview({
-          placeId,
+          ...(placeId ? { placeId } : { businessId }),
           rating,
           review,
         }).unwrap();

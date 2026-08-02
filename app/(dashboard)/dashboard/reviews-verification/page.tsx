@@ -67,7 +67,9 @@ export default function ReviewsVerificationPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-xl font-semibold mb-1 line-clamp-1">
-                      Place: {review.placeId?.name || "Unknown Place"}
+                      {review.businessId
+                        ? `Business: ${review.businessId?.name || "Unknown Business"}`
+                        : `Place: ${review.placeId?.name || "Unknown Place"}`}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       By: <span className="font-medium text-foreground">{review.reviewer?.name || "Anonymous"}</span>

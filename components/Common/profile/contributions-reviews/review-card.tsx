@@ -12,20 +12,28 @@ import Link from "next/link";
 export function ReviewCard({ review }: any) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ Rating logic
   const rating = review?.rating || 0;
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
 
+  const isBusinessReview = !!review?.businessId;
+  const target = isBusinessReview ? review.businessId : review.placeId;
+  const targetName = target?.name || "Unknown";
+  const coverImage = isBusinessReview
+    ? target?.media?.photos?.[0]
+    : target?.media?.[0];
+  const detailsHref = isBusinessReview
+    ? `/maps/${target?._id}?type=business`
+    : `/maps/${target?._id}`;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 flex flex-col md:flex-row md:gap-6 hover:shadow-sm transition-shadow duration-200 overflow-hidden">
-      {/* Map image container */}
-      {review?.placeId?.media?.length > 0 ? (
+      {coverImage ? (
         <div className="shrink-0">
           <div className="w-full md:w-80 h-56 md:h-full xl:h-56 relative overflow-hidden">
             <Image
-              src={getImageUrl(review?.placeId?.media[0])}
-              alt={review?.placeId?.name}
+              src={getImageUrl(coverImage)}
+              alt={targetName}
               width={100}
               height={100}
               unoptimized
@@ -39,15 +47,10 @@ export function ReviewCard({ review }: any) {
         </div>
       )}
 
-      {/* Review content */}
       <div className="flex-1 flex items-start flex-col justify-center font-public-sans p-6 lg:pr-36">
-        {/* Title and rating */}
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            {review?.placeId?.name}
-          </h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{targetName}</h3>
 
-          {/* Star rating */}
           <div className="flex items-center gap-3 mb-3">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
@@ -77,23 +80,23 @@ export function ReviewCard({ review }: any) {
               Reviewed on {formatDate(review?.createdAt)}
             </span>
             {review?.status && (
-              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${
-                review.status === 'Approved'
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : review.status === 'Rejected'
-                  ? 'bg-red-50 text-red-700 border border-red-200'
-                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-              }`}>
+              <span
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+                  review.status === "Approved"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : review.status === "Rejected"
+                      ? "bg-red-50 text-red-700 border border-red-200"
+                      : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                }`}
+              >
                 {review.status}
               </span>
             )}
           </div>
         </div>
 
-        {/* Description */}
         <p className="text-gray-700 mb-4">{review?.review}</p>
 
-        {/* Buttons */}
         <div className="flex gap-3">
           <Button
             onClick={() => setIsModalOpen(true)}
@@ -101,7 +104,7 @@ export function ReviewCard({ review }: any) {
           >
             ✎ Edit Review
           </Button>
-          <Link href={`/maps/${review?.placeId?._id}`}>
+          <Link href={detailsHref}>
             <Button
               variant="outline"
               className="border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-50 font-semibold px-6 rounded-lg"
@@ -115,7 +118,8 @@ export function ReviewCard({ review }: any) {
       <ReviewModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        placeId={review?.placeId?._id}
+        placeId={isBusinessReview ? undefined : target?._id}
+        businessId={isBusinessReview ? target?._id : undefined}
         initialData={{
           _id: review?._id,
           rating: review?.rating,

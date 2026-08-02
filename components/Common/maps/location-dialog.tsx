@@ -1,8 +1,6 @@
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
-import { TPlace } from "@/lib/types/place/place";
-
 import { getImageUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
@@ -33,8 +31,17 @@ export default function LocationDialog({ id, onClose }: Props) {
   );
 
   const isLoading = isBusinessLoading || isPlaceLoading;
-  const location: TPlace =
+  const location: any =
     type === "business" ? businessRes?.data : placeRes?.data;
+
+  // Place: media[]; Business: media.photos[]
+  const coverImage =
+    type === "business"
+      ? location?.media?.photos?.[0]
+      : Array.isArray(location?.media)
+        ? location.media[0]
+        : undefined;
+  const locationId = location?._id || location?.id || placeId;
 
   const isLocked = (placeError as any)?.status === 403;
 
@@ -130,10 +137,9 @@ export default function LocationDialog({ id, onClose }: Props) {
 
         {/* Image */}
         <div className="h-48 overflow-hidden">
-          {location?.media?.length > 0 &&
-          typeof location.media[0] === "string" ? (
+          {coverImage && typeof coverImage === "string" ? (
             <Image
-              src={getImageUrl(location?.media[0])}
+              src={getImageUrl(coverImage)}
               alt={location?.name}
               unoptimized
               width={500}
@@ -152,11 +158,12 @@ export default function LocationDialog({ id, onClose }: Props) {
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center text-sm font-bold">
               <Star size={14} className="fill-black mr-1" />
-              {location?.rating}
+              {location?.rating ?? "—"}
             </div>
 
             <span className="text-gray-400 text-sm">
-              ({location?.totalReview} reviews) {location?.map?.name}
+              ({location?.totalReview ?? 0} reviews){" "}
+              {location?.map?.name || location?.location?.country || ""}
             </span>
           </div>
 
@@ -169,11 +176,13 @@ export default function LocationDialog({ id, onClose }: Props) {
               </Button>
             </Link>
 
-            <FavouriteButton
-              placeId={location?.id}
-              type="Place"
-              Style="w-12 h-12 rounded-xl"
-            />
+            {locationId && (
+              <FavouriteButton
+                placeId={locationId}
+                type={type === "business" ? "Business" : "Place"}
+                Style="w-12 h-12 rounded-xl"
+              />
+            )}
           </div>
         </div>
       </div>

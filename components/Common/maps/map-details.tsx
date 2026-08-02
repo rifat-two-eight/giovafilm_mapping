@@ -46,37 +46,81 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
+import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
-import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
+import {
+  useGetReviewsByBusinessQuery,
+  useGetReviewsByPlaceQuery,
+} from "@/redux/features/review/reviewApi";
 import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
 
 export default function MapDetails() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const id = params?.id as string;
+  const entityType = (searchParams.get("type") || "place").toLowerCase();
+  const isBusinessEntity = entityType === "business";
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  const { data: placeRes, isLoading, error } = useGetPlaceDetailsQuery(id, {
-    skip: !id,
+  const {
+    data: placeRes,
+    isLoading: isPlaceLoading,
+    error: placeError,
+  } = useGetPlaceDetailsQuery(id, {
+    skip: !id || isBusinessEntity,
   });
-  const { data: reviews, isLoading: isReviewsLoading } =
-    useGetReviewsByPlaceQuery(id, {
-      skip: !id,
-    });
+  const {
+    data: businessRes,
+    isLoading: isBusinessLoading,
+    error: businessError,
+  } = useGetSingleBusinessQuery(id, {
+    skip: !id || !isBusinessEntity,
+  });
 
-  const placeData = placeRes?.data;
+  const isLoading = isBusinessEntity ? isBusinessLoading : isPlaceLoading;
+  const error = isBusinessEntity ? businessError : placeError;
+
+  const rawData = isBusinessEntity ? businessRes?.data : placeRes?.data;
+
+  // Normalize Place vs Business schemas for the shared details UI
+  const placeData = useMemo(() => {
+    if (!rawData) return null;
+    if (!isBusinessEntity) return rawData;
+
+    return {
+      ...rawData,
+      type: "Business",
+      media: rawData.media?.photos || [],
+      address: rawData.location?.address || "",
+      phone: rawData.contact?.phone || rawData.phone,
+      website: rawData.contact?.website || rawData.website,
+      instagram: rawData.contact?.instagram || rawData.instagram,
+      location: {
+        type: "Point",
+        coordinates: rawData.location?.mapLocation?.coordinates || [],
+      },
+      map: { name: rawData.location?.country },
+      schedules:
+        rawData.hours?.schedule
+          ?.map(
+            (s: any) =>
+              `${s.days}: ${s.openTime || ""} - ${s.closeTime || ""}`,
+          )
+          .join(", ") || "",
+    };
+  }, [rawData, isBusinessEntity]);
+
   const coordinates = placeData?.location?.coordinates;
-
-  console.log("placeData", placeData?._id);
 
   const lat = coordinates?.[1];
   const lng = coordinates?.[0];
@@ -86,9 +130,26 @@ export default function MapDetails() {
       skip: !placeData?._id,
     });
 
-  const offerId = offersRes?.data?._id;
+  // Backend returns a single offer object (findOne), not always an array
+  const offersList = Array.isArray(offersRes?.data)
+    ? offersRes.data
+    : offersRes?.data
+      ? [offersRes.data]
+      : [];
+  const offerId = offersList[0]?._id;
 
-  console.log("offersRes", offerId);
+  const { data: placeReviews, isLoading: isPlaceReviewsLoading } =
+    useGetReviewsByPlaceQuery(id, {
+      skip: !id || isBusinessEntity,
+    });
+  const { data: businessReviews, isLoading: isBusinessReviewsLoading } =
+    useGetReviewsByBusinessQuery(id, {
+      skip: !id || !isBusinessEntity,
+    });
+  const reviews = isBusinessEntity ? businessReviews : placeReviews;
+  const isReviewsLoading = isBusinessEntity
+    ? isBusinessReviewsLoading
+    : isPlaceReviewsLoading;
 
   const infoData = [
     {
@@ -347,7 +408,7 @@ export default function MapDetails() {
 
             <FavouriteButton
               placeId={id}
-              type="Place"
+              type={isBusinessEntity ? "Business" : "Place"}
               Style="absolute top-5 left-5 w-12 h-12 border-none bg-white/40 backdrop-blur p-4 rounded-lg"
             />
 
@@ -447,7 +508,6 @@ export default function MapDetails() {
                   )}
                 </div>
 
-                {/* write review button for business */}
                 <Button
                   onClick={() => setIsReviewOpen(true)}
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-base rounded-xl transition-all"
@@ -583,7 +643,7 @@ export default function MapDetails() {
             )}
 
             {/* OFFERS & DISCOUNTS */}
-            {offersRes?.data && offersRes.data.length > 0 && (
+            {offersList.length > 0 && (
               <AccordionItem
                 value="offers"
                 className="border rounded-xl bg-white"
@@ -591,13 +651,13 @@ export default function MapDetails() {
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline text-blue-600">
                   <div className="flex items-center gap-2">
                     <Ticket size={20} />
-                    OFFERS & DISCOUNTS ({offersRes.data.length})
+                    OFFERS & DISCOUNTS ({offersList.length})
                   </div>
                 </AccordionTrigger>
 
                 <AccordionContent className="px-6 pb-6 space-y-4">
                   <div className="grid gap-4">
-                    {offersRes.data.map((offer: any) => (
+                    {offersList.map((offer: any) => (
                       <div
                         key={offer._id}
                         className="p-4 border border-blue-100 bg-blue-50/30 rounded-xl relative overflow-hidden group hover:bg-blue-50 transition-colors"
@@ -795,7 +855,8 @@ export default function MapDetails() {
       <ReviewModal
         isOpen={isReviewOpen}
         onClose={() => setIsReviewOpen(false)}
-        placeId={placeData?._id}
+        placeId={isBusinessEntity ? undefined : placeData?._id}
+        businessId={isBusinessEntity ? placeData?._id : undefined}
       />
 
       {/* Media Modal */}

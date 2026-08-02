@@ -14,7 +14,7 @@ import { getApiErrorMessage } from "@/lib/utils";
 
 type Props = {
   placeId: string;
-  type: "Map" | "Place" | "Offer";
+  type: "Map" | "Place" | "Offer" | "Business";
   Style?: string;
 };
 
@@ -24,10 +24,20 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
   const { data: favouritesData } = useGetFavouritesQuery();
   const favouritesList: TFavouriteItem[] = favouritesData?.data || [];
 
-  const key = type === "Map" ? "map" : type === "Place" ? "place" : "offer";
+  const key =
+    type === "Map"
+      ? "map"
+      : type === "Place"
+        ? "place"
+        : type === "Offer"
+          ? "offer"
+          : "business";
   const isFavourite = favouritesList.some((fav: TFavouriteItem) => {
     if (fav.type !== type) return false;
-    const id = typeof fav[key] === "string" ? fav[key] : (fav[key] as { _id: string })?._id;
+    const id =
+      typeof fav[key] === "string"
+        ? fav[key]
+        : (fav[key] as { _id: string })?._id;
     return id === placeId;
   });
 
@@ -44,23 +54,24 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
       toast.error("Login Required", {
         description: "You must be logged in to add items to favorites.",
       });
-      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      router.push(
+        `/login?redirect=${encodeURIComponent(window.location.pathname)}`,
+      );
       return;
     }
 
     try {
-      // POST /favourite acts as a toggle on the backend
       const payload: TAddFavouritePayload =
         type === "Map"
           ? { type, map: placeId }
           : type === "Place"
             ? { type, place: placeId }
-            : { type, offer: placeId };
+            : type === "Offer"
+              ? { type, offer: placeId }
+              : { type, business: placeId };
 
       await addToFavourite(payload).unwrap();
 
-      // invalidatesTags: ["Favourite"] auto-refetches useGetFavouritesQuery
-      // → isFavourite recomputes → heart icon updates without any local state
       toast.success(
         isFavourite ? "Removed from favourites" : "Added to favourites",
       );
@@ -89,4 +100,3 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
     </Button>
   );
 }
-

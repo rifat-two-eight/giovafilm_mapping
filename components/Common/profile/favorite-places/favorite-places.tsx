@@ -7,7 +7,14 @@ import {
   useAddToFavouriteMutation,
   useGetFavouritesQuery,
 } from "@/redux/features/favourite/favouriteApi";
-import { ChevronLeft, ChevronRight, Map, MapPin, Search } from "lucide-react";
+import {
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  Map,
+  MapPin,
+  Search,
+} from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -17,6 +24,7 @@ const PAGE_SIZE = 9;
 const TYPE_FILTERS = [
   { label: "All", value: "all" },
   { label: "Places", value: "Place", icon: MapPin },
+  { label: "Businesses", value: "Business", icon: Building2 },
   { label: "Maps", value: "Map", icon: Map },
 ];
 
@@ -42,7 +50,13 @@ export default function FavoritePlaces() {
   // Remove from favourite (POST acts as toggle on the backend)
   const handleRemove = async (fav: any) => {
     const key =
-      fav.type === "Map" ? "map" : fav.type === "Offer" ? "offer" : "place";
+      fav.type === "Map"
+        ? "map"
+        : fav.type === "Offer"
+          ? "offer"
+          : fav.type === "Business"
+            ? "business"
+            : "place";
     const refId = typeof fav[key] === "string" ? fav[key] : fav[key]?._id;
     if (!refId) return;
     try {
@@ -60,9 +74,18 @@ export default function FavoritePlaces() {
     return allFavourites.filter((fav) => {
       const matchesType = activeType === "all" || fav.type === activeType;
 
-      const name = fav.map?.name || fav.place?.name || fav.name || "";
+      const name =
+        fav.map?.name ||
+        fav.place?.name ||
+        fav.business?.name ||
+        fav.name ||
+        "";
       const description =
-        fav.map?.description || fav.place?.description || fav.description || "";
+        fav.map?.description ||
+        fav.place?.description ||
+        fav.business?.description ||
+        fav.description ||
+        "";
       const matchesSearch =
         search.trim() === "" ||
         name.toLowerCase().includes(search.toLowerCase()) ||
@@ -132,25 +155,41 @@ export default function FavoritePlaces() {
         {paginated.map((fav: any) => {
           // Resolve name and description from nested object
           const name =
-            fav.map?.name || fav.place?.name || fav.name || "Untitled";
+            fav.map?.name ||
+            fav.place?.name ||
+            fav.business?.name ||
+            fav.name ||
+            "Untitled";
           const description =
             fav.map?.description ||
             fav.place?.description ||
+            fav.business?.description ||
             fav.description ||
             "No description available.";
 
-          // Resolve image — map uses images[], place uses media[]
+          // Resolve image — map: images[], place: media[], business: media.photos[]
           const rawImage = fav.map
             ? fav.map?.images?.[0]
-            : fav.place?.media?.[0];
+            : fav.business
+              ? fav.business?.media?.photos?.[0]
+              : fav.place?.media?.[0];
           const imageSrc = rawImage ? getImageUrl(rawImage) : null;
+
+          const href =
+            fav.type === "Map"
+              ? `/catalog/${fav.map?._id || fav.map}`
+              : fav.type === "Business"
+                ? `/maps/${fav.business?._id || fav.business}?type=business`
+                : fav.type === "Place"
+                  ? `/maps/${fav.place?._id || fav.place}`
+                  : fav.href || "#";
 
           return (
             <div
               key={fav._id}
               className="bg-white rounded-xl overflow-hidden border hover:shadow-md transition flex flex-col"
             >
-              <Link href={fav.href || "#"} className="block shrink-0">
+              <Link href={href} className="block shrink-0">
                 <div className="w-full h-48 overflow-hidden bg-gray-100 relative">
                   {imageSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element

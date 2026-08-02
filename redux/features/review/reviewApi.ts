@@ -8,7 +8,7 @@ const reviewApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Place", "Review", "User", "Award"],
+      invalidatesTags: ["Place", "Business", "Review", "User", "Award"],
     }),
     getMyReviews: builder.query({
       query: () => "/review/my-reviews",
@@ -21,10 +21,15 @@ const reviewApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["Review", "Place", "User", "Award"],
+      invalidatesTags: ["Review", "Place", "Business", "User", "Award"],
     }),
     getReviewsByPlace: builder.query({
       query: (placeId: string) => `/review/${placeId}/place`,
+      providesTags: ["Review"],
+      transformResponse: (response: any) => response.data,
+    }),
+    getReviewsByBusiness: builder.query({
+      query: (businessId: string) => `/review/${businessId}/business`,
       providesTags: ["Review"],
       transformResponse: (response: any) => response.data,
     }),
@@ -38,14 +43,14 @@ const reviewApi = baseApi.injectEndpoints({
         url: `/review/approve/${id}`,
         method: "PATCH",
       }),
-      invalidatesTags: ["Review", "Place", "User", "Award"],
+      invalidatesTags: ["Review", "Place", "Business", "User", "Award"],
     }),
     rejectReview: builder.mutation({
       query: (id: string) => ({
         url: `/review/reject/${id}`,
         method: "PATCH",
       }),
-      invalidatesTags: ["Review", "Place", "User", "Award"],
+      invalidatesTags: ["Review", "Place", "Business", "User", "Award"],
     }),
   }),
 });
@@ -55,6 +60,7 @@ export const {
   useGetMyReviewsQuery,
   useUpdateReviewMutation,
   useGetReviewsByPlaceQuery,
+  useGetReviewsByBusinessQuery,
   useGetPendingReviewsQuery,
   useApproveReviewMutation,
   useRejectReviewMutation,

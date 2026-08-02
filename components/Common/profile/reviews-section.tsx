@@ -11,11 +11,16 @@ import { ReviewModal } from "../maps/review-modal";
 
 interface Review {
   _id: string;
-  placeId: {
+  placeId?: {
     _id: string;
     name: string;
     address?: string;
     media?: string[];
+  };
+  businessId?: {
+    _id: string;
+    name: string;
+    media?: { photos?: string[] };
   };
   rating: number;
   createdAt: string;
@@ -59,17 +64,28 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
         </div>
       ) : (
       <div className="space-y-5">
-        {reviews?.map((review) => (
+        {reviews?.map((review) => {
+          const isBusinessReview = !!review.businessId;
+          const target = isBusinessReview ? review.businessId : review.placeId;
+          const targetName = target?.name || "Unknown";
+          const coverImage = isBusinessReview
+            ? review.businessId?.media?.photos?.[0]
+            : review.placeId?.media?.[0];
+          const detailsHref = isBusinessReview
+            ? `/maps/${target?._id}?type=business`
+            : `/maps/${target?._id}`;
+
+          return (
           <div
             key={review._id}
             className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col md:flex-row"
           >
             {/* Image Section */}
             <div className="relative w-full md:w-56 h-56 shrink-0">
-              {review?.placeId?.media?.length ? (
+              {coverImage ? (
                 <Image
-                  src={getImageUrl(review?.placeId?.media?.[0])}
-                  alt={review.placeId?.name || "Place"}
+                  src={getImageUrl(coverImage)}
+                  alt={targetName}
                   unoptimized
                   width={500}
                   height={500}
@@ -83,7 +99,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
 
               {/* Location Badge */}
               <div className="absolute bottom-3 left-1 bg-white px-2 py-1 rounded-md text-xs font-semibold text-gray-900 shadow-md flex items-center gap-1">
-                <MapPin size={14} /> {review.placeId?.name || "Unknown"}
+                <MapPin size={14} /> {targetName}
               </div>
             </div>
 
@@ -93,7 +109,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-bold text-gray-900">
-                    {review.placeId?.name}
+                    {targetName}
                   </h3>
                   {/* Star Rating */}
                   <div className="flex gap-1">
@@ -152,7 +168,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 >
                   Edit Review
                 </Button>
-                <Link href={`/maps/${review.placeId?._id}`}>
+                <Link href={detailsHref}>
                   <Button
                     variant="outline"
                     className="text-gray-900 font-semibold text-sm rounded-lg px-6 border-gray-200"
@@ -163,7 +179,8 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       )}
 
@@ -171,6 +188,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         placeId={selectedReview?.placeId?._id}
+        businessId={selectedReview?.businessId?._id}
         initialData={
           selectedReview
             ? {
