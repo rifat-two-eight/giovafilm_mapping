@@ -13,7 +13,7 @@ export function normalizeIdList(ids: unknown[] | undefined | null): string[] {
   return Array.from(new Set(ids.map(normalizeId).filter(Boolean)));
 }
 
-type MapLike = { _id?: unknown; country?: string | null };
+type MapLike = { _id?: unknown; name?: string; country?: string | null };
 
 /**
  * Toggle a map assignment and keep assignedCountries in sync with
@@ -69,13 +69,15 @@ export function countriesFromSelectedMaps(
   return Array.from(set);
 }
 
+type EditorUser = {
+  role?: string;
+  assignedMaps?: unknown[];
+  assignedCountries?: string[];
+} | null | undefined;
+
 /** Whether a map_editor user can manage a given map / country */
 export function editorCanAccessMap(
-  user: {
-    role?: string;
-    assignedMaps?: unknown[];
-    assignedCountries?: string[];
-  } | null | undefined,
+  user: EditorUser,
   mapId?: unknown,
   country?: string | null,
 ): boolean {
@@ -85,5 +87,39 @@ export function editorCanAccessMap(
   const id = normalizeId(mapId);
   if (id && assigned.has(id)) return true;
   if (country && countries.includes(country)) return true;
+
+  // assignedMaps may be populated with { _id, name, country }
+  for (const raw of user.assignedMaps || []) {
+    if (!raw || typeof raw !== "object") continue;
+    const m = raw as { _id?: unknown; name?: string; country?: string };
+    if (id && normalizeId(m._id) === id) return true;
+    if (country && (m.name === country || m.country === country)) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Business.location.country may be a map name OR geographic country.
+ * Optional allMaps lets country-only assignments resolve map-name businesses.
+ */
+export function editorCanAccessBusiness(
+  user: EditorUser,
+  businessCountry?: string | null,
+  allMaps: MapLike[] = [],
+): boolean {
+  if (!user || user.role !== "map_editor") return true;
+  const country = (businessCountry || "").trim();
+  if (!country) return false;
+
+  if (editorCanAccessMap(user, null, country)) return true;
+
+  const match = allMaps.find(
+    (m) => m.name === country || m.country === country,
+  );
+  if (match) {
+    return editorCanAccessMap(user, match._id, match.country);
+  }
+
   return false;
 }

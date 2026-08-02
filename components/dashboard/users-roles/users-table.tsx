@@ -34,6 +34,19 @@ import {
   normalizeIdList,
   toggleMapAssignment,
 } from "@/lib/editor-access";
+import {
+  assignableRolesFor,
+  canDeleteUser,
+  canManageUserRole,
+  type AppRole,
+} from "@/lib/roles";
+
+const ROLE_LABELS: Record<AppRole, string> = {
+  user: "User",
+  map_editor: "Map Editor",
+  admin: "Admin",
+  super_admin: "Super Admin",
+};
 
 const userTableHeaders = [
   "Name",
@@ -124,9 +137,20 @@ export function UsersTable(): React.ReactElement {
     }
   };
 
+  const allowedRoles = assignableRolesFor(currentUser?.role);
+
   const handleRoleChange = async (userId: string, newRole: string) => {
     const userToUpdate = users.find((u: any) => u._id === userId);
-    
+
+    if (!canManageUserRole(currentUser?.role, userToUpdate?.role)) {
+      toast.error("You cannot change this user's role.");
+      return;
+    }
+    if (!allowedRoles.includes(newRole as AppRole)) {
+      toast.error("You are not allowed to assign this role.");
+      return;
+    }
+
     if (newRole === "map_editor") {
       setModalMode("change_role");
       setSelectedUser(userToUpdate);
@@ -331,7 +355,8 @@ export function UsersTable(): React.ReactElement {
                       {user.email}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentUser?._id === user._id ? (
+                      {currentUser?._id === user._id ||
+                      !canManageUserRole(currentUser?.role, user.role) ? (
                         <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200 inline-block text-[10px] font-bold uppercase tracking-wider">
                           {user.role}
                         </div>
@@ -347,10 +372,17 @@ export function UsersTable(): React.ReactElement {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="map_editor">Map Editor</SelectItem>
-                              <SelectItem value="super_admin">Super Admin</SelectItem>
+                              {allowedRoles.map((role) => (
+                                <SelectItem key={role} value={role}>
+                                  {ROLE_LABELS[role]}
+                                </SelectItem>
+                              ))}
+                              {/* Keep current role visible even if actor can't re-assign it */}
+                              {!allowedRoles.includes(user.role) && (
+                                <SelectItem value={user.role}>
+                                  {ROLE_LABELS[user.role as AppRole] || user.role}
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                           {user.role === "map_editor" && (
@@ -380,7 +412,8 @@ export function UsersTable(): React.ReactElement {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-3">
-                        {user.role === "map_editor" && (
+                        {user.role === "map_editor" &&
+                          canManageUserRole(currentUser?.role, user.role) && (
                           <button
                             onClick={() => handleEditAccess(user)}
                             className="text-blue-500 hover:text-blue-700 transition-colors p-2 hover:bg-blue-50 rounded"
@@ -390,8 +423,7 @@ export function UsersTable(): React.ReactElement {
                             <Map size={18} />
                           </button>
                         )}
-                        {user.role !== "admin" &&
-                          user.role !== "super_admin" &&
+                        {canDeleteUser(currentUser?.role, user.role) &&
                           currentUser?._id !== user._id && (
                             <button
                               onClick={() => handleDelete(user._id)}

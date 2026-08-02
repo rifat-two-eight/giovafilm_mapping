@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { DashboardRoleGuard } from "@/components/dashboard/dashboard-role-guard";
 import DashTopHeader from "@/components/dashboard/dash-top-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -11,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex-1">
           <DashTopHeader />
           <div className="min-h-0  p-8 overflow-auto bg-[#F5F6FA]">
-            {children}
+            <DashboardRoleGuard>{children}</DashboardRoleGuard>
           </div>
         </div>
       </div>

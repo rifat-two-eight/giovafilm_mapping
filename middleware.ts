@@ -4,15 +4,33 @@ import { NextResponse } from "next/server";
 // Define routes that require authentication
 const protectedRoutes = ["/dashboard", "/profile", "/for-business"];
 
-// Define routes that require admin or super admin roles
-const adminRoutes = ["/dashboard"];
+// Define routes that require dashboard roles
+const dashboardRoutes = ["/dashboard"];
+
+/** Admin-only dashboard sections (map_editor blocked) */
+const adminOnlyDashboardPrefixes = [
+  "/dashboard/users-roles",
+  "/dashboard/categories",
+  "/dashboard/business",
+  "/dashboard/rewards",
+  "/dashboard/reviews-verification",
+  "/dashboard/reports",
+  "/dashboard/settings",
+  "/dashboard/subscription",
+  "/dashboard/notification",
+];
+
+function isAdminOnlyDashboardPath(pathname: string): boolean {
+  return adminOnlyDashboardPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const userRole = request.cookies.get("userRole")?.value;
 
-  // 1. Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route),
   );
@@ -22,24 +40,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isDashboardRoute = dashboardRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
 
-  if (isAdminRoute && accessToken) {
-    const isAdmin =
+  if (isDashboardRoute && accessToken) {
+    const isDashboardRole =
       userRole === "admin" ||
       userRole === "map_editor" ||
       userRole === "superadmin" ||
       userRole === "super_admin";
 
-    if (!isAdmin) {
-      // If user is logged in but not an admin, redirect to home
+    if (!isDashboardRole) {
       return NextResponse.redirect(new URL("/", request.url));
     }
-  }
 
-  // 3. Check for 'for-business' route (only for 'business' role)
-  if (pathname.startsWith("/for-business") && !accessToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+    // map_editor cannot open admin-only sections via direct URL
+    if (userRole === "map_editor" && isAdminOnlyDashboardPath(pathname)) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();

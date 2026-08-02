@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useInviteUserMutation } from "@/redux/features/user/userApi";
+import {
+  useGetProfileQuery,
+  useInviteUserMutation,
+} from "@/redux/features/user/userApi";
 import {
   useGetMapsQuery,
   useGetAvailableCountriesQuery,
@@ -13,8 +16,16 @@ import {
   normalizeId,
   toggleMapAssignment,
 } from "@/lib/editor-access";
+import { assignableRolesFor, type AppRole } from "@/lib/roles";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+
+const ROLE_LABELS: Record<AppRole, string> = {
+  user: "User",
+  map_editor: "Map Editor",
+  admin: "Admin",
+  super_admin: "Super Admin",
+};
 
 interface FormData {
   email: string;
@@ -32,6 +43,7 @@ export function InviteUserForm(): React.ReactElement {
   const [countrySearch, setCountrySearch] = useState("");
 
   const [inviteUser, { isLoading }] = useInviteUserMutation();
+  const { data: currentUser } = useGetProfileQuery({});
   const { data: mapsRes, isLoading: isLoadingMaps } = useGetMapsQuery({
     limit: 100,
   });
@@ -40,6 +52,7 @@ export function InviteUserForm(): React.ReactElement {
 
   const maps = mapsRes?.data || [];
   const countries: string[] = Array.isArray(countriesRes) ? countriesRes : [];
+  const allowedRoles = assignableRolesFor(currentUser?.role);
 
   const filteredMaps = maps.filter(
     (map: any) =>
@@ -110,6 +123,10 @@ export function InviteUserForm(): React.ReactElement {
       toast.error("Please select a role.");
       return;
     }
+    if (!allowedRoles.includes(formData.role as AppRole)) {
+      toast.error("You are not allowed to invite this role.");
+      return;
+    }
 
     if (formData.role === "map_editor") {
       if (selectedMaps.length === 0 && selectedCountries.length === 0) {
@@ -175,15 +192,20 @@ export function InviteUserForm(): React.ReactElement {
           </label>
           <select
             name="role"
-            value={formData.role}
+            value={
+              allowedRoles.includes(formData.role as AppRole)
+                ? formData.role
+                : allowedRoles[0] || "user"
+            }
             onChange={handleInputChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 bg-white"
-            disabled={isLoading}
+            disabled={isLoading || allowedRoles.length === 0}
           >
-            <option value="user">User</option>
-            <option value="map_editor">Map Editor</option>
-            <option value="admin">Admin</option>
-            <option value="super_admin">Super Admin</option>
+            {allowedRoles.map((role) => (
+              <option key={role} value={role}>
+                {ROLE_LABELS[role]}
+              </option>
+            ))}
           </select>
         </div>
 

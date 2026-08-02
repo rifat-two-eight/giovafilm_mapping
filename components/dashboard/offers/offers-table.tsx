@@ -5,25 +5,41 @@ import {
   useGetOffersQuery,
 } from "@/redux/features/offer/offerApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
-import { editorCanAccessMap } from "@/lib/editor-access";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import {
+  editorCanAccessBusiness,
+  editorCanAccessMap,
+} from "@/lib/editor-access";
 import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   const { data: user } = useGetProfileQuery({});
+  const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const [deleteOffer] = useDeleteOfferMutation();
 
   const offersData = offersRes?.data || [];
+  const allMaps = mapsRes?.data || [];
   
   const displayedOffers =
     user?.role === "map_editor"
       ? offersData.filter((offer: any) => {
-          const entity = offer.business || offer.place;
-          const businessMapId = entity?.map?._id || entity?.map;
-          const businessCountry = entity?.country || entity?.map?.country;
-          return editorCanAccessMap(user, businessMapId, businessCountry);
+          if (offer.place) {
+            const place = offer.place;
+            return editorCanAccessMap(
+              user,
+              place?.map?._id || place?.map,
+              place?.country || place?.map?.country,
+            );
+          }
+          const business = offer.business;
+          return editorCanAccessBusiness(
+            user,
+            business?.location?.country || business?.country,
+            allMaps,
+          );
         })
       : offersData;
 
