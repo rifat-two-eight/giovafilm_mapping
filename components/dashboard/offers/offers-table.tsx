@@ -5,6 +5,7 @@ import {
   useGetOffersQuery,
 } from "@/redux/features/offer/offerApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { editorCanAccessMap } from "@/lib/editor-access";
 import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -16,16 +17,15 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
 
   const offersData = offersRes?.data || [];
   
-  const displayedOffers = user?.role === "map_editor"
-    ? offersData.filter((offer: any) => {
-        const entity = offer.business || offer.place;
-        const businessMapId = entity?.map?._id || entity?.map;
-        const businessCountry = entity?.country || entity?.map?.country;
-        
-        return (businessMapId && user.assignedMaps?.includes(businessMapId)) ||
-               (businessCountry && user.assignedCountries?.includes(businessCountry));
-      })
-    : offersData;
+  const displayedOffers =
+    user?.role === "map_editor"
+      ? offersData.filter((offer: any) => {
+          const entity = offer.business || offer.place;
+          const businessMapId = entity?.map?._id || entity?.map;
+          const businessCountry = entity?.country || entity?.map?.country;
+          return editorCanAccessMap(user, businessMapId, businessCountry);
+        })
+      : offersData;
 
   console.log("offersData", offersData);
 

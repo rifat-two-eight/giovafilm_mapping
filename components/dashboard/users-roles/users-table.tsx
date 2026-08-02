@@ -29,6 +29,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  normalizeId,
+  normalizeIdList,
+  toggleMapAssignment,
+} from "@/lib/editor-access";
 
 const userTableHeaders = [
   "Name",
@@ -126,8 +131,12 @@ export function UsersTable(): React.ReactElement {
       setModalMode("change_role");
       setSelectedUser(userToUpdate);
       setTempRole(newRole);
-      setSelectedMaps(userToUpdate?.assignedMaps || []);
-      setSelectedCountries(userToUpdate?.assignedCountries || []);
+      setSelectedMaps(normalizeIdList(userToUpdate?.assignedMaps));
+      setSelectedCountries(
+        Array.isArray(userToUpdate?.assignedCountries)
+          ? [...userToUpdate.assignedCountries]
+          : [],
+      );
       setIsAccessModalOpen(true);
       return;
     }
@@ -158,13 +167,32 @@ export function UsersTable(): React.ReactElement {
     setModalMode("edit_access");
     setSelectedUser(user);
     setTempRole(user.role);
-    setSelectedMaps(user.assignedMaps || []);
-    setSelectedCountries(user.assignedCountries || []);
+    setSelectedMaps(normalizeIdList(user.assignedMaps));
+    setSelectedCountries(
+      Array.isArray(user.assignedCountries) ? [...user.assignedCountries] : [],
+    );
     setIsAccessModalOpen(true);
+  };
+
+  const handleModalMapToggle = (map: any, checked: boolean) => {
+    const next = toggleMapAssignment(
+      map,
+      checked,
+      selectedMaps,
+      selectedCountries,
+      maps,
+    );
+    setSelectedMaps(next.maps);
+    setSelectedCountries(next.countries);
   };
 
   const handleSaveAccess = async () => {
     if (!selectedUser) return;
+
+    if (selectedMaps.length === 0 && selectedCountries.length === 0) {
+      toast.error("Assign at least one map or country for the Map Editor.");
+      return;
+    }
 
     try {
       if (modalMode === "change_role") {
@@ -440,8 +468,9 @@ export function UsersTable(): React.ReactElement {
           </DialogHeader>
 
           <div className="space-y-4 my-2">
-            <p className="text-sm text-gray-600">
-              Select the maps and countries this editor can manage.
+            <p className="text-sm text-gray-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+              Selecting a <strong>map</strong> also assigns its country.
+              Countries grant edit access to every map in that country.
             </p>
 
             <div className="space-y-4">
@@ -454,7 +483,20 @@ export function UsersTable(): React.ReactElement {
                   <div className="flex items-center gap-2 text-xs font-semibold">
                     <button
                       type="button"
-                      onClick={() => setSelectedMaps(maps.map((m: any) => m._id))}
+                      onClick={() => {
+                        const allIds = maps.map((m: any) => normalizeId(m._id));
+                        const allCountries = Array.from(
+                          new Set(
+                            maps
+                              .map((m: any) => m.country)
+                              .filter(Boolean) as string[],
+                          ),
+                        );
+                        setSelectedMaps(allIds);
+                        setSelectedCountries((prev) =>
+                          Array.from(new Set([...prev, ...allCountries])),
+                        );
+                      }}
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                     >
                       Select All
@@ -462,7 +504,10 @@ export function UsersTable(): React.ReactElement {
                     <span className="text-gray-300">|</span>
                     <button
                       type="button"
-                      onClick={() => setSelectedMaps([])}
+                      onClick={() => {
+                        setSelectedMaps([]);
+                        setSelectedCountries([]);
+                      }}
                       className="text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       Clear All
@@ -482,10 +527,11 @@ export function UsersTable(): React.ReactElement {
                     <p className="text-xs text-gray-500 py-4 text-center">No maps found.</p>
                   ) : (
                     filteredModalMaps.map((map: any) => {
-                      const isChecked = selectedMaps.includes(map._id);
+                      const mapId = normalizeId(map._id);
+                      const isChecked = selectedMaps.includes(mapId);
                       return (
                         <label
-                          key={map._id}
+                          key={mapId}
                           className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
                             isChecked 
                               ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
@@ -495,13 +541,9 @@ export function UsersTable(): React.ReactElement {
                           <input
                             type="checkbox"
                             checked={isChecked}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedMaps((prev) => [...prev, map._id]);
-                              } else {
-                                setSelectedMaps((prev) => prev.filter((id) => id !== map._id));
-                              }
-                            }}
+                            onChange={(e) =>
+                              handleModalMapToggle(map, e.target.checked)
+                            }
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                           />
                           <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>

@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { mapStyles } from "@/lib/utils";
+import { editorCanAccessMap } from "@/lib/editor-access";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
@@ -159,12 +160,12 @@ export default function AddPlacePage() {
   });
 
   const rawMaps = mapsRes?.data || [];
-  const maps = user?.role === "map_editor"
-    ? rawMaps.filter((map: any) => 
-        user.assignedMaps?.includes(map._id) || 
-        (map.country && user.assignedCountries?.includes(map.country))
-      )
-    : rawMaps;
+  const maps =
+    user?.role === "map_editor"
+      ? rawMaps.filter((map: any) =>
+          editorCanAccessMap(user, map._id, map.country),
+        )
+      : rawMaps;
   const categories = categoriesRes?.data || [];
   const fetchedPlaces = (placesRes?.data?.data ? placesRes.data.data : placesRes?.data) || [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);

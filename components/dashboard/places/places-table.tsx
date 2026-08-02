@@ -14,6 +14,7 @@ import { ReviewModal } from "../../Common/maps/review-modal";
 import { UpdatePlaceModal } from "./UpdatePlaceModal";
 import { ViewPlaceModal } from "./view-place-modal";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { editorCanAccessMap } from "@/lib/editor-access";
 
 interface Place {
   _id: string;
@@ -55,13 +56,16 @@ export function PlacesTable() {
   const places: Place[] = response?.data || [];
   const meta = response?.meta;
 
-  const displayedPlaces = user?.role === "map_editor"
-    ? places.filter((place: any) => 
-        user.assignedMaps?.includes(place.map?._id) || 
-        (place.country && user.assignedCountries?.includes(place.country)) ||
-        (place.map?.country && user.assignedCountries?.includes(place.map.country))
-      )
-    : places;
+  const displayedPlaces =
+    user?.role === "map_editor"
+      ? places.filter((place: any) =>
+          editorCanAccessMap(
+            user,
+            place.map?._id || place.map,
+            place.country || place.map?.country,
+          ),
+        )
+      : places;
 
   const handleDelete = async (id: string) => {
     Swal.fire({

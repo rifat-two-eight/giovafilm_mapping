@@ -8,6 +8,7 @@ import {
   useUpdateMapStatusMutation,
 } from "@/redux/features/map/mapApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { editorCanAccessMap } from "@/lib/editor-access";
 import { Edit, Eye, EyeOff, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -55,12 +56,12 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   const mapsData: Map[] = response?.data || [];
   const meta = response?.meta;
 
-  const displayedMaps = user?.role === "map_editor"
-    ? mapsData.filter((map: any) => 
-        user.assignedMaps?.includes(map._id) || 
-        (map.country && user.assignedCountries?.includes(map.country))
-      )
-    : mapsData;
+  const displayedMaps =
+    user?.role === "map_editor"
+      ? mapsData.filter((map: any) =>
+          editorCanAccessMap(user, map._id, map.country),
+        )
+      : mapsData;
 
   const handleDelete = async (id: string) => {
     Swal.fire({
