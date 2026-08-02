@@ -46,6 +46,35 @@ export const LoginForm = () => {
     },
   });
 
+  const completeLogin = (accessToken: string, successMessage?: string) => {
+    const decoded = decodeJwtPayload(accessToken);
+
+    dispatch(
+      setUser({
+        user: {
+          id: decoded?.authId ?? "",
+          name: decoded?.name ?? "",
+          email: decoded?.email ?? "",
+          role: decoded?.role ?? "user",
+          image: "",
+        },
+        accessToken,
+      }),
+    );
+
+    document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
+
+    toast.success(successMessage || "Logged in successfully!");
+
+    if (redirect) {
+      router.push(redirect);
+    } else if (decoded?.role === "user") {
+      router.push("/maps");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     const rememberedPassword = localStorage.getItem("rememberedPassword");
@@ -59,6 +88,15 @@ export const LoginForm = () => {
       setValue("rememberMe", true);
     }
   }, [setValue]);
+
+  // Google OAuth callback lands on /login?accessToken=...
+  useEffect(() => {
+    const oauthToken = searchParams.get("accessToken");
+    if (!oauthToken) return;
+
+    completeLogin(oauthToken, "Logged in with Google successfully!");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- consume OAuth token once from URL
+  }, [searchParams]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -76,35 +114,22 @@ export const LoginForm = () => {
         localStorage.removeItem("rememberedPassword");
       }
 
-      // Extract tokens from API response
-      const { accessToken } = res.data;
+      const accessToken = res?.data?.accessToken;
 
-      // Decode JWT to get user info
-      const decoded = decodeJwtPayload(accessToken);
-
-      // Dispatch to Redux → persists to localStorage + cookies
-      dispatch(
-        setUser({
-          user: {
-            id: decoded?.authId ?? "",
-            name: decoded?.name ?? "",
-            email: decoded?.email ?? "",
-            role: decoded?.role ?? "user",
-            image: "",
-          },
-          accessToken,
-        }),
-      );
-
-      toast.success(res.message || "Logged in successfully!");
-
-      if (redirect) {
-        router.push(redirect);
-      } else if (decoded?.role === "user") {
-        router.push("/maps");
-      } else {
-        router.push("/dashboard");
+      // Unverified account: backend sends OTP and returns no accessToken
+      if (!accessToken) {
+        const message =
+          res?.message ||
+          "An OTP has been sent to your email. Please verify your account.";
+        toast.success(message);
+        const authType = res?.data?.needPassword ? "invite" : "createAccount";
+        router.push(
+          `/otp-verify?email=${encodeURIComponent(data.email)}&authType=${authType}`,
+        );
+        return;
       }
+
+      completeLogin(accessToken, res.message || "Logged in successfully!");
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err));
     }

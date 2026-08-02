@@ -56,7 +56,9 @@ export const RegisterForm = () => {
 
       if (res?.data?.email) {
         toast.success(res.message || "User created successfully!");
-        router.push(`/otp-verify?email=${res.data.email}`);
+        router.push(
+          `/otp-verify?email=${encodeURIComponent(res.data.email)}&authType=createAccount`,
+        );
       } else {
         toast.error("User registration failed. No email returned.");
       }

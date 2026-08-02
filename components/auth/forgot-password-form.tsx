@@ -38,7 +38,9 @@ export const ForgotPasswordForm = () => {
 
       if (res?.success) {
         toast.success(res.message || "Reset OTP sent successfully!");
-        router.push(`/otp-verify?email=${data.email}`);
+        router.push(
+          `/otp-verify?email=${encodeURIComponent(data.email)}&authType=resetPassword`,
+        );
       } else {
         toast.error(res?.message || "Failed to send reset link.");
       }
