@@ -277,7 +277,10 @@ export default function AwardsPage() {
                                   Redeemed
                                 </Button>
                               ) : (
-                                <Link href="/catalog" className="block w-full">
+                                <Link
+                                  href="/catalog?redeemFreeMap=1"
+                                  className="block w-full"
+                                >
                                   <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider py-5.5 rounded-xl">
                                     Redeem Now
                                   </Button>

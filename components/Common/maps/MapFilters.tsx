@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import {
   Accordion,
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
@@ -53,18 +55,44 @@ export function MapFilters({
   const hasCategories = !isLoading && fetchedCategories.length > 0;
   const showEmpty = !isLoading && fetchedCategories.length === 0;
   const mapLabel = selectedCountry || "this map";
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const panelWidth = isMobile ? "min(100%, 100vw - 1.5rem)" : "350px";
+  const listHeight = isMobile
+    ? hasCategories
+      ? "42vh"
+      : "auto"
+    : hasCategories
+      ? "80vh"
+      : "auto";
 
   return (
-    <div className="flex flex-col md:flex-row items-start gap-2">
+    <div className="flex flex-col md:flex-row items-start gap-2 w-full md:w-auto">
+      {isMobile && (
+        <button
+          type="button"
+          onClick={() => setMobileOpen((o) => !o)}
+          className="flex items-center gap-2 bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Filters
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+
       {/* Category Filter */}
       <div
-        className="bg-white rounded-lg shadow-lg border border-gray-200"
-        style={{ width: "350px" }}
+        className={`bg-white rounded-lg shadow-lg border border-gray-200 ${
+          isMobile && !mobileOpen ? "hidden" : ""
+        }`}
+        style={{ width: panelWidth, maxWidth: "100%" }}
       >
         <Accordion
           type="single"
           collapsible
-          defaultValue="categories-main"
+          defaultValue={isMobile ? undefined : "categories-main"}
           className="w-full"
         >
           <AccordionItem value="categories-main" className="border-none">
@@ -77,7 +105,7 @@ export function MapFilters({
               className="pb-0 border-t border-gray-100"
               style={{
                 overflowY: "auto",
-                height: hasCategories ? "80vh" : "auto",
+                height: listHeight,
               }}
             >
               {isLoading ? (
@@ -203,8 +231,13 @@ export function MapFilters({
         </Accordion>
       </div>
 
-      {/* Country / Map Filter — wide enough for full map names */}
-      <div className="min-w-[200px] max-w-[280px] w-max bg-white rounded-lg shadow-lg border border-gray-200">
+      {/* Selected Map Filter — always visible (critical for map switch) */}
+      <div className="min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex flex-col gap-0">
+        <div className="px-4 py-2.5 bg-gray-50/50">
+          <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
+            Selected Map
+          </span>
+        </div>
         <Select
           onValueChange={(val) => {
             setSelectedCountry(val);
@@ -212,10 +245,17 @@ export function MapFilters({
           }}
           value={selectedCountry}
         >
-          <SelectTrigger className="w-full !h-auto min-h-12 py-3 px-3 border-none focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
+          <SelectTrigger className="w-full !h-auto !min-h-0 rounded-none border-0 border-t border-gray-100 shadow-none py-2.5 px-3 focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
             <SelectValue placeholder="Select map" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl border border-gray-100 shadow-xl min-w-[var(--radix-select-trigger-width)] max-w-[min(90vw,320px)]">
+          <SelectContent
+            position="popper"
+            side="bottom"
+            align="start"
+            sideOffset={4}
+            avoidCollisions={false}
+            className="rounded-xl border border-gray-100 shadow-xl min-w-[var(--radix-select-trigger-width)] max-w-[min(90vw,320px)]"
+          >
             {availableCountries.length === 0 ? (
               <div className="px-3 py-6 text-center text-sm text-gray-500">
                 No maps available.

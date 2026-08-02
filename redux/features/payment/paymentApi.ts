@@ -14,6 +14,17 @@ export const paymentApi = baseApi.injectEndpoints({
         url: `/payment/verify-checkout/${sessionId}`,
         method: "GET",
       }),
+      // After verify succeeds, drop cached user/map/place so locks refresh
+      async onQueryStarted(_sessionId, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            baseApi.util.invalidateTags(["User", "Map", "Place", "Offer"]),
+          );
+        } catch {
+          /* verification failed — leave cache as-is */
+        }
+      },
     }),
   }),
 });

@@ -211,7 +211,7 @@ export function AddBusinessForm() {
           try {
             const offerData = {
               title: step4InputValues.offerTitle,
-              place: businessId,
+              business: businessId,
               description: step4InputValues.offerDescription,
               discountType: step4InputValues.offerDiscountType,
               discountValue: Number(step4InputValues.offerDiscount) || 0,

@@ -76,14 +76,10 @@ export const LoginForm = () => {
   };
 
   useEffect(() => {
+    // Never store passwords in localStorage — only remember email
+    localStorage.removeItem("rememberedPassword");
     const rememberedEmail = localStorage.getItem("rememberedEmail");
-    const rememberedPassword = localStorage.getItem("rememberedPassword");
-
-    if (rememberedEmail && rememberedPassword) {
-      setValue("email", rememberedEmail);
-      setValue("password", rememberedPassword);
-      setValue("rememberMe", true);
-    } else if (rememberedEmail) {
+    if (rememberedEmail) {
       setValue("email", rememberedEmail);
       setValue("rememberMe", true);
     }
@@ -108,11 +104,10 @@ export const LoginForm = () => {
 
       if (data.rememberMe) {
         localStorage.setItem("rememberedEmail", data.email);
-        localStorage.setItem("rememberedPassword", data.password);
       } else {
         localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
       }
+      localStorage.removeItem("rememberedPassword");
 
       const accessToken = res?.data?.accessToken;
 

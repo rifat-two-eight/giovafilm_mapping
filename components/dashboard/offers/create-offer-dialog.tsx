@@ -66,8 +66,6 @@ export function CreateOfferDialog({
     return placeData?.data || [];
   }, [placeData]);
 
-  console.log("categoryNames", places);
-
   const noExpiration = watch("noExpiration");
 
   // ── Image state — managed manually, NOT via register ─────────────────────
@@ -341,11 +339,11 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Searchable Dropdown for choosing Business or Place */}
+          {/* Searchable location picker (business or place — same submit logic) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium text-gray-700">
-                Choose Business or Place
+                Choose location
               </Label>
             </div>
 
@@ -353,7 +351,7 @@ export function CreateOfferDialog({
             <input
               type="hidden"
               {...register("business", {
-                required: "Business or Place is required",
+                required: "Please select a location",
               })}
             />
 
@@ -367,9 +365,7 @@ export function CreateOfferDialog({
                 <span
                   className={selectedEntity ? "text-gray-900" : "text-gray-400"}
                 >
-                  {selectedEntity
-                    ? `${selectedEntity.name} (${selectedEntity.type === "business" ? "Business" : "Place"})`
-                    : "Choose Business or Place"}
+                  {selectedEntity ? selectedEntity.name : "Search by name..."}
                 </span>
                 <ChevronDown
                   size={16}
@@ -387,7 +383,7 @@ export function CreateOfferDialog({
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search business or place..."
+                      placeholder="Type a name to search..."
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -404,13 +400,13 @@ export function CreateOfferDialog({
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-50"
                       >
-                        Choose Business or Place
+                        Clear selection
                       </button>
                     </li>
 
                     {filteredOptions.length === 0 ? (
                       <li className="px-3 py-3 text-sm text-gray-400 text-center">
-                        No businesses or places found.
+                        No locations found.
                       </li>
                     ) : (
                       filteredOptions.map((item: any) => (
@@ -424,22 +420,13 @@ export function CreateOfferDialog({
                               setSearchQuery("");
                               setDropdownOpen(false);
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
+                            className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
                               selectedId === item._id
                                 ? "bg-blue-50 text-blue-700 font-medium"
                                 : "text-gray-700"
                             }`}
                           >
-                            <span>{item.name}</span>
-                            <span
-                              className={`text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded ${
-                                item.type === "business"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "bg-green-100 text-green-700"
-                              }`}
-                            >
-                              {item.type}
-                            </span>
+                            {item.name}
                           </button>
                         </li>
                       ))

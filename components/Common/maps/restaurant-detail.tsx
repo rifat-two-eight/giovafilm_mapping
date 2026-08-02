@@ -7,7 +7,7 @@ import {
   useGetSingleOfferQuery,
   useRedeemOfferMutation,
 } from "@/redux/features/offer/offerApi";
-import { CheckCircle2, ChevronRight, HelpCircle, Star } from "lucide-react";
+import { CheckCircle2, ChevronRight, HelpCircle, Lock, Star, Ticket } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -24,12 +24,10 @@ export default function RestaurantDetail() {
   const user = useAppSelector(selectCurrentUser);
   const STORAGE_KEY = `offer_redeem_${offerId}_expiry`;
 
-  const { data: offerRes, isLoading, refetch } = useGetSingleOfferQuery(offerId, {
+  const { data: offerRes, isLoading, error: offerError, refetch } = useGetSingleOfferQuery(offerId, {
     skip: !offerId,
   });
   const offer = offerRes?.data;
-
-  console.log("offer", offer);
 
   const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
 
@@ -136,6 +134,41 @@ export default function RestaurantDetail() {
     );
   }
 
+  const isLocked =
+    (offerError as any)?.status === 403 ||
+    (offerError as any)?.originalStatus === 403;
+
+  if (isLocked) {
+    const mapId =
+      (offerError as any)?.data?.mapId ||
+      null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center space-y-6 max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8 text-yellow-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Unlock this Offer</h2>
+          <p className="text-gray-600 leading-relaxed">
+            {(offerError as any)?.data?.message ||
+              "Purchase the map to unlock this exclusive offer and its benefits."}
+          </p>
+          <Link href={mapId ? `/catalog/${mapId}` : "/catalog"}>
+            <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl">
+              <Ticket className="w-5 h-5 mr-2" />
+              Purchase Map
+            </Button>
+          </Link>
+          <Link href="/offer">
+            <Button variant="ghost" className="text-gray-500 w-full">
+              Back to Offers
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (!offer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -161,7 +194,7 @@ export default function RestaurantDetail() {
           <div className="mb-4 sm:mb-5 md:mb-6">
             <div className="flex items-center gap-2 text-xs sm:text-sm">
               <Link
-                href="/offers"
+                href="/offer"
                 className="text-blue-600 hover:underline font-medium"
               >
                 Offers

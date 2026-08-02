@@ -20,7 +20,7 @@ export const awardApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Award", "User"],
+      invalidatesTags: ["Award", "User", "Map", "Place", "Offer"],
     }),
     getAwardConfigs: builder.query<any, void>({
       query: () => ({

@@ -393,7 +393,7 @@ export default function MapDetails() {
             This spot is part of a premium map. Purchase the map to get access to all hidden viewpoints, waterfalls, and locations.
           </p>
           <div className="pt-4">
-            <Link href="/maps">
+            <Link href="/catalog">
               <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl shadow-lg shadow-yellow-200 transition-all text-lg">
                 <Ticket className="w-5 h-5 mr-2" />
                 Purchase Map

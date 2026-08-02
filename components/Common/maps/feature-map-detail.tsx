@@ -11,10 +11,16 @@ import { getImageUrl } from "@/lib/utils";
 import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
 import { useCreateMapCheckoutSessionMutation } from "@/redux/features/payment/paymentApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import {
+  useGetAwardsQuery,
+  useRedeemFreeMapMutation,
+} from "@/redux/features/award/awardApi";
+import { useAppSelector } from "@/redux/hook";
+import { selectAccessToken } from "@/redux/features/auth/authSlice";
 import { Star } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import SimilarMaps from "./similar-maps";
 
@@ -34,7 +40,9 @@ interface MapDetail {
 export default function FeatureMapDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { id } = params;
+  const redeemFreeIntent = searchParams.get("redeemFreeMap") === "1";
 
   const {
     data: response,
@@ -43,15 +51,30 @@ export default function FeatureMapDetailPage() {
   } = useGetMapByIdQuery(id as string);
   const mapData = response?.data;
 
-  const { data: userProfile } = useGetProfileQuery({});
+  const accessToken = useAppSelector(selectAccessToken);
+  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const { data: awardsRes } = useGetAwardsQuery(
+    { page: 1, limit: 50 },
+    { skip: !accessToken },
+  );
   const purchasedMaps = userProfile?.purchasedMaps || [];
 
   const isPurchased = purchasedMaps.some((m: any) => {
     const mapId = typeof m === "object" ? m._id || m.id : m;
-    return mapId === id;
+    return String(mapId) === String(id);
   });
 
   const hasAccess = mapData?.isPaid === false || isPurchased;
+
+  const canClaimFreeMap = useMemo(() => {
+    if (!accessToken || userProfile?.redeemedFreeMap || !mapData?.isPaid) {
+      return false;
+    }
+    const awards = awardsRes?.data || [];
+    return awards.some(
+      (a: any) => a.type === "Free Map" && a.isUnlocked,
+    );
+  }, [accessToken, userProfile?.redeemedFreeMap, mapData?.isPaid, awardsRes?.data]);
 
   const handleViewMap = () => {
     if (mapData?.name) {
@@ -62,21 +85,50 @@ export default function FeatureMapDetailPage() {
 
   const [createCheckout, { isLoading: isCheckingOut }] =
     useCreateMapCheckoutSessionMutation();
+  const [redeemFreeMap, { isLoading: isRedeemingFree }] =
+    useRedeemFreeMapMutation();
   const [mainImage, setMainImage] = useState<string | null>(null);
 
+  const handleClaimFreeMap = async () => {
+    if (!accessToken) {
+      toast.error("Please log in to claim your free map.");
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    try {
+      await redeemFreeMap({ mapId: String(id) }).unwrap();
+      toast.success("Free map claimed! Opening your map...");
+      if (mapData?.name) {
+        localStorage.setItem("selectedCountryFilter", mapData.name);
+      }
+      router.push("/maps");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to claim free map.");
+    }
+  };
+
   const handleBuyNow = async () => {
-    // Validate authentication
-    const hasToken = document.cookie.includes("accessToken=");
-    if (!hasToken) {
+    if (!accessToken) {
       toast.error("Please log in to purchase this map.");
       router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
+    // Prefer free redeem when Free Map award is unlocked
+    if (canClaimFreeMap) {
+      await handleClaimFreeMap();
+      return;
+    }
+
+    if (redeemFreeIntent) {
+      toast.error("Unlock the Free Map award first, then claim a map.");
+      return;
+    }
+
     try {
+      // Amount is resolved server-side from Map.price
       const res = await createCheckout({
         mapId: id,
-        amount: mapData?.price,
       }).unwrap();
 
       if (res?.data?.url) {
@@ -244,11 +296,15 @@ export default function FeatureMapDetailPage() {
               </Button>
             ) : (
               <Button
-                onClick={handleBuyNow}
-                disabled={isCheckingOut}
+                onClick={canClaimFreeMap ? handleClaimFreeMap : handleBuyNow}
+                disabled={isCheckingOut || isRedeemingFree}
                 className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none disabled:opacity-70"
               >
-                {isCheckingOut ? "PROCESSING..." : "BUY NOW"}
+                {isCheckingOut || isRedeemingFree
+                  ? "PROCESSING..."
+                  : canClaimFreeMap
+                    ? "CLAIM FREE MAP"
+                    : "BUY NOW"}
               </Button>
             )}
 

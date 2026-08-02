@@ -28,7 +28,8 @@ export default function OfferSection() {
   const { data: favouritesRes } = useGetFavouritesQuery();
   const favouritesList: any[] = favouritesRes?.data || [];
 
-  const filters = ["All", "Near me", "Popular", "New", "Trending"];
+  // Only filters that are actually implemented
+  const filters = ["All", "Favorites"];
 
   // Derive if an offer is favourited from the server list
   const isOfferFavourited = (offerId: string) =>
@@ -45,8 +46,7 @@ export default function OfferSection() {
       .includes(searchTerm.toLowerCase());
     const matchesFilter =
       activeFilter === "All" ||
-      (activeFilter === "Favorites" && isOfferFavourited(offer._id)) ||
-      (activeFilter !== "Favorites" && activeFilter !== "All"); // Others are placeholders for now
+      (activeFilter === "Favorites" && isOfferFavourited(offer._id));
 
     return matchesSearch && matchesFilter;
   });
@@ -134,7 +134,9 @@ export default function OfferSection() {
                   ? (typeof offer.map === 'object' ? (offer.map._id || offer.map.id) : offer.map)
                   : (offer.place && typeof offer.place === 'object' && offer.place.map)
                     ? (typeof offer.place.map === 'object' ? (offer.place.map._id || offer.place.map.id) : offer.place.map)
-                    : null;
+                    : (offer.business && typeof offer.business === 'object' && offer.business.map)
+                      ? (typeof offer.business.map === 'object' ? (offer.business.map._id || offer.business.map.id) : offer.business.map)
+                      : null;
 
                 Swal.fire({
                   title: "<strong>Unlock Premium Offer</strong>",
@@ -207,8 +209,9 @@ export default function OfferSection() {
 
                     {/* Discount Badge */}
                     <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">
-                      {offer.discountValue}
-                      {offer.discountType === "Percentage" ? "%" : ""}% OFF
+                      {offer.discountType === "Percentage"
+                        ? `${offer.discountValue}% OFF`
+                        : `${offer.discountValue} OFF`}
                     </div>
                   </div>
 

@@ -11,9 +11,10 @@ import Link from "next/link";
 type Props = {
   id: { id: string; type: string };
   onClose: () => void;
+  mapId?: string;
 };
 
-export default function LocationDialog({ id, onClose }: Props) {
+export default function LocationDialog({ id, onClose, mapId }: Props) {
   const placeId = id?.id;
   const type = id?.type;
 
@@ -70,7 +71,11 @@ export default function LocationDialog({ id, onClose }: Props) {
           </div>
 
           <div className="flex flex-col gap-3 w-full">
-            <Link href="/catalog" onClick={onClose} className="w-full">
+            <Link
+              href={mapId ? `/catalog/${mapId}` : "/catalog"}
+              onClick={onClose}
+              className="w-full"
+            >
               <Button className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12">
                 Unlock Map
               </Button>

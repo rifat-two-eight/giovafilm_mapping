@@ -7,14 +7,19 @@ import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MapLocation } from "@/lib/types/place/map";
+import { Suspense } from "react";
 
-export default function FeaturedMaps() {
+function FeaturedMapsInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redeemFreeMap = searchParams.get("redeemFreeMap") === "1";
+  const mapHref = (mapId: string) =>
+    redeemFreeMap ? `/catalog/${mapId}?redeemFreeMap=1` : `/catalog/${mapId}`;
+
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const maps: MapLocation[] = mapsRes?.data || [];
-
 
   const featuredMaps = maps.filter((map) => map.isActive);
 
@@ -55,7 +60,7 @@ export default function FeaturedMaps() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    onClick={() => router.push(`/catalog/${map._id}`)}
+                    onClick={() => router.push(mapHref(map._id))}
                     className="bg-white rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer pb-2"
                   >
                     {/* Image Container */}
@@ -92,9 +97,9 @@ export default function FeaturedMaps() {
                         <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
                           ${map.price || "0.00"}
                         </span>
-                        <Link href={`/catalog/${map._id}`} onClick={(e) => e.stopPropagation()}>
+                        <Link href={mapHref(map._id)} onClick={(e) => e.stopPropagation()}>
                           <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
-                            View details
+                            {redeemFreeMap ? "Claim this map" : "View details"}
                           </Button>
                         </Link>
                       </div>
@@ -107,6 +112,20 @@ export default function FeaturedMaps() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FeaturedMaps() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-gray-50 py-20 flex justify-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />
+        </div>
+      }
+    >
+      <FeaturedMapsInner />
+    </Suspense>
   );
 }
 

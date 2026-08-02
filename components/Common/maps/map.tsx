@@ -98,7 +98,7 @@ function ViewportPlaceMarkers({
     }
 
     return inView;
-  }, [places, bounds, selectedLocation?.id]);
+  }, [places, bounds, selectedLocation]);
 
   return (
     <>
@@ -697,6 +697,7 @@ export default function MapPage() {
         {selectedLocation && (
           <LocationDialog
             id={selectedLocation}
+            mapId={mapIdFilter || undefined}
             onClose={() => setSelectedLocation(null)}
           />
         )}

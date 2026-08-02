@@ -33,7 +33,6 @@ export default function PurchasedMapsPage() {
     info: `Added ${new Date(map.createdAt).toLocaleDateString()}`,
     image: getImageUrl(map.images?.[0]),
     status: map.isActive ? "Active" : "Inactive",
-    offline: !!map.isActive,
     icon: map.isActive ? ShieldCheck : Compass,
     iconColor: map.isActive ? "text-green-500" : "text-gray-400",
     isActive: !!map.isActive,
@@ -55,7 +54,7 @@ export default function PurchasedMapsPage() {
               Purchased Maps
             </h1>
             <p className="text-gray-500/80 text-lg font-public-sans">
-              Manage and access your offline adventure guides
+              Manage and access your purchased adventure maps
             </p>
           </div>
           <Link href={"/catalog"}>
