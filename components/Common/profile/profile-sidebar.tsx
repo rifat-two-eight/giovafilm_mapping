@@ -2,7 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { formatDate, getImageUrl } from "@/lib/utils";
-import { Edit2, Heart, Map, Share2, Star, Trophy } from "lucide-react";
+import { shareProfile } from "@/lib/share-profile";
+import {
+  Check,
+  Edit2,
+  Heart,
+  Loader2,
+  Map,
+  Share2,
+  Star,
+  Trophy,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -33,12 +43,16 @@ const profileLinks = [
 ];
 
 interface ProfileSidebar {
+  _id?: string;
   name: string;
   role: string;
   createdAt: string;
   profile: string;
   level?: number;
   points?: number;
+  phone?: string;
+  website?: string;
+  instagram?: string;
 }
 
 interface ProfileProps {
@@ -47,6 +61,21 @@ interface ProfileProps {
 
 export function ProfileSidebar({ data }: ProfileProps) {
   const [open, setOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    const result = await shareProfile({
+      userId: data?._id,
+      name: data?.name,
+    });
+    setIsSharing(false);
+    if (result === "copied" || result === "shared") {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -81,9 +110,21 @@ export function ProfileSidebar({ data }: ProfileProps) {
           {/* Level Name Badge */}
           {(() => {
             const USER_LEVELS = [
-              "Explorador", "Aventurero", "Tlacuilo", "Expedicionario", "Viajero",
-              "Chasqui", "Cronista", "Pochteca", "Navegante", "Cartógrafo",
-              "Gran Explorador", "Conquistador", "Gran Conquistador", "Amauta", "Leyenda"
+              "Explorador",
+              "Aventurero",
+              "Tlacuilo",
+              "Expedicionario",
+              "Viajero",
+              "Chasqui",
+              "Cronista",
+              "Pochteca",
+              "Navegante",
+              "Cartógrafo",
+              "Gran Explorador",
+              "Conquistador",
+              "Gran Conquistador",
+              "Amauta",
+              "Leyenda",
             ];
             const levelName = USER_LEVELS[data?.level ?? 0] || "Explorador";
             return (
@@ -110,19 +151,29 @@ export function ProfileSidebar({ data }: ProfileProps) {
           {/* Action Buttons */}
           <div className="space-y-3">
             <Button
+              type="button"
               onClick={() => setOpen(true)}
-              className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2"
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
             >
               <Edit2 size={18} />
               Edit Profile
             </Button>
 
             <Button
+              type="button"
               variant="outline"
-              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+              onClick={handleShare}
+              disabled={isSharing || !data?._id}
+              className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-yellow-50"
             >
-              <Share2 size={18} />
-              Share Profile
+              {isSharing ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : shareCopied ? (
+                <Check size={18} className="text-green-600" />
+              ) : (
+                <Share2 size={18} />
+              )}
+              {shareCopied ? "Link Copied!" : "Share Profile"}
             </Button>
           </div>
         </div>
@@ -153,19 +204,16 @@ export function ProfileSidebar({ data }: ProfileProps) {
         </h3>
 
         <div className="space-y-4">
-          {/* Distance Traveled */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Distance Traveled</p>
             <p className="text-yellow-400 font-bold">12,450 km</p>
           </div>
 
-          {/* Places Visited */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Places Visited</p>
             <p className="text-yellow-400 font-bold">48</p>
           </div>
 
-          {/* Trips Planned */}
           <div className="flex items-center justify-between">
             <p className="text-sm mb-1">Trips Planned</p>
             <p className="text-yellow-400 font-bold">12</p>

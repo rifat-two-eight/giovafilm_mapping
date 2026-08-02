@@ -8,6 +8,11 @@ const userApi = baseApi.injectEndpoints({
       transformResponse: (response: any) => response.data,
     }),
 
+    getPublicProfile: builder.query({
+      query: (userId: string) => `/user/public/${userId}`,
+      transformResponse: (response: any) => response.data,
+    }),
+
     getAllUsers: builder.query({
       query: (params) => ({
         url: "/user",
@@ -65,6 +70,7 @@ const userApi = baseApi.injectEndpoints({
 
 export const {
   useGetProfileQuery,
+  useGetPublicProfileQuery,
   useUpdateProfileMutation,
   useGetAllUsersQuery,
   useDeleteUserMutation,

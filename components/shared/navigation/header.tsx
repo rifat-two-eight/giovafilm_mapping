@@ -12,10 +12,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
+  Check,
   CircleDollarSign,
   Edit2,
   Grid2x2,
   Heart,
+  Loader2,
   Map,
   Menu,
   Search,
@@ -43,6 +45,7 @@ import { useState, useEffect } from "react";
 import { NoImage } from "@/lib/others/others";
 import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
+import { shareProfile } from "@/lib/share-profile";
 
 const navLinks = [
   { name: "Maps", href: "/maps" },
@@ -118,7 +121,29 @@ export default function Header() {
   const { data: user } = useGetProfileQuery({});
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSharingProfile, setIsSharingProfile] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleEditProfile = () => {
+    setIsProfileMenuOpen(false);
+    // Let dropdown close before opening dialog (avoids focus trap conflicts)
+    setTimeout(() => setIsUpdateModalOpen(true), 50);
+  };
+
+  const handleShareProfile = async () => {
+    setIsSharingProfile(true);
+    const result = await shareProfile({
+      userId: user?._id,
+      name: user?.name,
+    });
+    setIsSharingProfile(false);
+    if (result === "copied" || result === "shared") {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
 
   const maxPoints = 1000;
   const progress = ((user?.points || 0) / maxPoints) * 100;
@@ -263,7 +288,10 @@ export default function Header() {
 
             {/* Auth Section - Desktop */}
             {isAuthenticated ? (
-              <DropdownMenu>
+              <DropdownMenu
+                open={isProfileMenuOpen}
+                onOpenChange={setIsProfileMenuOpen}
+              >
                 <DropdownMenuTrigger asChild>
                   <button className="outline-none">
                     <Avatar className="h-10 w-10 cursor-pointer border">
@@ -335,19 +363,29 @@ export default function Header() {
                     {/* Action Buttons */}
                     <div className="space-y-3">
                       <Button
-                        onClick={() => setIsUpdateModalOpen(true)}
-                        className="w-full bg-yellow-400 hover:bg-primary hover:text-white text-black font-semibold rounded flex items-center justify-center gap-2"
+                        type="button"
+                        onClick={handleEditProfile}
+                        className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
                       >
                         <Edit2 size={18} />
                         Edit Profile
                       </Button>
 
                       <Button
+                        type="button"
                         variant="outline"
-                        className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-primary hover:text-white"
+                        onClick={handleShareProfile}
+                        disabled={isSharingProfile || !user?._id}
+                        className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-yellow-50"
                       >
-                        <Share2 size={18} />
-                        Share Profile
+                        {isSharingProfile ? (
+                          <Loader2 size={18} className="animate-spin" />
+                        ) : shareCopied ? (
+                          <Check size={18} className="text-green-600" />
+                        ) : (
+                          <Share2 size={18} />
+                        )}
+                        {shareCopied ? "Link Copied!" : "Share Profile"}
                       </Button>
                     </div>
                   </div>
