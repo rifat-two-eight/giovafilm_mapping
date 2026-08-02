@@ -45,16 +45,19 @@ function CountryPanner({
       return;
 
     const geocoder = new geocodingLib.Geocoder();
-    geocoder.geocode({ address: selectedCountry }, (results, status) => {
-      if (status === "OK" && results?.[0]) {
-        if (results[0].geometry.viewport) {
-          map.fitBounds(results[0].geometry.viewport);
-        } else {
-          map.setCenter(results[0].geometry.location);
-          map.setZoom(6);
+    geocoder.geocode(
+      { address: selectedCountry },
+      (results: any[] | null, status: string) => {
+        if (status === "OK" && results?.[0]) {
+          if (results[0].geometry.viewport) {
+            map.fitBounds(results[0].geometry.viewport);
+          } else {
+            map.setCenter(results[0].geometry.location);
+            map.setZoom(6);
+          }
         }
-      }
-    });
+      },
+    );
   }, [selectedCountry, map, geocodingLib]);
 
   return null;
@@ -139,12 +142,19 @@ export default function MapPage() {
       .map((cat: any) => cat._id)
   );
 
-  // If user is not logged in, filter categories to only those that are business categories 
-  // OR have at least one business place.
+  // Discovery overwrites Place.type with "place"; original Business|Regular lives in placeType.
+  // Business-collection rows use type "business".
+  const isBusinessLocation = (p: any) =>
+    p?.type === "business" ||
+    p?.type === "Business" ||
+    p?.placeType === "Business";
+
+  // If user is not logged in, filter categories to only those that are business categories
+  // OR have at least one business-type location.
   if (!isLoggedIn && !isLoadingUser) {
     const businessPlaceCatIds = new Set(
       fetchedPlaces
-        .filter((p: any) => p.type === "Business")
+        .filter(isBusinessLocation)
         .map((p: any) => typeof p.category === "object" && p.category !== null ? p.category._id || p.category.id : p.category)
     );
 
@@ -183,16 +193,20 @@ export default function MapPage() {
     if (!geocodingLib || !markerPos.lat || !markerPos.lng) return;
 
     const geocoder = new geocodingLib.Geocoder();
-    geocoder.geocode({ location: markerPos }, (results, status) => {
-      if (status === "OK" && results?.[0]) {
-        const countryComponent = results[0].address_components.find((c) =>
-          c.types.includes("country"),
-        );
-        if (countryComponent) {
-          setDetectedCountry(countryComponent.long_name);
+    geocoder.geocode(
+      { location: markerPos },
+      (results: any[] | null, status: string) => {
+        if (status === "OK" && results?.[0]) {
+          const countryComponent = results[0].address_components.find(
+            (c: { types: string[]; long_name: string }) =>
+              c.types.includes("country"),
+          );
+          if (countryComponent) {
+            setDetectedCountry(countryComponent.long_name);
+          }
         }
-      }
-    });
+      },
+    );
   }, [markerPos, geocodingLib]);
 
   // Set initial selectedCountry based on detection, profile, or default
@@ -258,12 +272,11 @@ export default function MapPage() {
         : place.category;
     if (!categoryId) return true; // no category → always show
 
-    // If user is not logged in, only show places that are explicitly marked as "Business" 
-    // OR belong to an inherently business category.
+    // If user is not logged in, only show business-type locations
+    // OR places that belong to an inherently business category.
     if (!isLoggedIn && !isLoadingUser) {
-      const isBusinessPlace = place.type === "Business";
       const isInherentlyBusiness = inherentlyBusinessCatIds.has(categoryId);
-      if (!isBusinessPlace && !isInherentlyBusiness) return false;
+      if (!isBusinessLocation(place) && !isInherentlyBusiness) return false;
     }
 
     const id =
@@ -272,6 +285,18 @@ export default function MapPage() {
     // Missing key defaults to visible; only hide when explicitly false
     return enabledCategories[id] !== false;
   });
+
+  // Guest sidebar: same visibility rules as map markers (business locations + business categories)
+  const sidebarPlaces =
+    !isLoggedIn && !isLoadingUser
+      ? fetchedPlaces.filter((place: any) => {
+          const categoryId =
+            typeof place.category === "object" && place.category !== null
+              ? place.category._id || place.category.id
+              : place.category;
+          return isBusinessLocation(place) || inherentlyBusinessCatIds.has(categoryId);
+        })
+      : fetchedPlaces;
 
   if (!hasMounted) return null;
 
@@ -372,7 +397,7 @@ export default function MapPage() {
                   isMobile={isMobile}
                   fetchedCategories={fetchedCategories}
                   enabledCategories={enabledCategories}
-                  fetchedPlaces={fetchedPlaces}
+                  fetchedPlaces={sidebarPlaces}
                   handleToggle={handleToggle}
                   setSelectedLocation={setSelectedLocation}
                   selectedLocation={selectedLocation}
