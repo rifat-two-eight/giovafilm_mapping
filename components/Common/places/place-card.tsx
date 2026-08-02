@@ -10,8 +10,6 @@ import { toast } from "sonner";
 import Swal from "sweetalert2";
 
 export function PlaceCard({ data }: { data: TPlace }) {
-  console.log(data);
-
   const handleClick = (e: React.MouseEvent) => {
     if (data?.isLocked) {
       e.preventDefault();

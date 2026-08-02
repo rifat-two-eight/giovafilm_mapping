@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
+/** Avoid mounting hundreds of sidebar rows per category on purchased maps */
+const SIDEBAR_PLACES_CAP = 40;
+
 interface MapFiltersProps {
   isMobile: boolean;
   fetchedCategories: any[];
@@ -136,31 +139,41 @@ export function MapFilters({
                           <AccordionContent className="bg-gray-50/30 px-0 pb-0">
                             <div className="py-1">
                               {placesInCat.length > 0 ? (
-                                placesInCat.map((place: any) => (
-                                  <button
-                                    key={place._id}
-                                    onClick={() =>
-                                      setSelectedLocation({
-                                        id: place._id,
-                                        type: place.type,
-                                      })
-                                    }
-                                    className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
-                                      selectedLocation?.id === place._id
-                                        ? "bg-blue-600 text-white font-bold shadow-md"
-                                        : "text-gray-600 hover:bg-white hover:text-blue-600"
-                                    }`}
-                                  >
-                                    <div
-                                      className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`}
-                                    />
-                                    <div className="flex flex-col min-w-0">
-                                      <span className="truncate">
-                                        {place.name}
-                                      </span>
-                                    </div>
-                                  </button>
-                                ))
+                                <>
+                                  {placesInCat
+                                    .slice(0, SIDEBAR_PLACES_CAP)
+                                    .map((place: any) => (
+                                      <button
+                                        key={place._id}
+                                        onClick={() =>
+                                          setSelectedLocation({
+                                            id: place._id,
+                                            type: place.type,
+                                          })
+                                        }
+                                        className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
+                                          selectedLocation?.id === place._id
+                                            ? "bg-blue-600 text-white font-bold shadow-md"
+                                            : "text-gray-600 hover:bg-white hover:text-blue-600"
+                                        }`}
+                                      >
+                                        <div
+                                          className={`w-1.5 h-1.5 rounded-full ${selectedLocation?.id === place._id ? "bg-white" : "bg-blue-400"}`}
+                                        />
+                                        <div className="flex flex-col min-w-0">
+                                          <span className="truncate">
+                                            {place.name}
+                                          </span>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  {placesInCat.length > SIDEBAR_PLACES_CAP && (
+                                    <p className="px-6 py-2 text-xs text-gray-400">
+                                      +{placesInCat.length - SIDEBAR_PLACES_CAP}{" "}
+                                      more on map — zoom or pan to explore
+                                    </p>
+                                  )}
+                                </>
                               ) : (
                                 <div className="px-10 py-3 text-gray-400 italic">
                                   No places in this category yet.
@@ -190,8 +203,8 @@ export function MapFilters({
         </Accordion>
       </div>
 
-      {/* Country Filter */}
-      <div className="w-40 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+      {/* Country / Map Filter — wide enough for full map names */}
+      <div className="min-w-[200px] max-w-[280px] w-max bg-white rounded-lg shadow-lg border border-gray-200">
         <Select
           onValueChange={(val) => {
             setSelectedCountry(val);
@@ -199,10 +212,10 @@ export function MapFilters({
           }}
           value={selectedCountry}
         >
-          <SelectTrigger className="w-full py-6 border-none focus:ring-0 font-semibold text-gray-800 bg-white">
-            <SelectValue />
+          <SelectTrigger className="w-full !h-auto min-h-12 py-3 px-3 border-none focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
+            <SelectValue placeholder="Select map" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
+          <SelectContent className="rounded-xl border border-gray-100 shadow-xl min-w-[var(--radix-select-trigger-width)] max-w-[min(90vw,320px)]">
             {availableCountries.length === 0 ? (
               <div className="px-3 py-6 text-center text-sm text-gray-500">
                 No maps available.
@@ -212,7 +225,8 @@ export function MapFilters({
                 <SelectItem
                   key={country}
                   value={country}
-                  className="capitalize font-medium"
+                  className="font-medium whitespace-normal break-words py-2.5"
+                  title={country}
                 >
                   {country}
                 </SelectItem>

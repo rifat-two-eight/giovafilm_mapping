@@ -43,8 +43,6 @@ export default function FeatureMapDetailPage() {
   } = useGetMapByIdQuery(id as string);
   const mapData = response?.data;
 
-  console.log("mapData", mapData);
-
   const { data: userProfile } = useGetProfileQuery({});
   const purchasedMaps = userProfile?.purchasedMaps || [];
 

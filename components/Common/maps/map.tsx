@@ -3,7 +3,6 @@
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
-import { mapStyles } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
@@ -18,7 +17,8 @@ import {
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapFilters } from "./MapFilters";
 import LocationDialog from "./location-dialog";
 
@@ -26,18 +26,133 @@ export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
 }
 
+/** Cap markers drawn at once — purchased maps can have hundreds of pins. */
+const MAX_VISIBLE_MARKERS = 250;
+
+function getPlaceLatLng(place: any): { lat: number; lng: number } | null {
+  const coords =
+    place?.location?.mapLocation?.coordinates ||
+    place?.location?.coordinates;
+  const lat = coords?.[1] ?? place?.latitude;
+  const lng = coords?.[0] ?? place?.longitude;
+  if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) {
+    return null;
+  }
+  return { lat: Number(lat), lng: Number(lng) };
+}
+
+/** Only mount AdvancedMarkers inside the current map viewport (big win for purchased users). */
+function ViewportPlaceMarkers({
+  places,
+  fetchedCategories,
+  selectedLocation,
+  setSelectedLocation,
+}: {
+  places: any[];
+  fetchedCategories: any[];
+  selectedLocation: any;
+  setSelectedLocation: (loc: any) => void;
+}) {
+  const map = useMap();
+  const [bounds, setBounds] = useState<{
+    contains: (latLng: { lat: number; lng: number }) => boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    const updateBounds = () => {
+      setBounds(map.getBounds() ?? null);
+    };
+    updateBounds();
+    const listener = map.addListener("idle", updateBounds);
+    return () => {
+      listener.remove();
+    };
+  }, [map]);
+
+  const visiblePlaces = useMemo(() => {
+    if (!places?.length) return [];
+
+    // Before bounds ready, paint a small first batch so UI stays responsive
+    if (!bounds) {
+      return places.slice(0, 60);
+    }
+
+    const inView: any[] = [];
+    for (const place of places) {
+      const pos = getPlaceLatLng(place);
+      if (!pos) continue;
+      if (bounds.contains(pos)) {
+        inView.push(place);
+        if (inView.length >= MAX_VISIBLE_MARKERS) break;
+      }
+    }
+
+    // Keep selected marker mounted even if outside current cap
+    if (
+      selectedLocation?.id &&
+      !inView.some((p) => p._id === selectedLocation.id)
+    ) {
+      const selected = places.find((p) => p._id === selectedLocation.id);
+      if (selected) inView.unshift(selected);
+    }
+
+    return inView;
+  }, [places, bounds, selectedLocation?.id]);
+
+  return (
+    <>
+      {visiblePlaces.map((place: any) => {
+        const position = getPlaceLatLng(place);
+        if (!position) return null;
+
+        const cat =
+          typeof place.category === "object" && place.category !== null
+            ? place.category
+            : fetchedCategories.find((c: any) => c._id === place.category);
+
+        const icon = cat?.icon || "📍";
+        const color = getCategoryColor(cat);
+
+        return (
+          <AdvancedMarker
+            key={place._id}
+            position={position}
+            onClick={() => {
+              setSelectedLocation({
+                id: place._id,
+                type: place.type,
+              });
+            }}
+          >
+            <CategoryMarker
+              icon={icon}
+              color={color}
+              isSelected={selectedLocation?.id === place._id}
+              isLocked={place.isLocked}
+            />
+          </AdvancedMarker>
+        );
+      })}
+    </>
+  );
+}
+
 function CountryPanner({
   selectedCountry,
   isManualSelection,
+  disabled,
 }: {
   selectedCountry: string;
   isManualSelection: boolean;
+  disabled?: boolean;
 }) {
   const map = useMap();
   const geocodingLib = useMapsLibrary("geocoding");
 
   useEffect(() => {
     if (
+      disabled ||
       !map ||
       !geocodingLib ||
       !selectedCountry ||
@@ -59,7 +174,7 @@ function CountryPanner({
         }
       },
     );
-  }, [selectedCountry, map, geocodingLib]);
+  }, [selectedCountry, map, geocodingLib, isManualSelection, disabled]);
 
   return null;
 }
@@ -73,12 +188,43 @@ function MapPanner({
   useEffect(() => {
     if (map && position) {
       map.panTo(position);
+      map.setZoom(17);
     }
   }, [map, position]);
   return null;
 }
 
+function FocusSetup({
+  lat,
+  lng,
+  satellite,
+  active,
+}: {
+  lat: number;
+  lng: number;
+  satellite: boolean;
+  active: boolean;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !active) return;
+    if (satellite) {
+      map.setMapTypeId("satellite");
+    }
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      map.panTo({ lat, lng });
+      map.setZoom(17);
+    }
+  }, [map, lat, lng, satellite, active]);
+
+  return null;
+}
+
 export default function MapPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
   const [markerPos, setMarkerPos] = useState(defaultPosition);
 
@@ -89,9 +235,60 @@ export default function MapPage() {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [detectedCountry, setDetectedCountry] = useState<string>("");
   const [isManualSelection, setIsManualSelection] = useState(false);
-
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [pendingFocus, setPendingFocus] = useState<{
+    id: string;
+    type: string;
+    lat: number;
+    lng: number;
+    map: string;
+    satellite: boolean;
+  } | null>(null);
+  const [focusReady, setFocusReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const focusMapAppliedRef = useRef(false);
+  const focusLinkCapturedRef = useRef(false);
+
+  // Capture "View on Map" deep-link once
+  useEffect(() => {
+    if (focusLinkCapturedRef.current) return;
+
+    const focusId = searchParams.get("focus") || "";
+    const focusType = (searchParams.get("type") || "place").toLowerCase();
+    const focusMap = searchParams.get("map") || "";
+    const focusLat = parseFloat(searchParams.get("lat") || "");
+    const focusLng = parseFloat(searchParams.get("lng") || "");
+    const wantSatellite = searchParams.get("satellite") === "1";
+    const hasCoords =
+      Number.isFinite(focusLat) &&
+      Number.isFinite(focusLng) &&
+      focusLat !== 0 &&
+      focusLng !== 0;
+
+    if (!focusId && !hasCoords) return;
+
+    focusLinkCapturedRef.current = true;
+    setPendingFocus({
+      id: focusId,
+      type: focusType === "business" ? "business" : "place",
+      lat: focusLat,
+      lng: focusLng,
+      map: focusMap,
+      satellite: wantSatellite,
+    });
+    router.replace("/maps", { scroll: false });
+  }, [searchParams, router]);
+
+  /** User switching maps must fully release View-on-Map lock */
+  const handleSelectCountry = (val: string) => {
+    focusMapAppliedRef.current = true;
+    setPendingFocus(null);
+    setFocusReady(true);
+    setSelectedLocation(null);
+    setSelectedCountry(val);
+    setIsManualSelection(true);
+  };
 
   useEffect(() => {
     setHasMounted(true);
@@ -314,6 +511,17 @@ export default function MapPage() {
     );
   }, [markerPos, geocodingLib]);
 
+  // Apply deep-link map once only (never fight later manual map switches)
+  useEffect(() => {
+    if (focusMapAppliedRef.current) return;
+    if (!pendingFocus?.map || availableCountries.length === 0) return;
+    if (availableCountries.includes(pendingFocus.map)) {
+      setSelectedCountry(pendingFocus.map);
+      setIsManualSelection(true);
+      focusMapAppliedRef.current = true;
+    }
+  }, [pendingFocus, availableCountries]);
+
   // Set initial selectedCountry based on detection, profile, or default
   useEffect(() => {
     // Only set automatically if it's currently empty and not manually changed
@@ -353,7 +561,20 @@ export default function MapPage() {
     }
   }, [fetchedCategories, enabledCategories]);
 
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  // Select pin + open popup once places are ready, then release focus lock
+  useEffect(() => {
+    if (!pendingFocus?.id || focusReady || !isPlacesSettledForMap) return;
+
+    setSelectedLocation({
+      id: pendingFocus.id,
+      type: pendingFocus.type,
+    });
+    setFocusReady(true);
+
+    // Keep FocusSetup briefly for satellite + pan, then unlock map switching
+    const timer = setTimeout(() => setPendingFocus(null), 600);
+    return () => clearTimeout(timer);
+  }, [pendingFocus, focusReady, isPlacesSettledForMap]);
 
   const displayPlaces = fetchedPlaces?.filter((place: any) => {
     if (!belongsToSelectedMap(place)) return false;
@@ -411,6 +632,13 @@ export default function MapPage() {
             <CountryPanner
               selectedCountry={selectedCountry}
               isManualSelection={isManualSelection}
+              disabled={!!pendingFocus}
+            />
+            <FocusSetup
+              lat={pendingFocus?.lat ?? 0}
+              lng={pendingFocus?.lng ?? 0}
+              satellite={!!pendingFocus?.satellite}
+              active={!!pendingFocus}
             />
 
             <MapPanner
@@ -435,49 +663,13 @@ export default function MapPage() {
             {/* User's current location marker — default pin style */}
             <AdvancedMarker position={markerPos} />
 
-            {/* Render all fetched places as category-icon markers */}
-            {displayPlaces?.map((place: any) => {
-              const coords =
-                place?.location?.mapLocation?.coordinates ||
-                place?.location?.coordinates;
-              const position = {
-                lat: coords?.[1] ?? place?.latitude,
-                lng: coords?.[0] ?? place?.longitude,
-              };
-
-              if (!position.lat || !position.lng) return null;
-
-              // Resolve category — may be a populated object or just an ID
-              const cat =
-                typeof place.category === "object" && place.category !== null
-                  ? place.category
-                  : fetchedCategories.find(
-                    (c: any) => c._id === place.category,
-                  );
-
-              const icon = cat?.icon || "📍";
-              const color = getCategoryColor(cat);
-
-              return (
-                <AdvancedMarker
-                  key={place._id}
-                  position={position}
-                  onClick={() => {
-                    setSelectedLocation({
-                      id: place._id,
-                      type: place.type,
-                    });
-                  }}
-                >
-                  <CategoryMarker
-                    icon={icon}
-                    color={color}
-                    isSelected={selectedLocation?.id === place._id}
-                    isLocked={place.isLocked}
-                  />
-                </AdvancedMarker>
-              );
-            })}
+            {/* Viewport-culled markers — avoids mounting 1000 pins for purchased maps */}
+            <ViewportPlaceMarkers
+              places={displayPlaces || []}
+              fetchedCategories={fetchedCategories}
+              selectedLocation={selectedLocation}
+              setSelectedLocation={setSelectedLocation}
+            />
 
             <MapControl position={ControlPosition.TOP_LEFT}>
               <div className="flex items-start gap-2 m-3">
@@ -490,7 +682,7 @@ export default function MapPage() {
                   setSelectedLocation={setSelectedLocation}
                   selectedLocation={selectedLocation}
                   selectedCountry={selectedCountry}
-                  setSelectedCountry={setSelectedCountry}
+                  setSelectedCountry={handleSelectCountry}
                   setIsManualSelection={setIsManualSelection}
                   availableCountries={availableCountries}
                   isLoggedIn={isLoggedIn}

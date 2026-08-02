@@ -1,9 +1,20 @@
+"use client";
+
 import MapPage from "@/components/Common/maps/map";
+import { Suspense } from "react";
 
 export default function page() {
   return (
     <div>
-      <MapPage />
+      <Suspense
+        fallback={
+          <div className="flex h-[calc(100vh-90px)] items-center justify-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />
+          </div>
+        }
+      >
+        <MapPage />
+      </Suspense>
     </div>
   );
 }

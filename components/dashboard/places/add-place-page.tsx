@@ -24,6 +24,7 @@ import {
   useCreatePlaceMutation,
   useUpdatePlaceMutation,
   useExtractCoordinatesMutation,
+  useLazyGetPlaceDetailsQuery,
 } from "@/redux/features/place/placeApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import {
@@ -240,6 +241,7 @@ export default function AddPlacePage() {
   };
 
   const [createPlace, { isLoading: isCreating }] = useCreatePlaceMutation();
+  const [fetchPlaceDetails] = useLazyGetPlaceDetailsQuery();
   const [updatePlace, { isLoading: isUpdating }] = useUpdatePlaceMutation();
   const [extractCoordinates] = useExtractCoordinatesMutation();
 
@@ -313,13 +315,13 @@ export default function AddPlacePage() {
     setIsAddingMarker(false);
   };
 
-  const handleSelectPlace = (place: any) => {
+  const handleSelectPlace = async (place: any) => {
     const position = {
       lat: place?.location?.coordinates?.[1] || place?.latitude || 0,
       lng: place?.location?.coordinates?.[0] || place?.longitude || 0,
     };
 
-    // Sync all form data from the place object
+    // Sync marker from discovery list first (slim payload — no description)
     setSelectedPlace({ ...place, position, isNew: false });
 
     const catId =
@@ -330,6 +332,27 @@ export default function AddPlacePage() {
       name: place.name,
       description: place.description || "",
     });
+
+    // Load full place details (description, etc.) on demand
+    const placeId = place._id || place.id;
+    if (!placeId) return;
+    try {
+      const res = await fetchPlaceDetails(String(placeId)).unwrap();
+      const full = res?.data || res;
+      if (!full) return;
+      const fullCatId =
+        typeof full.category === "object"
+          ? full.category?._id
+          : full.category;
+      setSelectedCategoryId(fullCatId || catId || null);
+      setFormData({
+        name: full.name || place.name,
+        description: full.description || "",
+      });
+      setSelectedPlace({ ...full, position, isNew: false });
+    } catch {
+      // Keep slim discovery fields if detail fetch fails
+    }
   };
 
   const handleSavePlace = async (data?: any) => {

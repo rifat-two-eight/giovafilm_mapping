@@ -70,6 +70,7 @@ const placeApi = baseApi.injectEndpoints({
 export const {
   useGetPlacesQuery,
   useGetPlaceDetailsQuery,
+  useLazyGetPlaceDetailsQuery,
   useCreatePlaceMutation,
   useUpdatePlaceMutation,
   useDeletePlaceMutation,

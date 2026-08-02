@@ -23,7 +23,6 @@ export default function OfferSection() {
 
   const { data: offersRes, isLoading } = useGetOffersQuery({});
   const offersData = offersRes?.data || [];
-  console.log(offersData);
 
   // Fetch the user's full favourites list — persists across reloads
   const { data: favouritesRes } = useGetFavouritesQuery();
@@ -124,9 +123,6 @@ export default function OfferSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredOffers.map((offer: any) => {
             const favourited = isOfferFavourited(offer._id);
-            console.log("offer data:", offer);
-            console.log("offer.photo:", offer.photo);
-            console.log("offer.place:", offer.place);
 
             // Handle case where offer.place is an object
             const placeId = (offer.place && typeof offer.place === 'object') ? offer.place._id : (offer.place || null);
