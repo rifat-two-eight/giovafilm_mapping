@@ -108,7 +108,7 @@ export default function MapPage() {
   const geocodingLib = useMapsLibrary("geocoding");
 
   const handleToggle = (id: string, value: boolean) => {
-    setEnabledCategories((prev) => ({ ...prev, [id]: value }));
+    setEnabledCategories((prev) => ({ ...prev, [String(id)]: value }));
   };
 
   const { data: mapsResponse, isLoading: isLoadingMaps } = useGetMapsQuery({
@@ -144,13 +144,17 @@ export default function MapPage() {
       ? categoriesRes
       : [];
 
+  // Avoid infinite loading if country name doesn't match a map.
+  // Avoid full-panel flash on background refetch when data already exists.
   const isCategoriesLoading =
     isLoadingUser ||
     isLoadingMaps ||
     isLoadingCategories ||
     isLoadingPlaces ||
-    isFetchingPlaces ||
-    (!!selectedCountry && !mapIdFilter && availableCountries.length > 0);
+    (isFetchingPlaces && !placesRes) ||
+    (!!selectedCountry &&
+      !mapIdFilter &&
+      (isLoadingMaps || availableCountries.includes(selectedCountry)));
 
   // Identify categories that are inherently "business"
   const inherentlyBusinessCatIds = new Set(
@@ -274,7 +278,7 @@ export default function MapPage() {
     ) {
       const initial: Record<string, boolean> = {};
       fetchedCategories.forEach((c: any) => {
-        initial[c._id] = true; // ← all switches ON by default
+        initial[String(c._id)] = true;
       });
       setEnabledCategories(initial);
     }
@@ -343,18 +347,17 @@ export default function MapPage() {
             <MapPanner
               position={
                 selectedLocation
-                  ? displayPlaces.find(
-                    (p: any) => p._id === selectedLocation.id,
-                  )?.location?.coordinates
-                    ? {
-                      lat: displayPlaces.find(
+                  ? (() => {
+                      const selected = displayPlaces.find(
                         (p: any) => p._id === selectedLocation.id,
-                      )?.location?.coordinates?.[1],
-                      lng: displayPlaces.find(
-                        (p: any) => p._id === selectedLocation.id,
-                      )?.location?.coordinates?.[0],
-                    }
-                    : null
+                      );
+                      const coords =
+                        selected?.location?.mapLocation?.coordinates ||
+                        selected?.location?.coordinates;
+                      return coords?.[0] != null && coords?.[1] != null
+                        ? { lat: coords[1], lng: coords[0] }
+                        : null;
+                    })()
                   : null
               }
             />
@@ -365,9 +368,12 @@ export default function MapPage() {
 
             {/* Render all fetched places as category-icon markers */}
             {displayPlaces?.map((place: any) => {
+              const coords =
+                place?.location?.mapLocation?.coordinates ||
+                place?.location?.coordinates;
               const position = {
-                lat: place?.location?.coordinates?.[1] || place?.latitude,
-                lng: place?.location?.coordinates?.[0] || place?.longitude,
+                lat: coords?.[1] ?? place?.latitude,
+                lng: coords?.[0] ?? place?.longitude,
               };
 
               if (!position.lat || !position.lng) return null;

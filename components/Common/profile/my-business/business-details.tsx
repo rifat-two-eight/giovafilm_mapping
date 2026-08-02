@@ -306,26 +306,32 @@ export default function BusinessDetails() {
               <h3 className="text-xl font-bold text-slate-900 px-2 flex items-center gap-2">
                 Photo Gallery
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {business.media?.photos?.map((photo: string, index: number) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.02 }}
-                    className="relative aspect-square rounded-[2rem] overflow-hidden border border-slate-200 group"
-                  >
-                    <Image
-                      src={getImageUrl(photo)}
-                      alt={`Gallery ${index}`}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Eye className="text-white" size={32} />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              {business.media?.photos?.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {business.media.photos.map((photo: string, index: number) => (
+                    <motion.div
+                      key={index}
+                      whileHover={{ scale: 1.02 }}
+                      className="relative aspect-square rounded-[2rem] overflow-hidden border border-slate-200 group"
+                    >
+                      <Image
+                        src={getImageUrl(photo)}
+                        alt={`Gallery ${index}`}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="text-white" size={32} />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center text-sm text-slate-400 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+                  No photos available.
+                </div>
+              )}
             </div>
           </div>
 

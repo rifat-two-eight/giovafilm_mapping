@@ -49,13 +49,6 @@ export default function ExplorePlaces() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
 
-  useEffect(() => {
-    const saved = localStorage.getItem("selectedCountryFilter");
-    if (saved) {
-      setSelectedCountry(saved);
-    }
-  }, []);
-
   const getSortValue = (filterLabel: string) => {
     switch (filterLabel) {
       case "Popular":
@@ -75,6 +68,24 @@ export default function ExplorePlaces() {
   );
   const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
 
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedCountryFilter");
+    if (saved) {
+      setSelectedCountry(saved);
+    }
+  }, []);
+
+  // Clear stale localStorage country that no longer exists in maps
+  useEffect(() => {
+    const maps = mapsResponse?.data;
+    if (isLoadingMaps || !maps?.length || !selectedCountry) return;
+    const exists = maps.some((m: any) => m.name === selectedCountry);
+    if (!exists) {
+      setSelectedCountry("");
+      localStorage.removeItem("selectedCountryFilter");
+    }
+  }, [isLoadingMaps, mapsResponse, selectedCountry]);
+
   const { data: response, isLoading, isFetching } = useGetPlacesQuery({
     page,
     limit,
@@ -85,11 +96,13 @@ export default function ExplorePlaces() {
 
   const places = response?.data || [];
   const meta = response?.meta;
+  const isWaitingForMapId =
+    !!selectedCountry &&
+    !mapIdFilter &&
+    (isLoadingMaps ||
+      !!mapsResponse?.data?.some((m: any) => m.name === selectedCountry));
   const isPlacesLoading =
-    isLoading ||
-    isFetching ||
-    isLoadingMaps ||
-    (!!selectedCountry && !mapIdFilter);
+    isLoading || (isFetching && !response) || isWaitingForMapId;
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

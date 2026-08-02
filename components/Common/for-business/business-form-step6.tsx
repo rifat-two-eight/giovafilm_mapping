@@ -74,17 +74,28 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <div className="grid md:grid-cols-3 gap-6 pt-4">
-                {plans.map((plan) => (
-                  <PricingCard
-                    key={plan._id}
-                    plan={plan}
-                    isSelected={selectedPlan === plan._id}
-                    onSelect={(id) => field.onChange(id)}
-                    isFormStep={true}
-                  />
-                ))}
-              </div>
+              {plans.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
+                  <p className="text-gray-500 font-medium text-lg">
+                    No subscription plans available.
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">
+                    Please check back later or contact support.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-3 gap-6 pt-4">
+                  {plans.map((plan) => (
+                    <PricingCard
+                      key={plan._id}
+                      plan={plan}
+                      isSelected={selectedPlan === plan._id}
+                      onSelect={(id) => field.onChange(id)}
+                      isFormStep={true}
+                    />
+                  ))}
+                </div>
+              )}
             </FormControl>
             <FormMessage />
           </FormItem>

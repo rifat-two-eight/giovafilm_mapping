@@ -306,12 +306,20 @@ export default function AwardsPage() {
                 </div>
               )}
 
-              {/* Empty State */}
-              {awardsData.length === 0 && (
+              {/* Empty States */}
+              {awardsData.length === 0 ? (
                 <div className="text-center py-20 text-gray-500 font-medium">
                   No awards found. Check back later!
                 </div>
-              )}
+              ) : activeFilter === "unlocked" && unlockedAwards.length === 0 ? (
+                <div className="text-center py-20 text-gray-500 font-medium">
+                  No unlocked awards yet. Keep exploring to earn rewards!
+                </div>
+              ) : activeFilter === "locked" && lockedAwards.length === 0 ? (
+                <div className="text-center py-20 text-gray-500 font-medium">
+                  No awards in progress right now.
+                </div>
+              ) : null}
 
               {/* Pagination Controls */}
               {totalPages > 1 && (

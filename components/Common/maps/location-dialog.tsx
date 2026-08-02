@@ -90,6 +90,33 @@ export default function LocationDialog({ id, onClose }: Props) {
     );
   }
 
+  if (!location) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
+        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative p-8 text-center space-y-4">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow"
+          >
+            <X size={20} />
+          </button>
+          <h2 className="text-xl font-bold text-gray-900 pt-2">
+            Location not found
+          </h2>
+          <p className="text-sm text-gray-500">
+            This location is unavailable or may have been removed.
+          </p>
+          <Button
+            onClick={onClose}
+            className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12"
+          >
+            Close
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
       <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative">

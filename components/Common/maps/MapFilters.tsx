@@ -87,7 +87,7 @@ export function MapFilters({
                 <div className="">
                   <Accordion type="single" collapsible className="w-full">
                     {fetchedCategories.map((cat: any) => {
-                      const enabled = enabledCategories[cat._id] ?? true;
+                      const enabled = enabledCategories[String(cat._id)] ?? true;
                       const placesInCat = fetchedPlaces.filter((p: any) => {
                         const pCatId =
                           typeof p.category === "object" && p.category !== null
@@ -123,7 +123,7 @@ export function MapFilters({
                               <Switch
                                 checked={enabled}
                                 onCheckedChange={(val) =>
-                                  handleToggle(cat._id, val)
+                                  handleToggle(String(cat._id), val)
                                 }
                                 className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
                               />
@@ -199,15 +199,21 @@ export function MapFilters({
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl border border-gray-100 shadow-xl capitalize">
-            {availableCountries.map((country: string) => (
-              <SelectItem
-                key={country}
-                value={country}
-                className="capitalize font-medium"
-              >
-                {country}
-              </SelectItem>
-            ))}
+            {availableCountries.length === 0 ? (
+              <div className="px-3 py-6 text-center text-sm text-gray-500">
+                No maps available.
+              </div>
+            ) : (
+              availableCountries.map((country: string) => (
+                <SelectItem
+                  key={country}
+                  value={country}
+                  className="capitalize font-medium"
+                >
+                  {country}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>

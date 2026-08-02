@@ -187,11 +187,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((cat: any) => (
-                      <SelectItem key={cat._id} value={cat._id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
+                    {!isLoadingCats && categories.length === 0 ? (
+                      <div className="px-3 py-6 text-center text-sm text-gray-500">
+                        No categories found.
+                      </div>
+                    ) : (
+                      categories.map((cat: any) => (
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -387,11 +393,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {maps.map((map: any) => (
-                      <SelectItem key={map._id} value={map.name}>
-                        {map.name}
-                      </SelectItem>
-                    ))}
+                    {!isLoadingMaps && maps.length === 0 ? (
+                      <div className="px-3 py-6 text-center text-sm text-gray-500">
+                        No maps found.
+                      </div>
+                    ) : (
+                      maps.map((map: any) => (
+                        <SelectItem key={map._id} value={map.name}>
+                          {map.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />

@@ -176,25 +176,31 @@ export default function BusinessDetailPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-              {business.media?.photos?.map((photo: string, idx: number) => (
-                <div
-                  key={idx}
-                  className="rounded-xl aspect-square overflow-hidden group relative"
-                >
-                  {photo ? (
-                    <Image
-                      src={getImageUrl(photo)}
-                      alt=""
-                      width={100}
-                      height={100}
-                      unoptimized
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <NoImage />
-                  )}
+              {business.media?.photos?.length > 0 ? (
+                business.media.photos.map((photo: string, idx: number) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl aspect-square overflow-hidden group relative"
+                  >
+                    {photo ? (
+                      <Image
+                        src={getImageUrl(photo)}
+                        alt=""
+                        width={100}
+                        height={100}
+                        unoptimized
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <NoImage />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-12 text-center text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  No photos available.
                 </div>
-              ))}
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-gray-100 gap-6">

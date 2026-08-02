@@ -55,6 +55,15 @@ export default function PricingPage() {
               Try Again
             </Button>
           </div>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">
+            <p className="text-gray-500 font-medium text-lg">
+              No pricing plans available.
+            </p>
+            <p className="mt-2 text-sm text-gray-400">
+              Please check back later.
+            </p>
+          </div>
         ) : (
           /* Pricing Grid */
           <div className="grid md:grid-cols-3 gap-8 items-stretch pt-8">

@@ -111,6 +111,15 @@ export default function SubscriptionPage() {
           <div className="col-span-full flex justify-center py-20">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
           </div>
+        ) : plans.length === 0 ? (
+          <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+            <p className="text-gray-500 font-medium text-lg">
+              No subscription plans available.
+            </p>
+            <p className="mt-2 text-sm text-gray-400">
+              Click &quot;Add New Plan&quot; to create one.
+            </p>
+          </div>
         ) : (
           plans.map((plan: any) => (
             <SubscriptionCard
