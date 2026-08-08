@@ -2,6 +2,7 @@
 
 import { useGetMyBusinessesQuery, useDeleteBusinessMutation } from "@/redux/features/business/businessApi";
 import { getImageUrl } from "@/lib/utils";
+import { useState } from "react";
 import {
   Building2,
   MapPin,
@@ -40,6 +41,7 @@ export default function MyBusinessPage() {
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
+  const [loadingBusinessId, setLoadingBusinessId] = useState<string | null>(null);
 
   const [deleteBusiness] = useDeleteBusinessMutation();
 
@@ -83,6 +85,7 @@ export default function MyBusinessPage() {
   };
 
   const handlePayNow = async (planId: string, businessId: string) => {
+    setLoadingBusinessId(businessId);
     const data = {
       planId,
       businessId,
@@ -97,6 +100,8 @@ export default function MyBusinessPage() {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoadingBusinessId(null);
     }
   };
 
@@ -192,10 +197,21 @@ export default function MyBusinessPage() {
                   )}
 
                   {/* Category Badge */}
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1   rounded-full flex items-center gap-2 shadow-sm border border-white/20">
-                    <span className="text-base">
-                      {business.category?.icon || "🏢"}
-                    </span>
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 shadow-sm border border-white/20">
+                    {business.category?.icon ? (
+                      business.category.icon.startsWith("/") ||
+                      business.category.icon.startsWith("http") ? (
+                        <img
+                          src={getImageUrl(business.category.icon)}
+                          alt=""
+                          className="w-4 h-4 object-contain"
+                        />
+                      ) : (
+                        <span className="text-base">{business.category.icon}</span>
+                      )
+                    ) : (
+                      <span className="text-base">🏢</span>
+                    )}
                     <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                       {business.category?.name || "General"}
                     </span>
@@ -309,7 +325,7 @@ export default function MyBusinessPage() {
                           disabled={isPaymentLoading}
                           className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg h-9 text-xs"
                         >
-                          {isPaymentLoading ? "Processing..." : "Activate Listing (Pay Now)"}
+                          {isPaymentLoading && loadingBusinessId === business._id ? "Processing..." : "Activate Listing (Pay Now)"}
                         </Button>
                       ) : (
                         <Link href="/pricing">
