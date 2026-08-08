@@ -15,7 +15,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hook";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
-
+import Swal from "sweetalert2";
+ 
 export default function RestaurantDetail() {
   const params = useParams();
   const pathname = usePathname();
@@ -23,30 +24,30 @@ export default function RestaurantDetail() {
   const offerId = params.id as string;
   const user = useAppSelector(selectCurrentUser);
   const STORAGE_KEY = `offer_redeem_${offerId}_expiry`;
-
+ 
   const { data: offerRes, isLoading, error: offerError, refetch } = useGetSingleOfferQuery(offerId, {
     skip: !offerId,
   });
   const offer = offerRes?.data;
-
+ 
   const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
-
+ 
   const [timeLeft, setTimeLeft] = useState<string>(offer?.redemptionDuration);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [expiry, setExpiry] = useState<string | null>(null);
-
+ 
   // Refetch the offer when component mounts and when user comes back
   useEffect(() => {
     if (offerId) {
       refetch();
     }
   }, [offerId, refetch]);
-
+ 
   useEffect(() => {
     // Check both localStorage and offer.activeRedemption
     const storedExpiry = localStorage.getItem(STORAGE_KEY);
     let activeExpiry = offer?.activeRedemption?.expiresAt;
-
+ 
     // If storedExpiry exists and is still valid, use it
     if (storedExpiry) {
       const now = new Date().getTime();
@@ -57,21 +58,21 @@ export default function RestaurantDetail() {
         localStorage.removeItem(STORAGE_KEY);
       }
     }
-
+ 
     if (activeExpiry) {
       setExpiry(activeExpiry);
       localStorage.setItem(STORAGE_KEY, activeExpiry);
     }
   }, [offer, offerId, STORAGE_KEY]);
-
+ 
   useEffect(() => {
     if (!expiry) return;
-
+ 
     setIsTimerActive(true);
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = new Date(expiry).getTime() - now;
-
+ 
       if (distance < 0) {
         clearInterval(timer);
         setTimeLeft("00:00");
@@ -80,35 +81,71 @@ export default function RestaurantDetail() {
         localStorage.removeItem(STORAGE_KEY);
         return;
       }
-
+ 
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
+ 
       setTimeLeft(
         `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
       );
     }, 1000);
-
+ 
     return () => clearInterval(timer);
   }, [expiry, STORAGE_KEY]);
-
+ 
   const handleRedeem = async () => {
     if (!user) {
       toast.error("Please login to redeem this offer");
       router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
-
-    try {
-      const res = await redeemOffer(offerId).unwrap();
-      if (res.data?.expiresAt) {
-        toast.success("Offer redeemed successfully!");
-        setExpiry(res.data.expiresAt);
-        localStorage.setItem(STORAGE_KEY, res.data.expiresAt);
+ 
+    let timerInterval: any;
+    Swal.fire({
+      title: "Confirm Offer Redemption",
+      html: `
+        <div class="flex flex-col items-center text-center space-y-3 font-inter">
+          <p class="text-gray-500 text-sm">
+            Accidental redemption cannot be undone. Validating in <b class="text-yellow-500 text-lg">3</b> seconds...
+          </p>
+        </div>
+      `,
+      timer: 3000,
+      timerProgressBar: true,
+      showCancelButton: true,
+      confirmButtonText: "Proceed Now",
+      cancelButtonText: "Cancel",
+      customClass: {
+        popup: "rounded-3xl p-6",
+        confirmButton: "bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 w-full sm:w-auto font-inter text-sm",
+        cancelButton: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 ml-3 w-full sm:w-auto font-inter text-sm"
+      },
+      buttonsStyling: false,
+      didOpen: () => {
+        const b = Swal.getHtmlContainer()?.querySelector('b');
+        timerInterval = setInterval(() => {
+          if (b) {
+            b.textContent = Math.ceil((Swal.getTimerLeft() || 0) / 1000).toString();
+          }
+        }, 100);
+      },
+      willClose: () => {
+        clearInterval(timerInterval);
       }
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to redeem offer");
-    }
+    }).then(async (result) => {
+      if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+        try {
+          const res = await redeemOffer(offerId).unwrap();
+          if (res.data?.expiresAt) {
+            toast.success("Offer redeemed successfully!");
+            setExpiry(res.data.expiresAt);
+            localStorage.setItem(STORAGE_KEY, res.data.expiresAt);
+          }
+        } catch (err: any) {
+          toast.error(err?.data?.message || "Failed to redeem offer");
+        }
+      }
+    });
   };
 
   // Check if the current path is from /maps
