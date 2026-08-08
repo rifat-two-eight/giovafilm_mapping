@@ -172,10 +172,19 @@ export default function OfferSection() {
               }
             };
 
+            // Build the href: business page → place page → offer page as fallback
+            const businessId = offer.business?._id || (typeof offer.business === 'string' ? offer.business : null);
+            const offerPlaceId = placeId;
+            const offerHref = businessId
+              ? `/maps?focus=${businessId}&type=business`
+              : offerPlaceId
+                ? `/places/${offerPlaceId}`
+                : `/offer/${offer?._id}`;
+
             return (
               <Link
                 key={offer._id}
-                href={`/offer/${offer?._id}`}
+                href={offerHref}
                 onClick={handleOfferClick}
               >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">

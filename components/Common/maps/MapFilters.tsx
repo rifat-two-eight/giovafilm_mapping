@@ -190,7 +190,7 @@ export function MapFilters({
                                         />
                                         <div className="flex flex-col min-w-0">
                                           <span className="truncate">
-                                            {place.name}
+                                            {place.isLocked ? "🔒 Premium Location" : place.name}
                                           </span>
                                         </div>
                                       </button>

@@ -18,27 +18,32 @@ import Link from "next/link";
 import { useState } from "react";
 import ProfileUpdateModal from "./profile-update-modal";
 import { NoImage } from "@/lib/others/others";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 
-const profileLinks = [
+const allProfileLinks = [
   {
     href: "/profile/favorite-places",
     label: "Favorites",
     icon: Heart,
+    roles: ["all"],
   },
   {
     href: "/profile/purchased-maps",
     label: "Purchased Maps",
     icon: Map,
+    roles: ["user"],
   },
   {
     href: "/profile/contributions-reviews",
     label: "Contributions",
     icon: Star,
+    roles: ["all"],
   },
   {
     href: "/profile/awards",
     label: "Awards",
     icon: Trophy,
+    roles: ["all"],
   },
 ];
 
@@ -63,6 +68,14 @@ export function ProfileSidebar({ data }: ProfileProps) {
   const [open, setOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+
+  const { data: profile } = useGetProfileQuery({});
+  const isAdminOrEditor = ["admin", "super_admin", "map_editor"].includes(profile?.role || "");
+
+  // Admins/Editors: hide "Purchased Maps" (they don't buy maps)
+  const profileLinks = allProfileLinks.filter((link) =>
+    link.roles.includes("all") || (!isAdminOrEditor && link.roles.includes("user"))
+  );
 
   const handleShare = async () => {
     setIsSharing(true);

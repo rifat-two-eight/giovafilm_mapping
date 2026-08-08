@@ -512,11 +512,10 @@ export default function MapDetails() {
                         type="button"
                         aria-label={`Go to photo ${index + 1}`}
                         onClick={() => carouselApi?.scrollTo(index)}
-                        className={`h-1.5 rounded-full transition-all ${
-                          currentSlide === index
+                        className={`h-1.5 rounded-full transition-all ${currentSlide === index
                             ? "w-6 bg-yellow-400"
                             : "w-1.5 bg-white/55 hover:bg-white"
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>
@@ -569,11 +568,10 @@ export default function MapDetails() {
                     key={index}
                     type="button"
                     onClick={() => carouselApi?.scrollTo(index)}
-                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                      currentSlide === index
+                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${currentSlide === index
                         ? "border-yellow-400 ring-2 ring-yellow-200"
                         : "border-transparent opacity-80 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     {isVideo(media) ? (
                       <video
@@ -625,72 +623,98 @@ export default function MapDetails() {
               </Button>
 
               {!isBusiness && (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      onClick={handleDirections}
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <Send size={16} className="mr-1.5" />
-                      Directions
-                    </Button>
-                    <Button
-                      onClick={() => setIsReviewOpen(true)}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <MessageSquare size={16} className="mr-1.5" />
-                      Review
-                    </Button>
-                  </div>
-                </>
+                <Button
+                  onClick={handleDirections}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
+                >
+                  <Send size={16} className="mr-1.5" />
+                  Directions
+                </Button>
               )}
 
               {isBusiness && (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      onClick={handleDirections}
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <Send size={16} className="mr-1.5" />
-                      Directions
-                    </Button>
-                    {hasText(placeData?.phone) ? (
-                      <a href={`tel:${placeData.phone}`} className="w-full">
-                        <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all">
-                          <Phone size={16} className="mr-1.5" />
-                          Call
-                        </Button>
-                      </a>
-                    ) : (
-                      <Button
-                        disabled
-                        title="This business hasn’t shared a phone number"
-                        className="w-full bg-gray-50 text-gray-500 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed"
-                      >
-                        <Phone size={16} className="mr-1.5" />
-                        No phone
-                      </Button>
-                    )}
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
                   <Button
-                    onClick={() => setIsReviewOpen(true)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-11 text-sm rounded-xl transition-all"
+                    onClick={handleDirections}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
                   >
-                    <MessageSquare size={16} className="mr-1.5" />
-                    Write Review
+                    <Send size={16} className="mr-1.5" />
+                    Directions
                   </Button>
-                  {offerId && (
-                    <Link href={`/offer/${offerId}`} className="block">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all">
-                        <Ticket size={16} className="mr-1.5" />
-                        Discounts
+                  {hasText(placeData?.phone) ? (
+                    <a href={`tel:${placeData.phone}`} className="w-full">
+                      <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all">
+                        <Phone size={16} className="mr-1.5" />
+                        Call
                       </Button>
-                    </Link>
+                    </a>
+                  ) : (
+                    <Button
+                      disabled
+                      title="This business hasn't shared a phone number"
+                      className="w-full bg-gray-50 text-gray-500 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed"
+                    >
+                      <Phone size={16} className="mr-1.5" />
+                      No phone
+                    </Button>
                   )}
-                </>
+                </div>
               )}
             </div>
+
+            {/* OFFERS & DISCOUNTS — inline below action buttons */}
+            {offersList.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Ticket size={16} className="text-blue-600" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                    Offers & Discounts ({offersList.length})
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {offersList.map((offer: any) => {
+                    const discountLabel =
+                      offer.discountType === "Percentage"
+                        ? `${offer.discountValue}%`
+                        : offer.discountType === "Flat"
+                          ? `$${offer.discountValue}`
+                          : offer.discountValue;
+                    return (
+                      <div
+                        key={offer._id}
+                        className="flex items-center gap-3 p-3 bg-white border border-blue-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-300 transition-all"
+                      >
+                        {/* Circle discount badge */}
+                        <div className="shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex flex-col items-center justify-center shadow-md">
+                          <span className="text-white font-black text-sm leading-tight">{discountLabel}</span>
+                          <span className="text-blue-200 text-[9px] font-bold uppercase leading-tight">OFF</span>
+                        </div>
+
+                        {/* Text content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm text-gray-900 truncate">{offer.title}</p>
+                          {offer.description && (
+                            <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{offer.description}</p>
+                          )}
+                          {offer.validUntil && (
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              Valid until {new Date(offer.validUntil).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* REDEEM — links to offer detail page so the full redeem flow works */}
+                        <Link href={`/offer/${offer._id}`} className="shrink-0">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 h-auto rounded-xl whitespace-nowrap shadow-sm">
+                            REDEEM
+                          </Button>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -759,12 +783,11 @@ export default function MapDetails() {
 
                 <AccordionContent className="px-6 pb-6 space-y-5">
                   <p
-                    className={`leading-relaxed ${
-                      hasText(placeData?.recommendations?.tips) ||
-                      hasText(placeData?.details?.recommendations)
+                    className={`leading-relaxed ${hasText(placeData?.recommendations?.tips) ||
+                        hasText(placeData?.details?.recommendations)
                         ? "text-gray-700"
                         : "text-gray-400 italic"
-                    }`}
+                      }`}
                   >
                     {placeData?.recommendations?.tips ||
                       placeData?.details?.recommendations ||
@@ -870,65 +893,6 @@ export default function MapDetails() {
                 </AccordionContent>
               </AccordionItem>
             )}
-
-            {/* OFFERS & DISCOUNTS */}
-            {offersList.length > 0 && (
-              <AccordionItem
-                value="offers"
-                className="border rounded-xl bg-white"
-              >
-                <AccordionTrigger className="font-semibold px-6 hover:no-underline text-blue-600">
-                  <div className="flex items-center gap-2">
-                    <Ticket size={20} />
-                    OFFERS & DISCOUNTS ({offersList.length})
-                  </div>
-                </AccordionTrigger>
-
-                <AccordionContent className="px-6 pb-6 space-y-4">
-                  <div className="grid gap-4">
-                    {offersList.map((offer: any) => (
-                      <div
-                        key={offer._id}
-                        className="p-4 border border-blue-100 bg-blue-50/30 rounded-xl relative overflow-hidden group hover:bg-blue-50 transition-colors"
-                      >
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex-1 space-y-1">
-                            <h4 className="font-bold text-lg text-gray-900 leading-tight">
-                              {offer.title}
-                            </h4>
-                            <p className="text-sm text-gray-600 line-clamp-2">
-                              {offer.description}
-                            </p>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">
-                                {offer.discountType === "Percentage"
-                                  ? `${offer.discountValue}% OFF`
-                                  : offer.discountType === "Flat"
-                                    ? `$${offer.discountValue} OFF`
-                                    : offer.discountType}
-                              </span>
-                              {offer.validUntil && (
-                                <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase">
-                                  Valid until:{" "}
-                                  {new Date(
-                                    offer.validUntil,
-                                  ).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <Link href={`/discounts/${id}`} className="shrink-0">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 h-auto rounded-lg">
-                              REDEEM
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            )}
           </Accordion>
         </div>
 
@@ -944,9 +908,8 @@ export default function MapDetails() {
             <div className="grid md:grid-cols-2 gap-4">
               {/* WEBSITE */}
               <div
-                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${
-                  hasText(placeData?.website) ? "hover:shadow-md" : "opacity-90"
-                }`}
+                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.website) ? "hover:shadow-md" : "opacity-90"
+                  }`}
               >
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="bg-blue-50 p-3 rounded-xl shrink-0">🌐</div>
@@ -982,11 +945,10 @@ export default function MapDetails() {
 
               {/* INSTAGRAM */}
               <div
-                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${
-                  hasText(placeData?.instagram)
+                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.instagram)
                     ? "hover:shadow-md"
                     : "opacity-90"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="bg-pink-50 p-3 rounded-xl shrink-0">📸</div>
@@ -1077,11 +1039,10 @@ export default function MapDetails() {
                         <Star
                           key={i}
                           size={14}
-                          className={`${
-                            i < Math.floor(rev.rating)
+                          className={`${i < Math.floor(rev.rating)
                               ? "fill-yellow-400 text-yellow-400"
                               : "text-gray-200"
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
@@ -1249,7 +1210,7 @@ export default function MapDetails() {
                         setPosition({ x: 0, y: 0 });
                         setSelectedMediaIndex(
                           (selectedMediaIndex - 1 + mediaList.length) %
-                            mediaList.length,
+                          mediaList.length,
                         );
                       }}
                       className="absolute left-2 md:left-6 top-1/2 z-[60] -translate-y-1/2 rounded-full bg-black/50 p-2 text-white backdrop-blur hover:bg-black/70 md:p-3"
@@ -1288,11 +1249,10 @@ export default function MapDetails() {
                     setPosition({ x: 0, y: 0 });
                     setSelectedMediaIndex(index);
                   }}
-                  className={`relative h-14 w-16 shrink-0 overflow-hidden rounded-md border-2 ${
-                    selectedMediaIndex === index
+                  className={`relative h-14 w-16 shrink-0 overflow-hidden rounded-md border-2 ${selectedMediaIndex === index
                       ? "border-yellow-400"
                       : "border-white/20 opacity-70 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   {isVideo(media) ? (
                     <video
