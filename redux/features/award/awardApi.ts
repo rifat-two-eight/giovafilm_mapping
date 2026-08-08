@@ -37,6 +37,21 @@ export const awardApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Award"],
     }),
+    createAwardConfig: builder.mutation({
+      query: (data) => ({
+        url: "/awards/configs",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Award"],
+    }),
+    deleteAwardConfig: builder.mutation({
+      query: (id) => ({
+        url: `/awards/configs/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Award"],
+    }),
   }),
 });
 
@@ -45,4 +60,6 @@ export const {
   useRedeemFreeMapMutation,
   useGetAwardConfigsQuery,
   useUpdateAwardConfigMutation,
+  useCreateAwardConfigMutation,
+  useDeleteAwardConfigMutation,
 } = awardApi;

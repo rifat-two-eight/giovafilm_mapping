@@ -8,28 +8,35 @@ import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
   useGetAwardConfigsQuery,
   useUpdateAwardConfigMutation,
+  useCreateAwardConfigMutation,
+  useDeleteAwardConfigMutation,
 } from "@/redux/features/award/awardApi";
 import { getImageUrl } from "@/lib/utils";
-import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText } from "lucide-react";
+import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export default function RewardsAdminPage() {
   const { data: configsRes, isLoading: isLoadingConfigs } = useGetAwardConfigsQuery();
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const [updateAwardConfig, { isLoading: isUpdating }] = useUpdateAwardConfigMutation();
+  const [createAwardConfig, { isLoading: isCreating }] = useCreateAwardConfigMutation();
+  const [deleteAwardConfig] = useDeleteAwardConfigMutation();
 
   const configs = configsRes?.data || [];
   const maps = mapsRes?.data || [];
 
   const [open, setOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
+  const [isCreateMode, setIsCreateMode] = useState(false);
 
   // Form states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [target, setTarget] = useState("");
   const [mapId, setMapId] = useState("");
+  const [type, setType] = useState("PDF Itinerary");
 
   // File upload states
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -38,16 +45,56 @@ export default function RewardsAdminPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
+  const handleOpenCreate = () => {
+    setSelectedReward(null);
+    setTitle("");
+    setDescription("");
+    setTarget("0");
+    setMapId("");
+    setType("PDF Itinerary");
+    setCoverPreview(null);
+    setCoverFile(null);
+    setPdfFile(null);
+    setIsCreateMode(true);
+    setOpen(true);
+  };
+
   const handleOpenEdit = (reward: any) => {
     setSelectedReward(reward);
     setTitle(reward.title || "");
     setDescription(reward.description || "");
     setTarget(reward.target?.toString() || "0");
     setMapId(reward.mapId?._id || reward.mapId || "");
+    setType(reward.type || "PDF Itinerary");
     setCoverPreview(getImageUrl(reward.coverPhoto));
     setCoverFile(null);
     setPdfFile(null);
+    setIsCreateMode(false);
     setOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this reward deletion!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteAwardConfig(id).unwrap();
+          toast.success("Reward deleted successfully");
+        } catch (error: any) {
+          toast.error(
+            error?.data?.message || error?.message || "Failed to delete reward",
+          );
+          console.error("Failed to delete reward:", error);
+        }
+      }
+    });
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,10 +114,10 @@ export default function RewardsAdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedReward) return;
 
     try {
       const rewardData = {
+        type,
         title,
         description,
         target: Number(target) || 0,
@@ -87,15 +134,20 @@ export default function RewardsAdminPage() {
         formData.append("documents", pdfFile);
       }
 
-      await updateAwardConfig({ id: selectedReward._id, data: formData }).unwrap();
-      toast.success("Reward configuration updated successfully!");
+      if (isCreateMode) {
+        await createAwardConfig(formData).unwrap();
+        toast.success("Reward configuration created successfully!");
+      } else {
+        if (!selectedReward) return;
+        await updateAwardConfig({ id: selectedReward._id, data: formData }).unwrap();
+        toast.success("Reward configuration updated successfully!");
+      }
       setOpen(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update reward configuration");
+      toast.error(error?.data?.message || "Failed to save reward configuration");
       console.error(error);
     }
   };
-
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       {/* Header */}
@@ -104,6 +156,13 @@ export default function RewardsAdminPage() {
           <h1 className="text-2xl font-semibold text-gray-800">Rewards Management</h1>
           <p className="text-xs text-gray-500">Configure cover photos, files, points, and descriptions for user rewards.</p>
         </div>
+        <Button
+          onClick={handleOpenCreate}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg px-4 py-2"
+        >
+          <Plus size={16} />
+          Add Reward
+        </Button>
       </div>
 
       {/* Grid List */}
@@ -185,12 +244,20 @@ export default function RewardsAdminPage() {
 
                     {/* Actions */}
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleOpenEdit(reward)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
-                      >
-                        <Edit size={14} /> Edit
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEdit(reward)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+                        >
+                          <Edit size={14} /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(reward._id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -200,14 +267,37 @@ export default function RewardsAdminPage() {
         </div>
       </div>
 
-      {/* Edit Dialog */}
+      {/* Edit/Create Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold">Edit Reward: {selectedReward?.type}</DialogTitle>
+            <DialogTitle className="text-lg font-bold">
+              {isCreateMode ? "Add New Reward" : `Edit Reward: ${selectedReward?.type}`}
+            </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+            {/* Reward Type */}
+            <div className="space-y-1">
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Reward Type</Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                required
+              >
+                <option value="PDF Itinerary">PDF Itinerary</option>
+                <option value="Free Map">Free Map</option>
+                <option value="Gourmet Guide">Gourmet Guide</option>
+                <option value="Top Reviewer">Top Reviewer</option>
+                <option value="Trail Master">Trail Master</option>
+                <option value="History Buff">History Buff</option>
+                <option value="Legendary Explorer">Legendary Explorer</option>
+                <option value="Exclusive Discount">Exclusive Discount</option>
+                <option value="Permanent Discount">Permanent Discount</option>
+              </select>
+            </div>
+
             {/* Title */}
             <div className="space-y-1">
               <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Reward Title</Label>
@@ -337,10 +427,10 @@ export default function RewardsAdminPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isUpdating}
+                disabled={isCreating || isUpdating}
                 className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl"
               >
-                {isUpdating ? "Saving..." : "Save Changes"}
+                {isCreating || isUpdating ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>
