@@ -15,6 +15,8 @@ import { UpdatePlaceModal } from "./UpdatePlaceModal";
 import { ViewPlaceModal } from "./view-place-modal";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { editorCanAccessMap } from "@/lib/editor-access";
+import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
+import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 
 interface Place {
   _id: string;
@@ -37,6 +39,8 @@ export function PlacesTable() {
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("");
+  const [category, setCategory] = useState("");
+  const [country, setCountry] = useState("");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -44,12 +48,16 @@ export function PlacesTable() {
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const { data: user } = useGetProfileQuery({});
+  const { data: categoriesResponse } = useGetCategoriesQuery({ limit: 100 });
+  const { data: countries } = useGetAvailableCountriesQuery(undefined);
 
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
     limit,
     searchTerm,
     status,
+    category,
+    country,
   });
   const [deletePlace] = useDeletePlaceMutation();
 
@@ -135,8 +143,38 @@ export function PlacesTable() {
             <option value="">All Status</option>
             <option value="Published">Published</option>
             <option value="Draft">Draft</option>
-            <option value="Active">Active</option>
-            <option value="Hidden">Hidden</option>
+          </select>
+
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPage(1);
+            }}
+            className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
+          >
+            <option value="">All Categories</option>
+            {categoriesResponse?.data?.map((cat: any) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={country}
+            onChange={(e) => {
+              setCountry(e.target.value);
+              setPage(1);
+            }}
+            className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
+          >
+            <option value="">All Countries</option>
+            {countries?.map((c: string) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
           </select>
         </div>
       </div>

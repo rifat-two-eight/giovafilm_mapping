@@ -8,6 +8,7 @@ type GetPlacesArgs = {
   map?: string;
   sort?: string;
   country?: string;
+  category?: string;
 };
 
 const placeApi = baseApi.injectEndpoints({
@@ -21,8 +22,9 @@ const placeApi = baseApi.injectEndpoints({
         map = "",
         sort = "",
         country = "",
+        category = "",
       }) => ({
-        url: `/place?page=${page}&limit=${limit}&searchTerm=${searchTerm}&status=${status}&map=${map}&sort=${sort}&country=${country}`,
+        url: `/place?page=${page}&limit=${limit}&searchTerm=${searchTerm}&status=${status}&map=${map}&sort=${sort}&country=${country}&category=${category}`,
         method: "GET",
       }),
       providesTags: ["Place"],
