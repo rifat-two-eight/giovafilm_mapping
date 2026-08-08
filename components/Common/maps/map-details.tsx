@@ -835,6 +835,42 @@ export default function MapDetails() {
               </AccordionItem>
             )}
 
+            {/* MENU & PRICES */}
+            {(isBusiness || (placeData?.menuImages && placeData.menuImages.length > 0)) && (
+              <AccordionItem
+                value="menu"
+                className="border rounded-xl bg-white"
+              >
+                <AccordionTrigger className="font-semibold px-6 hover:no-underline">
+                  MENU & PRICES
+                </AccordionTrigger>
+
+                <AccordionContent className="px-6 pb-6">
+                  {placeData?.menuImages && placeData.menuImages.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {placeData.menuImages.map((image: string, index: number) => (
+                        <div
+                          key={index}
+                          className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 cursor-zoom-in group"
+                          onClick={() => window.open(getImageUrl(image), "_blank")}
+                        >
+                          <img
+                            src={getImageUrl(image)}
+                            alt={`Menu ${index + 1}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="leading-relaxed text-gray-400 italic">
+                      No menu or price list has been uploaded yet.
+                    </p>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
             {/* OFFERS & DISCOUNTS */}
             {offersList.length > 0 && (
               <AccordionItem

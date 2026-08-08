@@ -98,27 +98,38 @@ export function UpdatePlaceModal({
         difficulty: finalData.difficulty || "",
         // Pass retained existing images back so backend knows what to keep
         media: finalData.existingImages || [],
+        menuImages: finalData.existingMenuImages || [],
       };
 
       console.log("placeData constructed:", placeData);
 
       let payload: any = placeData;
 
-      if (finalData.mediaFiles && finalData.mediaFiles.length > 0) {
+      const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
+      const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
+
+      const mediaChanged = finalData.existingImages && finalData.existingImages.length !== (place?.media?.length ?? 0);
+      const menuChanged = finalData.existingMenuImages && finalData.existingMenuImages.length !== (place?.menuImages?.length ?? 0);
+
+      if (hasMedia || hasMenu) {
         const formDataPayload = new FormData();
         formDataPayload.append("data", JSON.stringify(placeData));
-        finalData.mediaFiles.forEach((file: File) => {
-          formDataPayload.append("images", file);
-        });
+        if (hasMedia) {
+          finalData.mediaFiles.forEach((file: File) => {
+            formDataPayload.append("images", file);
+          });
+        }
+        if (hasMenu) {
+          finalData.menuFiles.forEach((file: File) => {
+            formDataPayload.append("documents", file);
+          });
+        }
         payload = formDataPayload;
         console.log("Sending FormData payload");
-      } else if (
-        finalData.existingImages &&
-        finalData.existingImages.length !== (place?.media?.length ?? 0)
-      ) {
-        // Images were removed but no new files — still send JSON so backend can prune
+      } else if (mediaChanged || menuChanged) {
+        // Images or menu images were removed but no new files — still send JSON so backend can prune
         payload = placeData;
-        console.log("Sending JSON payload (images removed)");
+        console.log("Sending JSON payload (media/menu removed)");
       } else {
         console.log("Sending JSON payload (no image changes)");
       }
@@ -196,6 +207,7 @@ export function UpdatePlaceModal({
                   notes: place.accessibility?.notes || "",
                 },
                 images: place.media || [],
+                menuImages: place.menuImages || [],
                 isNew: false,
                 phone: place.phone || "",
                 website: place.website || "",

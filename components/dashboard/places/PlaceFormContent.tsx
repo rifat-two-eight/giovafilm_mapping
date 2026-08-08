@@ -55,6 +55,7 @@ interface PlaceFormContentProps {
     services?: string[];
     accessibility?: any;
     images?: string[];
+    menuImages?: string[];
     isNew: boolean;
     phone?: string;
     website?: string;
@@ -71,6 +72,7 @@ interface PlaceFormContentProps {
 const TABS = [
   { label: "Basic Info", icon: FileText },
   { label: "Access", icon: Compass },
+  { label: "Menu & Prices", icon: Utensils },
   { label: "Accessibility", icon: Accessibility },
   { label: "Recommendations", icon: Heart },
   { label: "Services", icon: Grid },
@@ -86,11 +88,17 @@ export const PlaceFormContent = ({
 }: PlaceFormContentProps) => {
   const [activeTab, setActiveTab] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuFileInputRef = useRef<HTMLInputElement>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [menuFiles, setMenuFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(
     initialData?.images || [],
   );
+  const [existingMenuImages, setExistingMenuImages] = useState<string[]>(
+    initialData?.menuImages || [],
+  );
   const [previews, setPreviews] = useState<string[]>([]);
+  const [menuPreviews, setMenuPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
@@ -141,9 +149,27 @@ export const PlaceFormContent = ({
     setPreviews((prev) => [...prev, ...newPreviews]);
   };
 
+  const handleMenuFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setMenuFiles((prev) => [...prev, ...files]);
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setMenuPreviews((prev) => [...prev, ...newPreviews]);
+  };
+
   const removeMedia = (index: number) => {
     setMediaFiles((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const removeMenuFile = (index: number) => {
+    setMenuFiles((prev) => prev.filter((_, i) => i !== index));
+    setMenuPreviews((prev) => {
       URL.revokeObjectURL(prev[index]);
       return prev.filter((_, i) => i !== index);
     });
@@ -153,11 +179,16 @@ export const PlaceFormContent = ({
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const removeExistingMenuImage = (index: number) => {
+    setExistingMenuImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   useEffect(() => {
     return () => {
       previews.forEach((url) => URL.revokeObjectURL(url));
+      menuPreviews.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, []);
+  }, [previews, menuPreviews]);
 
   useEffect(() => {
     if (initialData?.address !== undefined) {
@@ -199,6 +230,8 @@ export const PlaceFormContent = ({
       status: publish ? "Published" : "Draft",
       mediaFiles,
       existingImages,
+      menuFiles,
+      existingMenuImages,
     });
   };
 
@@ -247,18 +280,38 @@ export const PlaceFormContent = ({
   const isBasicInfoValid = formData.name.trim() !== "" && formData.category !== "" && formData.description.trim() !== "" && formData.address.trim() !== "";
   const hasBasicInfoErrors = !!(errors.name || errors.category || errors.description || errors.address);
 
+  const isBusinessOrRestaurant = formData.type === "Business" || 
+    categories.find((c: any) => c._id === formData.category)?.name?.toLowerCase() === "restaurant";
+
+  const dynamicTabs = [
+    { label: "Basic Info", icon: FileText, id: 0 },
+    { label: "Access", icon: Compass, id: 1 },
+    ...(isBusinessOrRestaurant ? [{ label: "Menu & Prices", icon: Utensils, id: 2 }] : []),
+    { label: "Accessibility", icon: Accessibility, id: 3 },
+    { label: "Recommendations", icon: Heart, id: 4 },
+    { label: "Services", icon: Grid, id: 5 },
+  ];
+
+  const currentTabIdx = dynamicTabs.findIndex((t) => t.id === activeTab);
+
+  useEffect(() => {
+    if (!isBusinessOrRestaurant && activeTab === 2) {
+      setActiveTab(0);
+    }
+  }, [isBusinessOrRestaurant, activeTab]);
+
   return (
     <div className="w-full bg-white flex flex-col font-arial">
       {/* Navigation Header */}
       <div className="bg-white border-b border-gray-200 px-4 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1 min-w-max">
-          {TABS.map((tab, index) => {
+          {dynamicTabs.map((tab) => {
             const TabIcon = tab.icon;
-            const isSelected = activeTab === index;
+            const isSelected = activeTab === tab.id;
             
             // Validation indicator logic
             let indicator = null;
-            if (index === 0) {
+            if (tab.id === 0) {
               if (hasBasicInfoErrors) {
                 indicator = <AlertCircle size={12} className="text-red-500 animate-pulse flex-shrink-0" />;
               } else if (isBasicInfoValid) {
@@ -271,7 +324,7 @@ export const PlaceFormContent = ({
                 key={tab.label}
                 type="button"
                 onClick={() => {
-                  if (index > 0) {
+                  if (tab.id > 0) {
                     const newErrors: Record<string, string> = {};
                     if (!formData.name.trim()) newErrors.name = "Place name is required";
                     if (!formData.category) newErrors.category = "Category is required";
@@ -286,7 +339,7 @@ export const PlaceFormContent = ({
                       return;
                     }
                   }
-                  setActiveTab(index);
+                  setActiveTab(tab.id);
                 }}
                 className={`flex items-center gap-2 px-4 py-4 text-xs font-semibold uppercase tracking-wider transition-all relative ${
                   isSelected
@@ -737,6 +790,109 @@ export const PlaceFormContent = ({
 
         {activeTab === 2 && (
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white p-5 rounded-xl border border-gray-200 space-y-4">
+              <div className="space-y-1">
+                <Label className="text-sm font-bold text-gray-800">
+                  Menu & Prices Photos
+                </Label>
+                <p className="text-[11px] text-gray-500">
+                  Upload images of your menu, price list, or product listings.
+                </p>
+              </div>
+
+              <div
+                onClick={() => menuFileInputRef.current?.click()}
+                className="border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 border-gray-200 hover:border-blue-400 cursor-pointer transition-all"
+              >
+                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                  <Upload size={20} />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-bold text-gray-700">
+                    Click to upload menu photos
+                  </p>
+                  <p className="text-[9px] text-gray-400 tracking-tight">
+                    (Images up to 10MB)
+                  </p>
+                </div>
+              </div>
+
+              {/* Existing Menu Images (from Server) */}
+              {existingMenuImages.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-gray-500 uppercase">Existing Menu Photos</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {existingMenuImages.map((url, index) => (
+                      <div
+                        key={`existing-menu-${index}`}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                      >
+                        <img
+                          src={getImageUrl(url)}
+                          alt={`existing-menu-${index}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeExistingMenuImage(index);
+                          }}
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <CloseIcon size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* New Upload Previews */}
+              {menuPreviews.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-gray-500 uppercase">New Menu Photos</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {menuPreviews.map((url, index) => (
+                      <div
+                        key={`new-menu-${index}`}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                      >
+                        <img
+                          src={url}
+                          alt={`menu-preview-${index}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeMenuFile(index);
+                          }}
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <CloseIcon size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Input
+                type="file"
+                ref={menuFileInputRef}
+                multiple
+                className="hidden"
+                accept="image/*"
+                onChange={handleMenuFileChange}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 3 && (
+          <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div className="flex items-center gap-2">
@@ -801,14 +957,6 @@ export const PlaceFormContent = ({
                 </div>
               </div>
 
-              {/* <Button
-                variant="outline"
-                size="sm"
-                className="w-fit text-[10px] font-bold uppercase tracking-widest text-yellow-600 border-yellow-200 bg-yellow-50/50 hover:bg-yellow-50"
-              >
-                <Plus size={14} className="mr-2" /> Add more
-              </Button> */}
-
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Notes (optional)</Label>
                 <Textarea
@@ -822,7 +970,7 @@ export const PlaceFormContent = ({
           </div>
         )}
 
-        {activeTab === 3 && (
+        {activeTab === 4 && (
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-4">
               <div className="space-y-1">
@@ -848,7 +996,7 @@ export const PlaceFormContent = ({
           </div>
         )}
 
-        {activeTab === 4 && (
+        {activeTab === 5 && (
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="space-y-1 mb-3">
               <p className="text-sm font-semibold">
@@ -876,9 +1024,6 @@ export const PlaceFormContent = ({
                 </div>
               ))}
             </div>
-            {/* <Button className="w-full h-11 bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-yellow-100">
-              <Plus size={16} className="mr-2" /> ADD NEW SERVICE
-            </Button> */}
           </div>
         )}
       </div>
@@ -894,17 +1039,29 @@ export const PlaceFormContent = ({
           Cancel
         </Button>
         <div className="flex gap-2">
-          {activeTab > 0 && (
+          {currentTabIdx > 0 && (
             <Button
               type="button"
               variant="outline"
-              onClick={() => setActiveTab(activeTab - 1)}
+              onClick={() => setActiveTab(dynamicTabs[currentTabIdx - 1].id)}
               className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5"
             >
               <ArrowLeft size={14} /> Back
             </Button>
           )}
-          {activeTab < 4 ? (
+
+          {(initialData?.isNew === false || currentTabIdx === dynamicTabs.length - 1) && (
+            <Button
+              type="button"
+              onClick={() => handleSave(true)}
+              disabled={isSaving}
+              className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5"
+            >
+              {initialData?.isNew === false ? "Save Changes" : "Save & Publish"}
+            </Button>
+          )}
+
+          {currentTabIdx < dynamicTabs.length - 1 && (
             <Button
               type="button"
               onClick={() => {
@@ -923,20 +1080,11 @@ export const PlaceFormContent = ({
                     return;
                   }
                 }
-                setActiveTab(activeTab + 1);
+                setActiveTab(dynamicTabs[currentTabIdx + 1].id);
               }}
               className="px-5 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-1.5"
             >
               Next <ArrowRight size={14} />
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={() => handleSave(true)}
-              disabled={isSaving}
-              className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5"
-            >
-              Save & Publish
             </Button>
           )}
         </div>

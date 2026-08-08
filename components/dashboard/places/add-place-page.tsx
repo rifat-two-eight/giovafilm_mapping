@@ -405,16 +405,27 @@ export default function AddPlacePage() {
         atmosphere: finalData.atmosphere || "",
         difficulty: finalData.difficulty || "",
         media: finalData.existingImages || [],
+        menuImages: finalData.existingMenuImages || [],
       };
 
       let payload: any = placeData;
 
-      if (finalData.mediaFiles && finalData.mediaFiles.length > 0) {
+      const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
+      const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
+
+      if (hasMedia || hasMenu) {
         const formDataPayload = new FormData();
         formDataPayload.append("data", JSON.stringify(placeData));
-        finalData.mediaFiles.forEach((file: File) => {
-          formDataPayload.append("images", file);
-        });
+        if (hasMedia) {
+          finalData.mediaFiles.forEach((file: File) => {
+            formDataPayload.append("images", file);
+          });
+        }
+        if (hasMenu) {
+          finalData.menuFiles.forEach((file: File) => {
+            formDataPayload.append("documents", file);
+          });
+        }
         payload = formDataPayload;
       }
 
@@ -831,6 +842,7 @@ export default function AddPlacePage() {
                     tips:
                       selectedPlace.recommendations?.tips || selectedPlace.details?.recommendations || "",
                     images: selectedPlace.media || [],
+                    menuImages: selectedPlace.menuImages || [],
                     isNew: selectedPlace.isNew,
                   }}
                 />
