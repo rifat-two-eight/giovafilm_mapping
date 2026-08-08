@@ -60,13 +60,12 @@ export const authApi = baseApi.injectEndpoints({
         newPassword: string;
         confirmPassword: string;
       }) => {
+        // Send reset token in body — Authorization is reserved for session JWT
+        // and prepareHeaders would overwrite a header-based reset token.
         return {
           url: "/auth/reset-password",
           method: "POST",
-          body: data,
-          headers: {
-            Authorization: `${token}`,
-          },
+          body: { ...data, token },
         };
       },
     }),

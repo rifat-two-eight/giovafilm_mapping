@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Search, Filter, Map, ShieldAlert } from "lucide-react";
+import { Trash2, Search, Map } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   useGetAllUsersQuery,
@@ -9,7 +9,7 @@ import {
   useGetProfileQuery,
   useAssignEditorAccessMutation,
 } from "@/redux/features/user/userApi";
-import { useGetMapsQuery, useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
+import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ import {
   normalizeId,
   normalizeIdList,
   toggleMapAssignment,
+  countriesFromSelectedMaps,
 } from "@/lib/editor-access";
 import {
   assignableRolesFor,
@@ -70,29 +71,23 @@ export function UsersTable(): React.ReactElement {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [tempRole, setTempRole] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
-  // Search states for Modal
+  // Search state for Modal
   const [modalMapSearch, setModalMapSearch] = useState("");
-  const [modalCountrySearch, setModalCountrySearch] = useState("");
 
   const { data: currentUser } = useGetProfileQuery({});
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
-  const { data: countriesRes } = useGetAvailableCountriesQuery();
   const [assignEditorAccess] = useAssignEditorAccessMutation();
 
   const maps = mapsRes?.data || [];
-  const countries = countriesRes || [];
 
-  // Filtered lists for Modal
+  // Filtered list for Modal
   const filteredModalMaps = maps.filter((map: any) =>
     map.name?.toLowerCase().includes(modalMapSearch.toLowerCase()) ||
     (map.country && map.country.toLowerCase().includes(modalMapSearch.toLowerCase()))
   );
 
-  const filteredModalCountries = countries.filter((country: string) =>
-    country.toLowerCase().includes(modalCountrySearch.toLowerCase())
-  );
+  const selectedCountries = countriesFromSelectedMaps(selectedMaps, maps);
 
   const queryParams: any = {
     page,
@@ -156,11 +151,6 @@ export function UsersTable(): React.ReactElement {
       setSelectedUser(userToUpdate);
       setTempRole(newRole);
       setSelectedMaps(normalizeIdList(userToUpdate?.assignedMaps));
-      setSelectedCountries(
-        Array.isArray(userToUpdate?.assignedCountries)
-          ? [...userToUpdate.assignedCountries]
-          : [],
-      );
       setIsAccessModalOpen(true);
       return;
     }
@@ -192,9 +182,6 @@ export function UsersTable(): React.ReactElement {
     setSelectedUser(user);
     setTempRole(user.role);
     setSelectedMaps(normalizeIdList(user.assignedMaps));
-    setSelectedCountries(
-      Array.isArray(user.assignedCountries) ? [...user.assignedCountries] : [],
-    );
     setIsAccessModalOpen(true);
   };
 
@@ -207,14 +194,13 @@ export function UsersTable(): React.ReactElement {
       maps,
     );
     setSelectedMaps(next.maps);
-    setSelectedCountries(next.countries);
   };
 
   const handleSaveAccess = async () => {
     if (!selectedUser) return;
 
-    if (selectedMaps.length === 0 && selectedCountries.length === 0) {
-      toast.error("Assign at least one map or country for the Map Editor.");
+    if (selectedMaps.length === 0) {
+      toast.error("Assign at least one map for the Map Editor.");
       return;
     }
 
@@ -238,9 +224,7 @@ export function UsersTable(): React.ReactElement {
       setIsAccessModalOpen(false);
       setSelectedUser(null);
       setSelectedMaps([]);
-      setSelectedCountries([]);
       setModalMapSearch("");
-      setModalCountrySearch("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to save editor access");
     }
@@ -388,7 +372,6 @@ export function UsersTable(): React.ReactElement {
                           {user.role === "map_editor" && (
                             <div className="text-[10px] text-gray-500 flex flex-col gap-0.5 mt-1 font-semibold bg-gray-50 p-1.5 rounded border border-gray-150">
                               <span>Maps: {user.assignedMaps?.length || 0} assigned</span>
-                              <span>Countries: {user.assignedCountries?.length || 0} assigned</span>
                             </div>
                           )}
                         </div>
@@ -501,156 +484,73 @@ export function UsersTable(): React.ReactElement {
 
           <div className="space-y-4 my-2">
             <p className="text-sm text-gray-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              Selecting a <strong>map</strong> also assigns its country.
-              Countries grant edit access to every map in that country.
+              Assign at least one <strong>map</strong>. Access is scoped to the
+              selected maps only.
             </p>
 
-            <div className="space-y-4">
-              {/* Maps list */}
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold text-gray-700">
-                    Assign Maps ({selectedMaps.length} selected)
-                  </label>
-                  <div className="flex items-center gap-2 text-xs font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const allIds = maps.map((m: any) => normalizeId(m._id));
-                        const allCountries = Array.from(
-                          new Set(
-                            maps
-                              .map((m: any) => m.country)
-                              .filter(Boolean) as string[],
-                          ),
-                        );
-                        setSelectedMaps(allIds);
-                        setSelectedCountries((prev) =>
-                          Array.from(new Set([...prev, ...allCountries])),
-                        );
-                      }}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Select All
-                    </button>
-                    <span className="text-gray-300">|</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedMaps([]);
-                        setSelectedCountries([]);
-                      }}
-                      className="text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                      Clear All
-                    </button>
-                  </div>
-                </div>
-
-                <Input
-                  placeholder="Search maps..."
-                  value={modalMapSearch}
-                  onChange={(e) => setModalMapSearch(e.target.value)}
-                  className="h-9 text-xs"
-                />
-
-                <div className="border border-gray-200 rounded-lg p-2 max-h-40 overflow-y-auto space-y-1.5 bg-gray-50/50">
-                  {filteredModalMaps.length === 0 ? (
-                    <p className="text-xs text-gray-500 py-4 text-center">No maps found.</p>
-                  ) : (
-                    filteredModalMaps.map((map: any) => {
-                      const mapId = normalizeId(map._id);
-                      const isChecked = selectedMaps.includes(mapId);
-                      return (
-                        <label
-                          key={mapId}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
-                            isChecked 
-                              ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
-                              : "text-gray-700 border border-transparent hover:bg-gray-100/70"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={(e) =>
-                              handleModalMapToggle(map, e.target.checked)
-                            }
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>
-                        </label>
-                      );
-                    })
-                  )}
+            {/* Maps list */}
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700">
+                  Assign Maps ({selectedMaps.length} selected)
+                </label>
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedMaps(maps.map((m: any) => normalizeId(m._id)));
+                    }}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    Select All
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMaps([])}
+                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Clear All
+                  </button>
                 </div>
               </div>
 
-              {/* Countries list */}
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold text-gray-700">
-                    Assign Countries ({selectedCountries.length} selected)
-                  </label>
-                  <div className="flex items-center gap-2 text-xs font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCountries(countries)}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      Select All
-                    </button>
-                    <span className="text-gray-300">|</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCountries([])}
-                      className="text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                      Clear All
-                    </button>
-                  </div>
-                </div>
+              <Input
+                placeholder="Search maps..."
+                value={modalMapSearch}
+                onChange={(e) => setModalMapSearch(e.target.value)}
+                className="h-9 text-xs"
+              />
 
-                <Input
-                  placeholder="Search countries..."
-                  value={modalCountrySearch}
-                  onChange={(e) => setModalCountrySearch(e.target.value)}
-                  className="h-9 text-xs"
-                />
-
-                <div className="border border-gray-200 rounded-lg p-2 max-h-40 overflow-y-auto space-y-1.5 bg-gray-50/50">
-                  {filteredModalCountries.length === 0 ? (
-                    <p className="text-xs text-gray-500 py-4 text-center">No countries found.</p>
-                  ) : (
-                    filteredModalCountries.map((country: string) => {
-                      const isChecked = selectedCountries.includes(country);
-                      return (
-                        <label
-                          key={country}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
-                            isChecked 
-                              ? "bg-blue-50/80 text-blue-700 border border-blue-100" 
-                              : "text-gray-700 border border-transparent hover:bg-gray-100/70"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedCountries((prev) => [...prev, country]);
-                              } else {
-                                setSelectedCountries((prev) => prev.filter((c) => c !== country));
-                              }
-                            }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                          />
-                          <span className="truncate">{country}</span>
-                        </label>
-                      );
-                    })
-                  )}
-                </div>
+              <div className="border border-gray-200 rounded-lg p-2 max-h-56 overflow-y-auto space-y-1.5 bg-gray-50/50">
+                {filteredModalMaps.length === 0 ? (
+                  <p className="text-xs text-gray-500 py-4 text-center">No maps found.</p>
+                ) : (
+                  filteredModalMaps.map((map: any) => {
+                    const mapId = normalizeId(map._id);
+                    const isChecked = selectedMaps.includes(mapId);
+                    return (
+                      <label
+                        key={mapId}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
+                          isChecked
+                            ? "bg-blue-50/80 text-blue-700 border border-blue-100"
+                            : "text-gray-700 border border-transparent hover:bg-gray-100/70"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) =>
+                            handleModalMapToggle(map, e.target.checked)
+                          }
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>
+                      </label>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>

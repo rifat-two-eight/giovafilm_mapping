@@ -17,7 +17,7 @@ type MapLike = { _id?: unknown; name?: string; country?: string | null };
 
 /**
  * Toggle a map assignment and keep assignedCountries in sync with
- * the countries of currently selected maps (+ any manually kept extras).
+ * the countries of currently selected maps.
  */
 export function toggleMapAssignment(
   map: MapLike,

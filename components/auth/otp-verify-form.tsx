@@ -11,8 +11,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Lock } from "lucide-react";
 import { decodeJwtPayload } from "@/lib/utils";
 
 type AuthFlow = "createAccount" | "resetPassword" | "invite";
@@ -31,13 +29,11 @@ export default function OtpVerify() {
     return "createAccount";
   }, [searchParams]);
 
-  const showPasswordFields = authFlow === "invite";
+  // Invite uses the same verify API as signup; password is set on the next page.
   const resendAuthType =
     authFlow === "resetPassword" ? "resetPassword" : "createAccount";
 
   const [otp, setOtp] = useState(Array(6).fill(""));
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [countdown, setCountdown] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -53,12 +49,12 @@ export default function OtpVerify() {
     }
   }, [email, router]);
 
-  // Prefill OTP from email deep-link when present
+  // Optional prefill if an older email link still includes ?otp=
   useEffect(() => {
     if (!otpFromQuery) return;
     const digits = otpFromQuery.replace(/\D/g, "").slice(0, 6).split("");
     if (digits.length === 6) {
-      setOtp([...digits, ...Array(6 - digits.length)].slice(0, 6));
+      setOtp(digits);
     }
   }, [otpFromQuery]);
 
@@ -109,6 +105,9 @@ export default function OtpVerify() {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
+    if (e.key === "Enter" && otp.every(Boolean) && !isVerifying) {
+      void handleVerify();
+    }
   };
 
   const redirectAfterLogin = (accessToken: string, role?: string) => {
@@ -133,37 +132,13 @@ export default function OtpVerify() {
       return;
     }
 
-    if (showPasswordFields) {
-      if (!password || !confirmPassword) {
-        toast.error("Please set your password to accept the invitation");
-        return;
-      }
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters long");
-        return;
-      }
-    }
-
     const toastId = toast.loading("Verifying OTP...");
 
     try {
-      const requestData: {
-        email: string;
-        oneTimeCode: string;
-        password?: string;
-      } = {
+      const response = await verifyAccount({
         email,
         oneTimeCode: otpCode,
-      };
-      if (showPasswordFields) {
-        requestData.password = password;
-      }
-
-      const response = await verifyAccount(requestData).unwrap();
+      }).unwrap();
 
       if (!response.success) {
         toast.error(
@@ -175,18 +150,26 @@ export default function OtpVerify() {
 
       const userData = response.data;
 
-      // Password setup / reset step (invite without password, or forgot-password)
+      // Invite / forgot-password: OTP ok → go set password (step 2)
       if (userData?.token && !userData?.accessToken) {
+        const nextPath =
+          authFlow === "invite"
+            ? `/reset-password?token=${userData.token}&flow=invite`
+            : `/reset-password?token=${userData.token}`;
+
         toast.success(
-          authFlow === "resetPassword"
-            ? "OTP verified! Please reset your password."
-            : "OTP verified! Please set your password.",
+          authFlow === "invite"
+            ? "Code verified! Set your password to finish."
+            : authFlow === "resetPassword"
+              ? "OTP verified! Please reset your password."
+              : "OTP verified! Please set your password.",
           { id: toastId },
         );
-        router.push(`/reset-password?token=${userData.token}`);
+        router.push(nextPath);
         return;
       }
 
+      // Normal account create (already has password) → logged in
       if (userData?.accessToken) {
         let currentUser = userData.user;
 
@@ -223,7 +206,10 @@ export default function OtpVerify() {
           },
         );
 
-        redirectAfterLogin(userData.accessToken, userData?.user?.role || userData?.role);
+        redirectAfterLogin(
+          userData.accessToken,
+          userData?.user?.role || userData?.role,
+        );
         return;
       }
 
@@ -237,6 +223,14 @@ export default function OtpVerify() {
         err?.data?.error ||
         "Verification failed. Please try again.";
       toast.error(errorMessage, { id: toastId });
+      // Stale code from an older invite email — clear so user can type the latest
+      if (
+        typeof errorMessage === "string" &&
+        /invalid|outdated|no active code/i.test(errorMessage)
+      ) {
+        setOtp(Array(6).fill(""));
+        inputRefs.current[0]?.focus();
+      }
     }
   };
 
@@ -256,8 +250,6 @@ export default function OtpVerify() {
         });
 
         setOtp(Array(6).fill(""));
-        setPassword("");
-        setConfirmPassword("");
         setCountdown(60);
         inputRefs.current[0]?.focus();
       } else {
@@ -291,12 +283,12 @@ export default function OtpVerify() {
     authFlow === "resetPassword"
       ? "Enter the code we sent you, then you'll set a new password."
       : authFlow === "invite"
-        ? "Enter the invitation code and set your password to join."
+        ? "Enter the invitation code to continue. You'll set your password next."
         : "Enter the verification code we sent to complete registration.";
 
   const buttonLabel =
     authFlow === "invite"
-      ? "Verify & Set Password"
+      ? "Continue"
       : authFlow === "resetPassword"
         ? "Verify Code"
         : "Verify Account";
@@ -315,6 +307,40 @@ export default function OtpVerify() {
         </p>
       </div>
 
+      {authFlow === "invite" && (
+        <div className="flex items-center gap-2 mb-6 text-xs font-semibold">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FFC107] text-black">
+            1
+          </span>
+          <span className="text-[#1A1A1A]">Verify code</span>
+          <span className="text-[#BDBDBD] mx-1">—</span>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-[#757575]">
+            2
+          </span>
+          <span className="text-[#9E9E9E]">Set password</span>
+        </div>
+      )}
+
+      {(authFlow === "resetPassword" || authFlow === "createAccount") && (
+        <div className="flex items-center gap-2 mb-6 text-xs font-semibold">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FFC107] text-black">
+            1
+          </span>
+          <span className="text-[#1A1A1A]">
+            {authFlow === "resetPassword" ? "Verify code" : "Verify email"}
+          </span>
+          {authFlow === "resetPassword" && (
+            <>
+              <span className="text-[#BDBDBD] mx-1">—</span>
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-[#757575]">
+                2
+              </span>
+              <span className="text-[#9E9E9E]">New password</span>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-between gap-3 mb-6">
         {otp.map((digit, i) => (
           <Input
@@ -330,45 +356,10 @@ export default function OtpVerify() {
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={(e) => handlePaste(i, e)}
             className="w-full h-14 text-center text-lg font-semibold bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all"
+            aria-label={`Digit ${i + 1}`}
           />
         ))}
       </div>
-
-      {showPasswordFields && (
-        <div className="space-y-5 mb-6">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-[#424242] ml-1">
-              Set Password
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-[#424242] ml-1">
-              Confirm Password
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <Button
         onClick={handleVerify}
