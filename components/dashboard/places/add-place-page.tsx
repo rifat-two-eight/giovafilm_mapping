@@ -778,6 +778,49 @@ export default function AddPlacePage() {
                   <AdvancedMarker
                     key={place._id}
                     position={position}
+                    draggable={true}
+                    onDragEnd={async (e: any) => {
+                      if (e.latLng) {
+                        const newLat = e.latLng.lat();
+                        const newLng = e.latLng.lng();
+                        const updatedPosition = { lat: newLat, lng: newLng };
+
+                        // Silent details fetch so we don't open/show empty state
+                        let fullPlaceDetails = { ...place };
+                        const placeId = place._id || place.id;
+                        if (placeId) {
+                          try {
+                            const res = await fetchPlaceDetails(String(placeId)).unwrap();
+                            const full = res?.data || res;
+                            if (full) {
+                              fullPlaceDetails = full;
+                            }
+                          } catch (err) {
+                            console.error("Failed to load details on drag", err);
+                          }
+                        }
+
+                        // Sync state correctly with updated position & category
+                        const catId = typeof fullPlaceDetails.category === "object" 
+                          ? fullPlaceDetails.category?._id 
+                          : fullPlaceDetails.category;
+                        setSelectedCategoryId(catId || null);
+                        setFormData({
+                          name: fullPlaceDetails.name || "",
+                          description: fullPlaceDetails.description || "",
+                        });
+
+                        setSelectedPlace({
+                          ...fullPlaceDetails,
+                          position: updatedPosition,
+                          isNew: false
+                        });
+
+                        // Automatically fetch new address for the dragged coordinates
+                        updateAddressFromCoords(newLat, newLng);
+                        toast.info("Location moved. Click Save to save changes.");
+                      }
+                    }}
                     onClick={() => handleSelectPlace(place)}
                   >
                     <CategoryMarker
@@ -793,6 +836,20 @@ export default function AddPlacePage() {
               {tempMarker && (
                 <AdvancedMarker
                   position={tempMarker}
+                  draggable={true}
+                  onDragEnd={(e: any) => {
+                    if (e.latLng) {
+                      const newLat = e.latLng.lat();
+                      const newLng = e.latLng.lng();
+                      setTempMarker({ lat: newLat, lng: newLng });
+                      setSelectedPlace({
+                        position: { lat: newLat, lng: newLng },
+                        isNew: true,
+                        address: ""
+                      });
+                      updateAddressFromCoords(newLat, newLng);
+                    }
+                  }}
                   onClick={() =>
                     setSelectedPlace({
                       position: tempMarker,
