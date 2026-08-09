@@ -9,6 +9,7 @@ interface CategoryMarkerProps {
   isTemp?: boolean;
   isSelected?: boolean;
   isLocked?: boolean;
+  isMobile?: boolean;
 }
 
 export function CategoryMarker({
@@ -17,6 +18,7 @@ export function CategoryMarker({
   isTemp = false,
   isSelected = false,
   isLocked = false,
+  isMobile = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
 
@@ -61,12 +63,12 @@ export function CategoryMarker({
       {/* Pin Head */}
       <div
         style={{
-          width: 32,
-          height: 32,
+          width: isMobile ? 26 : 32,
+          height: isMobile ? 26 : 32,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
           background: bgColor,
-          border: "3px solid white",
+          border: isMobile ? "2px solid white" : "3px solid white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -76,15 +78,15 @@ export function CategoryMarker({
       >
         {/* Undo rotation for icon */}
         <div style={{ transform: "rotate(45deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <CategoryIcon icon={icon} size={18} color="#fff" />
+          <CategoryIcon icon={icon} size={isMobile ? 14 : 18} color="#fff" />
         </div>
       </div>
 
       {/* Pin Tail — white line only */}
       <div
         style={{
-          width: 2,
-          height: 8,
+          width: isMobile ? 1.5 : 2,
+          height: isMobile ? 6 : 8,
           background: "#ffffff",
           marginTop: -1,
           borderRadius: "0 0 2px 2px",
@@ -94,8 +96,8 @@ export function CategoryMarker({
       {/* Shadow dot on ground */}
       <div
         style={{
-          width: 8,
-          height: 3,
+          width: isMobile ? 6 : 8,
+          height: isMobile ? 2 : 3,
           borderRadius: "50%",
           background: "rgba(0,0,0,0.15)",
           marginTop: 1,
