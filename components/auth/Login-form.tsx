@@ -63,6 +63,7 @@ export const LoginForm = () => {
     );
 
     document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
+    document.cookie = `userRole=${decoded?.role ?? "user"}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
 
     toast.success(successMessage || "Logged in successfully!");
 
