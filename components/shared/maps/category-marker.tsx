@@ -80,12 +80,12 @@ export function CategoryMarker({
         </div>
       </div>
 
-      {/* Pin Tail */}
+      {/* Pin Tail — white line only */}
       <div
         style={{
           width: 2,
           height: 8,
-          background: bgColor,
+          background: "#ffffff",
           marginTop: -1,
           borderRadius: "0 0 2px 2px",
         }}

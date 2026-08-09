@@ -145,8 +145,27 @@ export default function Header() {
     }
   };
 
-  const maxPoints = 1000;
-  const progress = ((user?.points || 0) / maxPoints) * 100;
+  const USER_LEVELS = [
+    { level: 0, name: "Explorador", points: 0 },
+    { level: 1, name: "Aventurero", points: 100 },
+    { level: 2, name: "Tlacuilo", points: 200 },
+    { level: 3, name: "Expedicionario", points: 400 },
+    { level: 4, name: "Viajero", points: 700 },
+    { level: 5, name: "Chasqui", points: 1300 },
+    { level: 6, name: "Cronista", points: 2300 },
+    { level: 7, name: "Pochteca", points: 4000 },
+    { level: 8, name: "Navegante", points: 6500 },
+    { level: 9, name: "Cartógrafo", points: 10000 },
+    { level: 10, name: "Gran Explorador", points: 15000 },
+    { level: 11, name: "Conquistador", points: 22500 },
+    { level: 12, name: "Gran Conquistador", points: 33000 },
+    { level: 13, name: "Amauta", points: 48000 },
+    { level: 14, name: "Leyenda", points: 67500 }
+  ];
+  const currentLevelIndex = user?.level || 0;
+  const nextLevelIndex = currentLevelIndex < 14 ? currentLevelIndex + 1 : 14;
+  const maxPoints = USER_LEVELS[nextLevelIndex]?.points || 1000;
+  const progress = maxPoints > 0 ? ((user?.points || 0) / maxPoints) * 100 : 100;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

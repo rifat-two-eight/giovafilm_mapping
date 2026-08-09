@@ -596,13 +596,13 @@ export default function MapPage() {
   const sidebarPlaces =
     !isLoggedIn && isUserResolved
       ? fetchedPlaces.filter((place: any) => {
-          if (!belongsToSelectedMap(place)) return false;
-          const categoryId = getCategoryId(place);
-          return (
-            isBusinessLocation(place) ||
-            inherentlyBusinessCatIds.has(categoryId)
-          );
-        })
+        if (!belongsToSelectedMap(place)) return false;
+        const categoryId = getCategoryId(place);
+        return (
+          isBusinessLocation(place) ||
+          inherentlyBusinessCatIds.has(categoryId)
+        );
+      })
       : fetchedPlaces.filter(belongsToSelectedMap);
 
   if (!hasMounted) return null;
@@ -645,16 +645,16 @@ export default function MapPage() {
               position={
                 selectedLocation
                   ? (() => {
-                      const selected = displayPlaces.find(
-                        (p: any) => p._id === selectedLocation.id,
-                      );
-                      const coords =
-                        selected?.location?.mapLocation?.coordinates ||
-                        selected?.location?.coordinates;
-                      return coords?.[0] != null && coords?.[1] != null
-                        ? { lat: coords[1], lng: coords[0] }
-                        : null;
-                    })()
+                    const selected = displayPlaces.find(
+                      (p: any) => p._id === selectedLocation.id,
+                    );
+                    const coords =
+                      selected?.location?.mapLocation?.coordinates ||
+                      selected?.location?.coordinates;
+                    return coords?.[0] != null && coords?.[1] != null
+                      ? { lat: coords[1], lng: coords[0] }
+                      : null;
+                  })()
                   : null
               }
             />
@@ -703,5 +703,13 @@ export default function MapPage() {
         )}
       </div>
     </div>
+  );
+}
+mapId = { mapIdFilter || undefined}
+onClose = {() => setSelectedLocation(null)}
+          />
+        )}
+      </div >
+    </div >
   );
 }
