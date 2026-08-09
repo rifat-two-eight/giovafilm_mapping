@@ -293,9 +293,13 @@ export default function MapPage() {
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem("mapCameraState");
-      if (saved) {
-        setInitialMapState(JSON.parse(saved));
+      const savedCamera = sessionStorage.getItem("mapCameraState");
+      if (savedCamera) {
+        setInitialMapState(JSON.parse(savedCamera));
+      }
+      const savedLoc = sessionStorage.getItem("mapSelectedLocation");
+      if (savedLoc) {
+        setSelectedLocation(JSON.parse(savedLoc));
       }
     } catch (e) {}
     setHasMounted(true);
@@ -306,6 +310,14 @@ export default function MapPage() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (selectedLocation) {
+      sessionStorage.setItem("mapSelectedLocation", JSON.stringify(selectedLocation));
+    } else {
+      sessionStorage.removeItem("mapSelectedLocation");
+    }
+  }, [selectedLocation]);
 
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const {
@@ -538,7 +550,10 @@ export default function MapPage() {
 
     if (savedCountry && availableCountries.includes(savedCountry)) {
       setSelectedCountry(savedCountry);
-      setIsManualSelection(true);
+      // If we have a preserved camera state, do NOT trigger the CountryPanner zoom-out.
+      if (!sessionStorage.getItem("mapCameraState")) {
+        setIsManualSelection(true);
+      }
     } else if (detectedCountry && availableCountries.includes(detectedCountry)) {
       setSelectedCountry(detectedCountry);
     } else if (userProfile?.country && availableCountries.includes(userProfile.country)) {

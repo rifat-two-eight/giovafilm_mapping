@@ -61,8 +61,8 @@ export function CategoryMarker({
       {/* Pin Head */}
       <div
         style={{
-          width: 38,
-          height: 38,
+          width: 32,
+          height: 32,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
           background: bgColor,
@@ -76,7 +76,7 @@ export function CategoryMarker({
       >
         {/* Undo rotation for icon */}
         <div style={{ transform: "rotate(45deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <CategoryIcon icon={icon} size={22} color="#fff" />
+          <CategoryIcon icon={icon} size={18} color="#fff" />
         </div>
       </div>
 

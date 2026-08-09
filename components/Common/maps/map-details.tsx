@@ -502,8 +502,8 @@ export default function MapDetails() {
                 </div>
               )}
 
-              {/* Bottom title card */}
-              <div className="absolute bottom-0 inset-x-0 z-10 p-3 md:p-4">
+              {/* Bottom title card (Desktop Only) */}
+              <div className="hidden md:block absolute bottom-0 inset-x-0 z-10 p-3 md:p-4">
                 {mediaList.length > 1 && (
                   <div className="mb-3 flex justify-center gap-1.5">
                     {mediaList.map((_: string, index: number) => (
@@ -558,6 +558,41 @@ export default function MapDetails() {
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Mobile-Only Title Card (Below the image) */}
+            <div className="md:hidden mt-3 rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {placeData?.category?.name && (
+                  <span className="inline-flex items-center rounded-full bg-yellow-400 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-black">
+                    {placeData.category.name}
+                  </span>
+                )}
+                {typeof placeData?.rating === "number" && placeData.rating > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-semibold text-gray-800 border border-gray-200">
+                    <Star size={12} className="fill-yellow-400 text-yellow-400" />
+                    {placeData.rating.toFixed(1)}
+                    {placeData?.totalReview > 0 && (
+                      <span className="font-normal text-gray-500">
+                        ({placeData.totalReview})
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-2xl font-bold font-public-sans text-gray-900 leading-tight tracking-tight">
+                {placeData?.name || "Untitled location"}
+              </h1>
+
+              <div className="mt-2 flex items-start gap-2 text-sm text-gray-600">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EC5B13]/10">
+                  <MapPin size={13} className="text-[#FF8A4C]" />
+                </span>
+                <span className="leading-snug pt-0.5">
+                  {placeData?.address || "Address not available"}
+                </span>
               </div>
             </div>
 

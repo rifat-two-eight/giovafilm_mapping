@@ -69,17 +69,54 @@ export function MapFilters({
   return (
     <div className="flex flex-col md:flex-row items-start gap-2 w-full md:w-auto">
       {isMobile && (
-        <button
-          type="button"
-          onClick={() => setMobileOpen((o) => !o)}
-          className="flex items-center gap-2 bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          Filters
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
-          />
-        </button>
+        <div className="flex items-center gap-2 w-full">
+          <button
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            className="flex-1 flex items-center justify-between gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 text-sm font-bold text-gray-900"
+          >
+            <span>Categories</span>
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <Select
+              onValueChange={(val) => {
+                setSelectedCountry(val);
+                setIsManualSelection(true);
+              }}
+              value={selectedCountry}
+            >
+              <SelectTrigger className="w-full h-full border-0 py-2.5 px-3 focus:ring-0 font-bold text-gray-800 bg-white shadow-none text-sm text-left truncate">
+                <SelectValue placeholder="Select Map" />
+              </SelectTrigger>
+              <SelectContent
+                position="popper"
+                side="bottom"
+                align="end"
+                className="rounded-xl border border-gray-100 shadow-xl max-w-[min(90vw,320px)]"
+              >
+                {availableCountries.length === 0 ? (
+                  <div className="px-3 py-6 text-center text-sm text-gray-500">
+                    No maps available.
+                  </div>
+                ) : (
+                  availableCountries.map((country: string) => (
+                    <SelectItem
+                      key={country}
+                      value={country}
+                      className="font-medium whitespace-normal break-words py-2.5"
+                    >
+                      {country}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       )}
 
       {/* Category Filter */}
@@ -231,8 +268,8 @@ export function MapFilters({
         </Accordion>
       </div>
 
-      {/* Selected Map Filter — always visible (critical for map switch) */}
-      <div className="min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex flex-col gap-0">
+      {/* Selected Map Filter — Desktop */}
+      <div className={`min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex-col gap-0 ${isMobile ? "hidden" : "flex"}`}>
         <div className="px-4 py-2.5 bg-gray-50/50">
           <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
             Selected Map
