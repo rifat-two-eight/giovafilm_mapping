@@ -247,6 +247,7 @@ export default function MapPage() {
   const [focusReady, setFocusReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [initialMapState, setInitialMapState] = useState<{center: {lat: number, lng: number}, zoom: number} | null>(null);
   const focusMapAppliedRef = useRef(false);
   const focusLinkCapturedRef = useRef(false);
 
@@ -291,6 +292,12 @@ export default function MapPage() {
   };
 
   useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("mapCameraState");
+      if (saved) {
+        setInitialMapState(JSON.parse(saved));
+      }
+    } catch (e) {}
     setHasMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -614,8 +621,16 @@ export default function MapPage() {
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
         >
           <Map
-            defaultCenter={defaultPosition}
-            defaultZoom={13}
+            defaultCenter={initialMapState?.center || defaultPosition}
+            defaultZoom={initialMapState?.zoom || 13}
+            onCameraChanged={(ev) => {
+              try {
+                sessionStorage.setItem("mapCameraState", JSON.stringify({
+                  center: ev.detail.center,
+                  zoom: ev.detail.zoom
+                }));
+              } catch (e) {}
+            }}
             minZoom={3}
             maxZoom={19}
             renderingType={"RASTER"}
@@ -703,13 +718,5 @@ export default function MapPage() {
         )}
       </div>
     </div>
-  );
-}
-mapId = { mapIdFilter || undefined}
-onClose = {() => setSelectedLocation(null)}
-          />
-        )}
-      </div >
-    </div >
   );
 }

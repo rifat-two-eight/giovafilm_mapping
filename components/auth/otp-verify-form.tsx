@@ -118,7 +118,11 @@ export default function OtpVerify() {
     }
 
     if (userRole === "user") {
-      router.push("/profile/contributions-reviews");
+      if (authFlow === "createAccount") {
+        router.push("/catalog");
+      } else {
+        router.push("/maps");
+      }
     } else {
       router.push("/dashboard");
     }

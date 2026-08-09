@@ -131,7 +131,7 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-      <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative">
+      <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col max-h-[calc(100vh-2rem)]">
         {/* Close */}
         <button
           onClick={onClose}
@@ -141,7 +141,7 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
         </button>
 
         {/* Image */}
-        <div className="h-48 overflow-hidden">
+        <div className="h-48 shrink-0 overflow-hidden relative">
           {coverImage && typeof coverImage === "string" ? (
             <Image
               src={getImageUrl(coverImage)}
@@ -157,7 +157,7 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           <h2 className="text-2xl font-black mb-2">{location?.name}</h2>
 
           <div className="flex items-center gap-2 mb-4">
