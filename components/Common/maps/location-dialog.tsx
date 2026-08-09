@@ -130,18 +130,18 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-      <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative">
-        {/* Close */}
+    <div className="absolute inset-0 flex items-end sm:items-center justify-center pointer-events-none p-4 pb-20 sm:pb-4">
+      <div className="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col max-h-[90vh] sm:max-h-[80vh]">
+        {/* Close — always reachable, above everything */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center shadow-lg"
+          className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
         >
           <X size={20} />
         </button>
 
-        {/* Image */}
-        <div className="h-48 overflow-hidden">
+        {/* Image — fixed height, never scrolls away. Slightly smaller on mobile */}
+        <div className="h-40 sm:h-48 shrink-0 overflow-hidden rounded-t-[32px]">
           {coverImage && typeof coverImage === "string" ? (
             <Image
               src={getImageUrl(coverImage)}
@@ -156,9 +156,9 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
           )}
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <h2 className="text-2xl font-black mb-2">{location?.name}</h2>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 p-6">
+          <h2 className="text-2xl font-black mb-2 pr-6">{location?.name}</h2>
 
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center text-sm font-bold">

@@ -47,11 +47,13 @@ function ViewportPlaceMarkers({
   fetchedCategories,
   selectedLocation,
   setSelectedLocation,
+  isMobile,
 }: {
   places: any[];
   fetchedCategories: any[];
   selectedLocation: any;
   setSelectedLocation: (loc: any) => void;
+  isMobile: boolean;
 }) {
   const map = useMap();
   const [bounds, setBounds] = useState<{
@@ -130,6 +132,7 @@ function ViewportPlaceMarkers({
               color={color}
               isSelected={selectedLocation?.id === place._id}
               isLocked={place.isLocked}
+              isMobile={isMobile}
             />
           </AdvancedMarker>
         );
@@ -699,6 +702,7 @@ export default function MapPage() {
               fetchedCategories={fetchedCategories}
               selectedLocation={selectedLocation}
               setSelectedLocation={setSelectedLocation}
+              isMobile={isMobile}
             />
 
             <MapControl position={ControlPosition.TOP_LEFT}>

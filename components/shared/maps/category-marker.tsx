@@ -9,6 +9,7 @@ interface CategoryMarkerProps {
   isTemp?: boolean;
   isSelected?: boolean;
   isLocked?: boolean;
+  isMobile?: boolean;
 }
 
 export function CategoryMarker({
@@ -17,8 +18,20 @@ export function CategoryMarker({
   isTemp = false,
   isSelected = false,
   isLocked = false,
+  isMobile = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
+
+  // Responsive sizes: smaller on mobile, standard on desktop
+  const pinSize    = isMobile ? 24 : 32;
+  const iconSize   = isMobile ? 14 : 18;
+  const border     = isMobile ? "2.5px solid white" : "3px solid white";
+  const tailH      = isMobile ? 6 : 8;
+  const shadowW    = isMobile ? 6 : 8;
+  const shadowH    = isMobile ? 2 : 3;
+  const badgeSize  = isMobile ? 14 : 18;
+  const badgePos   = isMobile ? -5 : -6;
+  const lockIcon   = isMobile ? 8 : 10;
 
   return (
     <div
@@ -40,13 +53,13 @@ export function CategoryMarker({
         <div
           style={{
             position: "absolute",
-            top: -6,
-            right: -6,
+            top: badgePos,
+            right: badgePos,
             background: "#EF4444",
             color: "#fff",
             borderRadius: "50%",
-            width: 18,
-            height: 18,
+            width: badgeSize,
+            height: badgeSize,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -54,19 +67,19 @@ export function CategoryMarker({
             zIndex: 10,
           }}
         >
-          <Lock size={10} style={{ strokeWidth: 3 }} />
+          <Lock size={lockIcon} style={{ strokeWidth: 3 }} />
         </div>
       )}
 
       {/* Pin Head */}
       <div
         style={{
-          width: 32,
-          height: 32,
+          width: pinSize,
+          height: pinSize,
           borderRadius: "50% 50% 50% 0",
           transform: "rotate(-45deg)",
           background: bgColor,
-          border: "3px solid white",
+          border: border,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -76,7 +89,7 @@ export function CategoryMarker({
       >
         {/* Undo rotation for icon */}
         <div style={{ transform: "rotate(45deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <CategoryIcon icon={icon} size={18} color="#fff" />
+          <CategoryIcon icon={icon} size={iconSize} color="#fff" />
         </div>
       </div>
 
@@ -84,7 +97,7 @@ export function CategoryMarker({
       <div
         style={{
           width: 2,
-          height: 8,
+          height: tailH,
           background: "#ffffff",
           marginTop: -1,
           borderRadius: "0 0 2px 2px",
@@ -94,8 +107,8 @@ export function CategoryMarker({
       {/* Shadow dot on ground */}
       <div
         style={{
-          width: 8,
-          height: 3,
+          width: shadowW,
+          height: shadowH,
           borderRadius: "50%",
           background: "rgba(0,0,0,0.15)",
           marginTop: 1,
