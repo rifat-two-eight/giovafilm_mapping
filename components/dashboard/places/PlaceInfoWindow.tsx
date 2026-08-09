@@ -15,10 +15,11 @@ interface PlaceInfoWindowProps {
     type?: string;
     address?: string;
     accessDescription?: string;
-    recommendations?: string;
+    tips?: string;
     services?: string[];
     accessibility?: any;
     images?: string[];
+    menuImages?: string[];
     isNew: boolean;
     phone?: string;
     website?: string;
@@ -27,7 +28,9 @@ interface PlaceInfoWindowProps {
     entryCost?: number;
     hikeTime?: string | number;
     atmosphere?: string;
+    difficulty?: string;
     operatingHours?: Record<string, { open: string; close: string; closed: boolean }>;
+    position?: { lat: number; lng: number };
   };
 }
 
@@ -41,7 +44,7 @@ export const PlaceInfoWindow = ({
   initialData,
 }: PlaceInfoWindowProps) => {
   // Offset InfoWindow upward so the pin and its drag icon remain fully visible beneath it
-  const offsetSize = typeof window !== "undefined" ? new window.google.maps.Size(0, -45) : undefined;
+  const offsetSize: [number, number] = [0, -45];
 
   return (
     <InfoWindow position={position} onCloseClick={onClose} headerDisabled pixelOffset={offsetSize}>
