@@ -66,6 +66,7 @@ interface PlaceFormContentProps {
     atmosphere?: string;
     difficulty?: string;
     operatingHours?: Record<string, { open: string; close: string; closed: boolean }>;
+    position?: { lat: number; lng: number };
   };
 }
 
@@ -561,57 +562,80 @@ export const PlaceFormContent = ({
               </div>
               {errors.media && <p className="text-[11px] text-red-500 font-semibold">{errors.media}</p>}
 
-              {/* Existing Images (from Server) */}
+              {/* Existing Images/Videos (from Server) */}
               {existingImages.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
-                  {existingImages.map((url, index) => (
-                    <div
-                      key={`existing-${index}`}
-                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
-                    >
-                      <img
-                        src={getImageUrl(url)}
-                        alt={`existing-${index}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeExistingImage(index);
-                        }}
-                        className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                  {existingImages.map((url, index) => {
+                    const isVideo = /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
+                    return (
+                      <div
+                        key={`existing-${index}`}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
                       >
-                        <CloseIcon size={10} />
-                      </button>
-                    </div>
-                  ))}
+                        {isVideo ? (
+                          <video
+                            src={getImageUrl(url)}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={getImageUrl(url)}
+                            alt={`existing-${index}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeExistingImage(index);
+                          }}
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <CloseIcon size={10} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
               {/* New Upload Previews (Blob URLs) */}
               {previews.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
-                  {previews.map((url, index) => (
-                    <div
-                      key={`new-${index}`}
-                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
-                    >
-                      <img
-                        src={url} // Raw blob URL
-                        alt={`preview-${index}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeMedia(index);
-                        }}
-                        className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                  {previews.map((url, index) => {
+                    const file = mediaFiles[index];
+                    const isVideo = file && file.type ? file.type.startsWith("video/") : /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
+                    return (
+                      <div
+                        key={`new-${index}`}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
                       >
-                        <CloseIcon size={10} />
-                      </button>
-                    </div>
-                  ))}
+                        {isVideo ? (
+                          <video
+                            src={url}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={url} // Raw blob URL
+                            alt={`preview-${index}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeMedia(index);
+                          }}
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <CloseIcon size={10} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -626,7 +650,14 @@ export const PlaceFormContent = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Address <span className="text-red-500">*</span></Label>
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-medium">Address <span className="text-red-500">*</span></Label>
+                {initialData?.position && (
+                  <div className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-mono font-semibold">
+                    GPS: {initialData.position.lat?.toFixed(5) || "—"}, {initialData.position.lng?.toFixed(5) || "—"}
+                  </div>
+                )}
+              </div>
               <div className="relative">
                 <MapPin
                   size={14}

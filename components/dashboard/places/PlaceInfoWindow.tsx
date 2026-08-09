@@ -40,8 +40,11 @@ export const PlaceInfoWindow = ({
   isFetchingAddress,
   initialData,
 }: PlaceInfoWindowProps) => {
+  // Offset InfoWindow upward so the pin and its drag icon remain fully visible beneath it
+  const offsetSize = typeof window !== "undefined" ? new window.google.maps.Size(0, -45) : undefined;
+
   return (
-    <InfoWindow position={position} onCloseClick={onClose} headerDisabled>
+    <InfoWindow position={position} onCloseClick={onClose} headerDisabled pixelOffset={offsetSize}>
       <div className="w-[650px] max-w-[650px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300">
         <PlaceFormContent
           categories={categories}

@@ -164,8 +164,8 @@ export default function AddPlacePage() {
   const maps =
     user?.role === "map_editor"
       ? rawMaps.filter((map: any) =>
-          editorCanAccessMap(user, map._id, map.country),
-        )
+        editorCanAccessMap(user, map._id, map.country),
+      )
       : rawMaps;
   const categories = categoriesRes?.data || [];
   const fetchedPlaces = (placesRes?.data?.data ? placesRes.data.data : placesRes?.data) || [];
@@ -262,14 +262,14 @@ export default function AddPlacePage() {
     }
 
     setIsExtracting(true);
-    
+
     try {
       const response = await extractCoordinates({ url }).unwrap();
-      
+
       if (response.success && response.data) {
         const newLat = response.data.lat;
         const newLng = response.data.lng;
-        
+
         setTempMarker({ lat: newLat, lng: newLng });
         setSelectedPlace({
           position: { lat: newLat, lng: newLng },
@@ -609,112 +609,112 @@ export default function AddPlacePage() {
                   const isExpanded = expandedCategoryId === cat._id;
 
                   return (
-                  <div key={cat._id} className="flex flex-col">
-                    <div className="flex items-center hover:bg-gray-50 rounded-lg transition-colors w-full min-w-0">
-                      <button
-                        onClick={() => {
-                          setFilterCategoryId(cat._id);
-                          setSelectedCategoryId(cat._id);
-                          setExpandedCategoryId(isExpanded ? null : cat._id);
-                        }}
-                        className={`flex-1 flex items-center justify-between px-4 py-2.5 text-sm transition-colors min-w-0 text-left ${isFilterActive
-                          ? "bg-blue-50/50 text-blue-700 font-semibold rounded-l-lg"
-                          : "text-gray-600"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <ChevronRight
-                            size={14}
-                            className={`flex-shrink-0 transition-transform duration-200 ${isExpanded
-                              ? "rotate-90 text-blue-500"
-                              : "text-gray-300"
-                              }`}
-                          />
-                          <CategoryIcon
-                            icon={cat.icon}
-                            size={22}
-                            color={cat.color}
-                          />
-                          <span className="truncate pr-2">{cat.name}</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 ml-1">
-                          {placesInCat.length}
-                        </span>
-                      </button>
+                    <div key={cat._id} className="flex flex-col">
+                      <div className="flex items-center hover:bg-gray-50 rounded-lg transition-colors w-full min-w-0">
+                        <button
+                          onClick={() => {
+                            setFilterCategoryId(cat._id);
+                            setSelectedCategoryId(cat._id);
+                            setExpandedCategoryId(isExpanded ? null : cat._id);
+                          }}
+                          className={`flex-1 flex items-center justify-between px-4 py-2.5 text-sm transition-colors min-w-0 text-left ${isFilterActive
+                            ? "bg-blue-50/50 text-blue-700 font-semibold rounded-l-lg"
+                            : "text-gray-600"
+                            }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <ChevronRight
+                              size={14}
+                              className={`flex-shrink-0 transition-transform duration-200 ${isExpanded
+                                ? "rotate-90 text-blue-500"
+                                : "text-gray-300"
+                                }`}
+                            />
+                            <CategoryIcon
+                              icon={cat.icon}
+                              size={22}
+                              color={cat.color}
+                            />
+                            <span className="truncate pr-2">{cat.name}</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 ml-1">
+                            {placesInCat.length}
+                          </span>
+                        </button>
 
-                      {/* Category Visibility Toggle Button */}
-                      <button
-                        onClick={(e) => toggleCategoryVisibility(cat._id, e)}
-                        title={disabledCategories.has(cat._id) ? "Show category on map" : "Hide category from map"}
-                        className="px-3 py-2.5 text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0 border-l border-gray-100/50"
-                      >
-                        {disabledCategories.has(cat._id) ? (
-                          <EyeOff size={16} className="text-gray-400" />
-                        ) : (
-                          <Eye size={16} className="text-blue-500" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Expandable Place List */}
-                    {isExpanded && (
-                      <div className="ml-9 mt-1 mb-2 pl-4 border-l-2 border-blue-100 space-y-1 animate-in slide-in-from-top-1 duration-200">
-                        {placesInCat.map((place: any) => {
-                          const isDisabled = disabledPlaces.has(place._id);
-                          return (
-                            <div
-                              key={place._id}
-                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-all ${selectedPlace?._id === place._id
-                                ? "bg-blue-600 text-white font-bold shadow-sm"
-                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                } ${isDisabled ? "opacity-50" : ""}`}
-                            >
-                              {/* Visibility checkbox */}
-                              <button
-                                onClick={(e) => togglePlaceVisibility(place._id, e)}
-                                title={isDisabled ? "Show on map" : "Hide from map"}
-                                className={`flex-shrink-0 w-4 h-4 rounded border transition-colors ${isDisabled
-                                  ? "border-gray-300 bg-white"
-                                  : selectedPlace?._id === place._id
-                                    ? "border-blue-200 bg-blue-500"
-                                    : "border-gray-400 bg-blue-500"
-                                  }`}
-                              >
-                                {!isDisabled && (
-                                  <svg viewBox="0 0 10 10" className="w-full h-full p-0.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <polyline points="1.5,5 4,7.5 8.5,2.5" />
-                                  </svg>
-                                )}
-                              </button>
-                              {/* Place name button */}
-                              <button
-                                onClick={() => handleSelectPlace(place)}
-                                className="flex-1 text-left min-w-0"
-                              >
-                                <div className="flex flex-col">
-                                  <span className="truncate">{place.name}</span>
-                                  <span
-                                    className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
-                                  >
-                                    {place.address
-                                      ? place.address.split(",")[0]
-                                      : "No address"}
-                                  </span>
-                                </div>
-                              </button>
-                            </div>
-                          );
-                        })}
-                        {placesInCat.length === 0 && (
-                          <p className="text-[10px] text-gray-400 italic py-2 pl-3">
-                            No places in this category yet.
-                          </p>
-                        )}
+                        {/* Category Visibility Toggle Button */}
+                        <button
+                          onClick={(e) => toggleCategoryVisibility(cat._id, e)}
+                          title={disabledCategories.has(cat._id) ? "Show category on map" : "Hide category from map"}
+                          className="px-3 py-2.5 text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0 border-l border-gray-100/50"
+                        >
+                          {disabledCategories.has(cat._id) ? (
+                            <EyeOff size={16} className="text-gray-400" />
+                          ) : (
+                            <Eye size={16} className="text-blue-500" />
+                          )}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+
+                      {/* Expandable Place List */}
+                      {isExpanded && (
+                        <div className="ml-9 mt-1 mb-2 pl-4 border-l-2 border-blue-100 space-y-1 animate-in slide-in-from-top-1 duration-200">
+                          {placesInCat.map((place: any) => {
+                            const isDisabled = disabledPlaces.has(place._id);
+                            return (
+                              <div
+                                key={place._id}
+                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-all ${selectedPlace?._id === place._id
+                                  ? "bg-blue-600 text-white font-bold shadow-sm"
+                                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                  } ${isDisabled ? "opacity-50" : ""}`}
+                              >
+                                {/* Visibility checkbox */}
+                                <button
+                                  onClick={(e) => togglePlaceVisibility(place._id, e)}
+                                  title={isDisabled ? "Show on map" : "Hide from map"}
+                                  className={`flex-shrink-0 w-4 h-4 rounded border transition-colors ${isDisabled
+                                    ? "border-gray-300 bg-white"
+                                    : selectedPlace?._id === place._id
+                                      ? "border-blue-200 bg-blue-500"
+                                      : "border-gray-400 bg-blue-500"
+                                    }`}
+                                >
+                                  {!isDisabled && (
+                                    <svg viewBox="0 0 10 10" className="w-full h-full p-0.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+                                    </svg>
+                                  )}
+                                </button>
+                                {/* Place name button */}
+                                <button
+                                  onClick={() => handleSelectPlace(place)}
+                                  className="flex-1 text-left min-w-0"
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="truncate">{place.name}</span>
+                                    <span
+                                      className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
+                                    >
+                                      {place.address
+                                        ? place.address.split(",")[0]
+                                        : "No address"}
+                                    </span>
+                                  </div>
+                                </button>
+                              </div>
+                            );
+                          })}
+                          {placesInCat.length === 0 && (
+                            <p className="text-[10px] text-gray-400 italic py-2 pl-3">
+                              No places in this category yet.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           </div>
 
@@ -793,17 +793,6 @@ export default function AddPlacePage() {
               {tempMarker && (
                 <AdvancedMarker
                   position={tempMarker}
-                  draggable={true}
-                  onDragEnd={(e: any) => {
-                    const newLat = e.latLng.lat();
-                    const newLng = e.latLng.lng();
-                    const newPos = { lat: newLat, lng: newLng };
-                    setTempMarker(newPos);
-                    setSelectedPlace((prev: any) =>
-                      prev ? { ...prev, position: newPos } : null,
-                    );
-                    updateAddressFromCoords(newLat, newLng);
-                  }}
                   onClick={() =>
                     setSelectedPlace({
                       position: tempMarker,

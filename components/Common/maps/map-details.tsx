@@ -311,7 +311,7 @@ export default function MapDetails() {
   }, [carouselApi]);
 
   const isVideo = (url: string) => {
-    return /\.(mp4|webm|ogg)$/i.test(url);
+    return /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
   };
 
   const handleZoomIn = () => {
@@ -1145,8 +1145,18 @@ export default function MapDetails() {
       >
         <DialogContent
           showCloseButton={false}
-          className="fixed inset-0 top-0 left-0 z-50 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-black p-0 shadow-none sm:max-w-none data-[state=open]:zoom-in-100"
+          className="fixed inset-0 top-0 left-0 z-50 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-black p-0 shadow-none sm:max-w-none data-[state=open]:zoom-in-100 overflow-hidden"
         >
+          {/* Blurred low-opacity background image */}
+          {selectedMediaIndex !== null && !isVideo(mediaList[selectedMediaIndex]) && (
+            <div
+              className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 pointer-events-none select-none"
+              style={{
+                backgroundImage: `url(${getImageUrl(mediaList[selectedMediaIndex])})`,
+              }}
+            />
+          )}
+
           <DialogHeader className="sr-only">
             <DialogTitle>Photo gallery</DialogTitle>
           </DialogHeader>

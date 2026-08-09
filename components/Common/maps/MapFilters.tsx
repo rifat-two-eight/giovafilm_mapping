@@ -57,7 +57,7 @@ export function MapFilters({
   const mapLabel = selectedCountry || "this map";
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const panelWidth = isMobile ? "min(100%, 100vw - 1.5rem)" : "350px";
+  const panelWidth = isMobile ? "min(92vw, 320px)" : "350px";
   const listHeight = isMobile
     ? hasCategories
       ? "42vh"
@@ -67,7 +67,7 @@ export function MapFilters({
       : "auto";
 
   return (
-    <div className="flex flex-col md:flex-row items-start gap-2 w-full md:w-auto">
+    <div className="flex flex-col md:flex-row items-start gap-2 w-full md:w-auto relative">
       {isMobile && (
         <div className="flex items-center gap-2 w-full">
           <button
@@ -121,25 +121,29 @@ export function MapFilters({
 
       {/* Category Filter */}
       <div
-        className={`bg-white rounded-lg shadow-lg border border-gray-200 ${
-          isMobile && !mobileOpen ? "hidden" : ""
-        }`}
-        style={{ width: panelWidth, maxWidth: "100%" }}
+        className={`${
+          isMobile 
+            ? "absolute top-full left-0 z-50 mt-1.5 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden w-[340px] max-w-[92vw]" 
+            : "bg-white rounded-lg shadow-lg border border-gray-200"
+        } ${isMobile && !mobileOpen ? "hidden" : ""}`}
+        style={!isMobile ? { width: panelWidth } : undefined}
       >
         <Accordion
           type="single"
           collapsible
-          defaultValue={isMobile ? undefined : "categories-main"}
+          defaultValue="categories-main"
           className="w-full"
         >
           <AccordionItem value="categories-main" className="border-none">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gray-50/50 flex justify-between items-center w-full">
-              <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-                Map Categories
-              </span>
-            </AccordionTrigger>
+            {!isMobile && (
+              <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gray-50/50 flex justify-between items-center w-full">
+                <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
+                  Map Categories
+                </span>
+              </AccordionTrigger>
+            )}
             <AccordionContent
-              className="pb-0 border-t border-gray-100"
+              className={`pb-0 ${!isMobile ? "border-t border-gray-100" : ""}`}
               style={{
                 overflowY: "auto",
                 height: listHeight,
