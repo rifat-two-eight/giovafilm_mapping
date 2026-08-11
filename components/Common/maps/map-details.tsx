@@ -660,24 +660,13 @@ export default function MapDetails() {
               </Button>
 
               {!isBusiness && (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      onClick={handleDirections}
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <Send size={16} className="mr-1.5" />
-                      Directions
-                    </Button>
-                    <Button
-                      onClick={() => setIsReviewOpen(true)}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <MessageSquare size={16} className="mr-1.5" />
-                      Review
-                    </Button>
-                  </div>
-                </>
+                <Button
+                  onClick={handleDirections}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
+                >
+                  <Send size={16} className="mr-1.5" />
+                  Directions
+                </Button>
               )}
 
               {isBusiness && (

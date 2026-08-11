@@ -119,6 +119,12 @@ export default function Header() {
   const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
 
   const { data: user } = useGetProfileQuery({});
+  const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(user?.role || "");
+  const visibleMenuItems = isAdminOrEditor
+    ? menuItems.filter((item) =>
+        ["Favorites", "Contributions & Reviews", "Awards"].includes(item.label)
+      )
+    : menuItems;
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -409,31 +415,28 @@ export default function Header() {
                     </div>
                   </div>
                   <div className="py-2">
-                    {user?.role === "super_admin" ||
-                      user?.role === "admin" ||
-                      user?.role === "map_editor" ? (
+                    {isAdminOrEditor && (
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />
                           Dashoard
                         </DropdownMenuItem>
                       </Link>
-                    ) : (
-                      <div>
-                        {menuItems.map((item, index) => {
-                          const Icon = item.icon;
-
-                          return (
-                            <Link key={index} href={item.href}>
-                              <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                                <Icon className="mr-3 size-5" />
-                                {item.label}
-                              </DropdownMenuItem>
-                            </Link>
-                          );
-                        })}
-                      </div>
                     )}
+                    <div>
+                      {visibleMenuItems.map((item, index) => {
+                        const Icon = item.icon;
+
+                        return (
+                          <Link key={index} href={item.href}>
+                            <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                              <Icon className="mr-3 size-5" />
+                              {item.label}
+                            </DropdownMenuItem>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <DropdownMenuSeparator />
@@ -490,29 +493,28 @@ export default function Header() {
                   align="end"
                   className="w-64 p-0 overflow-hidden rounded-xl shadow-lg"
                 >
-                  {user?.role !== "user" ? (
+                  {isAdminOrEditor && (
                     <Link href={"/dashboard"}>
                       <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                         <Grid2x2 className="mr-3 size-5" />
                         Dashoard
                       </DropdownMenuItem>
                     </Link>
-                  ) : (
-                    <div className="py-2">
-                      {menuItems.map((item, index) => {
-                        const Icon = item.icon;
-
-                        return (
-                          <Link key={index} href={item.href}>
-                            <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                              <Icon className="mr-3 size-5" />
-                              {item.label}
-                            </DropdownMenuItem>
-                          </Link>
-                        );
-                      })}
-                    </div>
                   )}
+                  <div className="py-2">
+                    {visibleMenuItems.map((item, index) => {
+                      const Icon = item.icon;
+
+                      return (
+                        <Link key={index} href={item.href}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Icon className="mr-3 size-5" />
+                            {item.label}
+                          </DropdownMenuItem>
+                        </Link>
+                      );
+                    })}
+                  </div>
 
                   <DropdownMenuSeparator />
 
@@ -672,45 +674,44 @@ export default function Header() {
                   Account
                 </h3>
 
-                {user?.role === "super_admin" || user?.role === "admin" ? (
-                  <Link
-                    href={"/dashboard"}
-                    onClick={closeMenus}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <Grid2x2 className="size-5" />
-                    Dashoard
-                  </Link>
-                ) : (
-                  <div className="space-y-1">
-                    <div className="space-y-1">
-                      {menuItems.map((item, index) => {
-                        const Icon = item.icon;
-
-                        return (
-                          <Link
-                            key={index}
-                            href={item.href}
-                            onClick={closeMenus}
-                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
-                          >
-                            <Icon className="size-5" />
-                            <span>{item.label}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-
-                    {/* ✅ Logout in hamburger menu */}
-                    <button
-                      onClick={() => handleLogout()}
-                      className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4"
+                <div className="space-y-1">
+                  {isAdminOrEditor && (
+                    <Link
+                      href={"/dashboard"}
+                      onClick={closeMenus}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-semibold"
                     >
-                      <Map className="size-5" />
-                      <span>Log Out</span>
-                    </button>
+                      <Grid2x2 className="size-5" />
+                      Dashoard
+                    </Link>
+                  )}
+                  <div className="space-y-1">
+                    {visibleMenuItems.map((item, index) => {
+                      const Icon = item.icon;
+
+                      return (
+                        <Link
+                          key={index}
+                          href={item.href}
+                          onClick={closeMenus}
+                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <Icon className="size-5" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
-                )}
+
+                  {/* ✅ Logout in hamburger menu */}
+                  <button
+                    onClick={() => handleLogout()}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4"
+                  >
+                    <Map className="size-5" />
+                    <span>Log Out</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

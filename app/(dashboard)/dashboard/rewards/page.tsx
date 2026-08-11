@@ -37,6 +37,7 @@ export default function RewardsAdminPage() {
   const [target, setTarget] = useState("");
   const [mapId, setMapId] = useState("");
   const [type, setType] = useState("PDF Itinerary");
+  const [discountPercentage, setDiscountPercentage] = useState("");
 
   // File upload states
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +53,7 @@ export default function RewardsAdminPage() {
     setTarget("0");
     setMapId("");
     setType("PDF Itinerary");
+    setDiscountPercentage("");
     setCoverPreview(null);
     setCoverFile(null);
     setPdfFile(null);
@@ -66,6 +68,7 @@ export default function RewardsAdminPage() {
     setTarget(reward.target?.toString() || "0");
     setMapId(reward.mapId?._id || reward.mapId || "");
     setType(reward.type || "PDF Itinerary");
+    setDiscountPercentage(reward.discountPercentage?.toString() || "");
     setCoverPreview(getImageUrl(reward.coverPhoto));
     setCoverFile(null);
     setPdfFile(null);
@@ -122,6 +125,9 @@ export default function RewardsAdminPage() {
         description,
         target: Number(target) || 0,
         mapId: mapId || null,
+        discountPercentage: (type === "Exclusive Discount" || type === "Permanent Discount")
+          ? (Number(discountPercentage) || 0)
+          : undefined,
       };
 
       const formData = new FormData();
@@ -220,7 +226,12 @@ export default function RewardsAdminPage() {
 
                     {/* Points target */}
                     <td className="px-6 py-4 text-sm font-bold text-gray-700">
-                      {reward.target?.toLocaleString()} XP
+                      <div>{reward.target?.toLocaleString()} XP</div>
+                      {reward.discountPercentage !== undefined && (
+                        <div className="text-xs text-green-600 font-semibold mt-1">
+                          Discount: {reward.discountPercentage}%
+                        </div>
+                      )}
                     </td>
 
                     {/* Attached elements */}
@@ -297,6 +308,22 @@ export default function RewardsAdminPage() {
                 <option value="Permanent Discount">Permanent Discount</option>
               </select>
             </div>
+
+            {/* Discount Percentage field rendered conditionally as the 2nd field */}
+            {(type === "Exclusive Discount" || type === "Permanent Discount") && (
+              <div className="space-y-1">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Discount Percentage (%)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 15"
+                  value={discountPercentage}
+                  onChange={(e) => setDiscountPercentage(e.target.value)}
+                  min="0"
+                  max="100"
+                  required
+                />
+              </div>
+            )}
 
             {/* Title */}
             <div className="space-y-1">
