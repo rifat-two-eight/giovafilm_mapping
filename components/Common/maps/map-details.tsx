@@ -311,7 +311,9 @@ export default function MapDetails() {
   }, [carouselApi]);
 
   const isVideo = (url: string) => {
-    return /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
+    if (!url || typeof url !== "string") return false;
+    const path = url.split("?")[0];
+    return /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(path);
   };
 
   const handleZoomIn = () => {

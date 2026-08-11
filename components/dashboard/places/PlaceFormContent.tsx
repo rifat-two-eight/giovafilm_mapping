@@ -566,7 +566,7 @@ export const PlaceFormContent = ({
               {existingImages.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {existingImages.map((url, index) => {
-                    const isVideo = /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
+                    const isVideo = url ? /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(url.split('?')[0]) : false;
                     return (
                       <div
                         key={`existing-${index}`}
@@ -605,7 +605,7 @@ export const PlaceFormContent = ({
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {previews.map((url, index) => {
                     const file = mediaFiles[index];
-                    const isVideo = file && file.type ? file.type.startsWith("video/") : /\.(mp4|webm|ogg|mov|mkv|3gp)$/i.test(url);
+                    const isVideo = file && file.type ? file.type.startsWith("video/") : (url ? /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(url.split('?')[0]) : false);
                     return (
                       <div
                         key={`new-${index}`}

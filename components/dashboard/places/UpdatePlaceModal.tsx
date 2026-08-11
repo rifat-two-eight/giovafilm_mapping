@@ -116,7 +116,11 @@ export function UpdatePlaceModal({
         formDataPayload.append("data", JSON.stringify(placeData));
         if (hasMedia) {
           finalData.mediaFiles.forEach((file: File) => {
-            formDataPayload.append("images", file);
+            if (file.type && file.type.startsWith("video/")) {
+              formDataPayload.append("media", file);
+            } else {
+              formDataPayload.append("images", file);
+            }
           });
         }
         if (hasMenu) {
