@@ -127,15 +127,15 @@ export default function ReportsPage() {
             <div class="grid">
               <div class="card">
                 <div class="card-title">Total Sales</div>
-                <div class="card-value">$${reportData.salesAndTaxes?.totalSales?.toLocaleString()}</div>
+                <div class="card-value">$${(reportData.salesAndTaxes?.totalSales || 0).toLocaleString()}</div>
               </div>
               <div class="card">
                 <div class="card-title">Taxes Collected</div>
-                <div class="card-value">$${reportData.salesAndTaxes?.taxesCollected?.toLocaleString()}</div>
+                <div class="card-value">$${(reportData.salesAndTaxes?.taxesCollected || 0).toLocaleString()}</div>
               </div>
               <div class="card">
                 <div class="card-title">Net Revenue</div>
-                <div class="card-value">$${reportData.salesAndTaxes?.netRevenue?.toLocaleString()}</div>
+                <div class="card-value">$${(reportData.salesAndTaxes?.netRevenue || 0).toLocaleString()}</div>
               </div>
             </div>
 
@@ -152,11 +152,11 @@ export default function ReportsPage() {
                 ${reportData.salesAndTaxes?.monthlyData?.map((item: any) => `
                   <tr>
                     <td>${item.month}</td>
-                    <td>$${item.totalSales?.toLocaleString()}</td>
-                    <td>$${item.taxes?.toLocaleString()}</td>
-                    <td>$${item.netRevenue?.toLocaleString()}</td>
+                    <td>$${(item.totalSales || 0).toLocaleString()}</td>
+                    <td>$${(item.taxes || 0).toLocaleString()}</td>
+                    <td>$${(item.netRevenue || 0).toLocaleString()}</td>
                   </tr>
-                `).join('')}
+                `).join('') || '<tr><td colspan="4">No data</td></tr>'}
               </tbody>
             </table>
           </div>
