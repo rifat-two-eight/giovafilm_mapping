@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 interface StatItem {
   name: string;
   count: number;

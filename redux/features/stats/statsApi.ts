@@ -9,10 +9,11 @@ const statsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Stats"],
     }),
-    getReports: builder.query<any, void>({
-      query: () => ({
+    getReports: builder.query<any, any>({
+      query: (params) => ({
         url: "/stats/reports",
         method: "GET",
+        params,
       }),
       providesTags: ["Stats"],
     }),

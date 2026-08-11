@@ -9,23 +9,24 @@ interface SalesTaxesData {
   monthlyData: any[];
 }
 
-export default function SalesTaxes({ data }: { data?: SalesTaxesData }) {
+interface SalesTaxesProps {
+  data?: SalesTaxesData;
+  onExportCSV?: () => void;
+  onExportPDF?: () => void;
+}
+
+export default function SalesTaxes({ data, onExportCSV, onExportPDF }: SalesTaxesProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold text-gray-900">Sales & Taxes</h2>
 
         <div className="flex items-center gap-3">
-          <input
-            type="text"
-            placeholder="Date range"
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={onExportCSV}>
             <Download className="w-4 h-4" />
             Export CSV
           </Button>
-          <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700" onClick={onExportPDF}>
             <Download className="w-4 h-4" />
             Export PDF
           </Button>
