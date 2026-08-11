@@ -81,28 +81,6 @@ export function CategoryMarker({
           <CategoryIcon icon={icon} size={isMobile ? 14 : 18} color="#fff" />
         </div>
       </div>
-
-      {/* Pin Tail — white line only */}
-      <div
-        style={{
-          width: isMobile ? 1.5 : 2,
-          height: isMobile ? 6 : 8,
-          background: "#ffffff",
-          marginTop: -1,
-          borderRadius: "0 0 2px 2px",
-        }}
-      />
-
-      {/* Shadow dot on ground */}
-      <div
-        style={{
-          width: isMobile ? 6 : 8,
-          height: isMobile ? 2 : 3,
-          borderRadius: "50%",
-          background: "rgba(0,0,0,0.15)",
-          marginTop: 1,
-        }}
-      />
     </div>
   );
 }

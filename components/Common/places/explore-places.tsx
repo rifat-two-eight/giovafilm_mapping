@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
+import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import Link from "next/link";
@@ -20,10 +21,6 @@ import { useState, useEffect } from "react";
 import { PlaceCard } from "./place-card";
 
 const filters = [
-  {
-    label: "Filter",
-    icon: SlidersHorizontal,
-  },
   {
     label: "Near me",
     icon: MapPin,
@@ -48,6 +45,9 @@ export default function ExplorePlaces() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  const { data: categoriesResponse } = useGetCategoriesQuery({ limit: 100 });
 
   const getSortValue = (filterLabel: string) => {
     switch (filterLabel) {
@@ -92,6 +92,7 @@ export default function ExplorePlaces() {
     searchTerm,
     sort: activeFilter ? getSortValue(activeFilter) : "",
     map: selectedCountry ? mapIdFilter : "",
+    category: selectedCategory,
   });
 
   const places = response?.data || [];
@@ -180,7 +181,24 @@ export default function ExplorePlaces() {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-3 mb-8 flex-wrap">
+        <div className="flex gap-3 mb-8 flex-wrap items-center">
+          {/* Categories Selector */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value);
+              setPage(1);
+            }}
+            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors"
+          >
+            <option value="">All Categories</option>
+            {categoriesResponse?.data?.map((cat: any) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
           {filters.map((filter) => {
             const Icon = filter.icon;
             const isActive = activeFilter === filter.label;
@@ -249,6 +267,7 @@ export default function ExplorePlaces() {
                   setSearchInput("");
                   setSearchTerm("");
                   setActiveFilter(null);
+                  setSelectedCategory("");
                   setSelectedCountry("");
                   localStorage.removeItem("selectedCountryFilter");
                   setPage(1);
