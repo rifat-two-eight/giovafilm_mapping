@@ -634,7 +634,7 @@ export default function MapPage() {
 
   return (
     <div className="">
-      <div style={{ height: "calc(100vh - 90px)", width: "100%" }}>
+      <div className="relative" style={{ height: "calc(100vh - 90px)", width: "100%" }}>
         <APIProvider
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
         >

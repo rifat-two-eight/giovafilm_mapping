@@ -51,6 +51,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { getImageUrl, getUsableMediaList } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
@@ -958,11 +959,7 @@ export default function MapDetails() {
                             </p>
                             <div className="flex flex-wrap gap-2 mt-2">
                               <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">
-                                {offer.discountType === "Percentage"
-                                  ? `${offer.discountValue}% OFF`
-                                  : offer.discountType === "Flat"
-                                    ? `$${offer.discountValue} OFF`
-                                    : offer.discountType}
+                                {formatOfferDiscountLabel(offer)}
                               </span>
                               {offer.validUntil && (
                                 <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase">

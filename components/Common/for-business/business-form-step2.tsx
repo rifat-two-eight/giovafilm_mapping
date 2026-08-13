@@ -85,12 +85,17 @@ function MapContent({
 export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const [isAddMode, setIsAddMode] = useState(true);
   const [isExtracting, setIsExtracting] = useState(false);
+  const savedLocation = form.watch("mapLocation");
   const [markerPosition, setMarkerPosition] = useState<MarkerPosition | null>(
-    () => {
-      const existing = form.getValues("mapLocation");
-      return existing ?? null;
-    },
+    () => savedLocation ?? null,
   );
+
+  useEffect(() => {
+    if (savedLocation?.lat != null && savedLocation?.lng != null) {
+      setMarkerPosition(savedLocation);
+      setIsAddMode(false);
+    }
+  }, [savedLocation]);
 
   const handleAddLocationClick = () => {
     setIsAddMode((prev) => !prev);

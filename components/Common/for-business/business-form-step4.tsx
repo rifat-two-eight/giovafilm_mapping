@@ -11,11 +11,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Shield } from "lucide-react";
+import { Camera, Shield, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
-interface BusinessFormStep3Props {
+interface BusinessFormStep4Props {
   form: UseFormReturn<any>;
+  offerPhoto?: File | null;
+  onOfferPhotoChange?: (file: File | null) => void;
 }
 
 export const step4Inputs = [
@@ -25,13 +28,33 @@ export const step4Inputs = [
   "offerDuration",
   "offerDiscountType",
   "offerDiscount",
+  "offerBogoSecondType",
   "offerValidFrom",
   "offerValidUntil",
   "offerNoExpiration",
   "offerRedemptionRules",
 ] as const;
 
-export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
+export function BusinessFormStep4({
+  form,
+  offerPhoto = null,
+  onOfferPhotoChange,
+}: BusinessFormStep4Props) {
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const discountType = form.watch("offerDiscountType");
+  const bogoSecondType = form.watch("offerBogoSecondType");
+
+  useEffect(() => {
+    if (!offerPhoto) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(offerPhoto);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [offerPhoto]);
+
   const handleResetOffer = () => {
     form.setValue("offerTitle", "");
     form.setValue("offerDescription", "");
@@ -39,10 +62,13 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
     form.setValue("offerDuration", "");
     form.setValue("offerDiscountType", "");
     form.setValue("offerDiscount", "");
+    form.setValue("offerBogoSecondType", "");
     form.setValue("offerValidFrom", "");
     form.setValue("offerValidUntil", "");
     form.setValue("offerNoExpiration", false);
     form.setValue("offerRedemptionRules", "");
+    onOfferPhotoChange?.(null);
+    if (photoInputRef.current) photoInputRef.current.value = "";
   };
 
   return (
@@ -57,6 +83,9 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
           visibility, interaction, and conversion within the app, increasing
           their chances of attracting more customers and generating higher
           sales.
+        </p>
+        <p className="text-sm text-gray-500">
+          This step is optional. You can skip it, or add an offer with a photo.
         </p>
       </div>
 
@@ -124,6 +153,63 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
 
       {/* Form Fields */}
       <div className="space-y-4 text-left">
+        <div className="space-y-3">
+          <h3 className="text-base text-gray-900 font-semibold">
+            Offer Photo <span className="text-red-500">*</span>
+          </h3>
+          {photoPreview ? (
+            <div className="relative w-full max-w-sm">
+              <img
+                src={photoPreview}
+                alt="Offer preview"
+                className="w-full h-48 object-cover rounded-xl border border-gray-200"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  onOfferPhotoChange?.(null);
+                  if (photoInputRef.current) photoInputRef.current.value = "";
+                }}
+                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow"
+                aria-label="Remove offer photo"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div
+              className="bg-gray-100 rounded-xl h-48 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors border border-dashed border-gray-300"
+              onClick={() => photoInputRef.current?.click()}
+            >
+              <div className="text-center">
+                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-500 font-medium">TAP TO ADD OFFER PHOTO</p>
+              </div>
+            </div>
+          )}
+          <p className="text-sm text-gray-600">
+            This photo is shown on the Offers page. PNG or JPG, up to 10MB.
+          </p>
+          <Button
+            type="button"
+            onClick={() => photoInputRef.current?.click()}
+            className="w-full max-w-sm bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+          >
+            <Camera className="w-4 h-4 mr-2" />
+            {photoPreview ? "Change Offer Photo" : "Upload Offer Photo"}
+          </Button>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              onOfferPhotoChange?.(file);
+            }}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="offerTitle"
@@ -224,6 +310,13 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
                 <FormControl>
                   <select
                     {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      form.setValue("offerBogoSecondType", "");
+                      if (e.target.value === "Free item" || e.target.value === "BOGO") {
+                        form.setValue("offerDiscount", "");
+                      }
+                    }}
                     className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   >
                     <option value="">Select type</option>
@@ -238,28 +331,84 @@ export function BusinessFormStep4({ form }: BusinessFormStep3Props) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="offerDiscount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base text-gray-900 font-semibold">
-                  Discount Value
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    placeholder="e.g., 10"
-                    {...field}
-                    className="bg-gray-50 border-gray-200"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {discountType !== "BOGO" && discountType !== "Free item" && (
+            <FormField
+              control={form.control}
+              name="offerDiscount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base text-gray-900 font-semibold">
+                    Discount Value
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="e.g., 10"
+                      {...field}
+                      className="bg-gray-50 border-gray-200"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
+
+        {discountType === "BOGO" && (
+          <div className="space-y-3 rounded-xl border border-yellow-200 bg-yellow-50/60 p-4">
+            <FormField
+              control={form.control}
+              name="offerBogoSecondType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base text-gray-900 font-semibold">
+                    Second item
+                  </FormLabel>
+                  <FormControl>
+                    <select
+                      {...field}
+                      className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    >
+                      <option value="">Choose how the second item is discounted</option>
+                      <option value="free">Second item is free</option>
+                      <option value="percentage">Second item has a % discount</option>
+                    </select>
+                  </FormControl>
+                  <p className="text-xs text-gray-500">
+                    Customers will see this clearly, e.g. “Buy 1 Get 1 Free” or “Buy 1 Get 1 · 50% off 2nd”.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {bogoSecondType === "percentage" && (
+              <FormField
+                control={form.control}
+                name="offerDiscount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base text-gray-900 font-semibold">
+                      % off second item
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        placeholder="e.g., 50"
+                        {...field}
+                        className="bg-white border-gray-200"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+        )}
 
         {/* Validity */}
         <div className="grid md:grid-cols-2 gap-4">

@@ -35,6 +35,7 @@ interface FormData {
   description: string;
   discountType: string;
   discountValue: string;
+  bogoSecondType: string;
   validFrom: string;
   validUntil?: string;
   noExpiration: boolean;
@@ -67,6 +68,8 @@ export function CreateOfferDialog({
   }, [placeData]);
 
   const noExpiration = watch("noExpiration");
+  const discountType = watch("discountType");
+  const bogoSecondType = watch("bogoSecondType");
 
   // ── Image state — managed manually, NOT via register ─────────────────────
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -137,6 +140,7 @@ export function CreateOfferDialog({
         description: initialData.description,
         discountType: initialData.discountType,
         discountValue: initialData.discountValue?.toString() || "",
+        bogoSecondType: initialData.bogoSecondType || "",
         validFrom: initialData.validFrom
           ? new Date(initialData.validFrom).toISOString().split("T")[0]
           : "",
@@ -166,6 +170,7 @@ export function CreateOfferDialog({
         description: "",
         discountType: "",
         discountValue: "",
+        bogoSecondType: "",
         validFrom: "",
         validUntil: "",
         noExpiration: false,
@@ -206,7 +211,13 @@ export function CreateOfferDialog({
         title: data.title,
         description: data.description,
         discountType: data.discountType,
-        discountValue: Number(data.discountValue) || 0,
+        discountValue:
+          data.discountType === "BOGO" && data.bogoSecondType !== "percentage"
+            ? 100
+            : Number(data.discountValue) || 0,
+        ...(data.discountType === "BOGO"
+          ? { bogoSecondType: data.bogoSecondType || "free" }
+          : {}),
         validFrom: new Date(data.validFrom).toISOString(),
         validUntil: data.noExpiration
           ? null
@@ -510,6 +521,13 @@ export function CreateOfferDialog({
                 id="discountType"
                 className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 {...register("discountType", { required: "Type is required" })}
+                onChange={(e) => {
+                  void register("discountType").onChange(e);
+                  setValue("bogoSecondType", "");
+                  if (e.target.value === "BOGO" || e.target.value === "Free item") {
+                    setValue("discountValue", "");
+                  }
+                }}
               >
                 <option value="">Select discount type</option>
                 <option value="Percentage">Percentage</option>
@@ -519,26 +537,87 @@ export function CreateOfferDialog({
               </select>
             </div>
 
-            <div>
-              <Label
-                htmlFor="discountValue"
-                className="text-sm font-medium text-gray-700"
-              >
-                Discount Value
-              </Label>
-              <Input
-                id="discountValue"
-                type="number"
-                min={0}
-                placeholder="20"
-                className="mt-1"
-                {...register("discountValue", {
-                  required: "Discount value is required",
-                  min: { value: 0, message: "Discount cannot be negative" },
-                })}
-              />
-            </div>
+            {discountType !== "BOGO" && discountType !== "Free item" && (
+              <div>
+                <Label
+                  htmlFor="discountValue"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Discount Value
+                </Label>
+                <Input
+                  id="discountValue"
+                  type="number"
+                  min={0}
+                  placeholder="20"
+                  className="mt-1"
+                  {...register("discountValue", {
+                    required:
+                      discountType !== "BOGO" && discountType !== "Free item"
+                        ? "Discount value is required"
+                        : false,
+                    min: { value: 0, message: "Discount cannot be negative" },
+                  })}
+                />
+              </div>
+            )}
           </div>
+
+          {discountType === "BOGO" && (
+            <div className="space-y-3 rounded-lg border border-yellow-200 bg-yellow-50/70 p-4">
+              <div>
+                <Label
+                  htmlFor="bogoSecondType"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Second item
+                </Label>
+                <select
+                  id="bogoSecondType"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  {...register("bogoSecondType", {
+                    required:
+                      discountType === "BOGO"
+                        ? "Choose whether the second item is free or has a % discount"
+                        : false,
+                  })}
+                >
+                  <option value="">Choose how the second item is discounted</option>
+                  <option value="free">Second item is free</option>
+                  <option value="percentage">Second item has a % discount</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Customers will see this clearly, e.g. “Buy 1 Get 1 Free” or “Buy 1 Get 1 · 50% off 2nd”.
+                </p>
+              </div>
+              {bogoSecondType === "percentage" && (
+                <div>
+                  <Label
+                    htmlFor="discountValue"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    % off second item
+                  </Label>
+                  <Input
+                    id="discountValue"
+                    type="number"
+                    min={1}
+                    max={100}
+                    placeholder="e.g., 50"
+                    className="mt-1 bg-white"
+                    {...register("discountValue", {
+                      required:
+                        bogoSecondType === "percentage"
+                          ? "Enter 1–100% off the second item"
+                          : false,
+                      min: { value: 1, message: "Must be at least 1%" },
+                      max: { value: 100, message: "Must be at most 100%" },
+                    })}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Valid From and Valid Until */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

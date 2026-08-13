@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Utensils, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,57 +19,48 @@ export function BusinessFormStep3({
 }: BusinessFormStep2Props) {
   const photosInputRef = useRef<HTMLInputElement>(null);
   const menuInputRef = useRef<HTMLInputElement>(null);
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>(() =>
-    businessPhotos.map((f) => URL.createObjectURL(f)),
-  );
-  const [menuPreview, setMenuPreview] = useState<string | null>(() =>
-    menuFile ? URL.createObjectURL(menuFile) : null,
-  );
-  const [menuFileName, setMenuFileName] = useState<string>(
-    menuFile ? menuFile.name : "",
-  );
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [menuPreview, setMenuPreview] = useState<string | null>(null);
+  const [menuFileName, setMenuFileName] = useState("");
+
+  useEffect(() => {
+    const urls = businessPhotos.map((file) => URL.createObjectURL(file));
+    setPhotoPreviews(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [businessPhotos]);
+
+  useEffect(() => {
+    if (!menuFile) {
+      setMenuPreview(null);
+      setMenuFileName("");
+      return;
+    }
+    const url = URL.createObjectURL(menuFile);
+    setMenuPreview(url);
+    setMenuFileName(menuFile.name);
+    return () => URL.revokeObjectURL(url);
+  }, [menuFile]);
 
   const handlePhotosSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      // console.log("[v0] Photos selected:", files.length);
-      const newFiles = [...businessPhotos, ...files];
-      const newPreviews = files.map((file) => URL.createObjectURL(file));
-      setPhotoPreviews([...photoPreviews, ...newPreviews]);
-      onPhotosChange?.(newFiles);
+      onPhotosChange?.([...businessPhotos, ...files]);
     }
+    if (photosInputRef.current) photosInputRef.current.value = "";
   };
 
   const handleMenuSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // console.log("[v0] Menu file selected:", file.name);
-      const preview = URL.createObjectURL(file);
-      setMenuPreview(preview);
-      setMenuFileName(file.name);
-      onMenuChange?.(file);
-    }
+    if (file) onMenuChange?.(file);
+    if (menuInputRef.current) menuInputRef.current.value = "";
   };
 
   const removePhoto = (index: number) => {
-    const updatedPreviews = photoPreviews.filter((_, i) => i !== index);
-    setPhotoPreviews(updatedPreviews);
-
-    const updatedFiles = businessPhotos.filter((_, i) => i !== index);
-    onPhotosChange?.(updatedFiles);
-
-    if (photosInputRef.current) {
-      photosInputRef.current.value = "";
-    }
+    onPhotosChange?.(businessPhotos.filter((_, i) => i !== index));
   };
 
   const removeMenu = () => {
-    setMenuPreview(null);
-    setMenuFileName("");
     onMenuChange?.(null);
-    if (menuInputRef.current) {
-      menuInputRef.current.value = "";
-    }
   };
 
   return (
@@ -99,7 +90,7 @@ export function BusinessFormStep3({
                   <button
                     type="button"
                     onClick={() => removePhoto(idx)}
-                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -167,7 +158,7 @@ export function BusinessFormStep3({
               <button
                 type="button"
                 onClick={removeMenu}
-                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow"
               >
                 <X className="w-4 h-4" />
               </button>

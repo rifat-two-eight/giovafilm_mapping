@@ -21,14 +21,14 @@ const offerApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Offer"],
+      invalidatesTags: ["Offer", "Business"],
     }),
     deleteOffer: builder.mutation({
       query: (id) => ({
         url: `/offer/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Offer"],
+      invalidatesTags: ["Offer", "Business"],
     }),
     updateOffer: builder.mutation({
       query: ({ id, data }) => ({
@@ -36,7 +36,7 @@ const offerApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["Offer"],
+      invalidatesTags: ["Offer", "Business"],
     }),
     redeemOffer: builder.mutation({
       query: (id) => ({

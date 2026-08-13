@@ -10,6 +10,7 @@ import {
   editorCanAccessBusiness,
   editorCanAccessMap,
 } from "@/lib/editor-access";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -157,8 +158,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {offer.discountValue}
-                    {offer.discountType === "Percentage" ? "%" : ""}
+                    {formatOfferDiscountLabel(offer)}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { getImageUrl } from "@/lib/utils";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
@@ -176,9 +177,9 @@ export default function OfferSection() {
             const businessId = offer.business?._id || (typeof offer.business === 'string' ? offer.business : null);
             const offerPlaceId = placeId;
             const offerHref = businessId
-              ? `/maps?focus=${businessId}&type=business`
+              ? `/maps/${businessId}?type=business`
               : offerPlaceId
-                ? `/places/${offerPlaceId}`
+                ? `/maps/${offerPlaceId}?type=place`
                 : `/offer/${offer?._id}`;
 
             return (
@@ -217,10 +218,8 @@ export default function OfferSection() {
                     )}
 
                     {/* Discount Badge */}
-                    <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold">
-                      {offer.discountType === "Percentage"
-                        ? `${offer.discountValue}% OFF`
-                        : `${offer.discountValue} OFF`}
+                    <div className="absolute bottom-3 right-3 bg-red-500 text-white text-sm px-2 py-1 rounded-md font-bold max-w-[70%] text-right leading-tight">
+                      {formatOfferDiscountLabel(offer)}
                     </div>
                   </div>
 

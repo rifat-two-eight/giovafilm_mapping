@@ -2,12 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import {
+  clearBusinessDraft,
+  fileToStored,
+  loadBusinessDraft,
+  saveBusinessDraft,
+  storedToFile,
+} from "@/lib/business-draft";
 import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
 import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
-import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { BusinessFormStep1 } from "./business-form-step1";
@@ -17,10 +24,66 @@ import { BusinessFormStep4, step4Inputs } from "./business-form-step4";
 import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
 
+const STEPS = [
+  { id: 1, label: "Details" },
+  { id: 2, label: "Location" },
+  { id: 3, label: "Media" },
+  { id: 4, label: "Offer" },
+  { id: 5, label: "Private" },
+  { id: 6, label: "Plan" },
+] as const;
+
+const defaultValues = {
+  businessName: "",
+  category: "",
+  businessDescription: "",
+  phoneNumber: "",
+  website: "",
+  instagram: "",
+  streetAddress: "",
+  city: "",
+  country: "",
+  mapLocation: null as { lat: number; lng: number } | null,
+  mapUrl: "",
+  hoursMonFriStart: "09:00",
+  hoursMonFriEnd: "18:00",
+  hoursSatSunStart: "10:00",
+  hoursSatSunEnd: "16:00",
+  offerTitle: "",
+  offerDescription: "",
+  offerDiscount: "",
+  offerValidUntil: "",
+  offerMaxRedemptions: "",
+  offerDuration: "",
+  offerDiscountType: "",
+  offerBogoSecondType: "",
+  offerValidFrom: "",
+  offerNoExpiration: false,
+  offerRedemptionRules: "",
+  ownerPhone: "",
+  invoicingEmail: "",
+  selectedPlan: "",
+  dailyHours: [
+    { day: "Monday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+    { day: "Tuesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+    { day: "Wednesday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+    { day: "Thursday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+    { day: "Friday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
+    { day: "Saturday", isOpen: false, openTime: "09:00", closeTime: "16:00" },
+    { day: "Sunday", isOpen: false, openTime: "09:00", closeTime: "16:00" },
+  ],
+};
+
 export function AddBusinessForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [maxReachedStep, setMaxReachedStep] = useState(1);
   const [businessPhotos, setBusinessPhotos] = useState<File[]>([]);
   const [menuFile, setMenuFile] = useState<File | null>(null);
+  const [offerPhoto, setOfferPhoto] = useState<File | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const formTopRef = useRef<HTMLDivElement | null>(null);
 
   const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
   const [createOffer, { isLoading: isCreatingOffer }] =
@@ -34,65 +97,104 @@ export function AddBusinessForm() {
 
   const form = useForm({
     mode: "all",
-    defaultValues: {
-      businessName: "",
-      category: "",
-      businessDescription: "",
-      phoneNumber: "",
-      website: "",
-      instagram: "",
-      streetAddress: "",
-      city: "",
-      country: "",
-      mapLocation: null as { lat: number; lng: number } | null,
-      hoursMonFriStart: "09:00",
-      hoursMonFriEnd: "18:00",
-      hoursSatSunStart: "10:00",
-      hoursSatSunEnd: "16:00",
-      offerTitle: "",
-      offerDescription: "",
-      offerDiscount: "",
-      offerValidUntil: "",
-      offerMaxRedemptions: "",
-      offerDuration: "",
-      offerDiscountType: "",
-      offerValidFrom: "",
-      offerNoExpiration: false,
-      offerRedemptionRules: "",
-      ownerPhone: "",
-      invoicingEmail: "",
-      selectedPlan: "",
-      dailyHours: [
-        { day: "Monday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        {
-          day: "Tuesday",
-          isOpen: false,
-          openTime: "09:00",
-          closeTime: "18:00",
-        },
-        {
-          day: "Wednesday",
-          isOpen: false,
-          openTime: "09:00",
-          closeTime: "18:00",
-        },
-        {
-          day: "Thursday",
-          isOpen: false,
-          openTime: "09:00",
-          closeTime: "18:00",
-        },
-        { day: "Friday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-        {
-          day: "Saturday",
-          isOpen: false,
-          openTime: "09:00",
-          closeTime: "18:00",
-        },
-        { day: "Sunday", isOpen: false, openTime: "09:00", closeTime: "18:00" },
-      ],
-    },
+    defaultValues,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const restore = async () => {
+      const draft = await loadBusinessDraft();
+      if (cancelled) return;
+
+      if (draft?.values) {
+        form.reset({ ...defaultValues, ...draft.values });
+        setCurrentStep(Math.min(Math.max(draft.step || 1, 1), 6));
+        setMaxReachedStep(
+          Math.min(Math.max(draft.maxReachedStep || draft.step || 1, 1), 6),
+        );
+        setBusinessPhotos((draft.photos || []).map(storedToFile));
+        setMenuFile(draft.menu ? storedToFile(draft.menu) : null);
+        setOfferPhoto(draft.offerPhoto ? storedToFile(draft.offerPhoto) : null);
+        setDraftRestored(true);
+      }
+
+      setHydrated(true);
+    };
+
+    restore();
+    return () => {
+      cancelled = true;
+    };
+  }, [form]);
+
+  useEffect(() => {
+    if (!hydrated || !user) return;
+    if (!form.getValues("invoicingEmail") && user.email) {
+      form.setValue("invoicingEmail", user.email);
+    }
+    if (!form.getValues("ownerPhone") && (user.phone || user.contactNumber)) {
+      form.setValue("ownerPhone", user.phone || user.contactNumber);
+    }
+  }, [hydrated, user, form]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const persist = () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(async () => {
+        try {
+          await saveBusinessDraft({
+            step: currentStep,
+            maxReachedStep,
+            values: form.getValues(),
+            photos: await Promise.all(businessPhotos.map(fileToStored)),
+            menu: menuFile ? await fileToStored(menuFile) : null,
+            offerPhoto: offerPhoto ? await fileToStored(offerPhoto) : null,
+            savedAt: Date.now(),
+          });
+        } catch (error) {
+          console.error("Failed to save business draft:", error);
+        }
+      }, 400);
+    };
+
+    persist();
+    const subscription = form.watch(() => persist());
+    return () => {
+      subscription.unsubscribe();
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [hydrated, currentStep, maxReachedStep, businessPhotos, menuFile, offerPhoto, form]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    formTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentStep, hydrated]);
+
+  const goToStep = (step: number) => {
+    if (step < 1 || step > 6) return;
+    if (step > maxReachedStep) return;
+    setCurrentStep(step);
+  };
+
+  const advanceStep = (next: number) => {
+    setMaxReachedStep((prev) => Math.max(prev, next));
+    setCurrentStep(next);
+  };
+
+  const handleClearDraft = async () => {
+    await clearBusinessDraft();
+    form.reset(defaultValues);
+    setCurrentStep(1);
+    setMaxReachedStep(1);
+    setBusinessPhotos([]);
+    setMenuFile(null);
+    setOfferPhoto(null);
+    setDraftRestored(false);
+    toast.success("Draft cleared. You can start again.");
+  };
 
   const step4WatchedValues = form.watch(step4Inputs as any);
   const step4InputValues = step4Inputs.reduce(
@@ -102,20 +204,14 @@ export function AddBusinessForm() {
     },
     {} as Record<(typeof step4Inputs)[number], any>,
   );
-  console.log("Step 4 inputs and values:", step4InputValues);
 
-  // ── Step 5: validate only, then advance to Step 6 ────────────────────────
   const handleStep5Transition = async () => {
     const isValid = await form.trigger(["ownerPhone", "invoicingEmail"]);
     if (!isValid) return;
-    setCurrentStep(6);
+    advanceStep(6);
   };
 
-  // ── Step 6 submit: send ALL data + planID in one addBusiness call ─────────
   const onFinalSubmit = async (values: any) => {
-    console.log("Form submission values:", values);
-    console.log(values.selectedPlan, "selected plan");
-
     try {
       const businessData = {
         name: values.businessName,
@@ -164,7 +260,15 @@ export function AddBusinessForm() {
                 maxRedemptions: Number(values.offerMaxRedemptions) || 0,
                 redemptionDuration: Number(values.offerDuration) || 0,
                 discountType: values.offerDiscountType,
-                discountValue: Number(values.offerDiscount) || 0,
+                discountValue:
+                  values.offerDiscountType === "BOGO" &&
+                  values.offerBogoSecondType !== "percentage"
+                    ? 100
+                    : Number(values.offerDiscount) || 0,
+                bogoSecondType:
+                  values.offerDiscountType === "BOGO"
+                    ? values.offerBogoSecondType || "free"
+                    : undefined,
                 noExpiration: values.offerNoExpiration,
                 redemptionRules: values.offerRedemptionRules
                   ? [values.offerRedemptionRules]
@@ -176,22 +280,17 @@ export function AddBusinessForm() {
       };
 
       const formData = new FormData();
-      // Send structured business data as JSON string
       formData.append("data", JSON.stringify(businessData));
-      
+
       if (values.selectedPlan) {
-        // Renamed to 'plan' to match the Zod error (path: ["body", "plan"])
         formData.append("plan", values.selectedPlan);
-        // Keeping planID just in case other parts of the system still need it
         formData.append("planID", values.selectedPlan);
       }
 
-      // Append business photos
       businessPhotos.forEach((photo) => {
         formData.append("images", photo);
       });
 
-      // Append menu file if provided
       if (menuFile) {
         formData.append("documents", menuFile);
       }
@@ -206,7 +305,6 @@ export function AddBusinessForm() {
           res?.data?.id ||
           (typeof res?.data === "string" ? res?.data : null);
 
-        // immediately call createOffer API if offerTitle exists
         if (businessId && step4InputValues.offerTitle) {
           try {
             const offerData = {
@@ -214,13 +312,24 @@ export function AddBusinessForm() {
               business: businessId,
               description: step4InputValues.offerDescription,
               discountType: step4InputValues.offerDiscountType,
-              discountValue: Number(step4InputValues.offerDiscount) || 0,
-              validFrom: step4InputValues.offerValidFrom && step4InputValues.offerValidFrom.trim() !== ""
-                ? new Date(step4InputValues.offerValidFrom).toISOString()
-                : new Date().toISOString(),
+              discountValue:
+                step4InputValues.offerDiscountType === "BOGO" &&
+                step4InputValues.offerBogoSecondType !== "percentage"
+                  ? 100
+                  : Number(step4InputValues.offerDiscount) || 0,
+              bogoSecondType:
+                step4InputValues.offerDiscountType === "BOGO"
+                  ? step4InputValues.offerBogoSecondType || "free"
+                  : undefined,
+              validFrom:
+                step4InputValues.offerValidFrom &&
+                step4InputValues.offerValidFrom.trim() !== ""
+                  ? new Date(step4InputValues.offerValidFrom).toISOString()
+                  : new Date().toISOString(),
               validUntil: step4InputValues.offerNoExpiration
                 ? null
-                : step4InputValues.offerValidUntil && step4InputValues.offerValidUntil.trim() !== ""
+                : step4InputValues.offerValidUntil &&
+                    step4InputValues.offerValidUntil.trim() !== ""
                   ? new Date(step4InputValues.offerValidUntil).toISOString()
                   : null,
               noExpiration: step4InputValues.offerNoExpiration,
@@ -237,14 +346,13 @@ export function AddBusinessForm() {
             const offerFormDataPayload = new FormData();
             offerFormDataPayload.append("data", JSON.stringify(offerData));
 
-            businessPhotos.forEach((photo) => {
-              offerFormDataPayload.append("images", photo);
-            });
+            if (offerPhoto) {
+              offerFormDataPayload.append("images", offerPhoto);
+            }
 
             await createOffer(offerFormDataPayload).unwrap();
             toast.success("Offer created successfully!");
           } catch (offerErr: any) {
-            console.error("Offer creation error:", offerErr);
             toast.error(
               offerErr?.data?.message ||
                 offerErr?.message ||
@@ -252,6 +360,8 @@ export function AddBusinessForm() {
             );
           }
         }
+
+        await clearBusinessDraft();
 
         if (values.selectedPlan && businessId) {
           try {
@@ -266,10 +376,9 @@ export function AddBusinessForm() {
               window.location.href = checkoutRes.data?.url || checkoutRes.url;
               return;
             }
-          } catch (checkoutErr: any) {
-            console.error("Checkout redirection error:", checkoutErr);
+          } catch {
             toast.error(
-              "Failed to redirect to payment page. You can pay from your business list."
+              "Failed to redirect to payment page. You can pay from your business list.",
             );
           }
         }
@@ -280,20 +389,48 @@ export function AddBusinessForm() {
       const message =
         err?.data?.message || err?.message || "Failed to create business.";
       toast.error(message);
-      console.error("Business creation error:", err);
     }
   };
 
   const progressPercentage = (currentStep / 6) * 100;
 
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-gray-50 px-4 py-16 flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm font-medium text-gray-500">
+            Restoring your progress...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-10 pb-16">
-      <div className="max-w-5xl mx-auto p-4 md:p-6 bg-white rounded-lg">
+      <div ref={formTopRef} className="max-w-5xl mx-auto p-4 md:p-6 bg-white rounded-lg">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-8 text-center md:text-left">
           Add Your Business
         </h1>
 
-        <div className="mb-4 md:mb-8 space-y-2 border p-6 rounded-lg border-gray-200/50">
+        {draftRestored && (
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-sm font-medium text-amber-800">
+              Your previous progress was restored. You can continue from where you left off.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClearDraft}
+              className="h-9 text-xs font-semibold border-amber-300 text-amber-800 hover:bg-amber-100"
+            >
+              Clear draft
+            </Button>
+          </div>
+        )}
+
+        <div className="mb-4 md:mb-8 space-y-4 border p-4 md:p-6 rounded-lg border-gray-200/50">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm md:text-base text-gray-500/80 uppercase tracking-wider font-bold">
               Business Progress
@@ -308,12 +445,38 @@ export function AddBusinessForm() {
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {STEPS.map((step) => {
+              const reachable = step.id <= maxReachedStep;
+              const active = step.id === currentStep;
+              const done = step.id < currentStep;
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => goToStep(step.id)}
+                  disabled={!reachable}
+                  className={`rounded-lg px-2 py-2 text-xs font-semibold transition-colors ${
+                    active
+                      ? "bg-yellow-400 text-black"
+                      : done
+                        ? "bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
+                        : reachable
+                          ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          : "bg-gray-50 text-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {step.id}. {step.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onFinalSubmit)}
-            className="bg-white rounded-lg border border-gray-200/50 p-8 space-y-8"
+            className="bg-white rounded-lg border border-gray-200/50 p-4 md:p-8 space-y-8"
           >
             {currentStep === 1 && <BusinessFormStep1 form={form} />}
             {currentStep === 2 && <BusinessFormStep2 form={form} />}
@@ -325,7 +488,13 @@ export function AddBusinessForm() {
                 onMenuChange={setMenuFile}
               />
             )}
-            {currentStep === 4 && <BusinessFormStep4 form={form} />}
+            {currentStep === 4 && (
+              <BusinessFormStep4
+                form={form}
+                offerPhoto={offerPhoto}
+                onOfferPhotoChange={setOfferPhoto}
+              />
+            )}
             {currentStep === 5 && <BusinessFormStep5 form={form} />}
             {currentStep === 6 && <BusinessFormStep6 form={form} />}
 
@@ -347,7 +516,15 @@ export function AddBusinessForm() {
                   type="button"
                   onClick={async () => {
                     const validationKeys: Record<number, any[]> = {
-                      1: ["businessName", "category", "phoneNumber", "businessDescription", "streetAddress", "city", "country"],
+                      1: [
+                        "businessName",
+                        "category",
+                        "phoneNumber",
+                        "businessDescription",
+                        "streetAddress",
+                        "city",
+                        "country",
+                      ],
                       2: ["mapLocation"],
                       3: [],
                       4: [],
@@ -365,7 +542,9 @@ export function AddBusinessForm() {
                       }
                       if (currentStep === 3) {
                         if (businessPhotos.length === 0) {
-                          toast.error("Please upload at least one business photo.");
+                          toast.error(
+                            "Please upload at least one business photo.",
+                          );
                           return;
                         }
                         if (!menuFile) {
@@ -376,50 +555,118 @@ export function AddBusinessForm() {
                       if (currentStep === 4) {
                         const offerTitle = form.getValues("offerTitle");
                         if (offerTitle && offerTitle.trim() !== "") {
-                          const offerDescription = form.getValues("offerDescription");
-                          const offerDiscountType = form.getValues("offerDiscountType");
+                          const offerDescription =
+                            form.getValues("offerDescription");
+                          const offerDiscountType =
+                            form.getValues("offerDiscountType");
                           const offerDiscount = form.getValues("offerDiscount");
                           const offerDuration = form.getValues("offerDuration");
-                          const offerMaxRedemptions = form.getValues("offerMaxRedemptions");
+                          const offerMaxRedemptions =
+                            form.getValues("offerMaxRedemptions");
                           const offerValidFrom = form.getValues("offerValidFrom");
-                          const offerValidUntil = form.getValues("offerValidUntil");
-                          const offerNoExpiration = form.getValues("offerNoExpiration");
+                          const offerValidUntil =
+                            form.getValues("offerValidUntil");
+                          const offerNoExpiration =
+                            form.getValues("offerNoExpiration");
 
                           let hasError = false;
 
-                          if (!offerDescription || offerDescription.trim() === "") {
-                            form.setError("offerDescription", { type: "custom", message: "Please enter an offer description." });
+                          if (!offerPhoto) {
+                            toast.error(
+                              "Please upload a photo for this offer.",
+                            );
+                            hasError = true;
+                          }
+                          if (
+                            !offerDescription ||
+                            offerDescription.trim() === ""
+                          ) {
+                            form.setError("offerDescription", {
+                              type: "custom",
+                              message: "Please enter an offer description.",
+                            });
                             hasError = true;
                           }
                           if (!offerDiscountType) {
-                            form.setError("offerDiscountType", { type: "custom", message: "Please select a discount type." });
+                            form.setError("offerDiscountType", {
+                              type: "custom",
+                              message: "Please select a discount type.",
+                            });
                             hasError = true;
                           }
-                          if (!offerDiscount || Number(offerDiscount) <= 0) {
-                            form.setError("offerDiscount", { type: "custom", message: "Please enter a valid discount value greater than 0." });
-                            hasError = true;
+                          if (offerDiscountType === "BOGO") {
+                            const bogoSecondType =
+                              form.getValues("offerBogoSecondType");
+                            if (!bogoSecondType) {
+                              form.setError("offerBogoSecondType", {
+                                type: "custom",
+                                message:
+                                  "Choose whether the second item is free or has a % discount.",
+                              });
+                              hasError = true;
+                            } else if (bogoSecondType === "percentage") {
+                              if (
+                                !offerDiscount ||
+                                Number(offerDiscount) <= 0 ||
+                                Number(offerDiscount) > 100
+                              ) {
+                                form.setError("offerDiscount", {
+                                  type: "custom",
+                                  message:
+                                    "Enter 1–100% off the second item.",
+                                });
+                                hasError = true;
+                              }
+                            }
+                          } else if (offerDiscountType !== "Free item") {
+                            if (!offerDiscount || Number(offerDiscount) <= 0) {
+                              form.setError("offerDiscount", {
+                                type: "custom",
+                                message:
+                                  "Please enter a valid discount value greater than 0.",
+                              });
+                              hasError = true;
+                            }
                           }
                           if (!offerDuration || Number(offerDuration) <= 0) {
-                            form.setError("offerDuration", { type: "custom", message: "Please enter a valid offer duration in minutes." });
+                            form.setError("offerDuration", {
+                              type: "custom",
+                              message:
+                                "Please enter a valid offer duration in minutes.",
+                            });
                             hasError = true;
                           }
-                          if (!offerMaxRedemptions || Number(offerMaxRedemptions) < 0) {
-                            form.setError("offerMaxRedemptions", { type: "custom", message: "Please enter a valid max redemptions count." });
+                          if (
+                            !offerMaxRedemptions ||
+                            Number(offerMaxRedemptions) < 0
+                          ) {
+                            form.setError("offerMaxRedemptions", {
+                              type: "custom",
+                              message:
+                                "Please enter a valid max redemptions count.",
+                            });
                             hasError = true;
                           }
                           if (!offerValidFrom) {
-                            form.setError("offerValidFrom", { type: "custom", message: "Please select a valid from date." });
+                            form.setError("offerValidFrom", {
+                              type: "custom",
+                              message: "Please select a valid from date.",
+                            });
                             hasError = true;
                           }
                           if (!offerNoExpiration && !offerValidUntil) {
-                            form.setError("offerValidUntil", { type: "custom", message: "Please select a valid until date or check 'No Expiration'." });
+                            form.setError("offerValidUntil", {
+                              type: "custom",
+                              message:
+                                "Please select a valid until date or check 'No Expiration'.",
+                            });
                             hasError = true;
                           }
 
                           if (hasError) return;
                         }
                       }
-                      setCurrentStep(currentStep + 1);
+                      advanceStep(currentStep + 1);
                     }
                   }}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"

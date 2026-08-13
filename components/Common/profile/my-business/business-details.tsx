@@ -3,9 +3,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
+import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { toast } from "sonner";
 import {
@@ -20,19 +22,31 @@ import {
   Info,
   Instagram,
   MapPin,
+  Pencil,
   Phone,
+  Plus,
   Shield,
   XCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { BusinessOfferDialog } from "./business-offer-dialog";
 
 export default function BusinessDetails() {
   const { id } = useParams();
   const router = useRouter();
   const { data: response, isLoading } = useGetSingleBusinessQuery(id as string);
   const business = response?.data;
+  const { data: offersRes } = useGetOffersByPlaceOrBusinessIdQuery(id, {
+    skip: !id,
+  });
+  const linkedOffer = Array.isArray(offersRes?.data)
+    ? offersRes.data[0]
+    : offersRes?.data || null;
+  const offer = business?.offer || linkedOffer;
+  const [offerDialogOpen, setOfferDialogOpen] = useState(false);
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
@@ -204,7 +218,30 @@ export default function BusinessDetails() {
             </motion.div>
 
             {/* Exclusive Offer Section */}
-            {business.offer && (
+            {!offer && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-[2rem] p-8 border border-dashed border-slate-300 text-center"
+              >
+                <Shield className="mx-auto mb-4 text-slate-300" size={36} />
+                <h2 className="text-xl font-black text-slate-900 mb-2">
+                  No offer yet
+                </h2>
+                <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                  Add an exclusive offer with a photo so travelers can see the deal on the Offers page.
+                </p>
+                <Button
+                  onClick={() => setOfferDialogOpen(true)}
+                  className="rounded-xl h-11 px-6 font-bold gap-2"
+                >
+                  <Plus size={18} />
+                  Add Offer
+                </Button>
+              </motion.div>
+            )}
+
+            {offer && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -215,17 +252,41 @@ export default function BusinessDetails() {
                 </div>
 
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 text-black/80 font-black tracking-tighter mb-6 uppercase text-sm">
-                    <Shield size={20} strokeWidth={3} className="text-black" />
-                    Exclusive Offer for Members
+                  <div className="flex items-center justify-between gap-3 mb-6">
+                    <div className="flex items-center gap-2 text-black/80 font-black tracking-tighter uppercase text-sm">
+                      <Shield size={20} strokeWidth={3} className="text-black" />
+                      Exclusive Offer for Members
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOfferDialogOpen(true)}
+                      className="bg-white/80 hover:bg-white text-black border-black/10 font-bold gap-2 h-10"
+                    >
+                      <Pencil size={16} />
+                      Edit Offer
+                    </Button>
                   </div>
 
+                  {(offer.photo || offer.images) && (
+                    <div className="mb-6 overflow-hidden rounded-2xl border border-black/10 bg-black/5 max-w-md">
+                      <Image
+                        src={getImageUrl(offer.images || offer.photo)}
+                        alt={offer.title}
+                        width={640}
+                        height={360}
+                        unoptimized
+                        className="w-full h-48 object-cover"
+                      />
+                    </div>
+                  )}
+
                   <h2 className="text-3xl md:text-4xl font-black text-black mb-6 leading-tight">
-                    {business.offer.title}
+                    {offer.title}
                   </h2>
 
                   <p className="text-black/80 font-bold mb-8 text-lg max-w-xl">
-                    {business.offer.description}
+                    {offer.description}
                   </p>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -234,13 +295,12 @@ export default function BusinessDetails() {
                         Benefit
                       </p>
                       <p className="text-lg font-black text-black">
-                        {business.offer.discountType === "Percentage"
-                          ? `${business.offer.discount}% OFF`
-                          : business.offer.discountType === "Flat"
-                            ? `$${business.offer.discount} OFF`
-                            : business.offer.discountType === "BOGO"
-                              ? "Buy 1 Get 1"
-                              : "Free Item"}
+                        {formatOfferDiscountLabel({
+                          discountType: offer.discountType,
+                          discountValue: offer.discountValue ?? offer.discount,
+                          discount: offer.discount,
+                          bogoSecondType: offer.bogoSecondType,
+                        })}
                       </p>
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
@@ -248,11 +308,11 @@ export default function BusinessDetails() {
                         Validity
                       </p>
                       <p className="text-lg font-black text-black">
-                        {business.offer.noExpiration
+                        {offer.noExpiration
                           ? "Indefinite"
-                          : business.offer.validUntil
+                          : offer.validUntil
                             ? new Date(
-                                business.offer.validUntil,
+                                offer.validUntil,
                               ).toLocaleDateString()
                             : "Limited"}
                       </p>
@@ -262,7 +322,7 @@ export default function BusinessDetails() {
                         Usage
                       </p>
                       <p className="text-lg font-black text-black">
-                        {business.offer.maxRedemptions} claims
+                        {offer.maxRedemptions} claims
                       </p>
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
@@ -270,18 +330,18 @@ export default function BusinessDetails() {
                         Duration
                       </p>
                       <p className="text-lg font-black text-black">
-                        {business.offer.redemptionDuration} mins
+                        {offer.redemptionDuration} mins
                       </p>
                     </div>
                   </div>
 
-                  {business.offer.redemptionRules?.length > 0 && (
+                  {offer.redemptionRules?.length > 0 && (
                     <div className="mt-8 pt-8 border-t border-black/10">
                       <h4 className="text-sm font-black text-black uppercase tracking-widest mb-4">
                         Redemption Rules
                       </h4>
                       <ul className="space-y-3">
-                        {business.offer.redemptionRules.map(
+                        {offer.redemptionRules.map(
                           (rule: string, i: number) => (
                             <li
                               key={i}
@@ -527,6 +587,13 @@ export default function BusinessDetails() {
           </div>
         </div>
       </div>
+
+      <BusinessOfferDialog
+        open={offerDialogOpen}
+        onOpenChange={setOfferDialogOpen}
+        businessId={business._id}
+        existingOffer={offer}
+      />
     </div>
   );
 }

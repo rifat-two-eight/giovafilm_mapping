@@ -127,18 +127,20 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 flex items-end sm:items-center justify-center pointer-events-none p-4 pb-20 sm:pb-4">
-      <div className="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col max-h-[90vh] sm:max-h-[80vh]">
-        {/* Close — always reachable, above everything */}
+    <div className="absolute inset-0 flex items-end sm:items-center justify-center pointer-events-none p-4 pb-[max(5rem,env(safe-area-inset-bottom))] sm:pb-4">
+      <div className="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col overflow-hidden max-h-full min-h-0">
+        {/* Close — always tappable above image + description */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg"
+          aria-label="Close location"
+          className="absolute top-3 right-3 z-[60] w-11 h-11 bg-white/95 rounded-full flex items-center justify-center shadow-lg"
         >
-          <X size={20} />
+          <X size={22} />
         </button>
 
-        {/* Image — fixed height, never scrolls away. Slightly smaller on mobile */}
-        <div className="h-40 sm:h-48 shrink-0 overflow-hidden rounded-t-[32px]">
+        {/* Image stays visible; long copy only scrolls below */}
+        <div className="h-40 sm:h-48 shrink-0 grow-0 overflow-hidden rounded-t-[32px]">
           {coverImage ? (
             <SafeImage
               src={coverImage}
@@ -150,8 +152,7 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
           )}
         </div>
 
-        {/* Scrollable content */}
-        <div className="overflow-y-auto flex-1 p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">
           <h2 className="text-2xl font-black mb-2 pr-6">{location?.name}</h2>
 
           <div className="flex items-center gap-2 mb-4">

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { formatDate, getImageUrl } from "@/lib/utils";
 import {
   useGetSingleOfferQuery,
@@ -284,8 +285,7 @@ export default function RestaurantDetail() {
                       </p>
                     </div>
                     <div className="bg-yellow-100 text-gray-900 font-bold px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full text-base sm:text-lg md:text-xl inline-block w-fit">
-                      {offer.discountValue}
-                      {offer.discountType === "Percentage" ? "%" : ""} OFF
+                      {formatOfferDiscountLabel(offer)}
                     </div>
                   </div>
                 </div>
