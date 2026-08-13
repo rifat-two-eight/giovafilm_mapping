@@ -15,7 +15,7 @@ import {
 import { Loader2, ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
@@ -50,16 +50,13 @@ export default function BusinessDetailPage() {
   };
 
   const handleDelete = async () => {
-    const result = await Swal.fire({
+    const result = await appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#fff",
-      color: "#1a1a1a",
     });
 
     if (result.isConfirmed) {

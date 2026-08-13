@@ -12,10 +12,12 @@ const envSchema = z.object({
 
 const getRawEnv = () => {
   return {
-    NEXT_PUBLIC_BASEURL: process.env.NEXT_PUBLIC_BASEURL,
-    NEXT_PUBLIC_GOOGLE_MAP_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-    NEXT_PUBLIC_GOOGLE_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID,
-    NEXT_PUBLIC_IMAGE_BASEURL: process.env.NEXT_PUBLIC_IMAGE_BASEURL || "",
+    NEXT_PUBLIC_BASEURL: process.env.NEXT_PUBLIC_BASEURL?.trim(),
+    NEXT_PUBLIC_GOOGLE_MAP_API_KEY:
+      process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY?.trim(),
+    NEXT_PUBLIC_GOOGLE_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID?.trim(),
+    NEXT_PUBLIC_IMAGE_BASEURL:
+      process.env.NEXT_PUBLIC_IMAGE_BASEURL?.trim() || "",
   };
 };
 

@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hook";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
  
 export default function RestaurantDetail() {
   const params = useParams();
@@ -101,40 +101,17 @@ export default function RestaurantDetail() {
       return;
     }
  
-    let timerInterval: any;
-    Swal.fire({
+    appAlert.fire({
       title: "Confirm Offer Redemption",
-      html: `
-        <div class="flex flex-col items-center text-center space-y-3 font-inter">
-          <p class="text-gray-500 text-sm">
-            Accidental redemption cannot be undone. Validating in <b class="text-yellow-500 text-lg">3</b> seconds...
-          </p>
-        </div>
-      `,
+      text: "Accidental redemption cannot be undone.",
+      icon: "warning",
       timer: 3000,
       timerProgressBar: true,
       showCancelButton: true,
       confirmButtonText: "Proceed Now",
       cancelButtonText: "Cancel",
-      customClass: {
-        popup: "rounded-3xl p-6",
-        confirmButton: "bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 w-full sm:w-auto font-inter text-sm",
-        cancelButton: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 ml-3 w-full sm:w-auto font-inter text-sm"
-      },
-      buttonsStyling: false,
-      didOpen: () => {
-        const b = Swal.getHtmlContainer()?.querySelector('b');
-        timerInterval = setInterval(() => {
-          if (b) {
-            b.textContent = Math.ceil((Swal.getTimerLeft() || 0) / 1000).toString();
-          }
-        }, 100);
-      },
-      willClose: () => {
-        clearInterval(timerInterval);
-      }
     }).then(async (result) => {
-      if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+      if (result.isConfirmed || result.dismiss === "timer") {
         try {
           const res = await redeemOffer(offerId).unwrap();
           if (res.data?.expiresAt) {

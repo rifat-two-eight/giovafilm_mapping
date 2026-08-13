@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hook";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export interface Plan {
   _id: string;
@@ -58,14 +58,13 @@ export function PricingCard({
       }
     } else {
       if (businesses.length === 0) {
-        Swal.fire({
+        appAlert.fire({
           title: "No Businesses Found",
           text: "You must add a business before purchasing a subscription.",
           icon: "info",
           showCancelButton: true,
           confirmButtonText: "Add Business Now",
           cancelButtonText: "Cancel",
-          confirmButtonColor: "#fbbf24",
         }).then((result) => {
           if (result.isConfirmed) {
             router.push("/for-business");
@@ -95,21 +94,21 @@ export function PricingCard({
         return;
       }
 
-      // If multiple businesses, show select dropdown using Swal
+      // If multiple businesses, let the user pick one before checkout
       const inputOptions = businesses.reduce((acc: any, b: any) => {
         acc[b._id] = b.name + (b.hasActiveSubscription ? " (Subscribed)" : " (Unpaid)");
         return acc;
       }, {});
 
-      Swal.fire({
+      appAlert.fire({
         title: "Choose a Business",
         text: "Select which business you want to subscribe to this plan:",
+        icon: "question",
         input: "select",
         inputOptions,
         inputPlaceholder: "Select a business",
         showCancelButton: true,
         confirmButtonText: "Proceed to Payment",
-        confirmButtonColor: "#fbbf24",
         inputValidator: (value) => {
           if (!value) {
             return "You need to select a business!";

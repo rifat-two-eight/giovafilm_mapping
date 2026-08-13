@@ -11,7 +11,7 @@ import {
 } from "@/redux/features/user/userApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useState } from "react";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 import { toast } from "sonner";
 import {
   Select,
@@ -110,16 +110,13 @@ export function UsersTable(): React.ReactElement {
   const meta = response?.meta || { page: 1, limit: 10, total: 0, totalPage: 1 };
 
   const handleDelete = async (userId: string) => {
-    const result = await Swal.fire({
+    const result = await appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#fff",
-      color: "#1a1a1a",
     });
 
     if (result.isConfirmed) {
@@ -155,16 +152,12 @@ export function UsersTable(): React.ReactElement {
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await appAlert.fire({
       title: "Are you sure?",
       text: `Are you sure you want to change this user's role to ${newRole}?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Yes, change it!",
-      background: "#fff",
-      color: "#1a1a1a",
     });
 
     if (result.isConfirmed) {

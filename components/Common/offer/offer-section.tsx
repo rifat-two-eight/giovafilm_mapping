@@ -14,7 +14,7 @@ import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -139,28 +139,13 @@ export default function OfferSection() {
                       ? (typeof offer.business.map === 'object' ? (offer.business.map._id || offer.business.map.id) : offer.business.map)
                       : null;
 
-                Swal.fire({
-                  title: "<strong>Unlock Premium Offer</strong>",
-                  html: `
-                    <div class="flex flex-col items-center text-center space-y-3">
-                      <p class="text-gray-500 text-sm">
-                        This exclusive offer and its local benefits are locked. Purchase the curated map to unlock lifetime access to all spots and deals.
-                      </p>
-                    </div>
-                  `,
+                appAlert.fire({
+                  title: "Unlock Premium Offer",
+                  text: "This exclusive offer and its local benefits are locked. Purchase the curated map to unlock lifetime access to all spots and deals.",
                   icon: "info",
-                  iconColor: "#FFC107",
                   showCancelButton: true,
                   confirmButtonText: "Unlock Map",
                   cancelButtonText: "Maybe Later",
-                  customClass: {
-                    popup: "rounded-3xl p-6",
-                    confirmButton: "bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 w-full sm:w-auto font-inter text-sm",
-                    cancelButton: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3.5 rounded-xl border-none cursor-pointer focus:outline-none focus:ring-0 ml-3 w-full sm:w-auto font-inter text-sm"
-                  },
-                  buttonsStyling: false,
-                  background: "#ffffff",
-                  color: "#1f2937",
                 }).then((result) => {
                   if (result.isConfirmed) {
                     if (mapId) {

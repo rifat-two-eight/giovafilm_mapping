@@ -12,7 +12,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export default function SubscriptionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -60,20 +60,19 @@ export default function SubscriptionPage() {
   };
 
   const handleDeletePlan = async (planId: string) => {
-    Swal.fire({
+    appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this plan deletion!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await deleteSubscriptionPlan(planId).unwrap();
           if (res.success || res.data) {
-            Swal.fire({
+            appAlert.fire({
               title: "Deleted!",
               text: "Subscription plan has been deleted.",
               icon: "success",

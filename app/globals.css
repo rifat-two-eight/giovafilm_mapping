@@ -144,3 +144,58 @@ Link {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes pin-drop {
+  0% {
+    transform: translateY(-46px) scale(0.72);
+    opacity: 0.45;
+  }
+  58% {
+    transform: translateY(5px) scale(1.08);
+    opacity: 1;
+  }
+  78% {
+    transform: translateY(-7px) scale(0.97);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pin-hop {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-34px) scale(1.12);
+  }
+  70% {
+    transform: translateY(4px) scale(0.94);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pin-ripple {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.animate-pin-drop {
+  animation: pin-drop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pin-hop {
+  animation: pin-hop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pin-ripple {
+  animation: pin-ripple 0.7s ease-out both;
+}

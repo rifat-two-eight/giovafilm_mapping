@@ -376,8 +376,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 <FormLabel className="text-gray-900 font-semibold">
                   Country/Map <span className="text-red-500">*</span>
                 </FormLabel>
+                <p className="text-xs text-gray-500 -mt-1">
+                  This is the map where your business will appear. The pin in the next step must be inside this country.
+                </p>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    const previous = field.value;
+                    field.onChange(value);
+                    if (previous && previous !== value) {
+                      form.setValue("mapLocation", null);
+                    }
+                  }}
                   value={field.value || ""}
                   disabled={isLoadingMaps}
                 >

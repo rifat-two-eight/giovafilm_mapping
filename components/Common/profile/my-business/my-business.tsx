@@ -31,7 +31,7 @@ import { NoImage } from "@/lib/others/others";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export default function MyBusinessPage() {
   const router = useRouter();
@@ -46,13 +46,12 @@ export default function MyBusinessPage() {
   const [deleteBusiness] = useDeleteBusinessMutation();
 
   const handleDeleteBusiness = async (id: string) => {
-    Swal.fire({
+    appAlert.fire({
       title: "Are you sure?",
       text: "Do you really want to delete this business? This action cannot be undone and will permanently remove all associated data.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#6B7280",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {

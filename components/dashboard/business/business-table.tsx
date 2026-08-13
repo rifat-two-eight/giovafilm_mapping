@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 const businessTableHeaders = [
   "",
@@ -113,16 +113,13 @@ export function BusinessTable() {
   };
 
   const handleDeleteSingle = async (id: string) => {
-    const result = await Swal.fire({
+    const result = await appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#fff",
-      color: "#1a1a1a",
     });
 
     if (result.isConfirmed) {

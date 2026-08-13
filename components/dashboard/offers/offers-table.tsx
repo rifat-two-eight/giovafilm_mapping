@@ -13,7 +13,7 @@ import {
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { Edit, Play, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   const { data: user } = useGetProfileQuery({});
@@ -47,23 +47,21 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
   console.log("offersData", offersData);
 
   const handleDelete = (id: string) => {
-    Swal.fire({
+    appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#6B7280",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteOffer(id).unwrap();
-          Swal.fire({
+          appAlert.fire({
             title: "Deleted!",
             text: "The offer has been deleted.",
             icon: "success",
-            confirmButtonColor: "#A855F7",
           });
         } catch (error: any) {
           toast.error(error?.data?.message || "Failed to delete offer");

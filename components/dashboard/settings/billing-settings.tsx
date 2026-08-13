@@ -9,7 +9,7 @@ import {
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 import { useAppSelector } from "@/redux/hook";
 
 export function BillingSettings() {
@@ -28,13 +28,12 @@ export function BillingSettings() {
   const handleCancelSubscription = async (subscriptionId: string) => {
     if (!subscriptionId || !token) return;
 
-    const result = await Swal.fire({
+    const result = await appAlert.fire({
       title: "Are you sure?",
       text: "You will still have access until the end of your billing period.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, cancel it!",
     });
 

@@ -8,7 +8,7 @@ import {
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 
 interface Category {
@@ -35,13 +35,12 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
   const meta = response?.meta;
 
   const handleDelete = async (id: string) => {
-    Swal.fire({
+    appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this category deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {

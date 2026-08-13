@@ -15,7 +15,7 @@ import { getImageUrl } from "@/lib/utils";
 import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
+import { appAlert } from "@/lib/app-alert";
 
 export default function RewardsAdminPage() {
   const { data: configsRes, isLoading: isLoadingConfigs } = useGetAwardConfigsQuery();
@@ -77,13 +77,12 @@ export default function RewardsAdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    Swal.fire({
+    appAlert.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this reward deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
