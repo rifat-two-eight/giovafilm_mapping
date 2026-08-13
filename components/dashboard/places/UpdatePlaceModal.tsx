@@ -60,9 +60,6 @@ export function UpdatePlaceModal({
     if (!placeId) return;
 
     try {
-      console.log("handleUpdate called, placeId:", placeId);
-      console.log("finalData received:", finalData);
-
       const placeData = {
         name: finalData.name,
         map: asId(finalData.map || place.map || defaultMapId),
@@ -115,9 +112,7 @@ export function UpdatePlaceModal({
       }
       const payload = formDataPayload;
 
-      console.log("Sending request to updatePlace...", { id: placeId, data: payload });
       await updatePlace({ id: placeId, data: payload }).unwrap();
-      console.log("updatePlace request completed successfully!");
       toast.success("Place updated successfully!");
       onOpenChange(false);
     } catch (error: any) {

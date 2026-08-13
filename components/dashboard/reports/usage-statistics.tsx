@@ -35,16 +35,31 @@ interface UsageData {
   mostRedeemedOffers: StatItem[];
 }
 
-export function UsageStatistics({ data }: { data?: UsageData }) {
+export function UsageStatistics({
+  data,
+  timeFilterActive,
+  placeColumnTitle = "Most Opened Places",
+}: {
+  data?: UsageData;
+  timeFilterActive?: boolean;
+  placeColumnTitle?: string;
+}) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-900 mb-6">
-        Usage of Maps / Places / Offers
-      </h2>
+      <div className="mb-6">
+        <h2 className="text-lg font-bold text-gray-900">
+          Usage of Maps / Places / Offers
+        </h2>
+        {timeFilterActive && (
+          <p className="mt-1 text-xs text-gray-500">
+            Offer redemptions match the selected period. Map views and place opens are all-time totals.
+          </p>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <StatColumn title="Most Viewed Maps" items={data?.mostViewedMaps || []} />
-        <StatColumn title="Most Opened Places" items={data?.mostOpenedPlaces || []} />
+        <StatColumn title={placeColumnTitle} items={data?.mostOpenedPlaces || []} />
         <StatColumn title="Most Redeemed Offers" items={data?.mostRedeemedOffers || []} />
       </div>
     </div>

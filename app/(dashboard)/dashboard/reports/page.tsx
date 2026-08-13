@@ -524,6 +524,11 @@ export default function ReportsPage() {
             {country ? ` · ${country}` : ""}
             {categoryLabel ? ` · ${categoryLabel}` : ""}
           </p>
+          {selectedEntity.type === "business" && (
+            <p className="mt-1 text-xs text-amber-800">
+              Map sales are not linked to businesses. Visit and offer stats below are for this business.
+            </p>
+          )}
         </div>
       )}
 
@@ -533,7 +538,15 @@ export default function ReportsPage() {
           onExportCSV={handleExportCSV}
           onExportPDF={handleExportPDF}
         />
-        <UsageStatistics data={reportData?.usage} />
+        <UsageStatistics
+          data={reportData?.usage}
+          timeFilterActive={!!timeFilter}
+          placeColumnTitle={
+            selectedEntity?.type === "business"
+              ? "Business visits"
+              : "Most Opened Places"
+          }
+        />
       </div>
     </div>
   );

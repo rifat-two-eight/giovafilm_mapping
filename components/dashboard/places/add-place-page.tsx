@@ -320,10 +320,13 @@ export default function AddPlacePage() {
   };
 
   const handleSelectPlace = async (place: any) => {
-    const position = {
+    const placeId = place._id || place.id;
+    const serverPosition = {
       lat: place?.location?.coordinates?.[1] || place?.latitude || 0,
       lng: place?.location?.coordinates?.[0] || place?.longitude || 0,
     };
+    const position =
+      (placeId && draggedPositions[placeId]) || serverPosition;
 
     // Sync marker from discovery list first (slim payload — no description)
     setSelectedPlace({ ...place, position, isNew: false });
@@ -338,7 +341,6 @@ export default function AddPlacePage() {
     });
 
     // Load full place details (description, etc.) on demand
-    const placeId = place._id || place.id;
     if (!placeId) return;
     try {
       const res = await fetchPlaceDetails(String(placeId)).unwrap();
@@ -353,7 +355,12 @@ export default function AddPlacePage() {
         name: full.name || place.name,
         description: full.description || "",
       });
-      setSelectedPlace({ ...full, position, isNew: false });
+      setSelectedPlace((prev: any) => ({
+        ...full,
+        position: prev?.position || position,
+        address: prev?.address || full.address,
+        isNew: false,
+      }));
     } catch {
       // Keep slim discovery fields if detail fetch fails
     }
@@ -361,8 +368,12 @@ export default function AddPlacePage() {
 
   const handleSavePlace = async (data?: any) => {
     const finalData = data || formData;
-    console.log("finalData", finalData);
-    const saveMarker = tempMarker || selectedPlace?.position || null;
+    const placeId = selectedPlace?._id || selectedPlace?.id;
+    const saveMarker =
+      tempMarker ||
+      (placeId && draggedPositions[placeId]) ||
+      selectedPlace?.position ||
+      null;
 
     if (!saveMarker || !selectedMapId) return;
 
@@ -831,6 +842,7 @@ export default function AddPlacePage() {
                           setSelectedPlace((prev: any) => ({
                             ...full,
                             position: prev?.position || updatedPosition,
+                            address: prev?.address || full.address,
                             isNew: false,
                           }));
                         } catch (err) {
