@@ -272,6 +272,11 @@ export default function RestaurantDetail() {
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     {offer.description}
                   </p>
+                  <p className="mt-4 text-[11px] sm:text-xs leading-relaxed text-gray-500">
+                    NOTICE: The information for this place is for informational
+                    purposes only. Your visit and activities are at your own
+                    risk.
+                  </p>
                 </div>
 
                 {/* Validity and Rules Section */}

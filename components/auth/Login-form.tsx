@@ -16,6 +16,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { decodeJwtPayload, getApiErrorMessage } from "@/lib/utils";
+import { isDashboardRole } from "@/lib/roles";
+import { persistor } from "@/redux/store";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -46,33 +48,32 @@ export const LoginForm = () => {
     },
   });
 
-  const completeLogin = (accessToken: string, successMessage?: string) => {
+  const completeLogin = async (accessToken: string, successMessage?: string) => {
     const decoded = decodeJwtPayload(accessToken);
+    const role = decoded?.role ?? "user";
 
     dispatch(
       setUser({
         user: {
-          id: decoded?.authId ?? "",
+          id: decoded?.authId ?? decoded?.userId ?? "",
           name: decoded?.name ?? "",
           email: decoded?.email ?? "",
-          role: decoded?.role ?? "user",
+          role,
           image: "",
         },
         accessToken,
       }),
     );
 
-    document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
-    document.cookie = `userRole=${decoded?.role ?? "user"}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
-
+    await persistor.flush();
     toast.success(successMessage || "Logged in successfully!");
 
     if (redirect) {
-      router.push(redirect);
-    } else if (decoded?.role === "user") {
-      router.push("/maps");
+      router.replace(redirect);
+    } else if (isDashboardRole(role)) {
+      router.replace("/dashboard");
     } else {
-      router.push("/dashboard");
+      router.replace("/maps");
     }
   };
 

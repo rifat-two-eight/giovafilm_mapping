@@ -38,6 +38,7 @@ import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
+import { asId, asMediaUrls } from "./place-payload";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -218,6 +219,9 @@ export default function AddPlacePage() {
     lng: number;
   } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
+  const [draggedPositions, setDraggedPositions] = useState<
+    Record<string, { lat: number; lng: number }>
+  >({});
 
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [isFetchingAddress, setIsFetchingAddress] = useState(false);
@@ -371,7 +375,7 @@ export default function AddPlacePage() {
       const placeData = {
         name: finalData.name || "Untitled Place",
         map: selectedMapId,
-        category: finalData.category || selectedCategoryId,
+        category: asId(finalData.category || selectedCategoryId),
         type: finalData.type || "Regular",
         description: finalData.description,
         location: {
@@ -391,10 +395,6 @@ export default function AddPlacePage() {
         },
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
-        details: {
-          recommendations: finalData.tips || "",
-        },
-        // New fields
         schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
         operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
         phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
@@ -403,17 +403,16 @@ export default function AddPlacePage() {
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
-        difficulty: finalData.difficulty || "",
-        media: finalData.existingImages || [],
-        menuImages: finalData.existingMenuImages || [],
+        difficulty: finalData.difficulty || undefined,
+        media: asMediaUrls(finalData.existingImages),
+        menuImages: asMediaUrls(finalData.existingMenuImages),
       };
-
-      let payload: any = placeData;
 
       const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
       const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
+      const isExisting = selectedPlace && !selectedPlace.isNew;
 
-      if (hasMedia || hasMenu) {
+      const buildFormData = () => {
         const formDataPayload = new FormData();
         formDataPayload.append("data", JSON.stringify(placeData));
         if (hasMedia) {
@@ -430,19 +429,31 @@ export default function AddPlacePage() {
             formDataPayload.append("documents", file);
           });
         }
-        payload = formDataPayload;
-      }
+        return formDataPayload;
+      };
 
-      if (selectedPlace && !selectedPlace.isNew) {
-        await updatePlace({ id: selectedPlace._id, data: payload }).unwrap();
+      if (isExisting) {
+        await updatePlace({
+          id: selectedPlace._id,
+          data: buildFormData(),
+        }).unwrap();
+      } else if (hasMedia || hasMenu) {
+        await createPlace(buildFormData()).unwrap();
       } else {
-        await createPlace(payload).unwrap();
+        await createPlace(placeData).unwrap();
       }
 
       toast.success(
         `Place ${finalData.status === "Published" ? "published" : "saved as draft"} successfully!`,
       );
 
+      if (selectedPlace?._id) {
+        setDraggedPositions((prev) => {
+          const next = { ...prev };
+          delete next[selectedPlace._id];
+          return next;
+        });
+      }
       setSelectedPlace(null);
       setTempMarker(null);
       setFormData({ name: "", description: "" });
@@ -763,10 +774,12 @@ export default function AddPlacePage() {
 
               {/* ── Saved markers from server ── */}
               {displayPlaces.map((place: any) => {
-                const position = {
+                const placeId = place._id || place.id;
+                const serverPosition = {
                   lat: place?.location?.coordinates?.[1] || place?.latitude,
                   lng: place?.location?.coordinates?.[0] || place?.longitude,
                 };
+                const position = (placeId && draggedPositions[placeId]) || serverPosition;
 
                 if (!position.lat || !position.lng) return null;
 
@@ -783,47 +796,47 @@ export default function AddPlacePage() {
                     key={place._id}
                     position={position}
                     draggable={true}
-                    onDragEnd={async (e: any) => {
-                      if (e.latLng) {
-                        const newLat = e.latLng.lat();
-                        const newLng = e.latLng.lng();
-                        const updatedPosition = { lat: newLat, lng: newLng };
+                    onDragEnd={(e: any) => {
+                      if (!e.latLng || !placeId) return;
+                      const newLat = e.latLng.lat();
+                      const newLng = e.latLng.lng();
+                      const updatedPosition = { lat: newLat, lng: newLng };
 
-                        // Silent details fetch so we don't open/show empty state
-                        let fullPlaceDetails = { ...place };
-                        const placeId = place._id || place.id;
-                        if (placeId) {
-                          try {
-                            const res = await fetchPlaceDetails(String(placeId)).unwrap();
-                            const full = res?.data || res;
-                            if (full) {
-                              fullPlaceDetails = full;
-                            }
-                          } catch (err) {
-                            console.error("Failed to load details on drag", err);
-                          }
+                      setDraggedPositions((prev) => ({
+                        ...prev,
+                        [placeId]: updatedPosition,
+                      }));
+                      setSelectedPlace((prev: any) => ({
+                        ...(prev?._id === placeId ? prev : place),
+                        position: updatedPosition,
+                        isNew: false,
+                      }));
+                      updateAddressFromCoords(newLat, newLng);
+                      toast.info("Location moved. Click Save to save changes.");
+
+                      void (async () => {
+                        try {
+                          const res = await fetchPlaceDetails(String(placeId)).unwrap();
+                          const full = res?.data || res;
+                          if (!full) return;
+                          const catId =
+                            typeof full.category === "object"
+                              ? full.category?._id
+                              : full.category;
+                          setSelectedCategoryId(catId || null);
+                          setFormData({
+                            name: full.name || "",
+                            description: full.description || "",
+                          });
+                          setSelectedPlace((prev: any) => ({
+                            ...full,
+                            position: prev?.position || updatedPosition,
+                            isNew: false,
+                          }));
+                        } catch (err) {
+                          console.error("Failed to load details on drag", err);
                         }
-
-                        // Sync state correctly with updated position & category
-                        const catId = typeof fullPlaceDetails.category === "object" 
-                          ? fullPlaceDetails.category?._id 
-                          : fullPlaceDetails.category;
-                        setSelectedCategoryId(catId || null);
-                        setFormData({
-                          name: fullPlaceDetails.name || "",
-                          description: fullPlaceDetails.description || "",
-                        });
-
-                        setSelectedPlace({
-                          ...fullPlaceDetails,
-                          position: updatedPosition,
-                          isNew: false
-                        });
-
-                        // Automatically fetch new address for the dragged coordinates
-                        updateAddressFromCoords(newLat, newLng);
-                        toast.info("Location moved. Click Save to save changes.");
-                      }
+                      })();
                     }}
                     onClick={() => handleSelectPlace(place)}
                   >
@@ -874,6 +887,7 @@ export default function AddPlacePage() {
               {/* ── InfoWindow for new or existing place ── */}
               {selectedPlace && (
                 <PlaceInfoWindow
+                  key={selectedPlace._id || "new-place"}
                   position={selectedPlace.position}
                   onClose={() => setSelectedPlace(null)}
                   categories={categories}
@@ -891,8 +905,8 @@ export default function AddPlacePage() {
                     accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
                     tips:
                       selectedPlace.recommendations?.tips || selectedPlace.details?.recommendations || "",
-                    images: selectedPlace.media || [],
-                    menuImages: selectedPlace.menuImages || [],
+                    images: asMediaUrls(selectedPlace.media),
+                    menuImages: asMediaUrls(selectedPlace.menuImages),
                     isNew: selectedPlace.isNew,
                   }}
                 />

@@ -4,13 +4,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import {
   useGetPlaceDetailsQuery,
-  useGetPlacesQuery,
   useUpdatePlaceMutation,
 } from "@/redux/features/place/placeApi";
 import { X } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { PlaceFormContent } from "./PlaceFormContent";
+import { asId, asMediaUrls } from "./place-payload";
 
 interface UpdatePlaceModalProps {
   placeId: string | null;
@@ -29,12 +29,11 @@ export function UpdatePlaceModal({
   );
 
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
-  const { data: mapsRes } = useGetPlacesQuery({ limit: 1 });
   const [updatePlace, { isLoading: isUpdating }] = useUpdatePlaceMutation();
 
   const place = placeRes?.data;
   const categories = categoriesRes?.data || [];
-  const defaultMapId = mapsRes?.data?.[0]?._id || "";
+  const defaultMapId = asId(place?.map);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -66,8 +65,8 @@ export function UpdatePlaceModal({
 
       const placeData = {
         name: finalData.name,
-        map: finalData.map || place.map?._id || place.map || defaultMapId,
-        category: finalData.category,
+        map: asId(finalData.map || place.map || defaultMapId),
+        category: asId(finalData.category),
         type: finalData.type || "Regular",
         description: finalData.description,
         address: finalData.address,
@@ -83,10 +82,6 @@ export function UpdatePlaceModal({
         },
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
-        details: {
-          recommendations: finalData.tips || "",
-        },
-        // New fields
         schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
         operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
         phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
@@ -95,48 +90,30 @@ export function UpdatePlaceModal({
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
-        difficulty: finalData.difficulty || "",
-        // Pass retained existing images back so backend knows what to keep
-        media: finalData.existingImages || [],
-        menuImages: finalData.existingMenuImages || [],
+        difficulty: finalData.difficulty || undefined,
+        media: asMediaUrls(finalData.existingImages),
+        menuImages: asMediaUrls(finalData.existingMenuImages),
       };
 
-      console.log("placeData constructed:", placeData);
-
-      let payload: any = placeData;
-
+      const formDataPayload = new FormData();
+      formDataPayload.append("data", JSON.stringify(placeData));
       const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
       const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
-
-      const mediaChanged = finalData.existingImages && finalData.existingImages.length !== (place?.media?.length ?? 0);
-      const menuChanged = finalData.existingMenuImages && finalData.existingMenuImages.length !== (place?.menuImages?.length ?? 0);
-
-      if (hasMedia || hasMenu) {
-        const formDataPayload = new FormData();
-        formDataPayload.append("data", JSON.stringify(placeData));
-        if (hasMedia) {
-          finalData.mediaFiles.forEach((file: File) => {
-            if (file.type && file.type.startsWith("video/")) {
-              formDataPayload.append("media", file);
-            } else {
-              formDataPayload.append("images", file);
-            }
-          });
-        }
-        if (hasMenu) {
-          finalData.menuFiles.forEach((file: File) => {
-            formDataPayload.append("documents", file);
-          });
-        }
-        payload = formDataPayload;
-        console.log("Sending FormData payload");
-      } else if (mediaChanged || menuChanged) {
-        // Images or menu images were removed but no new files — still send JSON so backend can prune
-        payload = placeData;
-        console.log("Sending JSON payload (media/menu removed)");
-      } else {
-        console.log("Sending JSON payload (no image changes)");
+      if (hasMedia) {
+        finalData.mediaFiles.forEach((file: File) => {
+          if (file.type && file.type.startsWith("video/")) {
+            formDataPayload.append("media", file);
+          } else {
+            formDataPayload.append("images", file);
+          }
+        });
       }
+      if (hasMenu) {
+        finalData.menuFiles.forEach((file: File) => {
+          formDataPayload.append("documents", file);
+        });
+      }
+      const payload = formDataPayload;
 
       console.log("Sending request to updatePlace...", { id: placeId, data: payload });
       await updatePlace({ id: placeId, data: payload }).unwrap();
@@ -210,8 +187,8 @@ export function UpdatePlaceModal({
                   senior: (place.accessibility?.features || []).includes("senior"),
                   notes: place.accessibility?.notes || "",
                 },
-                images: place.media || [],
-                menuImages: place.menuImages || [],
+                images: asMediaUrls(place.media),
+                menuImages: asMediaUrls(place.menuImages),
                 isNew: false,
                 phone: place.phone || "",
                 website: place.website || "",

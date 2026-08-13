@@ -1,22 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SalesTaxes from "@/components/dashboard/reports/sales-taxes";
 import { UsageStatistics } from "@/components/dashboard/reports/usage-statistics";
-import { useGetReportsQuery } from "@/redux/features/stats/statsApi";
+import {
+  useGetReportsQuery,
+  useSearchReportEntitiesQuery,
+} from "@/redux/features/stats/statsApi";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
-import { Loader2, ArrowLeft, RefreshCw } from "lucide-react";
+import { Loader2, ArrowLeft, RefreshCw, Search, MapPin, Store, Map, Ticket, X } from "lucide-react";
 import Link from "next/link";
+
+type ReportEntityType = "place" | "business" | "map" | "offer";
+
+type ReportEntity = {
+  type: ReportEntityType;
+  id: string;
+  name: string;
+  location?: string;
+};
+
+const ENTITY_META: Record<
+  ReportEntityType,
+  { label: string; Icon: typeof MapPin }
+> = {
+  place: { label: "Place", Icon: MapPin },
+  business: { label: "Business", Icon: Store },
+  map: { label: "Map", Icon: Map },
+  offer: { label: "Offer", Icon: Ticket },
+};
 
 export default function ReportsPage() {
   const [timeFilter, setTimeFilter] = useState("");
   const [country, setCountry] = useState("");
   const [category, setCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedEntity, setSelectedEntity] = useState<ReportEntity | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
 
   // Fetch available filter lists from API
   const { data: categoriesResponse } = useGetCategoriesQuery({ limit: 100 });
   const { data: countriesResponse } = useGetAvailableCountriesQuery(undefined);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 250);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const onClickOutside = (event: MouseEvent) => {
+      if (!searchBoxRef.current?.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const { data: suggestionsResponse, isFetching: isSearching } =
+    useSearchReportEntitiesQuery(
+      { searchTerm: debouncedSearch },
+      { skip: !!selectedEntity || debouncedSearch.length < 2 }
+    );
+
+  const suggestions: ReportEntity[] = suggestionsResponse?.data || [];
+  const isSuggestionPending =
+    !selectedEntity &&
+    searchTerm.trim().length >= 2 &&
+    (searchTerm.trim() !== debouncedSearch || isSearching);
+
+  const groupedSuggestions = useMemo(() => {
+    const groups: { type: ReportEntityType; items: ReportEntity[] }[] = [];
+    (["place", "business", "map", "offer"] as ReportEntityType[]).forEach((type) => {
+      const items = suggestions.filter((item) => item.type === type);
+      if (items.length) groups.push({ type, items });
+    });
+    return groups;
+  }, [suggestions]);
 
   // Fetch reports stats with applied filters
   const { data: response, isLoading, isError, refetch, isFetching } = useGetReportsQuery(
@@ -24,16 +87,37 @@ export default function ReportsPage() {
       timeFilter,
       country,
       category,
+      ...(selectedEntity
+        ? { entityType: selectedEntity.type, entityId: selectedEntity.id }
+        : {}),
     },
     { refetchOnMountOrArgChange: true }
   );
   
   const reportData = response?.data;
+  const categoryLabel =
+    categoriesResponse?.data?.find((cat: any) => cat._id === category)?.name ||
+    "";
+
+  const handleSelectEntity = (item: ReportEntity) => {
+    setSelectedEntity(item);
+    setSearchTerm("");
+    setDebouncedSearch("");
+    setShowSuggestions(false);
+  };
+
+  const handleClearEntity = () => {
+    setSelectedEntity(null);
+    setSearchTerm("");
+    setDebouncedSearch("");
+    setShowSuggestions(false);
+  };
 
   const handleResetFilters = () => {
     setTimeFilter("");
     setCountry("");
     setCategory("");
+    handleClearEntity();
   };
 
   // ==================== EXPORTS IMPLEMENTATION ====================
@@ -283,6 +367,100 @@ export default function ReportsPage() {
       {/* FILTER TOOLBAR */}
       <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap gap-4 items-center">
 
+        <div ref={searchBoxRef} className="relative min-w-[260px] flex-1 max-w-md">
+          {selectedEntity ? (
+            <div className="flex h-10 items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3">
+              {(() => {
+                const { Icon, label } = ENTITY_META[selectedEntity.type];
+                return (
+                  <>
+                    <Icon className="h-4 w-4 shrink-0 text-amber-700" />
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                      {label}
+                    </span>
+                    <span className="min-w-0 truncate text-xs font-semibold text-gray-900">
+                      {selectedEntity.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleClearEntity}
+                      className="ml-auto rounded p-0.5 text-amber-800 hover:bg-amber-100"
+                      aria-label="Clear selected"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+          ) : (
+            <>
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setShowSuggestions(false);
+                }}
+                placeholder="Search place or business..."
+                className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-xs font-semibold text-gray-700 outline-none transition focus:ring-2 focus:ring-blue-400/40"
+              />
+            </>
+          )}
+
+          {!selectedEntity && showSuggestions && searchTerm.trim().length >= 2 && (
+            <div className="absolute top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+              {isSuggestionPending ? (
+                <div className="flex items-center justify-center gap-2 p-4 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+                  Searching...
+                </div>
+              ) : groupedSuggestions.length === 0 ? (
+                <p className="p-4 text-sm text-gray-500">
+                  No place or business found.
+                </p>
+              ) : (
+                <div className="max-h-72 overflow-y-auto py-1">
+                  {groupedSuggestions.map((group) => {
+                    const { Icon, label } = ENTITY_META[group.type];
+                    return (
+                      <div key={group.type}>
+                        <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                          {label}s
+                        </p>
+                        {group.items.map((item) => (
+                          <button
+                            key={`${item.type}-${item.id}`}
+                            type="button"
+                            onClick={() => handleSelectEntity(item)}
+                            className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-amber-50"
+                          >
+                            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-semibold text-gray-900">
+                                {item.name}
+                              </span>
+                              {item.location ? (
+                                <span className="block truncate text-xs text-gray-500">
+                                  {item.location}
+                                </span>
+                              ) : null}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Time Filter Dropdown */}
         <select
           value={timeFilter}
@@ -325,7 +503,7 @@ export default function ReportsPage() {
         </select>
 
         {/* Reset Filters */}
-        {(timeFilter || country || category) && (
+        {(timeFilter || country || category || selectedEntity) && (
           <button
             onClick={handleResetFilters}
             className="text-xs text-red-500 hover:text-red-600 font-bold transition-all px-3 py-2 hover:bg-red-50 rounded-lg cursor-pointer"
@@ -334,6 +512,20 @@ export default function ReportsPage() {
           </button>
         )}
       </div>
+
+      {selectedEntity && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-amber-700">
+            Showing reports for
+          </p>
+          <p className="mt-1 text-sm font-semibold text-gray-900">
+            {ENTITY_META[selectedEntity.type].label}: {selectedEntity.name}
+            {selectedEntity.location ? ` · ${selectedEntity.location}` : ""}
+            {country ? ` · ${country}` : ""}
+            {categoryLabel ? ` · ${categoryLabel}` : ""}
+          </p>
+        </div>
+      )}
 
       <div className="space-y-8">
         <SalesTaxes 

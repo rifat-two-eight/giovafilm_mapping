@@ -45,18 +45,19 @@ export function middleware(request: NextRequest) {
   );
 
   if (isDashboardRoute && accessToken) {
+    const role = (userRole || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
     const isDashboardRole =
-      userRole === "admin" ||
-      userRole === "map_editor" ||
-      userRole === "superadmin" ||
-      userRole === "super_admin";
+      role === "admin" ||
+      role === "map_editor" ||
+      role === "superadmin" ||
+      role === "super_admin";
 
     if (!isDashboardRole) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
     // map_editor cannot open admin-only sections via direct URL
-    if (userRole === "map_editor" && isAdminOnlyDashboardPath(pathname)) {
+    if (role === "map_editor" && isAdminOnlyDashboardPath(pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }

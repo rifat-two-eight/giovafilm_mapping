@@ -37,6 +37,7 @@ import {
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { asMediaUrls } from "./place-payload";
 
 interface PlaceFormContentProps {
   categories: any[];
@@ -93,10 +94,10 @@ export const PlaceFormContent = ({
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [menuFiles, setMenuFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(
-    initialData?.images || [],
+    asMediaUrls(initialData?.images),
   );
   const [existingMenuImages, setExistingMenuImages] = useState<string[]>(
-    initialData?.menuImages || [],
+    asMediaUrls(initialData?.menuImages),
   );
   const [previews, setPreviews] = useState<string[]>([]);
   const [menuPreviews, setMenuPreviews] = useState<string[]>([]);
@@ -138,6 +139,39 @@ export const PlaceFormContent = ({
       Sunday:    { open: "10:00", close: "16:00", closed: true },
     },
   });
+
+  useEffect(() => {
+    if (!initialData) return;
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name.trim() ? prev.name : initialData.name || "",
+      description: prev.description.trim()
+        ? prev.description
+        : initialData.description || "",
+      address: prev.address.trim() ? prev.address : initialData.address || "",
+      category: prev.category || initialData.category || "",
+      type: prev.type || initialData.type || "Regular",
+      accessDescription:
+        prev.accessDescription || initialData.accessDescription || "",
+      tips: prev.tips || initialData.tips || "",
+      phone: prev.phone || initialData.phone || "",
+      website: prev.website || initialData.website || "",
+      instagram: prev.instagram || initialData.instagram || "",
+    }));
+    if (!existingImages.length && initialData.images?.length) {
+      setExistingImages(asMediaUrls(initialData.images));
+    }
+    if (!existingMenuImages.length && initialData.menuImages?.length) {
+      setExistingMenuImages(asMediaUrls(initialData.menuImages));
+    }
+  }, [
+    initialData?.name,
+    initialData?.description,
+    initialData?.address,
+    initialData?.category,
+    initialData?.images,
+    initialData?.menuImages,
+  ]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { decodeJwtPayload } from "@/lib/utils";
+import { isDashboardRole } from "@/lib/roles";
 
 type AuthFlow = "createAccount" | "resetPassword" | "invite";
 
@@ -117,14 +118,12 @@ export default function OtpVerify() {
       userRole = decoded?.role;
     }
 
-    if (userRole === "user") {
-      if (authFlow === "createAccount") {
-        router.push("/catalog");
-      } else {
-        router.push("/maps");
-      }
+    if (isDashboardRole(userRole)) {
+      router.replace("/dashboard");
+    } else if (authFlow === "createAccount") {
+      router.replace("/catalog");
     } else {
-      router.push("/dashboard");
+      router.replace("/maps");
     }
   };
 
@@ -194,8 +193,6 @@ export default function OtpVerify() {
             accessToken: userData.accessToken,
           }),
         );
-
-        document.cookie = `accessToken=${userData.accessToken}; path=/; max-age=${60 * 60 * 24 * 10}; SameSite=Lax`;
 
         toast.success(
           authFlow === "resetPassword"

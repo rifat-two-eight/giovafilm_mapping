@@ -2,8 +2,14 @@
 
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
+  selectAccessToken,
+  selectCurrentUser,
+} from "@/redux/features/auth/authSlice";
+import { useAppSelector } from "@/redux/hook";
+import {
   isAdminOnlyDashboardPath,
   isDashboardRole,
+  normalizeRole,
 } from "@/lib/roles";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -22,30 +28,42 @@ export function DashboardRoleGuard({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: user, isLoading, isError } = useGetProfileQuery({});
+  const accessToken = useAppSelector(selectAccessToken);
+  const authUser = useAppSelector(selectCurrentUser);
+  const { data: profile, isLoading, isError } = useGetProfileQuery(
+    {},
+    { skip: !accessToken },
+  );
+
+  const role = profile?.role || authUser?.role;
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (isError || !user) {
+    if (!accessToken) {
       router.replace("/login");
       return;
     }
 
-    if (!isDashboardRole(user.role)) {
+    if (isLoading && !authUser) return;
+
+    if (isError && !authUser) {
+      router.replace("/login");
+      return;
+    }
+
+    if (role && !isDashboardRole(role)) {
       router.replace("/");
       return;
     }
 
     if (
-      user.role === "map_editor" &&
+      normalizeRole(role) === "map_editor" &&
       isAdminOnlyDashboardPath(pathname)
     ) {
       router.replace("/dashboard");
     }
-  }, [user, isLoading, isError, pathname, router]);
+  }, [accessToken, authUser, role, isLoading, isError, pathname, router]);
 
-  if (isLoading || !user) {
+  if (!accessToken || (isLoading && !authUser)) {
     return (
       <div className="flex items-center justify-center min-h-[40vh] gap-2 text-gray-500">
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -54,12 +72,12 @@ export function DashboardRoleGuard({
     );
   }
 
-  if (!isDashboardRole(user.role)) {
+  if (role && !isDashboardRole(role)) {
     return null;
   }
 
   if (
-    user.role === "map_editor" &&
+    normalizeRole(role) === "map_editor" &&
     isAdminOnlyDashboardPath(pathname)
   ) {
     return (

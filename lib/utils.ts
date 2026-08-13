@@ -108,7 +108,9 @@ export const formatDate = (dateString: string) => {
 // Decode a JWT payload (client-side only, no verification)
 export function decodeJwtPayload(token: string) {
   try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    let base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4;
+    if (pad) base64 += "=".repeat(4 - pad);
     return JSON.parse(atob(base64));
   } catch {
     return null;

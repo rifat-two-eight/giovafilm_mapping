@@ -17,7 +17,18 @@ const statsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Stats"],
     }),
+    searchReportEntities: builder.query<any, { searchTerm: string }>({
+      query: ({ searchTerm }) => ({
+        url: "/stats/reports/search",
+        method: "GET",
+        params: { searchTerm },
+      }),
+    }),
   }),
 });
 
-export const { useGetDashboardStatsQuery, useGetReportsQuery } = statsApi;
+export const {
+  useGetDashboardStatsQuery,
+  useGetReportsQuery,
+  useSearchReportEntitiesQuery,
+} = statsApi;

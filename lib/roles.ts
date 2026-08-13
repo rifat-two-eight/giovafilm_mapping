@@ -20,13 +20,22 @@ export const ADMIN_ONLY_DASHBOARD_PREFIXES = [
   "/dashboard/notification",
 ];
 
+export function normalizeRole(role?: string | null): string {
+  return (role || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
 export function isAdminRole(role?: string | null): boolean {
-  return role === "admin" || role === "super_admin";
+  const r = normalizeRole(role);
+  return r === "admin" || r === "super_admin" || r === "superadmin";
 }
 
 export function isDashboardRole(role?: string | null): boolean {
+  const r = normalizeRole(role);
   return (
-    role === "admin" || role === "super_admin" || role === "map_editor"
+    r === "admin" ||
+    r === "super_admin" ||
+    r === "superadmin" ||
+    r === "map_editor"
   );
 }
 
