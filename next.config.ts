@@ -46,7 +46,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'mymaps.usercontent.google.com',
         pathname: '/hostedimage/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'maps.googleapis.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'places.googleapis.com',
+        pathname: '/**',
+      },
     ],
   },
 };

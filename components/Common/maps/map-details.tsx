@@ -22,7 +22,6 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 
 import {
@@ -52,7 +51,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getUsableMediaList } from "@/lib/utils";
+import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
@@ -63,6 +63,29 @@ import {
 import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
+
+function LightboxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (!src || failed) {
+    return <NoImage />;
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      draggable={false}
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export default function MapDetails() {
   const params = useParams();
@@ -296,8 +319,7 @@ export default function MapDetails() {
   }, [selectedMediaIndex]);
 
   const mediaList = useMemo(() => {
-    const list = placeData?.media || [];
-    return Array.isArray(list) ? list.filter(Boolean) : [];
+    return getUsableMediaList(placeData?.media);
   }, [placeData]);
 
   useEffect(() => {
@@ -314,6 +336,11 @@ export default function MapDetails() {
     if (!url || typeof url !== "string") return false;
     const path = url.split("?")[0];
     return /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(path);
+  };
+
+  const openGallery = (index = currentSlide) => {
+    if (!mediaList.length) return;
+    setSelectedMediaIndex(Math.min(Math.max(index, 0), mediaList.length - 1));
   };
 
   const handleZoomIn = () => {
@@ -443,8 +470,8 @@ export default function MapDetails() {
                     mediaList.map((media: string, index: number) => (
                       <CarouselItem
                         key={index}
-                        className="pl-0 h-full basis-full cursor-pointer"
-                        onClick={() => setSelectedMediaIndex(index)}
+                        className="pl-0 h-full basis-full cursor-zoom-in"
+                        onClick={() => openGallery(index)}
                       >
                         <div className="relative h-full w-full min-h-[280px] md:min-h-[420px]">
                           {isVideo(media) ? (
@@ -458,7 +485,7 @@ export default function MapDetails() {
                               onMouseOut={(e) => e.currentTarget.pause()}
                             />
                           ) : (
-                            <Image
+                            <SafeImage
                               src={getImageUrl(media)}
                               alt={`${placeData?.name} photo ${index + 1}`}
                               fill
@@ -496,24 +523,31 @@ export default function MapDetails() {
               />
 
               {mediaList.length > 0 && (
-                <div className="absolute top-4 right-4 z-20 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                <button
+                  type="button"
+                  onClick={() => openGallery(currentSlide)}
+                  className="absolute top-4 right-4 z-20 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur hover:bg-black/70"
+                >
                   {currentSlide + 1} / {mediaList.length}
                   <span className="ml-1.5 font-normal text-white/80">
                     · tap to enlarge
                   </span>
-                </div>
+                </button>
               )}
 
               {/* Bottom title card (Desktop Only) */}
-              <div className="hidden md:block absolute bottom-0 inset-x-0 z-10 p-3 md:p-4">
+              <div className="hidden md:block absolute bottom-0 inset-x-0 z-10 p-3 md:p-4 pointer-events-none">
                 {mediaList.length > 1 && (
-                  <div className="mb-3 flex justify-center gap-1.5">
+                  <div className="mb-3 flex justify-center gap-1.5 pointer-events-auto">
                     {mediaList.map((_: string, index: number) => (
                       <button
                         key={index}
                         type="button"
                         aria-label={`Go to photo ${index + 1}`}
-                        onClick={() => carouselApi?.scrollTo(index)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          carouselApi?.scrollTo(index);
+                        }}
                         className={`h-1.5 rounded-full transition-all ${currentSlide === index
                             ? "w-6 bg-yellow-400"
                             : "w-1.5 bg-white/55 hover:bg-white"
@@ -604,7 +638,7 @@ export default function MapDetails() {
                   <button
                     key={index}
                     type="button"
-                    onClick={() => carouselApi?.scrollTo(index)}
+                    onClick={() => openGallery(index)}
                     className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${currentSlide === index
                         ? "border-yellow-400 ring-2 ring-yellow-200"
                         : "border-transparent opacity-80 hover:opacity-100"
@@ -617,7 +651,7 @@ export default function MapDetails() {
                         muted
                       />
                     ) : (
-                      <Image
+                      <SafeImage
                         src={getImageUrl(media)}
                         alt={`Thumbnail ${index + 1}`}
                         fill
@@ -1141,14 +1175,15 @@ export default function MapDetails() {
       >
         <DialogContent
           showCloseButton={false}
-          className="fixed inset-0 top-0 left-0 z-50 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-black p-0 shadow-none sm:max-w-none data-[state=open]:zoom-in-100 overflow-hidden"
+          overlayClassName="bg-black z-50"
+          className="fixed inset-0 top-0 left-0 z-[100] flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-black p-0 shadow-none sm:max-w-none data-[state=open]:zoom-in-100 overflow-hidden"
         >
           {/* Blurred low-opacity background image */}
           {selectedMediaIndex !== null && !isVideo(mediaList[selectedMediaIndex]) && (
             <div
               className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 pointer-events-none select-none"
               style={{
-                backgroundImage: `url(${getImageUrl(mediaList[selectedMediaIndex])})`,
+                backgroundImage: `url("${getImageUrl(mediaList[selectedMediaIndex])}")`,
               }}
             />
           )}
@@ -1256,7 +1291,7 @@ export default function MapDetails() {
                     />
                   ) : (
                     <div
-                      className="flex max-h-[min(85dvh,900px)] max-w-full items-center justify-center"
+                      className="flex h-full w-full max-h-[min(85dvh,900px)] max-w-full items-center justify-center"
                       style={{
                         transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
                         transition: isDragging
@@ -1264,12 +1299,10 @@ export default function MapDetails() {
                           : "transform 0.12s ease-out",
                       }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <LightboxImage
                         src={getImageUrl(mediaList[selectedMediaIndex])}
                         alt={`${placeData?.name || "Gallery"} photo ${selectedMediaIndex + 1}`}
-                        className="max-h-[min(85dvh,900px)] max-w-full object-contain select-none"
-                        draggable={false}
+                        className="h-auto w-auto max-h-[min(85dvh,900px)] max-w-full object-contain select-none"
                       />
                     </div>
                   )}
@@ -1335,8 +1368,7 @@ export default function MapDetails() {
                       muted
                     />
                   ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <LightboxImage
                       src={getImageUrl(media)}
                       alt=""
                       className="h-full w-full object-cover"

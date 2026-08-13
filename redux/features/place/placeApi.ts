@@ -9,6 +9,8 @@ type GetPlacesArgs = {
   sort?: string;
   country?: string;
   category?: string;
+  lat?: number | string;
+  lng?: number | string;
 };
 
 const placeApi = baseApi.injectEndpoints({
@@ -23,10 +25,27 @@ const placeApi = baseApi.injectEndpoints({
         sort = "",
         country = "",
         category = "",
-      }) => ({
-        url: `/place?page=${page}&limit=${limit}&searchTerm=${searchTerm}&status=${status}&map=${map}&sort=${sort}&country=${country}&category=${category}`,
-        method: "GET",
-      }),
+        lat,
+        lng,
+      }) => {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        params.set("limit", String(limit));
+        if (searchTerm) params.set("searchTerm", searchTerm);
+        if (status) params.set("status", status);
+        if (map) params.set("map", map);
+        if (sort) params.set("sort", sort);
+        if (country) params.set("country", country);
+        if (category) params.set("category", category);
+        if (lat !== undefined && lat !== "" && lng !== undefined && lng !== "") {
+          params.set("lat", String(lat));
+          params.set("lng", String(lng));
+        }
+        return {
+          url: `/place?${params.toString()}`,
+          method: "GET",
+        };
+      },
       providesTags: ["Place"],
     }),
     getPlaceDetails: builder.query<any, string>({

@@ -11,13 +11,12 @@ import {
   Flame,
   MapPin,
   Search,
-  SlidersHorizontal,
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { PlaceCard } from "./place-card";
 
 const filters = [
@@ -46,6 +45,10 @@ export default function ExplorePlaces() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const { data: categoriesResponse } = useGetCategoriesQuery({ limit: 100 });
 
@@ -90,9 +93,11 @@ export default function ExplorePlaces() {
     page,
     limit,
     searchTerm,
-    sort: activeFilter ? getSortValue(activeFilter) : "",
+    sort: activeFilter && activeFilter !== "Near me" ? getSortValue(activeFilter) : "",
     map: selectedCountry ? mapIdFilter : "",
     category: selectedCategory,
+    lat: activeFilter === "Near me" ? userLocation?.lat : undefined,
+    lng: activeFilter === "Near me" ? userLocation?.lng : undefined,
   });
 
   const places = response?.data || [];
@@ -208,6 +213,35 @@ export default function ExplorePlaces() {
                 key={filter.label}
                 variant={isActive ? "default" : "outline"}
                 onClick={() => {
+                  if (filter.label === "Near me") {
+                    if (isActive) {
+                      setActiveFilter(null);
+                      setUserLocation(null);
+                      setPage(1);
+                      return;
+                    }
+                    if (!navigator.geolocation) {
+                      toast.error("Geolocation is not supported by your browser");
+                      return;
+                    }
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        setUserLocation({
+                          lat: pos.coords.latitude,
+                          lng: pos.coords.longitude,
+                        });
+                        setActiveFilter("Near me");
+                        setPage(1);
+                      },
+                      () => {
+                        toast.error("Allow location access to use Near me");
+                      },
+                      { enableHighAccuracy: true, timeout: 10000 },
+                    );
+                    return;
+                  }
+
+                  setUserLocation(null);
                   setActiveFilter(isActive ? null : filter.label);
                   setPage(1);
                 }}
@@ -267,6 +301,7 @@ export default function ExplorePlaces() {
                   setSearchInput("");
                   setSearchTerm("");
                   setActiveFilter(null);
+                  setUserLocation(null);
                   setSelectedCategory("");
                   setSelectedCountry("");
                   localStorage.removeItem("selectedCountryFilter");

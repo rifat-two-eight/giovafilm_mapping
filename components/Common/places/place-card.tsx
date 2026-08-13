@@ -1,15 +1,16 @@
 "use client";
 
+import { SafeImage } from "@/components/shared/safe-image";
 import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
-import { getImageUrl } from "@/lib/utils";
+import { getUsableMediaUrl } from "@/lib/utils";
 import { MapPin, Star, Lock } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
 import Swal from "sweetalert2";
 
 export function PlaceCard({ data }: { data: TPlace }) {
+  const coverImage = getUsableMediaUrl(data?.media);
+
   const handleClick = (e: React.MouseEvent) => {
     if (data?.isLocked) {
       e.preventDefault();
@@ -56,13 +57,12 @@ export function PlaceCard({ data }: { data: TPlace }) {
       <div className="rounded-xl overflow-hidden bg-white border hover:shadow-lg transition">
         {/* Image Section */}
         <div className="relative h-64 w-full">
-          {data?.media?.length > 0 ? (
-            <Image
-              src={getImageUrl(data?.media[0])}
+          {coverImage ? (
+            <SafeImage
+              src={coverImage}
               alt={data?.isLocked ? "Premium Location" : data?.name}
-              unoptimized
               fill
-              className="w-full h-full object-cover hover:scale-105 transition-all"
+              className="hover:scale-105 transition-all"
             />
           ) : (
             <NoImage />

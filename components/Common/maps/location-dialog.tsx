@@ -1,11 +1,11 @@
 import { FavouriteButton } from "@/components/shared/favourite-button";
+import { SafeImage } from "@/components/shared/safe-image";
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
-import { getImageUrl } from "@/lib/utils";
+import { getUsableMediaUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { Star, X, Lock } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 type Props = {
@@ -36,12 +36,9 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
     type === "business" ? businessRes?.data : placeRes?.data;
 
   // Place: media[]; Business: media.photos[]
-  const coverImage =
-    type === "business"
-      ? location?.media?.photos?.[0]
-      : Array.isArray(location?.media)
-        ? location.media[0]
-        : undefined;
+  const coverSource =
+    type === "business" ? location?.media?.photos : location?.media;
+  const coverImage = getUsableMediaUrl(coverSource);
   const locationId = location?._id || location?.id || placeId;
 
   const isLocked = (placeError as any)?.status === 403;
@@ -142,13 +139,10 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
 
         {/* Image — fixed height, never scrolls away. Slightly smaller on mobile */}
         <div className="h-40 sm:h-48 shrink-0 overflow-hidden rounded-t-[32px]">
-          {coverImage && typeof coverImage === "string" ? (
-            <Image
-              src={getImageUrl(coverImage)}
+          {coverImage ? (
+            <SafeImage
+              src={coverImage}
               alt={location?.name}
-              unoptimized
-              width={500}
-              height={500}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -172,7 +166,13 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
             </span>
           </div>
 
-          <p className="text-sm text-gray-600 mb-6">{location?.description}</p>
+          <p className="text-sm text-gray-600 mb-4">{location?.description}</p>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
+            <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+              NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
+            </p>
+          </div>
 
           <div className="flex gap-3">
             <Link href={`/maps/${placeId}?type=${type}`} className="flex-1">

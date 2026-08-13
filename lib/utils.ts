@@ -22,26 +22,46 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const FALLBACK_IMAGE = "/exploring-today.jpg";
+
+const extractMediaPath = (item: any): string => {
+  if (!item) return "";
+  if (typeof item === "string") return item.trim();
+  if (typeof item === "object") {
+    return String(item.url || item.path || item.src || item.secure_url || "").trim();
+  }
+  return "";
+};
+
+export const isUnusableMediaPath = (path?: string) => {
+  if (!path || typeof path !== "string") return true;
+  const value = path.trim();
+  return !value || value === "undefined" || value === "null";
+};
+
+export const getUsableMediaList = (media?: any): string[] => {
+  const items = Array.isArray(media) ? media : media ? [media] : [];
+  return items.map(extractMediaPath).filter((path) => !isUnusableMediaPath(path));
+};
+
+export const getUsableMediaUrl = (media?: any) => {
+  const usable = getUsableMediaList(media);
+  return usable.length > 0 ? getImageUrl(usable[0]) : "";
+};
+
 export const getImageUrl = (media?: any) => {
-  if (!media) return "/exploring-today.jpg";
+  if (!media) return FALLBACK_IMAGE;
 
   let mediaPath = "";
 
   if (Array.isArray(media) && media.length > 0) {
-    mediaPath = media[0];
-  } else if (typeof media === "string") {
-    mediaPath = media;
+    mediaPath = getUsableMediaList(media)[0] || extractMediaPath(media[0]);
+  } else {
+    mediaPath = extractMediaPath(media);
   }
 
-  // Handle common junk strings or non-string paths
-  if (
-    !mediaPath ||
-    typeof mediaPath !== "string" ||
-    mediaPath === "undefined" ||
-    mediaPath === "null" ||
-    mediaPath.trim() === ""
-  ) {
-    return "/exploring-today.jpg";
+  if (isUnusableMediaPath(mediaPath)) {
+    return FALLBACK_IMAGE;
   }
 
   // If it's already a full URL, return it
