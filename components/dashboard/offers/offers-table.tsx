@@ -46,10 +46,12 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
 
   console.log("offersData", offersData);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, title?: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: "Delete this offer?",
+      text: title
+        ? `Delete “${title}”? You won't be able to revert this.`
+        : "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
@@ -212,7 +214,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
 
                       {user?.role !== "map_editor" && (
                         <button
-                          onClick={() => handleDelete(offer._id)}
+                          onClick={() => handleDelete(offer._id, offer.title)}
                           className="text-red-500 hover:text-red-700 transition-colors"
                           aria-label="Delete offer"
                         >

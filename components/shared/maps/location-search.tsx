@@ -1,0 +1,166 @@
+"use client";
+
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
+import { Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+type Suggestion = {
+  label: string;
+  placeId?: string;
+  lat?: number;
+  lng?: number;
+};
+
+export function LocationSearch({
+  onPick,
+  countryName,
+  disabled,
+}: {
+  onPick: (lat: number, lng: number, label: string) => void;
+  countryName?: string;
+  disabled?: boolean;
+}) {
+  const places = useMapsLibrary("places");
+  const geocoding = useMapsLibrary("geocoding");
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      const biased = countryName ? `${q}, ${countryName}` : q;
+
+      if (places) {
+        const service = new places.AutocompleteService();
+        service.getPlacePredictions(
+          { input: biased },
+          (results, status) => {
+            if (String(status) === "OK" && results?.length) {
+              setSuggestions(
+                results.slice(0, 6).map((item) => ({
+                  label: item.description,
+                  placeId: item.place_id,
+                })),
+              );
+              setOpen(true);
+              return;
+            }
+            if (!geocoding) {
+              setSuggestions([]);
+              return;
+            }
+            const geocoder = new geocoding.Geocoder();
+            geocoder.geocode({ address: biased }, (geoResults, geoStatus) => {
+              if (String(geoStatus) !== "OK" || !geoResults?.[0]?.geometry?.location) {
+                setSuggestions([]);
+                return;
+              }
+              const loc = geoResults[0].geometry.location;
+              setSuggestions([
+                {
+                  label: geoResults[0].formatted_address || q,
+                  lat: loc.lat(),
+                  lng: loc.lng(),
+                },
+              ]);
+              setOpen(true);
+            });
+          },
+        );
+        return;
+      }
+
+      if (!geocoding) return;
+      const geocoder = new geocoding.Geocoder();
+      geocoder.geocode({ address: biased }, (results, status) => {
+        if (status !== "OK" || !results?.[0]?.geometry?.location) {
+          setSuggestions([]);
+          return;
+        }
+        const loc = results[0].geometry.location;
+        setSuggestions([
+          {
+            label: results[0].formatted_address || q,
+            lat: loc.lat(),
+            lng: loc.lng(),
+          },
+        ]);
+        setOpen(true);
+      });
+    }, 280);
+
+    return () => window.clearTimeout(timer);
+  }, [query, countryName, places, geocoding]);
+
+  const selectSuggestion = async (item: Suggestion) => {
+    setLoading(true);
+    try {
+      if (item.lat != null && item.lng != null) {
+        onPick(item.lat, item.lng, item.label);
+        setQuery(item.label);
+        setOpen(false);
+        return;
+      }
+      if (!item.placeId || !geocoding) return;
+      const geocoder = new geocoding.Geocoder();
+      geocoder.geocode({ placeId: item.placeId }, (results, status) => {
+        const loc = results?.[0]?.geometry?.location;
+        if (status !== "OK" || !loc) return;
+        onPick(loc.lat(), loc.lng(), item.label);
+        setQuery(item.label);
+        setOpen(false);
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <input
+        value={query}
+        disabled={disabled}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => suggestions.length > 0 && setOpen(true)}
+        placeholder={
+          countryName
+            ? `Search a place in ${countryName}`
+            : "Search a place or address"
+        }
+        className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none transition focus:border-yellow-400 focus:bg-white focus:ring-2 focus:ring-yellow-200 disabled:opacity-60"
+      />
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-gray-100 bg-white py-1 shadow-xl">
+          {suggestions.map((item) => (
+            <button
+              key={`${item.placeId || item.label}`}
+              type="button"
+              disabled={loading}
+              onClick={() => void selectSuggestion(item)}
+              className="block w-full px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-yellow-50"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

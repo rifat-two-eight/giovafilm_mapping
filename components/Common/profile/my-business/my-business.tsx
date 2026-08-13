@@ -45,10 +45,10 @@ export default function MyBusinessPage() {
 
   const [deleteBusiness] = useDeleteBusinessMutation();
 
-  const handleDeleteBusiness = async (id: string) => {
+  const handleDeleteBusiness = async (id: string, name?: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "Do you really want to delete this business? This action cannot be undone and will permanently remove all associated data.",
+      title: "Delete this business?",
+      text: `Do you really want to delete${name ? ` “${name}”` : " this business"}? This cannot be undone.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
@@ -275,7 +275,7 @@ export default function MyBusinessPage() {
                           <ExternalLink size={16} /> View on Map
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleDeleteBusiness(business._id)}
+                          onClick={() => handleDeleteBusiness(business._id, business.name)}
                           className="rounded-lg gap-2 font-medium text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
                         >
                           <Trash2 size={16} strokeWidth={2.5} /> Delete Business

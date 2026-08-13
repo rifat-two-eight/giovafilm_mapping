@@ -2,6 +2,7 @@
 
 import { AnimatedMapPin } from "@/components/shared/maps/animated-map-pin";
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
+import { LocationSearch } from "@/components/shared/maps/location-search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,17 +31,27 @@ interface MarkerPosition {
   zoom?: number;
 }
 
+type AddressInfo = {
+  streetAddress: string;
+  city: string;
+  country: string;
+};
+
 function MapContent({
   markerPosition,
+  previewPosition,
   onMapClick,
   onMarkerDragEnd,
+  onMyLocation,
   mapId,
   defaultCenter,
   defaultZoom,
 }: {
   markerPosition: MarkerPosition | null;
+  previewPosition: MarkerPosition | null;
   onMapClick: (e: MapMouseEvent) => void | Promise<void>;
   onMarkerDragEnd: (lat: number, lng: number) => void | Promise<void>;
+  onMyLocation?: (lat: number, lng: number) => void;
   mapId?: string;
   defaultCenter: { lat: number; lng: number };
   defaultZoom: number;
@@ -66,6 +77,14 @@ function MapContent({
     defaultZoom,
   ]);
 
+  useEffect(() => {
+    if (!map || !previewPosition) return;
+    const bounds = map.getBounds();
+    if (!bounds || !bounds.contains(previewPosition)) {
+      map.panTo(previewPosition);
+    }
+  }, [map, previewPosition?.lat, previewPosition?.lng]);
+
   if (map) {
     map.setOptions({ draggableCursor: "crosshair" });
   }
@@ -84,13 +103,16 @@ function MapContent({
       mapTypeControl={true}
       onClick={onMapClick}
     >
-      <CustomLocationButton />
+      <CustomLocationButton onLocated={onMyLocation} />
       {markerPosition && (
         <AnimatedMapPin
           position={markerPosition}
           draggable
           onDragEnd={onMarkerDragEnd}
         />
+      )}
+      {previewPosition && (
+        <AnimatedMapPin position={previewPosition} variant="preview" />
       )}
     </Map>
   );
@@ -103,6 +125,13 @@ type MapViewport = {
 
 const googleMapsApiKey = () =>
   (process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "").trim();
+
+function formatAddressLabel(address?: AddressInfo | null) {
+  if (!address) return "";
+  return [address.streetAddress, address.city, address.country]
+    .filter(Boolean)
+    .join(", ");
+}
 
 async function geocodeQuery(query: string): Promise<{
   lat: number;
@@ -143,7 +172,7 @@ function isInsideViewport(lat: number, lng: number, viewport?: MapViewport | nul
   );
 }
 
-async function reverseGeocode(lat: number, lng: number) {
+async function reverseGeocode(lat: number, lng: number): Promise<AddressInfo | null> {
   const apiKey = googleMapsApiKey();
   if (!apiKey) return null;
 
@@ -192,6 +221,8 @@ async function reverseGeocode(lat: number, lng: number) {
 export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const selectedMapName = form.watch("country");
   const savedLocation = form.watch("mapLocation");
+  const streetAddress = form.watch("streetAddress");
+  const city = form.watch("city");
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const selectedMap = useMemo(
     () => (mapsRes?.data || []).find((map: any) => map.name === selectedMapName),
@@ -203,6 +234,9 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const [markerPosition, setMarkerPosition] = useState<MarkerPosition | null>(
     () => savedLocation ?? null,
   );
+  const [previewPosition, setPreviewPosition] = useState<MarkerPosition | null>(
+    null,
+  );
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number; zoom: number } | null>(
     savedLocation
       ? { lat: savedLocation.lat, lng: savedLocation.lng, zoom: 15 }
@@ -212,6 +246,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const [expectedGeoCountry, setExpectedGeoCountry] = useState<string>("");
   const [mapViewport, setMapViewport] = useState<MapViewport | null>(null);
   const [extractCoordinates] = useExtractCoordinatesMutation();
+  const apiKey = googleMapsApiKey();
 
   useEffect(() => {
     if (savedLocation?.lat != null && savedLocation?.lng != null) {
@@ -247,19 +282,18 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     };
   }, [selectedMapName, selectedMap?.country, savedLocation]);
 
-  const applyAddressIfValid = async (lat: number, lng: number) => {
+  const resolvePin = async (
+    lat: number,
+    lng: number,
+  ): Promise<{ ok: boolean; address: AddressInfo | null }> => {
     const address = await reverseGeocode(lat, lng);
     const pinCountry = address?.country;
     const insideSelectedMap = isInsideViewport(lat, lng, mapViewport);
 
     if (!pinCountry) {
-      if (insideSelectedMap) {
-        if (address?.streetAddress) form.setValue("streetAddress", address.streetAddress);
-        if (address?.city) form.setValue("city", address.city);
-        return true;
-      }
+      if (insideSelectedMap) return { ok: true, address };
       toast.error("Could not verify this location. Please try another pin.");
-      return false;
+      return { ok: false, address };
     }
 
     if (
@@ -273,12 +307,10 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       toast.error(
         `This pin is in ${pinCountry}. Place it inside ${selectedMapName}.`,
       );
-      return false;
+      return { ok: false, address };
     }
 
-    if (address?.streetAddress) form.setValue("streetAddress", address.streetAddress);
-    if (address?.city) form.setValue("city", address.city);
-    return true;
+    return { ok: true, address };
   };
 
   const confirmLocationChange = async (title: string, text: string) => {
@@ -302,36 +334,50 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     form.setValue("mapLocation", null);
     form.setValue("mapUrl", "");
     setMarkerPosition(null);
+    setPreviewPosition(null);
     toast.success("Location cleared. You can set a new pin.");
   };
 
-  const setLocation = async (
-    lat: number,
-    lng: number,
-    successMessage?: string,
-    requireConfirm = false,
-  ) => {
-    if (requireConfirm) {
-      const confirmed = await confirmLocationChange(
-        "Update this location?",
-        "A location is already set. Do you want to replace it with the new pin?",
-      );
-      if (!confirmed) return false;
+  const proposeLocation = async (lat: number, lng: number) => {
+    if (!selectedMapName) {
+      toast.error("Please select a Country/Map in Step 1 first.");
+      return false;
     }
 
+    const isUpdate = !!markerPosition;
+    setPreviewPosition({ lat, lng });
     setIsCheckingPin(true);
-    try {
-      const valid = await applyAddressIfValid(lat, lng);
-      if (!valid) return false;
-      setMarkerPosition({ lat, lng });
-      form.setValue("mapLocation", { lat, lng });
-      toast.success(
-        successMessage || `Location updated inside ${selectedMapName}.`,
-      );
-      return true;
-    } finally {
-      setIsCheckingPin(false);
+    const { ok, address } = await resolvePin(lat, lng);
+    setIsCheckingPin(false);
+
+    if (!ok) {
+      setPreviewPosition(null);
+      return false;
     }
+
+    if (isUpdate) {
+      const label = formatAddressLabel(address) || "the selected spot";
+      const confirmed = await confirmLocationChange(
+        "Update this location?",
+        `Move the pin to ${label}?`,
+      );
+      if (!confirmed) {
+        setPreviewPosition(null);
+        return false;
+      }
+    }
+
+    setPreviewPosition(null);
+    setMarkerPosition({ lat, lng });
+    form.setValue("mapLocation", { lat, lng });
+    if (address?.streetAddress) form.setValue("streetAddress", address.streetAddress);
+    if (address?.city) form.setValue("city", address.city);
+    toast.success(
+      isUpdate
+        ? `Location updated inside ${selectedMapName}.`
+        : `Location set inside ${selectedMapName}.`,
+    );
+    return true;
   };
 
   const handleExtractLocation = async () => {
@@ -363,14 +409,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
         extractedCoords = { lat, lng };
       }
 
-      await setLocation(
-        extractedCoords.lat,
-        extractedCoords.lng,
-        markerPosition
-          ? `Location updated inside ${selectedMapName}.`
-          : `Location set inside ${selectedMapName}.`,
-        !!markerPosition,
-      );
+      await proposeLocation(extractedCoords.lat, extractedCoords.lng);
     } catch (error: any) {
       toast.error(
         error?.data?.message ||
@@ -383,29 +422,16 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
 
   const handleMapClick = async (e: MapMouseEvent) => {
     if (!e.detail.latLng) return;
-    if (!selectedMapName) {
-      toast.error("Please select a Country/Map in Step 1 first.");
-      return;
-    }
-
-    await setLocation(
-      e.detail.latLng.lat,
-      e.detail.latLng.lng,
-      markerPosition
-        ? `Location updated inside ${selectedMapName}.`
-        : `Location set inside ${selectedMapName}.`,
-      !!markerPosition,
-    );
+    await proposeLocation(e.detail.latLng.lat, e.detail.latLng.lng);
   };
 
   const handleMarkerDragEnd = async (lat: number, lng: number) => {
-    await setLocation(
-      lat,
-      lng,
-      `Location updated inside ${selectedMapName}.`,
-      true,
-    );
+    await proposeLocation(lat, lng);
   };
+
+  const locationLabel = [streetAddress, city, selectedMapName]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="space-y-4">
@@ -429,8 +455,9 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
 
       {selectedMapName && (
         <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-          Selected map: <strong>{selectedMapName}</strong>. A pin outside this
-          country will be rejected.
+          Selected map: <strong>{selectedMapName}</strong>. First pin is set
+          instantly. Updating it needs confirm. A pin outside this country will
+          be rejected.
         </div>
       )}
 
@@ -456,40 +483,61 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
       </div>
 
       <p className="text-sm text-yellow-700 font-medium">
-        Click the map or drag the pin to {markerPosition ? "update" : "set"} the
-        location inside {selectedMapName || "the selected map"}.
+        Search, click the map, or drag the pin. A yellow preview pin shows the
+        new spot until you confirm.
       </p>
 
       {markerPosition && (
-        <p className="text-sm text-green-600 font-medium">
-          Location set: {markerPosition.lat.toFixed(5)},{" "}
-          {markerPosition.lng.toFixed(5)}
+        <p className="text-sm text-green-700 font-medium">
+          Location set: {locationLabel || `${markerPosition.lat.toFixed(5)}, ${markerPosition.lng.toFixed(5)}`}
         </p>
       )}
 
-      <APIProvider apiKey={googleMapsApiKey()}>
-        <div className="relative" style={{ width: "100%", height: "500px" }}>
-          {!mapCenter ? (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
-              <p className="text-sm text-gray-500">Opening {selectedMapName || "map"}...</p>
-            </div>
-          ) : (
-            <MapContent
-              markerPosition={markerPosition}
-              onMapClick={handleMapClick}
-              onMarkerDragEnd={handleMarkerDragEnd}
-              mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-              defaultCenter={{ lat: mapCenter.lat, lng: mapCenter.lng }}
-              defaultZoom={mapCenter.zoom}
-            />
-          )}
-          {isCheckingPin && (
-            <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
-              <p className="text-sm font-medium text-gray-700">Checking location...</p>
-            </div>
-          )}
+      {!apiKey ? (
+        <div className="flex h-[320px] items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 text-center text-sm font-medium text-red-700 sm:h-[500px]">
+          Map cannot load. Google Maps API key is missing.
         </div>
-      </APIProvider>
+      ) : (
+        <APIProvider apiKey={apiKey}>
+          <div className="space-y-2">
+            <LocationSearch
+              countryName={selectedMapName}
+              disabled={isCheckingPin || isExtracting}
+              onPick={(lat, lng) => {
+                void proposeLocation(lat, lng);
+              }}
+            />
+            <div className="relative h-[320px] overflow-hidden rounded-xl border border-gray-200 sm:h-[500px]">
+              {!mapCenter ? (
+                <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                  <p className="text-sm text-gray-500">
+                    Opening {selectedMapName || "map"}...
+                  </p>
+                </div>
+              ) : (
+                <MapContent
+                  markerPosition={markerPosition}
+                  previewPosition={previewPosition}
+                  onMapClick={handleMapClick}
+                  onMarkerDragEnd={handleMarkerDragEnd}
+                  onMyLocation={(lat, lng) => {
+                    void proposeLocation(lat, lng);
+                  }}
+                  mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+                  defaultCenter={{ lat: mapCenter.lat, lng: mapCenter.lng }}
+                  defaultZoom={mapCenter.zoom}
+                />
+              )}
+              {isCheckingPin && (
+                <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-medium text-gray-700 shadow-lg">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />
+                  Checking location...
+                </div>
+              )}
+            </div>
+          </div>
+        </APIProvider>
+      )}
     </div>
   );
 }

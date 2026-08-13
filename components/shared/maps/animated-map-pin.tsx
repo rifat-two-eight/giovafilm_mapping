@@ -22,15 +22,20 @@ function distanceKm(a: LatLng, b: LatLng) {
 export function AnimatedMapPin({
   position,
   draggable = false,
+  variant = "solid",
   onDragEnd,
 }: {
   position: LatLng;
   draggable?: boolean;
+  variant?: "solid" | "preview";
   onDragEnd?: (lat: number, lng: number) => void | Promise<void>;
 }) {
   const shineId = useId().replace(/:/g, "");
+  const isPreview = variant === "preview";
   const [displayPos, setDisplayPos] = useState(position);
-  const [motion, setMotion] = useState<"none" | "drop" | "hop">("drop");
+  const [motion, setMotion] = useState<"none" | "drop" | "hop">(
+    isPreview ? "none" : "drop",
+  );
   const [rippleKey, setRippleKey] = useState(1);
   const prevRef = useRef(position);
   const draggingRef = useRef(false);
@@ -38,6 +43,7 @@ export function AnimatedMapPin({
   const firstMount = useRef(true);
 
   const land = () => {
+    if (isPreview) return;
     setMotion("none");
     requestAnimationFrame(() => {
       setMotion("drop");
@@ -46,6 +52,12 @@ export function AnimatedMapPin({
   };
 
   useEffect(() => {
+    if (isPreview) {
+      prevRef.current = position;
+      setDisplayPos(position);
+      return;
+    }
+
     if (draggingRef.current) {
       prevRef.current = position;
       setDisplayPos(position);
@@ -90,12 +102,17 @@ export function AnimatedMapPin({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [position.lat, position.lng]);
+  }, [position.lat, position.lng, isPreview]);
+
+  const fill = isPreview ? "#F59E0B" : "#E53935";
+  const shineStart = isPreview ? "#FCD34D" : "#FF6B63";
+  const shineEnd = isPreview ? "#D97706" : "#C62828";
 
   return (
     <AdvancedMarker
       position={displayPos}
-      draggable={draggable}
+      draggable={!isPreview && draggable}
+      zIndex={isPreview ? 1 : 10}
       onDragStart={() => {
         draggingRef.current = true;
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -112,19 +129,30 @@ export function AnimatedMapPin({
         void onDragEnd?.(lat, lng);
       }}
     >
-      <div className="relative flex flex-col items-center">
-        <span
-          key={rippleKey}
-          className={motion === "drop" ? "animate-pin-ripple" : "opacity-0"}
-          style={{
-            position: "absolute",
-            bottom: 2,
-            width: 18,
-            height: 8,
-            borderRadius: 999,
-            background: "rgba(250, 191, 19, 0.5)",
-          }}
-        />
+      <div
+        className={`relative flex flex-col items-center ${
+          isPreview ? "pointer-events-none opacity-80" : ""
+        }`}
+      >
+        {!isPreview ? (
+          <span
+            key={rippleKey}
+            className={motion === "drop" ? "animate-pin-ripple" : "opacity-0"}
+            style={{
+              position: "absolute",
+              bottom: 2,
+              width: 18,
+              height: 8,
+              borderRadius: 999,
+              background: "rgba(250, 191, 19, 0.5)",
+            }}
+          />
+        ) : (
+          <span
+            className="absolute bottom-1 h-3 w-3 animate-ping rounded-full bg-amber-400/70"
+            style={{ animationDuration: "1.4s" }}
+          />
+        )}
         <div
           className={
             motion === "drop"
@@ -135,16 +163,20 @@ export function AnimatedMapPin({
           }
         >
           <svg
-            width="36"
-            height="48"
+            width={isPreview ? 30 : 36}
+            height={isPreview ? 40 : 48}
             viewBox="0 0 36 48"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="drop-shadow-[0_8px_14px_rgba(185,28,28,0.35)]"
+            className={
+              isPreview
+                ? "drop-shadow-[0_6px_10px_rgba(217,119,6,0.35)]"
+                : "drop-shadow-[0_8px_14px_rgba(185,28,28,0.35)]"
+            }
           >
             <path
               d="M18 46C18 46 33 29.6 33 18.5C33 9.94 26.28 3 18 3C9.72 3 3 9.94 3 18.5C3 29.6 18 46 18 46Z"
-              fill="#E53935"
+              fill={fill}
             />
             <path
               d="M18 46C18 46 33 29.6 33 18.5C33 9.94 26.28 3 18 3C9.72 3 3 9.94 3 18.5C3 29.6 18 46 18 46Z"
@@ -160,8 +192,8 @@ export function AnimatedMapPin({
                 y2="40"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#FF6B63" stopOpacity="0.55" />
-                <stop offset="1" stopColor="#C62828" stopOpacity="0.15" />
+                <stop stopColor={shineStart} stopOpacity="0.55" />
+                <stop offset="1" stopColor={shineEnd} stopOpacity="0.15" />
               </linearGradient>
             </defs>
           </svg>

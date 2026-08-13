@@ -289,7 +289,7 @@ function AppAlertModal({
             />
           ) : null}
 
-          {timer ? (
+          {timer && icon !== "success" ? (
             <p className="mt-3 text-center text-xs font-semibold tracking-wide text-amber-600">
               Auto-confirming in {secondsLeft}s
             </p>
@@ -393,6 +393,15 @@ function unmountAlert() {
 }
 
 function fire(options: AppAlertOptions): Promise<AppAlertResult> {
+  if (
+    options.icon === "success" &&
+    !options.showCancelButton &&
+    options.timer == null &&
+    !options.confirmButtonText
+  ) {
+    options = { ...options, timer: 1800, timerProgressBar: true };
+  }
+
   if (typeof window === "undefined") {
     return Promise.resolve({
       isConfirmed: false,

@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { appAlert } from "@/lib/app-alert";
 import { BusinessFormStep1 } from "./business-form-step1";
 import { BusinessFormStep2 } from "./business-form-step2";
 import { BusinessFormStep3 } from "./business-form-step3";
@@ -84,6 +85,7 @@ export function AddBusinessForm() {
   const [draftRestored, setDraftRestored] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const formTopRef = useRef<HTMLDivElement | null>(null);
+  const submittingRef = useRef(false);
 
   const [addBusiness, { isLoading: isSubmitting }] = useAddBusinessMutation();
   const [createOffer, { isLoading: isCreatingOffer }] =
@@ -212,6 +214,8 @@ export function AddBusinessForm() {
   };
 
   const onFinalSubmit = async (values: any) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       const businessData = {
         name: values.businessName,
@@ -298,8 +302,6 @@ export function AddBusinessForm() {
       const res = await addBusiness(formData).unwrap();
 
       if (res?.success === true) {
-        toast.success("Business created successfully!");
-
         const businessId =
           res?.data?._id ||
           res?.data?.id ||
@@ -383,12 +385,20 @@ export function AddBusinessForm() {
           }
         }
 
+        await appAlert.fire({
+          title: "Business created!",
+          text: "Your listing is ready. You can view it anytime from My Business.",
+          icon: "success",
+          confirmButtonText: "View my business",
+        });
         router.push("/profile/my-business");
       }
     } catch (err: any) {
       const message =
         err?.data?.message || err?.message || "Failed to create business.";
       toast.error(message);
+    } finally {
+      submittingRef.current = false;
     }
   };
 
@@ -669,6 +679,7 @@ export function AddBusinessForm() {
                       advanceStep(currentStep + 1);
                     }
                   }}
+                  disabled={isLoading}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
                   Continue
@@ -679,6 +690,7 @@ export function AddBusinessForm() {
                 <Button
                   type="button"
                   onClick={handleStep5Transition}
+                  disabled={isLoading}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
                   Continue

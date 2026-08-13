@@ -84,9 +84,10 @@ export function BusinessFormStep4({
           their chances of attracting more customers and generating higher
           sales.
         </p>
-        <p className="text-sm text-gray-500">
-          This step is optional. You can skip it, or add an offer with a photo.
-        </p>
+        <div className="mx-auto max-w-xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          This step is optional. Leave it empty and tap Continue, or add an
+          offer with a photo to boost visibility.
+        </div>
       </div>
 
       <div className="flex justify-end -mb-4">

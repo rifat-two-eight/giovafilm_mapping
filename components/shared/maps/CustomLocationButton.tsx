@@ -1,36 +1,47 @@
 import { ControlPosition, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { useCallback } from "react";
 
-// ─── Custom Location Button ───────────────────────────────────────────────────
-export const CustomLocationButton = () => {
+export const CustomLocationButton = ({
+  onLocated,
+  label = "My location",
+}: {
+  onLocated?: (lat: number, lng: number) => void;
+  label?: string;
+} = {}) => {
   const map = useMap();
 
   const handleLocationClick = useCallback(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
         if (map) {
-          map.panTo({ lat: latitude, lng: longitude });
+          map.panTo({ lat, lng });
           map.setZoom(15);
         }
-      });
-    }
-  }, [map]);
+        onLocated?.(lat, lng);
+      },
+      () => undefined,
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }, [map, onLocated]);
 
   return (
     <MapControl position={ControlPosition.RIGHT_BOTTOM}>
       <button
+        type="button"
         onClick={handleLocationClick}
-        className="m-3 p-3 bg-white rounded-md shadow-lg hover:bg-gray-100 transition-all flex items-center justify-center border border-gray-300"
-        title="Show my location"
+        className="m-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 shadow-lg transition hover:bg-gray-50"
+        title="Use my location"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#666"
+          stroke="#444"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -42,6 +53,11 @@ export const CustomLocationButton = () => {
           <line x1="2" y1="12" x2="5" y2="12" />
           <line x1="19" y1="12" x2="22" y2="12" />
         </svg>
+        {label ? (
+          <span className="hidden text-xs font-semibold text-gray-700 sm:inline">
+            {label}
+          </span>
+        ) : null}
       </button>
     </MapControl>
   );
