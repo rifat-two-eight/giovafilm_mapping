@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BusinessOfferDialog } from "./business-offer-dialog";
@@ -192,9 +193,21 @@ export default function BusinessDetails() {
                 <div className="absolute bottom-8 left-8 right-8">
                   <div className="flex flex-wrap items-center gap-3 mb-4">
                     <div className="bg-primary px-4 py-1.5 rounded-full flex items-center gap-2 text-white shadow-lg shadow-primary/20">
-                      <span className="text-lg">
-                        {business.category?.icon || "🏢"}
-                      </span>
+                      {business.category?.icon ? (
+                        business.category.icon.startsWith("/") ||
+                        business.category.icon.startsWith("http") ||
+                        business.category.icon.includes("uploads/") ? (
+                          <img
+                            src={getImageUrl(business.category.icon)}
+                            alt=""
+                            className="w-4 h-4 object-contain"
+                          />
+                        ) : (
+                          <span className="text-lg">{business.category.icon}</span>
+                        )
+                      ) : (
+                        <span className="text-lg">🏢</span>
+                      )}
                       <span className="text-xs font-black uppercase tracking-widest">
                         {business.category?.name}
                       </span>
@@ -579,10 +592,14 @@ export default function BusinessDetails() {
               </div>
             </motion.div>
 
-            {/* Call to Action */}
-            <Button className="w-full h-16 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-lg gap-3 shadow-xl shadow-slate-200">
-              <ExternalLink size={24} />
-              View Public Page
+            <Button
+              asChild
+              className="w-full h-16 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-lg gap-3 shadow-xl shadow-slate-200"
+            >
+              <Link href={`/places/${business._id}?type=business`}>
+                <ExternalLink size={24} />
+                View Public Page
+              </Link>
             </Button>
           </div>
         </div>

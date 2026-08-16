@@ -24,6 +24,8 @@ const guestAllowedExact = new Set([
   "/reset-password",
   "/privacy-policy",
   "/terms-of-service",
+  "/success",
+  "/cancel",
 ]);
 
 function isAdminOnlyDashboardPath(pathname: string): boolean {

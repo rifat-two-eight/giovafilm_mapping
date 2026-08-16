@@ -16,6 +16,13 @@ const subscriptionApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    verifyCheckoutSession: builder.mutation({
+      query: (sessionId: string) => ({
+        url: `/subscription/verify-checkout?sessionId=${encodeURIComponent(sessionId)}`,
+        method: "GET",
+      }),
+      invalidatesTags: ["Subscription", "Business"],
+    }),
     getMySubscription: builder.query<any, void>({
       query: () => ({
         url: "/subscription/my-subscription",
@@ -67,6 +74,7 @@ const subscriptionApi = baseApi.injectEndpoints({
 export const {
   useGetSubscriptionPlansQuery,
   useCreateCheckoutSessionMutation,
+  useVerifyCheckoutSessionMutation,
   useGetMySubscriptionQuery,
   useCancelSubscriptionMutation,
   useCreateSubscriptionPlanMutation,

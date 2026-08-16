@@ -220,9 +220,9 @@ export default function OfferSection() {
             const businessId = offer.business?._id || (typeof offer.business === 'string' ? offer.business : null);
             const offerPlaceId = placeId;
             const offerHref = businessId
-              ? `/maps/${businessId}?type=business`
+              ? `/places/${businessId}?type=business`
               : offerPlaceId
-                ? `/maps/${offerPlaceId}?type=place`
+                ? `/places/${offerPlaceId}`
                 : `/offer/${offer?._id}`;
 
             return (

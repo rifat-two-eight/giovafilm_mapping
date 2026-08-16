@@ -370,7 +370,7 @@ export function AddBusinessForm() {
             const checkoutRes = await createCheckoutSession({
               planId: values.selectedPlan,
               businessId,
-              successUrl: `${window.location.origin}/success`,
+              successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
               cancelUrl: `${window.location.origin}/profile/my-business`,
             }).unwrap();
 
