@@ -173,12 +173,14 @@ export default function Header() {
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMobileProfileMenuOpen, setIsMobileProfileMenuOpen] = useState(false);
   const [isSharingProfile, setIsSharingProfile] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleEditProfile = () => {
     setIsProfileMenuOpen(false);
+    setIsMobileProfileMenuOpen(false);
     // Let dropdown close before opening dialog (avoids focus trap conflicts)
     setTimeout(() => setIsUpdateModalOpen(true), 50);
   };
@@ -548,41 +550,129 @@ export default function Header() {
 
             {/* Profile Icon - Mobile */}
             {isAuthenticated ? (
-              <DropdownMenu>
+              <DropdownMenu
+                open={isMobileProfileMenuOpen}
+                onOpenChange={setIsMobileProfileMenuOpen}
+              >
                 <DropdownMenuTrigger asChild>
-                  <button className="outline-none ">
-                    <Avatar className="h-8 w-8 cursor-pointer">
+                  <button
+                    className="outline-none rounded-full ring-2 ring-yellow-400/70 ring-offset-2"
+                    aria-label="Open profile"
+                  >
+                    <Avatar className="h-9 w-9 cursor-pointer">
                       {user?.profile ? (
-                        <AvatarImage src={getImageUrl(user.profile)} />
+                        <AvatarImage
+                          src={getImageUrl(user.profile)}
+                          className="object-cover"
+                        />
                       ) : (
-                        <User className="size-4" />
+                        <AvatarFallback className="bg-yellow-100">
+                          <User className="size-4" />
+                        </AvatarFallback>
                       )}
-                      <AvatarFallback>
-                        <User className="size-4" />
-                      </AvatarFallback>
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-64 p-0 overflow-hidden rounded-xl shadow-lg"
+                  sideOffset={10}
+                  className="w-[min(22rem,calc(100vw-1.25rem))] max-h-[min(32rem,80vh)] overflow-y-auto p-0 rounded-2xl border border-gray-100 shadow-xl"
                 >
-                  {isAdminOrEditor && (
-                    <Link href={"/dashboard"}>
-                      <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                        <Grid2x2 className="mr-3 size-5" />
-                        Dashoard
-                      </DropdownMenuItem>
-                    </Link>
-                  )}
-                  <div className="py-2">
+                  <div className="bg-gradient-to-b from-yellow-50 to-white px-4 pt-4 pb-3">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleEditProfile}
+                        className="relative shrink-0"
+                        aria-label="Edit photo and profile"
+                      >
+                        <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-white shadow-sm bg-gray-100">
+                          {user?.profile ? (
+                            <Image
+                              src={getImageUrl(user?.profile)}
+                              alt=""
+                              width={128}
+                              height={128}
+                              unoptimized
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <NoImage />
+                          )}
+                        </div>
+                        <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-400 text-black shadow border-2 border-white">
+                          <Edit2 size={13} />
+                        </span>
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="truncate text-lg font-bold text-gray-900 leading-tight">
+                          {user?.name || "Explorer"}
+                        </h2>
+                        <p className="mt-0.5 text-xs font-semibold text-gray-500">
+                          Level {user?.level ?? 0}
+                          {USER_LEVELS[user?.level ?? 0]?.name
+                            ? ` · ${USER_LEVELS[user?.level ?? 0].name}`
+                            : ""}
+                        </p>
+                        <div className="mt-2">
+                          <Progress value={progress} className="h-1.5" />
+                          <p className="mt-1 text-[11px] text-gray-500">
+                            {user?.points || 0} / {maxPoints} pts
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        onClick={handleEditProfile}
+                        className="h-10 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-xl"
+                      >
+                        <Edit2 size={15} />
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleShareProfile}
+                        disabled={isSharingProfile || !user?._id}
+                        className="h-10 rounded-xl border-gray-200"
+                      >
+                        {isSharingProfile ? (
+                          <Loader2 size={15} className="animate-spin" />
+                        ) : shareCopied ? (
+                          <Check size={15} className="text-green-600" />
+                        ) : (
+                          <Share2 size={15} />
+                        )}
+                        {shareCopied ? "Copied" : "Share"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="px-1.5 py-1.5">
+                    {isAdminOrEditor && (
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsMobileProfileMenuOpen(false)}
+                      >
+                        <DropdownMenuItem className="rounded-xl px-3 py-3 cursor-pointer">
+                          <Grid2x2 className="mr-3 size-5" />
+                          Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
                     {visibleMenuItems.map((item, index) => {
                       const Icon = item.icon;
-
                       return (
-                        <Link key={index} href={item.href}>
-                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                        <Link
+                          key={index}
+                          href={item.href}
+                          onClick={() => setIsMobileProfileMenuOpen(false)}
+                        >
+                          <DropdownMenuItem className="rounded-xl px-3 py-3 cursor-pointer">
                             <Icon className="mr-3 size-5" />
                             {item.label}
                           </DropdownMenuItem>
@@ -591,16 +681,16 @@ export default function Header() {
                     })}
                   </div>
 
-                  <DropdownMenuSeparator />
-
-                  {/* ✅ Logout button wired up - Mobile dropdown */}
-                  <Button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
-                  >
-                    {isLoggingOut ? "Logging out..." : "Log Out"}
-                  </Button>
+                  <div className="border-t px-3 py-2.5">
+                    <Button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      variant="ghost"
+                      className="w-full h-10 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 font-semibold"
+                    >
+                      {isLoggingOut ? "Logging out..." : "Log Out"}
+                    </Button>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (

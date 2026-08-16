@@ -14,10 +14,10 @@ export default function InfoCard({
   empty,
 }: InfoProps) {
   return (
-    <div className="border rounded-xl p-3 bg-white">
-      <div className="flex items-center gap-2 text-orange-500 mb-1.5">
-        {icon}
-        <p className="text-xs text-muted-foreground font-bold font-public-sans tracking-wide">
+    <div className="border rounded-xl p-2.5 md:p-3 bg-white">
+      <div className="flex flex-nowrap items-center gap-1.5 text-orange-500 mb-1">
+        <span className="shrink-0">{icon}</span>
+        <p className="min-w-0 text-[11px] md:text-xs text-muted-foreground font-bold font-public-sans tracking-wide leading-none">
           {label}
         </p>
       </div>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useVerifyCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
+import { useVerifySubscriptionCheckoutMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
 
@@ -13,7 +13,7 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const accessToken = useAppSelector(selectAccessToken);
-  const [verifyCheckout, { isLoading }] = useVerifyCheckoutSessionMutation();
+  const [verifyCheckout, { isLoading }] = useVerifySubscriptionCheckoutMutation();
   const [verified, setVerified] = useState(!sessionId);
   const [failed, setFailed] = useState(false);
 

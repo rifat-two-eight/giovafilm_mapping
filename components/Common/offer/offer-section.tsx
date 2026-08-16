@@ -76,7 +76,7 @@ export default function OfferSection() {
             <Skeleton className="h-10 w-24 rounded-full" />
             <Skeleton className="h-10 w-24 rounded-full" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Skeleton key={i} className="h-[400px] w-full rounded-xl" />
             ))}
@@ -179,7 +179,7 @@ export default function OfferSection() {
             </p>
           </div>
         ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {filteredOffers.map((offer: any) => {
             const favourited = isOfferFavourited(offer._id);
 
@@ -233,14 +233,14 @@ export default function OfferSection() {
               >
                 <div className="group rounded-xl overflow-hidden border bg-white hover:shadow-md transition">
                   {/* Image */}
-                  <div className="relative h-72 w-full">
+                  <div className="relative h-36 sm:h-48 md:h-72 w-full">
                     <Image
                       src={getImageUrl(offer?.images || offer?.photo || offer?.photos)}
                       alt={offer.title}
                       width={500}
                       height={500}
                       unoptimized
-                      className="object-cover h-72 w-full hover:scale-105 transition-all"
+                      className="object-cover h-36 sm:h-48 md:h-72 w-full hover:scale-105 transition-all"
                     />
 
                     {/* Favorite Button */}
@@ -267,11 +267,11 @@ export default function OfferSection() {
                   </div>
 
                   {/* Text */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg line-clamp-1">
+                  <div className="p-2.5 md:p-4">
+                    <h3 className="font-semibold text-sm md:text-lg line-clamp-2">
                       {offer.title}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500 line-clamp-1">
                       {offer.business?.name || offer.place?.name || "Multiple Locations"}
                     </p>
                   </div>

@@ -12,13 +12,13 @@ import { Input } from "@/components/ui/input";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
 import { useUpdateProfileMutation } from "@/redux/features/user/userApi";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default function ProfileUpdateModal({
   data,
@@ -29,6 +29,8 @@ export default function ProfileUpdateModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [name, setName] = useState("");
@@ -42,7 +44,7 @@ export default function ProfileUpdateModal({
       setName(data.name ?? "");
       setPhone(data.phone ?? "");
       setWebsite(data.website ?? "");
-      setInstagram(data.instagram ?? "");
+      setInstagram((data.instagram ?? "").replace(/^@/, ""));
       setPreview(null);
       setImageFile(null);
     }
@@ -79,6 +81,7 @@ export default function ProfileUpdateModal({
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     setImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -87,6 +90,7 @@ export default function ProfileUpdateModal({
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast.error("Name is required.");
+      nameInputRef.current?.focus();
       return;
     }
 
@@ -94,7 +98,10 @@ export default function ProfileUpdateModal({
     formData.append("name", trimmedName);
     formData.append("phone", phone.trim());
     formData.append("website", website.trim());
-    formData.append("instagram", instagram.trim());
+    formData.append(
+      "instagram",
+      instagram.trim() ? instagram.trim().replace(/^@/, "") : "",
+    );
 
     if (imageFile) {
       const safeFile = new File([imageFile], imageFile.name, {
@@ -114,126 +121,177 @@ export default function ProfileUpdateModal({
     }
   };
 
-  const currentImage = preview || (data?.profile ? getImageUrl(data.profile) : null);
+  const currentImage =
+    preview || (data?.profile ? getImageUrl(data.profile) : null);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-center">
+      <DialogContent
+        showCloseButton={false}
+        className="gap-0 overflow-hidden p-0 sm:max-w-md max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-3xl max-sm:rounded-b-none max-h-[92vh] sm:max-h-[90vh] flex flex-col"
+      >
+        <div className="mx-auto mt-2 h-1.5 w-12 shrink-0 rounded-full bg-gray-200 sm:hidden" />
+
+        <DialogHeader className="relative shrink-0 px-5 pt-3 pb-2 sm:px-6 sm:pt-5 text-left">
+          <DialogTitle className="text-lg font-bold pr-10">
             Edit Profile
           </DialogTitle>
-          <DialogDescription className="text-center text-sm text-gray-500">
-            Update your photo and public details.
+          <DialogDescription className="text-sm text-gray-500">
+            Tap the photo to change it, then save your details.
           </DialogDescription>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className="absolute right-4 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-5">
-          <div className="relative w-32 h-32 mx-auto">
-            <label className="cursor-pointer block w-full h-full border-2 border-dashed border-gray-200 rounded-xl overflow-hidden relative group bg-gray-50">
-              {currentImage ? (
-                <Image
-                  src={currentImage}
-                  alt="profile"
-                  width={500}
-                  height={500}
-                  unoptimized
-                  className="rounded-xl object-cover w-full h-full"
-                />
-              ) : (
-                <NoImage />
+        <form
+          onSubmit={onSubmit}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="flex-1 overflow-y-auto px-5 pb-4 sm:px-6 space-y-5">
+            <div className="flex flex-col items-center pt-1">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="relative h-28 w-28 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+                aria-label="Change profile photo"
+              >
+                <div className="h-full w-full overflow-hidden rounded-full border-4 border-yellow-100 bg-gray-100 shadow-sm">
+                  {currentImage ? (
+                    <Image
+                      src={currentImage}
+                      alt="profile"
+                      width={224}
+                      height={224}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <NoImage />
+                  )}
+                </div>
+                <span className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full bg-yellow-400 text-black shadow-md border-2 border-white">
+                  <Camera size={16} />
+                </span>
+              </button>
+              {preview && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="mt-2 text-xs font-semibold text-red-600"
+                >
+                  Remove new photo
+                </button>
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1">
-                <Camera size={22} />
-                <span className="text-xs font-medium">Change photo</span>
-              </div>
+              <p className="mt-2 text-center text-xs text-gray-400">
+                JPEG, PNG or WebP · max 5MB
+              </p>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={handleImageChange}
                 className="hidden"
               />
-            </label>
+            </div>
 
-            {preview && (
-              <button
+            <div className="space-y-1.5">
+              <label htmlFor="profile-name" className="text-sm font-semibold text-gray-700">
+                Name
+              </label>
+              <Input
+                id="profile-name"
+                ref={nameInputRef}
+                placeholder="Your display name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                maxLength={80}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="profile-phone" className="text-sm font-semibold text-gray-700">
+                Phone
+              </label>
+              <Input
+                id="profile-phone"
+                placeholder="+1 555 000 0000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type="tel"
+                inputMode="tel"
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="profile-website" className="text-sm font-semibold text-gray-700">
+                Website
+              </label>
+              <Input
+                id="profile-website"
+                placeholder="https://yoursite.com"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                type="url"
+                inputMode="url"
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="profile-instagram" className="text-sm font-semibold text-gray-700">
+                Instagram
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">
+                  @
+                </span>
+                <Input
+                  id="profile-instagram"
+                  placeholder="username"
+                  value={instagram}
+                  onChange={(e) => setInstagram(e.target.value.replace(/^@/, ""))}
+                  className="h-12 rounded-xl pl-8"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t bg-white px-5 py-3 sm:px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <div className="flex gap-2">
+              <Button
                 type="button"
-                onClick={handleRemoveImage}
-                className="absolute -top-2 -right-2 bg-red-500 text-white w-7 h-7 rounded-full text-xs flex items-center justify-center shadow hover:bg-red-600"
-                aria-label="Remove selected photo"
+                variant="outline"
+                className="h-12 flex-1 rounded-xl"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
               >
-                ✕
-              </button>
-            )}
-          </div>
-          <p className="text-center text-xs text-gray-400 -mt-2">
-            JPEG, PNG or WebP · max 5MB
-          </p>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">Name *</label>
-            <Input
-              placeholder="Your display name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={80}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">Phone</label>
-            <Input
-              placeholder="+1 555 000 0000"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">Website</label>
-            <Input
-              placeholder="https://yoursite.com"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-              type="url"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">Instagram</label>
-            <Input
-              placeholder="@username"
-              value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
-            />
-          </div>
-
-          <div className="flex justify-center gap-3 pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500 font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-12 flex-1 rounded-xl bg-yellow-400 text-black hover:bg-yellow-500 font-bold"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>

@@ -657,34 +657,26 @@ export default function MapDetails() {
             </div>
 
             <div className="flex flex-col gap-2 mt-1">
+              <div className="grid grid-cols-2 gap-2">
               <Button
                 onClick={handleViewOnMap}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all"
               >
-                <Map size={16} className="mr-2" />
+                <Map size={16} className="mr-1 sm:mr-2 shrink-0" />
                 View on Map
               </Button>
-
-              {!isBusiness && (
                 <Button
                   onClick={handleDirections}
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all"
                 >
-                  <Send size={16} className="mr-1.5" />
+                  <Send size={16} className="mr-1 sm:mr-1.5 shrink-0" />
                   Directions
                 </Button>
-              )}
+              </div>
 
               {isBusiness && (
                 <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      onClick={handleDirections}
-                      className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all"
-                    >
-                      <Send size={16} className="mr-1.5" />
-                      Directions
-                    </Button>
+                  <div>
                     {hasText(placeData?.phone) ? (
                       <a href={`tel:${placeData.phone}`} className="w-full">
                         <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all">

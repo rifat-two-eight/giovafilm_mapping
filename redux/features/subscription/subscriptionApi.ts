@@ -16,7 +16,7 @@ const subscriptionApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
-    verifyCheckoutSession: builder.mutation({
+    verifySubscriptionCheckout: builder.mutation({
       query: (sessionId: string) => ({
         url: `/subscription/verify-checkout?sessionId=${encodeURIComponent(sessionId)}`,
         method: "GET",
@@ -74,7 +74,7 @@ const subscriptionApi = baseApi.injectEndpoints({
 export const {
   useGetSubscriptionPlansQuery,
   useCreateCheckoutSessionMutation,
-  useVerifyCheckoutSessionMutation,
+  useVerifySubscriptionCheckoutMutation,
   useGetMySubscriptionQuery,
   useCancelSubscriptionMutation,
   useCreateSubscriptionPlanMutation,

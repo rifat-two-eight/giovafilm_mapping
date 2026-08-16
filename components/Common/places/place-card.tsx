@@ -41,7 +41,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
     <Link href={`/places/${data?._id || data?.id}`} onClick={handleClick}>
       <div className="rounded-xl overflow-hidden bg-white border hover:shadow-lg transition">
         {/* Image Section */}
-        <div className="relative h-64 w-full">
+        <div className="relative h-36 sm:h-48 md:h-64 w-full">
           {coverImage ? (
             <SafeImage
               src={coverImage}
@@ -69,17 +69,19 @@ export function PlaceCard({ data }: { data: TPlace }) {
         </div>
  
         {/* Content */}
-        <div className="p-4 font-inter">
-          <h3 className="font-semibold text-lg">
+        <div className="p-2.5 md:p-4 font-inter">
+          <h3 className="font-semibold text-sm md:text-lg line-clamp-2">
             {data?.isLocked ? "🔒 Premium Location" : data?.name}
           </h3>
  
-          <div className="flex items-center text-gray-500 text-sm mt-1 gap-1">
-            <MapPin size={14} />
-            {data?.isLocked ? "Purchase map to unlock address" : data?.address}
+          <div className="flex items-start text-gray-500 text-xs md:text-sm mt-1 gap-1">
+            <MapPin size={14} className="shrink-0 mt-0.5" />
+            <span className="line-clamp-2">
+              {data?.isLocked ? "Purchase map to unlock address" : data?.address}
+            </span>
           </div>
  
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-xs md:text-sm mt-1 line-clamp-1">
             {data?.isLocked
               ? "Unlock to view reviews & category"
               : `${data?.totalReview} Reviews • ${data?.category?.name}`}

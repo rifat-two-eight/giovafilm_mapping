@@ -344,7 +344,7 @@ export default function ExplorePlaces() {
         )}
 
         {/* Places Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-8">
           {isPlacesLoading ? (
             [1, 2, 3, 4, 5, 6].map((i) => (
               <div
