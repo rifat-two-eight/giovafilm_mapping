@@ -253,12 +253,9 @@ export default function MapPage() {
   const [hasMounted, setHasMounted] = useState(false);
   const [initialMapState, setInitialMapState] = useState<{center: {lat: number, lng: number}, zoom: number} | null>(null);
   const focusMapAppliedRef = useRef(false);
-  const focusLinkCapturedRef = useRef(false);
 
-  // Capture "View on Map" deep-link once
+  // Capture View-on-Map / search deep-link whenever focus params appear
   useEffect(() => {
-    if (focusLinkCapturedRef.current) return;
-
     const focusId = searchParams.get("focus") || "";
     const focusType = (searchParams.get("type") || "place").toLowerCase();
     const focusMap = searchParams.get("map") || "";
@@ -273,7 +270,8 @@ export default function MapPage() {
 
     if (!focusId && !hasCoords) return;
 
-    focusLinkCapturedRef.current = true;
+    focusMapAppliedRef.current = false;
+    setFocusReady(false);
     setPendingFocus({
       id: focusId,
       type: focusType === "business" ? "business" : "place",

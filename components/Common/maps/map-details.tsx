@@ -635,37 +635,6 @@ export default function MapDetails() {
               </div>
             </div>
 
-            {mediaList.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                {mediaList.map((media: string, index: number) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => openGallery(index)}
-                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${currentSlide === index
-                        ? "border-yellow-400 ring-2 ring-yellow-200"
-                        : "border-transparent opacity-80 hover:opacity-100"
-                      }`}
-                  >
-                    {isVideo(media) ? (
-                      <video
-                        src={getImageUrl(media)}
-                        className="h-full w-full object-cover"
-                        muted
-                      />
-                    ) : (
-                      <SafeImage
-                        src={getImageUrl(media)}
-                        alt={`Thumbnail ${index + 1}`}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* RIGHT SIDE INFO */}

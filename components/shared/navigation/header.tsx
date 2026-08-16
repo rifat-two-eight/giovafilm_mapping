@@ -48,6 +48,32 @@ import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
 import { shareProfile } from "@/lib/share-profile";
 
+function getPlaceSearchHref(place: any, onMapsPage: boolean) {
+  if (!onMapsPage) return `/places/${place._id}`;
+
+  const coords = place?.location?.coordinates;
+  const lng = Array.isArray(coords) ? coords[0] : place?.longitude;
+  const lat = Array.isArray(coords) ? coords[1] : place?.latitude;
+  const mapName =
+    (typeof place?.map === "object" && (place.map?.name || place.map?.country)) ||
+    place?.country ||
+    "";
+  const type =
+    String(place?.type || place?.placeType || "").toLowerCase() === "business"
+      ? "business"
+      : "place";
+  const params = new URLSearchParams({
+    focus: String(place?._id || ""),
+    type,
+  });
+  if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+    params.set("lat", String(lat));
+    params.set("lng", String(lng));
+  }
+  if (mapName) params.set("map", String(mapName));
+  return `/maps?${params.toString()}`;
+}
+
 const navLinks = [
   { name: "Maps", href: "/maps" },
   { name: "Places", href: "/places" },
@@ -97,6 +123,7 @@ export const menuItems = [
 export default function Header() {
   const pathname = usePathname();
   const hideHeaderSearch = pathname === "/places" || pathname === "/offer";
+  const onMapsPage = pathname === "/maps";
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -286,8 +313,22 @@ export default function Header() {
                       {places.map((place: any) => (
                         <Link
                           key={place._id}
-                          href={`/places/${place._id}`}
-                          onClick={() => setSearchTerm("")}
+                          href={getPlaceSearchHref(place, onMapsPage)}
+                          onClick={() => {
+                            if (onMapsPage) {
+                              const mapName =
+                                (typeof place.map === "object" &&
+                                  (place.map?.name || place.map?.country)) ||
+                                place.country;
+                              if (mapName) {
+                                localStorage.setItem(
+                                  "selectedCountryFilter",
+                                  String(mapName),
+                                );
+                              }
+                            }
+                            setSearchTerm("");
+                          }}
                           className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                         >
                           <div className="size-10 rounded-lg overflow-hidden shrink-0">
@@ -637,8 +678,20 @@ export default function Header() {
                       {places.map((place: any) => (
                         <Link
                           key={place._id}
-                          href={`/places/${place._id}`}
+                          href={getPlaceSearchHref(place, onMapsPage)}
                           onClick={() => {
+                            if (onMapsPage) {
+                              const mapName =
+                                (typeof place.map === "object" &&
+                                  (place.map?.name || place.map?.country)) ||
+                                place.country;
+                              if (mapName) {
+                                localStorage.setItem(
+                                  "selectedCountryFilter",
+                                  String(mapName),
+                                );
+                              }
+                            }
                             setSearchTerm("");
                             closeMenus();
                           }}
