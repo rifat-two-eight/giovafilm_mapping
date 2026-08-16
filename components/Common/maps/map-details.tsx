@@ -10,7 +10,6 @@ import {
   Lock,
   Map,
   MapPin,
-  MessageSquare,
   Phone,
   Send,
   Star,
@@ -735,13 +734,6 @@ export default function MapDetails() {
                       </Button>
                     )}
                   </div>
-                  <Button
-                    onClick={() => setIsReviewOpen(true)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold h-11 text-sm rounded-xl transition-all"
-                  >
-                    <MessageSquare size={16} className="mr-1.5" />
-                    Write Review
-                  </Button>
                   {offerId && (
                     <Link href={`/offer/${offerId}`} className="block">
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all">
