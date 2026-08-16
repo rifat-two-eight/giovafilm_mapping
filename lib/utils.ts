@@ -39,6 +39,15 @@ export const isUnusableMediaPath = (path?: string) => {
   return !value || value === "undefined" || value === "null";
 };
 
+export const isVideoUrl = (url?: string) => {
+  if (!url || typeof url !== "string") return false;
+  const path = url.split("?")[0].toLowerCase();
+  if (/\.(jpe?g|png|gif|webp|bmp|heic|svg|pdf)$/i.test(path)) return false;
+  return /\.(mp4|webm|ogv|mov|mkv|3gp|3gpp|avi|wmv|flv|m4v|mpeg|mpg)$/i.test(
+    path,
+  );
+};
+
 export const getUsableMediaList = (media?: any): string[] => {
   const items = Array.isArray(media) ? media : media ? [media] : [];
   return items.map(extractMediaPath).filter((path) => !isUnusableMediaPath(path));

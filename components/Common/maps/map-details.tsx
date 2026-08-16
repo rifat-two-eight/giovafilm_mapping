@@ -52,7 +52,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { getImageUrl, getUsableMediaList } from "@/lib/utils";
+import { getImageUrl, getUsableMediaList, isVideoUrl } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
@@ -333,11 +333,7 @@ export default function MapDetails() {
     };
   }, [carouselApi]);
 
-  const isVideo = (url: string) => {
-    if (!url || typeof url !== "string") return false;
-    const path = url.split("?")[0];
-    return /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(path);
-  };
+  const isVideo = (url: string) => isVideoUrl(url);
 
   const openGallery = (index = currentSlide) => {
     if (!mediaList.length) return;
@@ -482,6 +478,7 @@ export default function MapDetails() {
                               muted
                               loop
                               playsInline
+                              preload="metadata"
                               onMouseOver={(e) => e.currentTarget.play()}
                               onMouseOut={(e) => e.currentTarget.pause()}
                             />

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TimeRangePicker } from "@/components/ui/time-range-picker";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, isVideoUrl } from "@/lib/utils";
 import {
   Baby,
   Car,
@@ -590,7 +590,7 @@ export const PlaceFormContent = ({
                     Click to upload or drag and drop
                   </p>
                   <p className="text-[9px] text-gray-400 tracking-tight">
-                    (Images, videos up to 10MB)
+                    (Images and videos up to 200MB)
                   </p>
                 </div>
               </div>
@@ -600,7 +600,7 @@ export const PlaceFormContent = ({
               {existingImages.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {existingImages.map((url, index) => {
-                    const isVideo = url ? /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(url.split('?')[0]) : false;
+                    const isVideo = isVideoUrl(url);
                     return (
                       <div
                         key={`existing-${index}`}
@@ -611,6 +611,8 @@ export const PlaceFormContent = ({
                             src={getImageUrl(url)}
                             className="w-full h-full object-cover"
                             muted
+                            controls
+                            playsInline
                           />
                         ) : (
                           <img
@@ -639,7 +641,7 @@ export const PlaceFormContent = ({
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {previews.map((url, index) => {
                     const file = mediaFiles[index];
-                    const isVideo = file && file.type ? file.type.startsWith("video/") : (url ? /\.(mp4|webm|ogg|mov|mkv|3gp|3gpp|avi|wmv|flv)$/i.test(url.split('?')[0]) : false);
+                    const isVideo = file?.type?.startsWith("video/") || isVideoUrl(url);
                     return (
                       <div
                         key={`new-${index}`}
@@ -650,6 +652,8 @@ export const PlaceFormContent = ({
                             src={url}
                             className="w-full h-full object-cover"
                             muted
+                            controls
+                            playsInline
                           />
                         ) : (
                           <img
