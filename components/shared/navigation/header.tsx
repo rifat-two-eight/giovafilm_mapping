@@ -40,6 +40,7 @@ import { baseApi } from "@/redux/api/baseApi";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import Link from "next/link";
+import { AuthLink } from "@/components/shared/auth-link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { NoImage } from "@/lib/others/others";
@@ -298,14 +299,14 @@ export default function Header() {
               const isActive = pathname === link.href;
 
               return (
-                <Link
+                <AuthLink
                   key={index}
                   href={link.href}
                   className={`font-semibold text-black font-inter transition-colors py-1 rounded-lg ${isActive ? "bg-primary px-3 " : ""
                     }`}
                 >
                   {link.name}
-                </Link>
+                </AuthLink>
               );
             })}
 
@@ -654,7 +655,7 @@ export default function Header() {
                 const isActive = pathname === link.href;
 
                 return (
-                  <Link
+                  <AuthLink
                     key={index}
                     href={link.href}
                     onClick={closeMenus}
@@ -662,7 +663,7 @@ export default function Header() {
                       }`}
                   >
                     {link.name}
-                  </Link>
+                  </AuthLink>
                 );
               })}
             </div>

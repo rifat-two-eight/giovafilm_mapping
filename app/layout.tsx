@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Inter, Poppins, Public_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Suspense } from "react";
 import { ReduxProvider } from "@/redux/ReduxProvider";
 import { SocketProvider } from "@/components/shared/socket-provider";
+import { LoginRequiredProvider } from "@/components/shared/login-required-modal";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -82,7 +84,11 @@ export default function RootLayout({
         className={`${poppins.variable} ${inter.variable} ${arial.variable} ${publicSans.variable} antialiased`}
       >
         <ReduxProvider>
-          <SocketProvider>{children}</SocketProvider>
+          <Suspense fallback={null}>
+            <LoginRequiredProvider>
+              <SocketProvider>{children}</SocketProvider>
+            </LoginRequiredProvider>
+          </Suspense>
         </ReduxProvider>
       </body>
     </html>

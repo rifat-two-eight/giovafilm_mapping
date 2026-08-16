@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo.png";
 import { usePathname } from "next/navigation";
+import { AuthLink } from "@/components/shared/auth-link";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -86,10 +87,10 @@ export default function Footer() {
 
             <ul className="space-y-3 text-sm">
               <li className="hover:text-black cursor-pointer">
-                <Link href="/catalog">Map Catalog</Link>
+                <AuthLink href="/catalog">Map Catalog</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <Link href="/how-it-works">How it Works</Link>
+                <AuthLink href="/how-it-works">How it Works</AuthLink>
               </li>
 
             </ul>
@@ -103,10 +104,10 @@ export default function Footer() {
 
             <ul className="space-y-3 text-sm">
               <li className="hover:text-black cursor-pointer">
-                <Link href={"/for-business"}>Add Your Business</Link>
+                <AuthLink href={"/for-business"}>Add Your Business</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <Link href={"/pricing"}>Pricing Plan</Link>
+                <AuthLink href={"/pricing"}>Pricing Plan</AuthLink>
               </li>
             </ul>
           </div>
@@ -120,7 +121,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
 
               <li className="hover:text-black cursor-pointer">
-                <Link href={"/contact"}>Contact</Link>
+                <AuthLink href={"/contact"}>Contact</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
                 <Link href={"/privacy-policy"}>Privacy Policy</Link>

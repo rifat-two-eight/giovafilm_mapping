@@ -1,13 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-// Define routes that require authentication
-const protectedRoutes = ["/dashboard", "/profile", "/for-business"];
-
-// Define routes that require dashboard roles
 const dashboardRoutes = ["/dashboard"];
 
-/** Admin-only dashboard sections (map_editor blocked) */
 const adminOnlyDashboardPrefixes = [
   "/dashboard/users-roles",
   "/dashboard/categories",
@@ -20,24 +15,39 @@ const adminOnlyDashboardPrefixes = [
   "/dashboard/notification",
 ];
 
+const guestAllowedExact = new Set([
+  "/",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/otp-verify",
+  "/reset-password",
+  "/privacy-policy",
+  "/terms-of-service",
+]);
+
 function isAdminOnlyDashboardPath(pathname: string): boolean {
   return adminOnlyDashboardPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
+function safeInternalPath(pathname: string, search: string): string {
+  const next = `${pathname}${search || ""}`;
+  if (!next.startsWith("/") || next.startsWith("//")) return "/";
+  return next;
+}
+
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const userRole = request.cookies.get("userRole")?.value;
 
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route),
-  );
-
-  if (isProtectedRoute && !accessToken) {
-    const loginUrl = new URL("/login", request.url);
-    return NextResponse.redirect(loginUrl);
+  if (!accessToken && !guestAllowedExact.has(pathname)) {
+    const homeUrl = new URL("/", request.url);
+    homeUrl.searchParams.set("loginRequired", "1");
+    homeUrl.searchParams.set("redirect", safeInternalPath(pathname, search));
+    return NextResponse.redirect(homeUrl);
   }
 
   const isDashboardRoute = dashboardRoutes.some((route) =>
@@ -56,7 +66,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // map_editor cannot open admin-only sections via direct URL
     if (role === "map_editor" && isAdminOnlyDashboardPath(pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
@@ -65,7 +74,8 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Config to match only relevant paths for performance
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/for-business/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?)$).*)",
+  ],
 };

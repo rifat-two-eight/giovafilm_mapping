@@ -1,0 +1,125 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+type LoginRequiredContextValue = {
+  openLoginRequired: (redirectTo?: string, featureName?: string) => void;
+};
+
+const LoginRequiredContext = createContext<LoginRequiredContextValue>({
+  openLoginRequired: () => {},
+});
+
+const PATH_LABELS: Record<string, string> = {
+  "/maps": "Maps",
+  "/places": "Places",
+  "/offer": "Offers",
+  "/catalog": "Catalog",
+  "/for-business": "For Business",
+  "/pricing": "Pricing",
+  "/contact": "Contact",
+  "/how-it-works": "How it Works",
+  "/profile": "your profile",
+  "/dashboard": "Dashboard",
+};
+
+function labelFromPath(path: string): string {
+  const base = path.split("?")[0].replace(/\/$/, "") || "/";
+  if (PATH_LABELS[base]) return PATH_LABELS[base];
+  const first = `/${base.split("/").filter(Boolean)[0] || ""}`;
+  return PATH_LABELS[first] || "this page";
+}
+
+export function useLoginRequired() {
+  return useContext(LoginRequiredContext);
+}
+
+export function LoginRequiredProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
+  const [redirectTo, setRedirectTo] = useState("/");
+  const [featureName, setFeatureName] = useState("this page");
+
+  const openLoginRequired = useCallback((next?: string, name?: string) => {
+    const path = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    setRedirectTo(path);
+    setFeatureName(name?.trim() || labelFromPath(path));
+    setOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get("loginRequired") !== "1") return;
+    const next = searchParams.get("redirect") || "/";
+    openLoginRequired(next);
+    router.replace(pathname, { scroll: false });
+  }, [openLoginRequired, pathname, router, searchParams]);
+
+  const goTo = (path: string) => {
+    const target =
+      redirectTo && redirectTo !== "/"
+        ? `${path}?redirect=${encodeURIComponent(redirectTo)}`
+        : path;
+    setOpen(false);
+    router.push(target);
+  };
+
+  return (
+    <LoginRequiredContext.Provider value={{ openLoginRequired }}>
+      {children}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md bg-white border border-gray-200 rounded-2xl">
+          <DialogHeader className="items-center text-center sm:text-center">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <LogIn size={22} />
+            </div>
+            <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
+              Sign in to view {featureName}
+            </DialogTitle>
+            <DialogDescription className="text-sm leading-relaxed text-gray-600">
+              To open {featureName}, please sign in. It only takes a moment —
+              log in if you already have an account, or create a free one to get
+              started.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 flex flex-col gap-2">
+            <Button
+              className="h-11 w-full rounded-xl bg-[#FFC107] font-bold text-black hover:bg-[#FFB300]"
+              onClick={() => goTo("/login")}
+            >
+              Log In
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-full rounded-xl font-semibold"
+              onClick={() => goTo("/register")}
+            >
+              Create a free account
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </LoginRequiredContext.Provider>
+  );
+}
