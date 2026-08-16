@@ -57,6 +57,7 @@ import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
+import { normalizePinType, trackUsage } from "@/lib/record-visit";
 import {
   useGetReviewsByBusinessQuery,
   useGetReviewsByPlaceQuery,
@@ -92,8 +93,9 @@ export default function MapDetails() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const id = params?.id as string;
-  const entityType = (searchParams.get("type") || "place").toLowerCase();
+  const rawId = params?.id;
+  const id = Array.isArray(rawId) ? rawId[0] : (rawId as string);
+  const entityType = normalizePinType(searchParams.get("type") || "place");
   const isBusinessEntity = entityType === "business";
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
@@ -111,6 +113,10 @@ export default function MapDetails() {
   } = useGetSingleBusinessQuery(id, {
     skip: !id || !isBusinessEntity,
   });
+  useEffect(() => {
+    if (!id) return;
+    trackUsage(isBusinessEntity ? "business" : "place", id);
+  }, [id, isBusinessEntity]);
 
   const isLoading = isBusinessEntity ? isBusinessLoading : isPlaceLoading;
   const error = isBusinessEntity ? businessError : placeError;

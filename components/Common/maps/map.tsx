@@ -5,6 +5,7 @@ import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
+import { normalizePinType, trackUsage } from "@/lib/record-visit";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useAppSelector } from "@/redux/hook";
@@ -123,7 +124,7 @@ function ViewportPlaceMarkers({
             onClick={() => {
               setSelectedLocation({
                 id: place._id,
-                type: place.type,
+                type: normalizePinType(place.type),
               });
             }}
           >
@@ -351,6 +352,10 @@ export default function MapPage() {
   const selectedMapObj = mapsResponse?.data?.find((m: any) => m.name === selectedCountry);
   const mapIdFilter = selectedMapObj ? String(selectedMapObj._id) : "";
   const canFetchPlaces = Boolean(mapIdFilter);
+  useEffect(() => {
+    if (!mapIdFilter) return;
+    trackUsage("map", mapIdFilter);
+  }, [mapIdFilter]);
 
   const {
     data: placesRes,
@@ -592,7 +597,7 @@ export default function MapPage() {
 
     setSelectedLocation({
       id: pendingFocus.id,
-      type: pendingFocus.type,
+      type: normalizePinType(pendingFocus.type),
     });
     setFocusReady(true);
 

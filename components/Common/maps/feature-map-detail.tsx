@@ -9,6 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/lib/utils";
 import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
+import { trackUsage } from "@/lib/record-visit";
 import { useCreateMapCheckoutSessionMutation } from "@/redux/features/payment/paymentApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
@@ -41,15 +42,20 @@ export default function FeatureMapDetailPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { id } = params;
+  const rawId = params?.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const redeemFreeIntent = searchParams.get("redeemFreeMap") === "1";
 
   const {
     data: response,
     isLoading,
     isError,
-  } = useGetMapByIdQuery(id as string);
+  } = useGetMapByIdQuery(id as string, { skip: !id });
   const mapData = response?.data;
+  useEffect(() => {
+    if (!id) return;
+    trackUsage("map", String(id));
+  }, [id]);
 
   const accessToken = useAppSelector(selectAccessToken);
   const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });

@@ -1,0 +1,70 @@
+"use client";
+
+import { env } from "@/lib/config";
+import { io, Socket } from "socket.io-client";
+
+let socket: Socket | null = null;
+let flushBound = false;
+const pending: Array<{ event: string; payload: unknown }> = [];
+
+const getSocketOrigin = () => {
+  const raw = (env.NEXT_PUBLIC_BASEURL || "").trim();
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+  }
+};
+
+const flushPending = () => {
+  if (!socket?.connected) return;
+  while (pending.length) {
+    const item = pending.shift();
+    if (item) socket.emit(item.event, item.payload);
+  }
+};
+
+export const getSocket = (): Socket | null => {
+  if (typeof window === "undefined") return null;
+  if (socket) return socket;
+
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("accessToken="))
+    ?.split("=")
+    .slice(1)
+    .join("=");
+
+  socket = io(getSocketOrigin(), {
+    path: "/socket.io",
+    transports: ["polling", "websocket"],
+    withCredentials: true,
+    autoConnect: true,
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    auth: {
+      token: token ? decodeURIComponent(token) : undefined,
+    },
+  });
+
+  if (!flushBound) {
+    socket.on("connect", flushPending);
+    flushBound = true;
+  }
+
+  return socket;
+};
+
+export const emitWhenReady = (event: string, payload: unknown) => {
+  const client = getSocket();
+  if (!client) return;
+
+  if (client.connected) {
+    client.emit(event, payload);
+    return;
+  }
+
+  pending.push({ event, payload });
+  if (!client.active) client.connect();
+};

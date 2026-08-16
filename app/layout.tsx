@@ -3,6 +3,7 @@ import { Inter, Poppins, Public_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ReduxProvider } from "@/redux/ReduxProvider";
+import { SocketProvider } from "@/components/shared/socket-provider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -80,7 +81,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${inter.variable} ${arial.variable} ${publicSans.variable} antialiased`}
       >
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          <SocketProvider>{children}</SocketProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

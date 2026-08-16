@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
+import { normalizePinType } from "@/lib/record-visit";
 
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
@@ -217,7 +218,7 @@ export function MapFilters({
                                         onClick={() =>
                                           setSelectedLocation({
                                             id: place._id,
-                                            type: place.type,
+                                            type: normalizePinType(place.type),
                                           })
                                         }
                                         className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${

@@ -5,6 +5,8 @@ import { NoImage } from "@/lib/others/others";
 import { getUsableMediaUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
+import { normalizePinType, trackUsage } from "@/lib/record-visit";
+import { useEffect } from "react";
 import { Star, X, Lock } from "lucide-react";
 import Link from "next/link";
 
@@ -16,7 +18,7 @@ type Props = {
 
 export default function LocationDialog({ id, onClose, mapId }: Props) {
   const placeId = id?.id;
-  const type = id?.type;
+  const type = normalizePinType(id?.type);
 
   // Fetch based on type
   const { data: businessRes, isLoading: isBusinessLoading } =
@@ -30,6 +32,10 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
       skip: type !== "place",
     },
   );
+  useEffect(() => {
+    if (!placeId) return;
+    trackUsage(type, placeId);
+  }, [placeId, type]);
 
   const isLoading = isBusinessLoading || isPlaceLoading;
   const location: any =
