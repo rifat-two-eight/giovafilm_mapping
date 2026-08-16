@@ -83,7 +83,7 @@ export default function HowItWorks() {
               whileHover={{ y: -8 }}
               className="h-full"
             >
-              <Card className="border-gray-100 shadow-none hover:shadow-lg transition-shadow duration-300 rounded-2xl py-2 h-full cursor-pointer">
+              <Card className="border-gray-100 shadow-none hover:shadow-lg transition-shadow duration-300 rounded-2xl py-2 h-full">
                 <CardContent className="flex flex-col items-center text-center p-10 space-y-4">
                   {/* Icon */}
                   <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-100">

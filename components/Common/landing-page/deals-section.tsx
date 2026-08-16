@@ -82,7 +82,7 @@ export default function DealsSection() {
               whileHover={{ y: -8, scale: 1.02 }}
               className="h-full"
             >
-              <Card className="bg-white border border-gray-100 rounded-xl shadow-none hover:shadow-lg transition-shadow duration-300 py-0 h-full cursor-pointer">
+              <Card className="bg-white border border-gray-100 rounded-xl shadow-none hover:shadow-lg transition-shadow duration-300 py-0 h-full">
                 <CardContent className="p-6 text-left space-y-3">
                   {/* Icon */}
                   <div className="w-10 h-10 flex items-center justify-center">
