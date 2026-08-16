@@ -1,8 +1,24 @@
 "use client";
 
 import { Phone } from "lucide-react";
+import { toExternalUrl, toInstagramUrl } from "./business-links";
 
-export default function PublicContactLinks({ contact }: any) {
+export default function PublicContactLinks({
+  contact,
+  email,
+}: {
+  contact?: {
+    phone?: string;
+    website?: string;
+    instagram?: string;
+    email?: string;
+  } | null;
+  email?: string;
+}) {
+  const websiteUrl = toExternalUrl(contact?.website);
+  const instagramUrl = toInstagramUrl(contact?.instagram);
+  const publicEmail = email || contact?.email;
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -18,34 +34,53 @@ export default function PublicContactLinks({ contact }: any) {
             Public Phone
           </p>
           <p className="text-gray-900 font-medium mt-2">
-            {contact.phone || "N/A"}
+            {contact?.phone || "N/A"}
           </p>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Public Email
+            Contact Email
           </p>
           <p className="text-gray-900 font-medium mt-2">
-            {contact.email || "N/A"}
+            {publicEmail || "N/A"}
           </p>
         </div>
 
-        <div className="col-span-2">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-            Social Profiles
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Website
           </p>
+          {websiteUrl ? (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline font-medium mt-2 inline-block"
+            >
+              {contact?.website} ↗
+            </a>
+          ) : (
+            <p className="text-gray-500 font-medium mt-2">N/A</p>
+          )}
+        </div>
 
-          {/* <div className="flex gap-3">
-            {contact.socialProfiles.map((profile: string) => (
-              <span
-                key={profile}
-                className="bg-gray-100 px-3 py-1 rounded text-sm text-gray-700"
-              >
-                {profile}
-              </span>
-            ))}
-          </div> */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Instagram
+          </p>
+          {instagramUrl ? (
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline font-medium mt-2 inline-block"
+            >
+              {contact?.instagram} ↗
+            </a>
+          ) : (
+            <p className="text-gray-500 font-medium mt-2">N/A</p>
+          )}
         </div>
       </div>
     </div>

@@ -1,10 +1,10 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
-import { mapStyles } from "@/lib/utils";
-import { useUpdateBusinessStatusMutation } from "@/redux/features/business/businessApi";
+import { useUpdateBusinessMutation } from "@/redux/features/business/businessApi";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { toast } from "sonner";
 
@@ -20,22 +20,29 @@ export default function LocationVerification({
   const hasCoords = lat !== undefined && lng !== undefined;
   const center = hasCoords ? { lat, lng } : { lat: 23.8103, lng: 90.4125 }; // fallback: Dhaka
 
-  const [updateStatus, { isLoading }] =
-    useUpdateBusinessStatusMutation();
+  const [verified, setVerified] = useState(!!isAccuracyVerified);
+  const [updateBusiness, { isLoading }] = useUpdateBusinessMutation();
+
+  useEffect(() => {
+    setVerified(!!isAccuracyVerified);
+  }, [isAccuracyVerified]);
 
   const handleToggle = async (checked: boolean) => {
     if (!businessId) return;
-    try {
-      await updateStatus({
-        id: businessId,
+    const previous = verified;
+    setVerified(checked);
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
         isAccuracyVerified: checked,
-      }).unwrap();
-      toast.success(
-        checked
-          ? "Location accuracy verified!"
-          : "Location accuracy unverified.",
-      );
+        adminReview: { locationPinVerified: checked },
+      }),
+    );
+    try {
+      await updateBusiness({ id: businessId, data: formData }).unwrap();
     } catch (error: any) {
+      setVerified(previous);
       toast.error(error?.data?.message || "Failed to update accuracy status.");
     }
   };
@@ -76,18 +83,31 @@ export default function LocationVerification({
           Physical Address
         </p>
 
-        <p className="text-gray-700 mt-2">{location.address}</p>
+        <p className="text-gray-700 mt-2">
+          {[location?.address, location?.city, location?.country]
+            .filter(Boolean)
+            .join(", ") || "No address provided"}
+        </p>
       </div>
 
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-        <span className="text-sm font-medium text-gray-700">
-          Verify Pin Accuracy
-        </span>
+        <div>
+          <p className="text-sm font-medium text-gray-700">
+            Verify pin accuracy
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {isLoading
+              ? "Saving..."
+              : verified
+                ? "This pin matches the listed address"
+                : "Turn on after confirming the map pin"}
+          </p>
+        </div>
         <Switch
-          checked={isAccuracyVerified}
+          checked={verified}
           onCheckedChange={handleToggle}
           disabled={isLoading}
-          className={`${isAccuracyVerified ? "!bg-yellow-400" : ""}`}
+          className={verified ? "!bg-green-500" : ""}
         />
       </div>
     </div>

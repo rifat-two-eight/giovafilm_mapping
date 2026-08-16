@@ -5,8 +5,25 @@ import { getImageUrl } from "@/lib/utils";
 import { Mail, CheckCircle, X } from "lucide-react";
 import Image from "next/image";
 
-export default function OwnerInformation({ user }: any) {
-  console.log("user", user);
+export default function OwnerInformation({
+  user,
+  privateInfo,
+}: {
+  user?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    profile?: string;
+    verified?: boolean;
+  } | null;
+  privateInfo?: {
+    ownerPhone?: string;
+    contactEmail?: string;
+  } | null;
+}) {
+  const phone = privateInfo?.ownerPhone || user?.phone || "N/A";
+  const email = privateInfo?.contactEmail || user?.email || "N/A";
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -16,10 +33,10 @@ export default function OwnerInformation({ user }: any) {
 
       <div className="flex items-center gap-4 mb-6">
         <div className="w-12 h-12 rounded-full overflow-hidden">
-          {user.profile ? (
+          {user?.profile ? (
             <Image
-              src={getImageUrl(user?.profile)}
-              alt={user.name}
+              src={getImageUrl(user.profile)}
+              alt={user?.name || "Owner"}
               width={48}
               height={48}
               unoptimized
@@ -31,8 +48,7 @@ export default function OwnerInformation({ user }: any) {
         </div>
 
         <div>
-          <p className="font-semibold text-gray-900">{user.name}</p>
-          <p className="text-sm text-gray-500">{user.title}</p>
+          <p className="font-semibold text-gray-900">{user?.name || "N/A"}</p>
         </div>
       </div>
 
@@ -41,16 +57,14 @@ export default function OwnerInformation({ user }: any) {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Private Email
           </p>
-
-          <p className="text-gray-700 mt-1">{user.email}</p>
+          <p className="text-gray-700 mt-1">{email}</p>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Mobile Phone
           </p>
-
-          <p className="text-gray-700 mt-1">{user.phone || "N/A"}</p>
+          <p className="text-gray-700 mt-1">{phone}</p>
         </div>
 
         <div>

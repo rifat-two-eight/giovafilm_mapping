@@ -48,3 +48,48 @@ export function asMediaUrls(items: unknown): string[] {
     })
     .filter(Boolean);
 }
+
+const COORD_EPSILON = 1e-6;
+
+export function coordsChanged(
+  next?: [number, number] | number[] | null,
+  prev?: [number, number] | number[] | null,
+): boolean {
+  if (!next || next.length < 2) return false;
+  if (!prev || prev.length < 2) return true;
+  return (
+    Math.abs(Number(next[0]) - Number(prev[0])) > COORD_EPSILON ||
+    Math.abs(Number(next[1]) - Number(prev[1])) > COORD_EPSILON
+  );
+}
+
+function omitEmpty(placeData: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(placeData).filter(([, value]) => value !== undefined && value !== null),
+  );
+}
+
+export function buildPlaceRequestBody(
+  placeData: Record<string, unknown>,
+  mediaFiles: File[] = [],
+  menuFiles: File[] = [],
+): FormData | Record<string, unknown> {
+  const compactData = omitEmpty(placeData);
+  if (mediaFiles.length === 0 && menuFiles.length === 0) {
+    return compactData;
+  }
+
+  const formDataPayload = new FormData();
+  formDataPayload.append("data", JSON.stringify(compactData));
+  mediaFiles.forEach((file) => {
+    if (file.type && file.type.startsWith("video/")) {
+      formDataPayload.append("media", file);
+    } else {
+      formDataPayload.append("images", file);
+    }
+  });
+  menuFiles.forEach((file) => {
+    formDataPayload.append("documents", file);
+  });
+  return formDataPayload;
+}

@@ -38,10 +38,9 @@ export default function BusinessDetailPage() {
 
   const handleStatusUpdate = async (newStatus: string) => {
     try {
-      await updateStatus({ 
-        id: id as string, 
+      await updateStatus({
+        id: id as string,
         status: newStatus,
-        isAccuracyVerified: business?.isAccuracyVerified 
       }).unwrap();
       toast.success(`Business ${newStatus} successfully!`);
     } catch (err: any) {
@@ -94,30 +93,32 @@ export default function BusinessDetailPage() {
     );
   }
 
-  // Adapter for existing components
   const businessData = {
     ...business,
-    category: business.category?.name || "N/A",
-    website: business.contact?.website || "N/A",
+    category:
+      (typeof business.category === "object"
+        ? business.category?.name
+        : business.category) || "N/A",
+    website: business.contact?.website || "",
+    instagram: business.contact?.instagram || "",
   };
 
-  // Adapter for hours
-  const mappedHours: any = {};
-  if (business.hours?.schedule) {
-    business.hours.schedule.forEach((item: any) => {
-      const key = item.days.substring(0, 3).toUpperCase();
-      mappedHours[key] = { start: item.openTime, end: item.closeTime };
-    });
-  }
+  const galleryItems = [
+    ...(business.media?.photos || []),
+    ...(business.media?.menu ? [business.media.menu] : []),
+  ].filter(Boolean);
 
-  const reviewTasks = [
-    { task: "Phone number verified", completed: !!business.contact?.phone },
-    {
-      task: "Website links functional",
-      completed: !!business.contact?.website,
-    },
-    { task: "Media content clean", completed: true },
-  ];
+  const adminReview = {
+    phoneVerified:
+      business.adminReview?.phoneVerified ?? !!business.contact?.phone,
+    websiteFunctional:
+      business.adminReview?.websiteFunctional ?? !!business.contact?.website,
+    locationPinVerified:
+      business.adminReview?.locationPinVerified ?? !!business.isAccuracyVerified,
+    mediaUploaded:
+      business.adminReview?.mediaUploaded ?? galleryItems.length > 0,
+    internalNotes: business.adminReview?.internalNotes || "",
+  };
 
   return (
     <div className="pb-12">
@@ -131,7 +132,7 @@ export default function BusinessDetailPage() {
           Back to Businesses
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span
             className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
               business.status === "Approved"
@@ -143,10 +144,28 @@ export default function BusinessDetailPage() {
           >
             {business.status}
           </span>
+          {business.status !== "Rejected" && (
+            <button
+              disabled={isUpdating}
+              onClick={() => handleStatusUpdate("Rejected")}
+              className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 font-semibold text-sm disabled:opacity-50"
+            >
+              Reject
+            </button>
+          )}
+          {business.status !== "Approved" && (
+            <button
+              disabled={isUpdating}
+              onClick={() => handleStatusUpdate("Approved")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm disabled:opacity-50"
+            >
+              Approve & Publish
+            </button>
+          )}
           <button
             onClick={handleDelete}
-            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
-            title="Delete Business"
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100"
+            title="Delete business"
           >
             <Trash2 size={20} />
           </button>
@@ -159,10 +178,13 @@ export default function BusinessDetailPage() {
           <BusinessOverview businessData={businessData} />
 
           {/* Public Contact & Links */}
-          <PublicContactLinks contact={business.user} />
+          <PublicContactLinks
+            contact={business.contact}
+            email={business.privateInfo?.contactEmail}
+          />
 
           {/* Hours of Operation */}
-          <HoursOfOperation hours={mappedHours} />
+          <HoursOfOperation schedule={business.hours?.schedule} />
 
           {/* Photos & Media Review */}
           <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm">
@@ -172,9 +194,9 @@ export default function BusinessDetailPage() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-              {business.media?.photos?.length > 0 ? (
-                business.media.photos.map((photo: string, idx: number) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {galleryItems.length > 0 ? (
+                galleryItems.map((photo: string, idx: number) => (
                   <div
                     key={idx}
                     className="rounded-xl aspect-square overflow-hidden group relative"
@@ -199,45 +221,24 @@ export default function BusinessDetailPage() {
                 </div>
               )}
             </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-gray-100 gap-6">
-              <div className="text-center sm:text-left">
-                <p className="font-bold text-gray-900 text-lg">
-                  Final Review Action
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Assign the final status to this business listing
-                </p>
-              </div>
-              <div className="flex gap-3 w-full sm:w-auto">
-                <button
-                  disabled={isUpdating}
-                  onClick={() => handleStatusUpdate("Rejected")}
-                  className="flex-1 sm:flex-none px-8 py-3 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 font-bold text-sm transition-all disabled:opacity-50"
-                >
-                  Reject
-                </button>
-                <button
-                  disabled={isUpdating}
-                  onClick={() => handleStatusUpdate("Approved")}
-                  className="flex-1 sm:flex-none px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-sm shadow-lg shadow-blue-200 transition-all disabled:opacity-50"
-                >
-                  Approve & Publish
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Right Column - Sidebar */}
         <div className="space-y-8">
-          <OwnerInformation user={business?.user} />
+          <OwnerInformation
+            user={business?.user}
+            privateInfo={business?.privateInfo}
+          />
           <LocationVerification
             businessId={id as string}
             location={business.location}
             isAccuracyVerified={business?.isAccuracyVerified}
           />
-          <AdminReviewTasks reviewTasks={reviewTasks} />
+          <AdminReviewTasks
+            businessId={id as string}
+            review={adminReview}
+          />
         </div>
       </div>
     </div>

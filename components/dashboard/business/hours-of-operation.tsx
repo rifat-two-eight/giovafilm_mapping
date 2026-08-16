@@ -2,7 +2,19 @@
 
 import { Clock } from "lucide-react";
 
-export default function HoursOfOperation({ hours }: any) {
+type ScheduleItem = {
+  days?: string;
+  openTime?: string;
+  closeTime?: string;
+};
+
+export default function HoursOfOperation({
+  schedule,
+}: {
+  schedule?: ScheduleItem[];
+}) {
+  const items = Array.isArray(schedule) ? schedule.filter((item) => item?.days) : [];
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -12,32 +24,30 @@ export default function HoursOfOperation({ hours }: any) {
             Hours of Operation
           </h2>
         </div>
-
-        <span className="text-xs font-semibold text-green-600 uppercase">
-          Valid Format
-        </span>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
-        {Object.entries(hours).map(([day, hours]: any) => (
-          <div key={day} className="text-center">
-            <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-              {day}
-            </p>
-
-            <div className="text-sm text-gray-700 font-medium">
-              {typeof hours === "string" ? (
-                <span className="text-gray-400">{hours}</span>
-              ) : (
-                <>
-                  <p>{hours.start}</p>
-                  <p>{hours.end}</p>
-                </>
-              )}
+      {items.length === 0 ? (
+        <p className="text-sm text-gray-400">No hours set</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {items.map((item, index) => (
+            <div
+              key={`${item.days}-${index}`}
+              className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-3 text-center"
+            >
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                {item.days}
+              </p>
+              <p className="text-sm text-gray-700 font-medium">
+                {item.openTime || "--"}
+              </p>
+              <p className="text-sm text-gray-700 font-medium">
+                {item.closeTime || "--"}
+              </p>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

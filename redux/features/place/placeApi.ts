@@ -69,7 +69,10 @@ const placeApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["Place", "Map"],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Place", id },
+        "Place",
+      ],
     }),
     deletePlace: builder.mutation({
       query: (id) => ({

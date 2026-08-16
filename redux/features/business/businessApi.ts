@@ -43,11 +43,15 @@ const businessApi = baseApi.injectEndpoints({
     }),
 
     updateAccuracyVerifiedStatus: builder.mutation({
-      query: ({ id, isAccuracyVerified }) => ({
-        url: `/business/${id}`,
-        method: "PATCH",
-        body: { isAccuracyVerified },
-      }),
+      query: ({ id, isAccuracyVerified }) => {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ isAccuracyVerified }));
+        return {
+          url: `/business/${id}`,
+          method: "PATCH",
+          body: formData,
+        };
+      },
       invalidatesTags: ["Business"],
     }),
 

@@ -38,7 +38,13 @@ import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { asId, asMediaUrls, normalizePlaceType } from "./place-payload";
+import {
+  asId,
+  asMediaUrls,
+  buildPlaceRequestBody,
+  coordsChanged,
+  normalizePlaceType,
+} from "./place-payload";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -360,10 +366,15 @@ export default function AddPlacePage() {
         name: full.name || place.name,
         description: full.description || "",
       });
+      const fullPosition = {
+        lat: full?.location?.coordinates?.[1] ?? position.lat,
+        lng: full?.location?.coordinates?.[0] ?? position.lng,
+      };
       setSelectedPlace((prev: any) => ({
         ...full,
         type: normalizePlaceType(full),
-        position: prev?.position || position,
+        position:
+          (placeId && draggedPositions[placeId]) || fullPosition,
         address: prev?.address || full.address,
         isNew: false,
       }));
@@ -390,16 +401,18 @@ export default function AddPlacePage() {
 
     try {
       const placeKind = normalizePlaceType(finalData);
-      const placeData = {
+      const nextCoords: [number, number] = [saveMarker.lng, saveMarker.lat];
+      const isExisting = selectedPlace && !selectedPlace.isNew;
+      const pinMoved =
+        !isExisting ||
+        coordsChanged(nextCoords, selectedPlace?.location?.coordinates);
+
+      const placeData: Record<string, unknown> = {
         name: finalData.name || "Untitled Place",
         map: selectedMapId,
         category: asId(finalData.category || selectedCategoryId),
         type: placeKind,
         description: finalData.description,
-        location: {
-          type: "Point",
-          coordinates: [saveMarker.lng, saveMarker.lat],
-        },
         address: finalData.address || "New Address",
         status: finalData.status || "Published",
         services: finalData.services || [],
@@ -414,7 +427,7 @@ export default function AddPlacePage() {
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
         schedules: placeKind === "Business" ? undefined : (finalData.schedules || ""),
-        operatingHours: placeKind === "Business" ? (finalData.operatingHours || null) : undefined,
+        operatingHours: placeKind === "Business" ? (finalData.operatingHours || undefined) : undefined,
         phone: placeKind === "Business" ? (finalData.phone || "") : undefined,
         website: placeKind === "Business" ? (finalData.website || "") : undefined,
         instagram: placeKind === "Business" ? (finalData.instagram || "") : undefined,
@@ -426,39 +439,29 @@ export default function AddPlacePage() {
         menuImages: asMediaUrls(finalData.existingMenuImages),
       };
 
-      const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
-      const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
-      const isExisting = selectedPlace && !selectedPlace.isNew;
+      if (selectedPlace?.country) {
+        placeData.country = selectedPlace.country;
+      }
+      if (pinMoved) {
+        placeData.location = {
+          type: "Point",
+          coordinates: nextCoords,
+        };
+      }
 
-      const buildFormData = () => {
-        const formDataPayload = new FormData();
-        formDataPayload.append("data", JSON.stringify(placeData));
-        if (hasMedia) {
-          finalData.mediaFiles.forEach((file: File) => {
-            if (file.type && file.type.startsWith("video/")) {
-              formDataPayload.append("media", file);
-            } else {
-              formDataPayload.append("images", file);
-            }
-          });
-        }
-        if (hasMenu) {
-          finalData.menuFiles.forEach((file: File) => {
-            formDataPayload.append("documents", file);
-          });
-        }
-        return formDataPayload;
-      };
+      const payload = buildPlaceRequestBody(
+        placeData,
+        finalData.mediaFiles || [],
+        finalData.menuFiles || [],
+      );
 
       if (isExisting) {
         await updatePlace({
           id: selectedPlace._id,
-          data: buildFormData(),
+          data: payload,
         }).unwrap();
-      } else if (hasMedia || hasMenu) {
-        await createPlace(buildFormData()).unwrap();
       } else {
-        await createPlace(placeData).unwrap();
+        await createPlace(payload).unwrap();
       }
 
       toast.success(

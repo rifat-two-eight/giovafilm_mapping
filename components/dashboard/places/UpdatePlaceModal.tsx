@@ -10,7 +10,7 @@ import { X } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { PlaceFormContent } from "./PlaceFormContent";
-import { asId, asMediaUrls, normalizePlaceType } from "./place-payload";
+import { asId, asMediaUrls, buildPlaceRequestBody, normalizePlaceType } from "./place-payload";
 
 interface UpdatePlaceModalProps {
   placeId: string | null;
@@ -81,7 +81,7 @@ export function UpdatePlaceModal({
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
         schedules: placeKind === "Business" ? undefined : (finalData.schedules || ""),
-        operatingHours: placeKind === "Business" ? (finalData.operatingHours || null) : undefined,
+        operatingHours: placeKind === "Business" ? (finalData.operatingHours || undefined) : undefined,
         phone: placeKind === "Business" ? (finalData.phone || "") : undefined,
         website: placeKind === "Business" ? (finalData.website || "") : undefined,
         instagram: placeKind === "Business" ? (finalData.instagram || "") : undefined,
@@ -93,25 +93,11 @@ export function UpdatePlaceModal({
         menuImages: asMediaUrls(finalData.existingMenuImages),
       };
 
-      const formDataPayload = new FormData();
-      formDataPayload.append("data", JSON.stringify(placeData));
-      const hasMedia = finalData.mediaFiles && finalData.mediaFiles.length > 0;
-      const hasMenu = finalData.menuFiles && finalData.menuFiles.length > 0;
-      if (hasMedia) {
-        finalData.mediaFiles.forEach((file: File) => {
-          if (file.type && file.type.startsWith("video/")) {
-            formDataPayload.append("media", file);
-          } else {
-            formDataPayload.append("images", file);
-          }
-        });
-      }
-      if (hasMenu) {
-        finalData.menuFiles.forEach((file: File) => {
-          formDataPayload.append("documents", file);
-        });
-      }
-      const payload = formDataPayload;
+      const payload = buildPlaceRequestBody(
+        placeData,
+        finalData.mediaFiles || [],
+        finalData.menuFiles || [],
+      );
 
       await updatePlace({ id: placeId, data: payload }).unwrap();
       toast.success("Place updated successfully!");

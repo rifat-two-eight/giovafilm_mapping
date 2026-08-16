@@ -1,8 +1,12 @@
 "use client";
 
 import { Globe } from "lucide-react";
+import { toExternalUrl, toInstagramUrl } from "./business-links";
 
 export default function BusinessOverview({ businessData }: any) {
+  const websiteUrl = toExternalUrl(businessData.website);
+  const instagramUrl = toInstagramUrl(businessData.instagram);
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-start justify-between mb-6">
@@ -12,9 +16,6 @@ export default function BusinessOverview({ businessData }: any) {
             Business Overview
           </h2>
         </div>
-        {/* <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-          Edit Details
-        </button> */}
       </div>
 
       <div className="space-y-6">
@@ -39,7 +40,7 @@ export default function BusinessOverview({ businessData }: any) {
             Description
           </p>
           <p className="text-gray-700 mt-1 leading-relaxed">
-            {businessData.description}
+            {businessData.description || "N/A"}
           </p>
         </div>
 
@@ -47,13 +48,35 @@ export default function BusinessOverview({ businessData }: any) {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Website
           </p>
-          <a
-            href={`https://${businessData.website}`}
-            className="text-blue-600 hover:underline mt-1"
-          >
-            {businessData.website} ↗
-          </a>
+          {websiteUrl ? (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline mt-1 inline-block"
+            >
+              {businessData.website} ↗
+            </a>
+          ) : (
+            <p className="text-gray-500 mt-1">N/A</p>
+          )}
         </div>
+
+        {instagramUrl && (
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Instagram
+            </p>
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline mt-1 inline-block"
+            >
+              {businessData.instagram} ↗
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
