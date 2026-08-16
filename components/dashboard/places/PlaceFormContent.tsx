@@ -37,7 +37,7 @@ import {
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { asMediaUrls } from "./place-payload";
+import { asMediaUrls, normalizePlaceType } from "./place-payload";
 
 interface PlaceFormContentProps {
   categories: any[];
@@ -91,6 +91,7 @@ export const PlaceFormContent = ({
   const [activeTab, setActiveTab] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuFileInputRef = useRef<HTMLInputElement>(null);
+  const typeTouchedRef = useRef(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [menuFiles, setMenuFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(
@@ -106,7 +107,7 @@ export const PlaceFormContent = ({
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     category: initialData?.category || "",
-    type: initialData?.type || "Regular",
+    type: normalizePlaceType(initialData),
     description: initialData?.description || "",
     address: initialData?.address || "",
     accessDescription: initialData?.accessDescription || "",
@@ -150,7 +151,9 @@ export const PlaceFormContent = ({
         : initialData.description || "",
       address: prev.address.trim() ? prev.address : initialData.address || "",
       category: prev.category || initialData.category || "",
-      type: prev.type || initialData.type || "Regular",
+      type: typeTouchedRef.current
+        ? prev.type
+        : normalizePlaceType(initialData),
       accessDescription:
         prev.accessDescription || initialData.accessDescription || "",
       tips: prev.tips || initialData.tips || "",
@@ -169,6 +172,7 @@ export const PlaceFormContent = ({
     initialData?.description,
     initialData?.address,
     initialData?.category,
+    initialData?.type,
     initialData?.images,
     initialData?.menuImages,
   ]);
@@ -262,6 +266,7 @@ export const PlaceFormContent = ({
     setErrors({});
     await onSave({
       ...formData,
+      type: normalizePlaceType(formData),
       status: publish ? "Published" : "Draft",
       mediaFiles,
       existingImages,
@@ -466,6 +471,7 @@ export const PlaceFormContent = ({
                   value={formData.type}
                   onValueChange={(val) => {
                     // Keep category — same list for Regular and Business
+                    typeTouchedRef.current = true;
                     setFormData({ ...formData, type: val });
                     if (errors.type) setErrors((prev) => ({ ...prev, type: "" }));
                   }}

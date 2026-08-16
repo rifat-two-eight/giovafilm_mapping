@@ -38,7 +38,7 @@ import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
-import { asId, asMediaUrls } from "./place-payload";
+import { asId, asMediaUrls, normalizePlaceType } from "./place-payload";
 
 // ─── Category color palette ────────────────────────────────────────────────────
 
@@ -109,7 +109,7 @@ function CountryPanner({ countryName }: { countryName: string | null }) {
     if (!map || !geocodingLib || !countryName) return;
 
     const geocoder = new geocodingLib.Geocoder();
-    geocoder.geocode({ address: countryName }, (results, status) => {
+    geocoder.geocode({ address: countryName }, (results: { geometry: { viewport?: unknown; location: unknown } }[] | null, status: string) => {
       if (status === "OK" && results?.[0]) {
         if (results[0].geometry.viewport) {
           map.fitBounds(results[0].geometry.viewport);
@@ -329,7 +329,12 @@ export default function AddPlacePage() {
       (placeId && draggedPositions[placeId]) || serverPosition;
 
     // Sync marker from discovery list first (slim payload — no description)
-    setSelectedPlace({ ...place, position, isNew: false });
+    setSelectedPlace({
+      ...place,
+      type: normalizePlaceType(place),
+      position,
+      isNew: false,
+    });
 
     const catId =
       typeof place.category === "object" ? place.category?._id : place.category;
@@ -357,6 +362,7 @@ export default function AddPlacePage() {
       });
       setSelectedPlace((prev: any) => ({
         ...full,
+        type: normalizePlaceType(full),
         position: prev?.position || position,
         address: prev?.address || full.address,
         isNew: false,
@@ -383,11 +389,12 @@ export default function AddPlacePage() {
     }
 
     try {
+      const placeKind = normalizePlaceType(finalData);
       const placeData = {
         name: finalData.name || "Untitled Place",
         map: selectedMapId,
         category: asId(finalData.category || selectedCategoryId),
-        type: finalData.type || "Regular",
+        type: placeKind,
         description: finalData.description,
         location: {
           type: "Point",
@@ -406,11 +413,11 @@ export default function AddPlacePage() {
         },
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
-        schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
-        operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
-        phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
-        website: finalData.type === 'Business' ? (finalData.website || "") : undefined,
-        instagram: finalData.type === 'Business' ? (finalData.instagram || "") : undefined,
+        schedules: placeKind === "Business" ? undefined : (finalData.schedules || ""),
+        operatingHours: placeKind === "Business" ? (finalData.operatingHours || null) : undefined,
+        phone: placeKind === "Business" ? (finalData.phone || "") : undefined,
+        website: placeKind === "Business" ? (finalData.website || "") : undefined,
+        instagram: placeKind === "Business" ? (finalData.instagram || "") : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
@@ -841,6 +848,7 @@ export default function AddPlacePage() {
                           });
                           setSelectedPlace((prev: any) => ({
                             ...full,
+                            type: normalizePlaceType(full),
                             position: prev?.position || updatedPosition,
                             address: prev?.address || full.address,
                             isNew: false,
@@ -909,7 +917,7 @@ export default function AddPlacePage() {
                   initialData={{
                     ...selectedPlace,
                     category: selectedCategoryId || "",
-                    type: selectedPlace.type || "Regular",
+                    type: normalizePlaceType(selectedPlace),
                     phone: selectedPlace.phone || "",
                     website: selectedPlace.website || "",
                     instagram: selectedPlace.instagram || "",

@@ -10,7 +10,7 @@ import { X } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { PlaceFormContent } from "./PlaceFormContent";
-import { asId, asMediaUrls } from "./place-payload";
+import { asId, asMediaUrls, normalizePlaceType } from "./place-payload";
 
 interface UpdatePlaceModalProps {
   placeId: string | null;
@@ -60,11 +60,12 @@ export function UpdatePlaceModal({
     if (!placeId) return;
 
     try {
+      const placeKind = normalizePlaceType(finalData);
       const placeData = {
         name: finalData.name,
         map: asId(finalData.map || place.map || defaultMapId),
         category: asId(finalData.category),
-        type: finalData.type || "Regular",
+        type: placeKind,
         description: finalData.description,
         address: finalData.address,
         status: finalData.status,
@@ -79,11 +80,11 @@ export function UpdatePlaceModal({
         },
         access: finalData.accessDescription || "",
         recommendations: { tips: finalData.tips || "" },
-        schedules: finalData.type === 'Business' ? undefined : (finalData.schedules || ""),
-        operatingHours: finalData.type === 'Business' ? (finalData.operatingHours || null) : undefined,
-        phone: finalData.type === 'Business' ? (finalData.phone || "") : undefined,
-        website: finalData.type === 'Business' ? (finalData.website || "") : undefined,
-        instagram: finalData.type === 'Business' ? (finalData.instagram || "") : undefined,
+        schedules: placeKind === "Business" ? undefined : (finalData.schedules || ""),
+        operatingHours: placeKind === "Business" ? (finalData.operatingHours || null) : undefined,
+        phone: placeKind === "Business" ? (finalData.phone || "") : undefined,
+        website: placeKind === "Business" ? (finalData.website || "") : undefined,
+        instagram: placeKind === "Business" ? (finalData.instagram || "") : undefined,
         entryCost: finalData.entryCost || "",
         hikeTime: finalData.hikeTime || "",
         atmosphere: finalData.atmosphere || "",
@@ -168,7 +169,7 @@ export function UpdatePlaceModal({
                   typeof place.category === "object"
                     ? place.category?._id
                     : place.category || "",
-                type: place.type || "Regular",
+                type: normalizePlaceType(place),
                 address: place.address || "",
                 accessDescription: place.access || place.details?.access || "",
                 tips:
