@@ -37,7 +37,7 @@ import {
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { asMediaUrls, normalizePlaceType } from "./place-payload";
+import { asMediaUrls, isPlaceKind, normalizePlaceType } from "./place-payload";
 
 interface PlaceFormContentProps {
   categories: any[];
@@ -471,6 +471,7 @@ export const PlaceFormContent = ({
                   value={formData.type}
                   onValueChange={(val) => {
                     // Keep category — same list for Regular and Business
+                    if (!isPlaceKind(val)) return;
                     typeTouchedRef.current = true;
                     setFormData({ ...formData, type: val });
                     if (errors.type) setErrors((prev) => ({ ...prev, type: "" }));

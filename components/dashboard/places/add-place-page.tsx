@@ -115,14 +115,14 @@ function CountryPanner({ countryName }: { countryName: string | null }) {
     if (!map || !geocodingLib || !countryName) return;
 
     const geocoder = new geocodingLib.Geocoder();
-    geocoder.geocode({ address: countryName }, (results: { geometry: { viewport?: unknown; location: unknown } }[] | null, status: string) => {
-      if (status === "OK" && results?.[0]) {
-        if (results[0].geometry.viewport) {
-          map.fitBounds(results[0].geometry.viewport);
-        } else {
-          map.setCenter(results[0].geometry.location);
-          map.setZoom(6);
-        }
+    geocoder.geocode({ address: countryName }, (results, status) => {
+      if (status !== "OK" || !results?.[0]) return;
+      const { viewport, location } = results[0].geometry;
+      if (viewport) {
+        map.fitBounds(viewport);
+      } else if (location) {
+        map.setCenter(location);
+        map.setZoom(6);
       }
     });
   }, [countryName, map, geocodingLib]);

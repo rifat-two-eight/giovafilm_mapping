@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Poppins, Public_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Suspense } from "react";
@@ -7,22 +6,38 @@ import { ReduxProvider } from "@/redux/ReduxProvider";
 import { SocketProvider } from "@/components/shared/socket-provider";
 import { LoginRequiredProvider } from "@/components/shared/login-required-modal";
 
-const poppins = Poppins({
+const poppins = localFont({
+  src: [
+    { path: "./fonts/poppins-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/poppins-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/poppins-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/poppins-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const inter = Inter({
+const inter = localFont({
+  src: [
+    { path: "./fonts/inter-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/inter-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/inter-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/inter-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const publicSans = Public_Sans({
+const publicSans = localFont({
+  src: [
+    { path: "./fonts/public-sans-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/public-sans-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/public-sans-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/public-sans-700.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/public-sans-800.woff2", weight: "800", style: "normal" },
+  ],
   variable: "--font-public-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 const arial = localFont({
