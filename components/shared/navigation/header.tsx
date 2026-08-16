@@ -103,6 +103,7 @@ export default function Header() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [enterSearching, setEnterSearching] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
@@ -115,9 +116,24 @@ export default function Header() {
   );
   const places = placesRes?.data || [];
   const isSearchPending =
-    searchTerm.trim().length > 0 &&
-    (searchTerm !== debouncedSearch || isFetching);
+    enterSearching ||
+    (searchTerm.trim().length > 0 &&
+      (searchTerm !== debouncedSearch || isFetching));
   const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
+
+  const submitHeaderSearch = () => {
+    const next = searchTerm.trim();
+    if (!next) return;
+    setEnterSearching(true);
+    setDebouncedSearch(next);
+  };
+
+  useEffect(() => {
+    if (!enterSearching) return;
+    if (isFetching) return;
+    const timer = setTimeout(() => setEnterSearching(false), 500);
+    return () => clearTimeout(timer);
+  }, [enterSearching, isFetching]);
 
   const { data: user } = useGetProfileQuery({});
   const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(user?.role || "");
@@ -233,11 +249,24 @@ export default function Header() {
           {/* Search Bar - Desktop */}
           <div className="hidden md:block flex-1 max-w-2xl mx-4">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5 group-focus-within:text-primary transition-colors" />
+              <button
+                type="button"
+                onClick={submitHeaderSearch}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"
+                aria-label="Search"
+              >
+                <Search className="size-5" />
+              </button>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitHeaderSearch();
+                  }
+                }}
                 placeholder="Search digital maps, cities, landmarks..."
                 className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
               />
@@ -568,11 +597,24 @@ export default function Header() {
               </button>
             </div>
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
+              <button
+                type="button"
+                onClick={submitHeaderSearch}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                aria-label="Search"
+              >
+                <Search className="size-5" />
+              </button>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitHeaderSearch();
+                  }
+                }}
                 placeholder="Search digital maps, cities, landmarks..."
                 className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                 autoFocus

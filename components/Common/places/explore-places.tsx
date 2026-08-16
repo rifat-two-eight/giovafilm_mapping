@@ -42,6 +42,7 @@ export default function ExplorePlaces() {
   const [limit, setLimit] = useState(9);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [enterSearching, setEnterSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -120,10 +121,18 @@ export default function ExplorePlaces() {
   }, [searchInput]);
 
   const handleSearch = () => {
+    setEnterSearching(true);
     setSearchTerm(searchInput);
     setActiveFilter(null);
     setPage(1);
   };
+
+  useEffect(() => {
+    if (!enterSearching) return;
+    if (isFetching) return;
+    const timer = setTimeout(() => setEnterSearching(false), 500);
+    return () => clearTimeout(timer);
+  }, [enterSearching, isFetching]);
 
   return (
     <section className="bg-gray-50 py-16">
@@ -150,7 +159,12 @@ export default function ExplorePlaces() {
               className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
             />
           </div>
 
@@ -278,6 +292,13 @@ export default function ExplorePlaces() {
               </Button>
             </Link>
           </div>
+        )}
+
+        {(isFetching || enterSearching) && (
+          <p className="mb-4 flex items-center gap-2 text-sm font-medium text-gray-500">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+            Updating results...
+          </p>
         )}
 
         {/* Places Grid */}
