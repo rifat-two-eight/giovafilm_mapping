@@ -21,6 +21,8 @@ export function CategoryMarker({
   isMobile = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
+  const size = isMobile ? 28 : 34;
+  const iconSize = isMobile ? 16 : 20;
 
   return (
     <div
@@ -37,7 +39,6 @@ export function CategoryMarker({
         cursor: "pointer",
       }}
     >
-      {/* Lock Icon overlay */}
       {isLocked && (
         <div
           style={{
@@ -60,27 +61,33 @@ export function CategoryMarker({
         </div>
       )}
 
-      {/* Pin Head */}
       <div
         style={{
-          width: isMobile ? 26 : 32,
-          height: isMobile ? 26 : 32,
-          borderRadius: "50% 50% 50% 0",
-          transform: "rotate(-45deg)",
+          width: size,
+          height: size,
+          borderRadius: "50%",
           background: bgColor,
-          border: isMobile ? "2px solid white" : "3px solid white",
+          border: isMobile ? "2px solid #fff" : "3px solid #fff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           boxSizing: "border-box",
-          overflow: "hidden",
         }}
       >
-        {/* Undo rotation for icon */}
-        <div style={{ transform: "rotate(45deg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <CategoryIcon icon={icon} size={isMobile ? 14 : 18} color="#fff" />
-        </div>
+        <CategoryIcon icon={icon} size={iconSize} color="#fff" />
       </div>
+
+      {/* White pointer only — no colored stem */}
+      <div
+        style={{
+          width: 0,
+          height: 0,
+          marginTop: -1,
+          borderLeft: "5px solid transparent",
+          borderRight: "5px solid transparent",
+          borderTop: "8px solid #fff",
+        }}
+      />
     </div>
   );
 }
