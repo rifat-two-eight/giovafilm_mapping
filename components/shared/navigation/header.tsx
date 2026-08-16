@@ -96,6 +96,7 @@ export const menuItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  const hideHeaderSearch = pathname === "/places" || pathname === "/offer";
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -246,7 +247,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Search Bar - Desktop */}
+          {/* Search Bar - Desktop — hidden on Places/Offers (page has its own) */}
+          {!hideHeaderSearch && (
           <div className="hidden md:block flex-1 max-w-2xl mx-4">
             <div className="relative group">
               <button
@@ -321,6 +323,7 @@ export default function Header() {
               )}
             </div>
           </div>
+          )}
 
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex items-center gap-6 whitespace-nowrap">
@@ -492,7 +495,7 @@ export default function Header() {
 
           {/* Mobile & Tablet Icons */}
           <div className="flex lg:hidden items-center gap-3">
-            {/* Search Toggle Button */}
+            {!hideHeaderSearch && (
             <button
               onClick={toggleSearch}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -500,6 +503,7 @@ export default function Header() {
             >
               <Search className="size-5 md:hidden" />
             </button>
+            )}
 
             {/* Profile Icon - Mobile */}
             {isAuthenticated ? (

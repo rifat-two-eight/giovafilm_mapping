@@ -18,6 +18,7 @@ import { appAlert } from "@/lib/app-alert";
 
 export default function OfferSection() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
 
 
@@ -52,6 +53,19 @@ export default function OfferSection() {
     return matchesSearch && matchesFilter;
   });
 
+  const offerSuggestions = offersData
+    .filter((offer: any) => {
+      const q = searchTerm.trim().toLowerCase();
+      if (q.length < 2) return false;
+      const title = String(offer.title || "").toLowerCase();
+      const placeName =
+        typeof offer.place === "object"
+          ? String(offer.place?.name || "").toLowerCase()
+          : "";
+      return title.includes(q) || placeName.includes(q);
+    })
+    .slice(0, 6);
+
   if (isLoading) {
     return (
       <section className="bg-gray-50 min-h-screen py-12">
@@ -75,6 +89,11 @@ export default function OfferSection() {
   return (
     <section className="bg-gray-50">
       <div className="max-w-360 mx-auto px-4 md:px-6 py-12">
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 leading-14">
+            Offers
+          </h1>
+        </div>
         {/* Filters and Search */}
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-8">
           <div className="flex gap-3 flex-wrap">
@@ -98,13 +117,52 @@ export default function OfferSection() {
             ))}
           </div>
 
-          <div className="w-full md:w-80">
+          <div className="relative w-full md:w-80">
             <Input
               placeholder="Search offers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
               className="bg-white"
             />
+            {searchFocused && searchTerm.trim().length >= 2 && (
+              <div className="absolute top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+                {offerSuggestions.length > 0 ? (
+                  <div className="max-h-64 overflow-y-auto">
+                    {offerSuggestions.map((offer: any) => {
+                      const placeName =
+                        typeof offer.place === "object" ? offer.place?.name : "";
+                      return (
+                        <button
+                          key={offer._id}
+                          type="button"
+                          className="flex w-full flex-col items-start gap-0.5 border-b border-gray-50 px-4 py-3 text-left last:border-0 hover:bg-gray-50"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setSearchTerm(offer.title);
+                            setSearchFocused(false);
+                          }}
+                        >
+                          <span className="text-sm font-semibold text-gray-900">
+                            {offer.title}
+                          </span>
+                          {placeName && (
+                            <span className="truncate text-xs text-gray-500">
+                              {placeName}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    No matching offers
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

@@ -43,6 +43,7 @@ export default function ExplorePlaces() {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [enterSearching, setEnterSearching] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -140,32 +141,73 @@ export default function ExplorePlaces() {
         {/* Title */}
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 leading-14">
-            Explore Places
+            Places
           </h1>
-
-          <p className="text-gray-500 mt-2 w-full max-w-2xl">
-            Discover the most breathtaking hidden gems and popular destinations
-            across Puerto Rico for your next road trip adventure.
-          </p>
         </div>
 
         {/* Search */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-6">
-          <div className="flex-1 flex items-center gap-3 bg-white border rounded-lg px-2 shadow-sm">
-            <Search className="text-gray-400 ml-2" size={20} />
+          <div className="relative flex-1">
+            <div className="flex items-center gap-3 bg-white border rounded-lg px-2 shadow-sm">
+              <Search className="text-gray-400 ml-2" size={20} />
 
-            <Input
-              placeholder="Search locations, parks, or beaches..."
-              className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSearch();
-                }
-              }}
-            />
+              <Input
+                placeholder="Search locations, parks, or beaches..."
+                className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    setSearchFocused(false);
+                    handleSearch();
+                  }
+                }}
+              />
+            </div>
+            {searchFocused && searchInput.trim().length >= 2 && (
+              <div className="absolute top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+                {isFetching || searchInput !== searchTerm ? (
+                  <div className="flex items-center justify-center gap-2 p-4 text-sm text-gray-500">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                    Searching...
+                  </div>
+                ) : places.length > 0 ? (
+                  <div className="max-h-64 overflow-y-auto">
+                    {places.slice(0, 6).map((place: any) => (
+                      <button
+                        key={place._id}
+                        type="button"
+                        className="flex w-full flex-col items-start gap-0.5 border-b border-gray-50 px-4 py-3 text-left last:border-0 hover:bg-gray-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setSearchInput(place.name);
+                          setSearchTerm(place.name);
+                          setEnterSearching(true);
+                          setSearchFocused(false);
+                          setPage(1);
+                        }}
+                      >
+                        <span className="text-sm font-semibold text-gray-900">
+                          {place.name}
+                        </span>
+                        {place.address && (
+                          <span className="truncate text-xs text-gray-500">
+                            {place.address}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    No matching places
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Country Filter Selector */}
