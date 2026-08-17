@@ -74,6 +74,33 @@ function removeCookie(name: string) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 }
 
+function clearAuthCookies() {
+  removeCookie("accessToken");
+  removeCookie("userRole");
+  removeCookie("loggedIn");
+}
+
+/** Keep middleware cookies in sync with Redux (persist rehydrate does not call setUser). */
+export function syncAuthCookies(
+  accessToken: string | null,
+  role?: string | null,
+) {
+  if (!accessToken) {
+    clearAuthCookies();
+    return;
+  }
+  // JWT may be too large for a cookie; loggedIn is the middleware fallback.
+  setCookie("accessToken", accessToken);
+  setCookie("loggedIn", "1");
+  if (role) setCookie("userRole", String(role));
+}
+
+export function navigateAfterAuth(path: string) {
+  const next =
+    path.startsWith("/") && !path.startsWith("//") ? path : "/maps";
+  window.location.assign(next);
+}
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -87,19 +114,16 @@ const authSlice = createSlice({
     ) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
-      // Sync token and role to cookies
-      setCookie("accessToken", action.payload.accessToken);
-      setCookie("userRole", action.payload.user.role);
+      syncAuthCookies(action.payload.accessToken, action.payload.user.role);
     },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
-      setCookie("accessToken", action.payload);
+      syncAuthCookies(action.payload, state.user?.role);
     },
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
-      removeCookie("accessToken");
-      removeCookie("userRole");
+      clearAuthCookies();
     },
   },
 });

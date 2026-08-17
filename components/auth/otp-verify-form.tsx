@@ -4,7 +4,7 @@ import {
   useResendOtpMutation,
   useVerifyAccountMutation,
 } from "@/redux/features/auth/authApi";
-import { setUser } from "@/redux/features/auth/authSlice";
+import { navigateAfterAuth, setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hook";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -119,11 +119,11 @@ export default function OtpVerify() {
     }
 
     if (isDashboardRole(userRole)) {
-      router.replace("/dashboard");
+      navigateAfterAuth("/dashboard");
     } else if (authFlow === "createAccount") {
-      router.replace("/catalog");
+      navigateAfterAuth("/catalog");
     } else {
-      router.replace("/maps");
+      navigateAfterAuth("/maps");
     }
   };
 

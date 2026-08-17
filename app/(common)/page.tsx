@@ -42,10 +42,10 @@ export default function HomePage() {
 
   useEffect(() => {
     // Only auto-redirect to /maps if we are NOT currently verifying a Stripe checkout session!
-    if (!sessionId && !isLoading && userProfile) {
-      router.push("/maps");
-    }
-  }, [userProfile, isLoading, router, sessionId]);
+    if (sessionId || isLoading || !userProfile) return;
+    if (searchParams.get("loginRequired") === "1") return;
+    router.push("/maps");
+  }, [userProfile, isLoading, router, sessionId, searchParams]);
 
   // Loading state for checkout verification
   if (sessionId && isVerifying) {

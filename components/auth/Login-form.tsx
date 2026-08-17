@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
-import { setUser } from "@/redux/features/auth/authSlice";
+import { setUser, navigateAfterAuth } from "@/redux/features/auth/authSlice";
 import { Lock, Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -68,13 +68,12 @@ export const LoginForm = () => {
     await persistor.flush();
     toast.success(successMessage || "Logged in successfully!");
 
-    if (redirect) {
-      router.replace(redirect);
-    } else if (isDashboardRole(role)) {
-      router.replace("/dashboard");
-    } else {
-      router.replace("/maps");
-    }
+    const next = redirect
+      ? redirect
+      : isDashboardRole(role)
+        ? "/dashboard"
+        : "/maps";
+    navigateAfterAuth(next);
   };
 
   useEffect(() => {

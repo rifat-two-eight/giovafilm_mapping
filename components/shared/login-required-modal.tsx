@@ -10,6 +10,13 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppSelector } from "@/redux/hook";
+import {
+  navigateAfterAuth,
+  selectAccessToken,
+  selectCurrentUser,
+  syncAuthCookies,
+} from "@/redux/features/auth/authSlice";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +65,8 @@ export function LoginRequiredProvider({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const accessToken = useAppSelector(selectAccessToken);
+  const role = useAppSelector(selectCurrentUser)?.role;
   const [open, setOpen] = useState(false);
   const [redirectTo, setRedirectTo] = useState("/");
   const [featureName, setFeatureName] = useState("this page");
@@ -70,11 +79,52 @@ export function LoginRequiredProvider({
   }, []);
 
   useEffect(() => {
+    if (accessToken) setOpen(false);
+  }, [accessToken]);
+
+  useEffect(() => {
     if (searchParams.get("loginRequired") !== "1") return;
-    const next = searchParams.get("redirect") || "/";
+    const raw = searchParams.get("redirect") || "/maps";
+    const next =
+      raw.startsWith("/") && !raw.startsWith("//") ? raw : "/maps";
+
+    if (accessToken) {
+      setOpen(false);
+      syncAuthCookies(accessToken, role);
+
+      const guardKey = "auth_redirect_guard";
+      try {
+        const prev = sessionStorage.getItem(guardKey);
+        if (prev) {
+          const parsed = JSON.parse(prev) as { path?: string; at?: number };
+          if (parsed.path === next && Date.now() - (parsed.at || 0) < 4000) {
+            sessionStorage.removeItem(guardKey);
+            router.replace(pathname, { scroll: false });
+            return;
+          }
+        }
+        sessionStorage.setItem(
+          guardKey,
+          JSON.stringify({ path: next, at: Date.now() }),
+        );
+      } catch {
+        // private mode — still try the redirect
+      }
+
+      navigateAfterAuth(next);
+      return;
+    }
+
     openLoginRequired(next);
     router.replace(pathname, { scroll: false });
-  }, [openLoginRequired, pathname, router, searchParams]);
+  }, [
+    accessToken,
+    role,
+    openLoginRequired,
+    pathname,
+    router,
+    searchParams,
+  ]);
 
   const goTo = (path: string) => {
     const target =

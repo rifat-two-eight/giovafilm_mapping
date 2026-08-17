@@ -44,8 +44,10 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const userRole = request.cookies.get("userRole")?.value;
+  const loggedInFlag = request.cookies.get("loggedIn")?.value === "1";
+  const isLoggedIn = Boolean(accessToken || loggedInFlag || userRole);
 
-  if (!accessToken && !guestAllowedExact.has(pathname)) {
+  if (!isLoggedIn && !guestAllowedExact.has(pathname)) {
     const homeUrl = new URL("/", request.url);
     homeUrl.searchParams.set("loginRequired", "1");
     homeUrl.searchParams.set("redirect", safeInternalPath(pathname, search));
@@ -56,7 +58,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route),
   );
 
-  if (isDashboardRoute && accessToken) {
+  if (isDashboardRoute && isLoggedIn) {
     const role = (userRole || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
     const isDashboardRole =
       role === "admin" ||
