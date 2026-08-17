@@ -335,7 +335,7 @@ export default function BusinessDetails() {
                         Usage
                       </p>
                       <p className="text-lg font-black text-black">
-                        {offer.maxRedemptions} claims
+                        {offer.maxRedemptions} per user
                       </p>
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">

@@ -159,7 +159,7 @@ export function BusinessOfferDialog({
       return;
     }
     if (!maxRedemptions || Number(maxRedemptions) < 0) {
-      toast.error("Please enter max redemptions.");
+      toast.error("Please enter how many redemptions each user gets.");
       return;
     }
     if (!validFrom) {
@@ -376,16 +376,19 @@ export function BusinessOfferDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="offer-max">Max Redemptions</Label>
+              <Label htmlFor="offer-max">Redemptions Per User</Label>
               <Input
                 id="offer-max"
                 type="number"
                 min={0}
                 value={maxRedemptions}
                 onChange={(e) => setMaxRedemptions(e.target.value)}
-                placeholder="e.g., 100"
+                placeholder="e.g., 1"
                 className="mt-1"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                How many times one customer can use this offer
+              </p>
             </div>
             <div>
               <Label htmlFor="offer-duration">Duration (Minutes)</Label>

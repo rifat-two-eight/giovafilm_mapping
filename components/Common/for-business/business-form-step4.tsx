@@ -259,13 +259,13 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Max Redemptions
+                  Redemptions Per User
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min={0}
-                    placeholder="e.g., 100"
+                    placeholder="e.g., 1"
                     {...field}
                     className="bg-gray-50 border-gray-200"
                   />

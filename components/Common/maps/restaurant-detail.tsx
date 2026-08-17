@@ -33,7 +33,9 @@ export default function RestaurantDetail() {
  
   const [redeemOffer, { isLoading: isRedeeming }] = useRedeemOfferMutation();
  
-  const [timeLeft, setTimeLeft] = useState<string>(offer?.redemptionDuration);
+  // Only holds the running countdown — the idle number comes from the offer itself,
+  // which is not loaded yet on first render
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [expiry, setExpiry] = useState<string | null>(null);
  
@@ -76,15 +78,16 @@ export default function RestaurantDetail() {
  
       if (distance < 0) {
         clearInterval(timer);
-        setTimeLeft("00:00");
+        setTimeLeft(null);
         setIsTimerActive(false);
         setExpiry(null);
         localStorage.removeItem(STORAGE_KEY);
         return;
       }
- 
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      const totalSeconds = Math.floor(distance / 1000)
+      const minutes = Math.floor(totalSeconds / 60)
+      const seconds = totalSeconds % 60
  
       setTimeLeft(
         `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
@@ -119,8 +122,11 @@ export default function RestaurantDetail() {
             setExpiry(res.data.expiresAt);
             localStorage.setItem(STORAGE_KEY, res.data.expiresAt);
           }
+          refetch();
         } catch (err: any) {
           toast.error(err?.data?.message || "Failed to redeem offer");
+          // Someone else may have taken the last redemption — resync the state
+          refetch();
         }
       }
     });
@@ -191,6 +197,58 @@ export default function RestaurantDetail() {
       </div>
     );
   }
+
+  // maxRedemptions is per user; totalRedemptionLimit caps everyone together
+  const redemptionsLeft =
+    typeof offer.maxRedemptions === "number" && offer.maxRedemptions > 0
+      ? Math.max(0, offer.maxRedemptions - (offer.userRedemptionCount || 0))
+      : null;
+
+  const soldOut =
+    typeof offer.totalRedemptionLimit === "number" &&
+    offer.totalRedemptionLimit > 0 &&
+    (offer.redemptionsCount || 0) >= offer.totalRedemptionLimit;
+
+  // Same checks the API runs on redeem — showing them upfront avoids a dead button
+  const unavailable = (() => {
+    if (isTimerActive) return null;
+
+    const now = new Date();
+    if (String(offer.status || "").toLowerCase() !== "active") {
+      return {
+        label: "OFFER INACTIVE",
+        message: "This offer is not active right now.",
+      };
+    }
+    if (!offer.noExpiration && offer.validFrom && now < new Date(offer.validFrom)) {
+      return {
+        label: "NOT STARTED",
+        message: `This offer starts on ${new Date(offer.validFrom).toLocaleDateString()}.`,
+      };
+    }
+    if (!offer.noExpiration && offer.validUntil && now > new Date(offer.validUntil)) {
+      return {
+        label: "OFFER EXPIRED",
+        message: "This offer is no longer valid.",
+      };
+    }
+    if (soldOut) {
+      return {
+        label: "FULLY CLAIMED",
+        message: "Every redemption for this offer has already been claimed.",
+      };
+    }
+    if (redemptionsLeft === 0) {
+      return {
+        label: "ALREADY USED",
+        message:
+          offer.maxRedemptions === 1
+            ? "You have already redeemed this offer."
+            : `You have used all ${offer.maxRedemptions} of your redemptions for this offer.`,
+      };
+    }
+    return null;
+  })();
 
   const redemptionRules =
     offer.redemptionRules && offer.redemptionRules.length > 0
@@ -349,42 +407,80 @@ export default function RestaurantDetail() {
 
                   {/* Timer Circle */}
                   <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
-                    <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 sm:border-6 md:border-8 border-yellow-400 flex items-center justify-center bg-gray-50">
-                      <div className="text-center">
-                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                          {timeLeft || "0"}{" "}
-                          {!isTimerActive && <span className="text-base">Min</span>}
-                        </div>
-                        <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
-                          {isTimerActive ? "Time Left" : "Redeem Now"}
-                        </div>
+                    <div
+                      className={`w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 sm:border-6 md:border-8 flex items-center justify-center bg-gray-50 ${
+                        unavailable ? "border-gray-300" : "border-yellow-400"
+                      }`}
+                    >
+                      <div className="text-center px-2">
+                        {unavailable ? (
+                          <>
+                            <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-gray-400 mx-auto mb-1" />
+                            <div className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide">
+                              {unavailable.label}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                              {isTimerActive
+                                ? timeLeft
+                                : (offer?.redemptionDuration ?? 0)}{" "}
+                              {!isTimerActive && (
+                                <span className="text-base">Min</span>
+                              )}
+                            </div>
+                            <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
+                              {isTimerActive ? "Time Left" : "Redeem Now"}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {/* Instructions */}
-                  <div className="p-3 sm:p-4 bg-gray-50 rounded-lg text-center">
+                  <div
+                    className={`p-3 sm:p-4 rounded-lg text-center ${
+                      unavailable ? "bg-gray-100" : "bg-gray-50"
+                    }`}
+                  >
                     <p className="text-xs sm:text-sm text-gray-600">
-                      Present this screen to the staff member at{" "}
-                      <span className="font-semibold wrap-break-word">
-                        {offer.place?.name}
-                      </span>{" "}
-                      to validate your redemption.
+                      {unavailable ? (
+                        unavailable.message
+                      ) : (
+                        <>
+                          Present this screen to the staff member at{" "}
+                          <span className="font-semibold wrap-break-word">
+                            {offer.place?.name}
+                          </span>{" "}
+                          to validate your redemption.
+                        </>
+                      )}
                     </p>
                   </div>
+
+                  {redemptionsLeft !== null && !unavailable && (
+                    <p className="mt-2 text-center text-[10px] sm:text-xs text-gray-500">
+                      {redemptionsLeft} of {offer.maxRedemptions} redemption
+                      {offer.maxRedemptions > 1 ? "s" : ""} left for you
+                    </p>
+                  )}
                 </div>
 
                 {/* Redeem Button */}
                 <Button
                   onClick={handleRedeem}
-                  disabled={isRedeeming || isTimerActive}
-                  className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20"
+                  disabled={isRedeeming || isTimerActive || Boolean(unavailable)}
+                  className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20 disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
                 >
                   {isRedeeming
                     ? "REDEEMING..."
                     : isTimerActive
                       ? "OFFER REDEEMED"
-                      : "REDEEM OFFER"}
+                      : unavailable
+                        ? unavailable.label
+                        : "REDEEM OFFER"}
                 </Button>
 
                 {/* Offer Code */}

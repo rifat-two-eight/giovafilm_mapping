@@ -40,6 +40,7 @@ interface FormData {
   validUntil?: string;
   noExpiration: boolean;
   maxRedemptions: string;
+  totalRedemptionLimit?: string;
   redemptionDuration: string;
   buttonLabel: string;
   status: string;
@@ -149,6 +150,8 @@ export function CreateOfferDialog({
           : "",
         noExpiration: initialData.noExpiration || false,
         maxRedemptions: initialData.maxRedemptions?.toString() || "",
+        totalRedemptionLimit:
+          initialData.totalRedemptionLimit?.toString() || "",
         redemptionDuration: initialData.redemptionDuration?.toString() || "",
         buttonLabel: initialData.buttonLabel || "Redeem Offer",
         status: initialData.status || "Active",
@@ -175,6 +178,7 @@ export function CreateOfferDialog({
         validUntil: "",
         noExpiration: false,
         maxRedemptions: "",
+        totalRedemptionLimit: "",
         redemptionDuration: "",
         buttonLabel: "Redeem Offer",
         status: "Active",
@@ -226,6 +230,7 @@ export function CreateOfferDialog({
             : null,
         noExpiration: data.noExpiration,
         maxRedemptions: Number(data.maxRedemptions) || 0,
+        totalRedemptionLimit: Number(data.totalRedemptionLimit) || null,
         redemptionDuration: Number(data.redemptionDuration) || 0,
         redemptionRules: rules,
         buttonLabel: data.buttonLabel,
@@ -474,18 +479,21 @@ export function CreateOfferDialog({
                 htmlFor="maxRedemptions"
                 className="text-sm font-medium text-gray-700"
               >
-                Max Redemptions
+                Redemptions Per User
               </Label>
               <Input
                 id="maxRedemptions"
                 type="number"
                 min={0}
-                placeholder="e.g., 100"
+                placeholder="e.g., 1"
                 className="mt-1"
                 {...register("maxRedemptions", {
-                  required: "Max redemptions is required",
+                  required: "Redemptions per user is required",
                 })}
               />
+              <p className="mt-1 text-xs text-gray-500">
+                How many times one customer can use this offer
+              </p>
             </div>
 
             <div>
@@ -506,6 +514,27 @@ export function CreateOfferDialog({
                 })}
               />
             </div>
+          </div>
+
+          <div>
+            <Label
+              htmlFor="totalRedemptionLimit"
+              className="text-sm font-medium text-gray-700"
+            >
+              Total Redemption Limit (optional)
+            </Label>
+            <Input
+              id="totalRedemptionLimit"
+              type="number"
+              min={0}
+              placeholder="Leave empty for unlimited"
+              className="mt-1"
+              {...register("totalRedemptionLimit")}
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Stops the offer once every customer together reaches this many
+              redemptions
+            </p>
           </div>
 
           {/* Discount Type and Value */}

@@ -927,7 +927,7 @@ export default function MapDetails() {
                               )}
                             </div>
                           </div>
-                          <Link href={`/discounts/${id}`} className="shrink-0">
+                          <Link href={`/offer/${offer._id}`} className="shrink-0">
                             <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 h-auto rounded-lg">
                               REDEEM
                             </Button>
