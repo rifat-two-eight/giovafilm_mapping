@@ -58,14 +58,6 @@ export const getUsableMediaUrl = (media?: any) => {
   return usable.length > 0 ? getImageUrl(usable[0]) : "";
 };
 
-function getApiOrigin() {
-  try {
-    return new URL(env.NEXT_PUBLIC_BASEURL).origin;
-  } catch {
-    return "";
-  }
-}
-
 function isLocalHostname(hostname: string) {
   // Dev machines change LAN IP, so match the whole private range
   return (
@@ -78,26 +70,37 @@ function isLocalHostname(hostname: string) {
 }
 
 function getFileOrigin() {
-  const apiOrigin = getApiOrigin();
-  let imageBase = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim().replace(/\/$/, "");
+  const pageHost = typeof window !== "undefined" ? window.location.hostname : "";
+  const candidates = [
+    env.NEXT_PUBLIC_IMAGE_BASEURL,
+    env.NEXT_PUBLIC_BASEURL,
+  ];
 
-  if (imageBase) {
+  for (const raw of candidates) {
+    const value = (raw || "").trim();
+    if (!value) continue;
     try {
-      const imgHost = new URL(imageBase).hostname;
-      const frontendHost =
-        typeof window !== "undefined" ? window.location.hostname : "";
-      // Uploads live on the API, not the Next.js app
-      if (frontendHost && imgHost === frontendHost) {
-        imageBase = "";
-      } else if (isLocalHostname(imgHost) && apiOrigin) {
-        imageBase = "";
+      const url = new URL(value);
+      const path = url.pathname.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
+      const base = `${url.origin}${path}`;
+
+      // Don't use a leftover LAN IP when the site is on a public host
+      if (pageHost && isLocalHostname(url.hostname) && !isLocalHostname(pageHost)) {
+        continue;
       }
+
+      // Same host with no path = Next.js, which does not serve /uploads
+      if (pageHost && url.hostname === pageHost && !path) {
+        continue;
+      }
+
+      return base;
     } catch {
-      imageBase = "";
+      continue;
     }
   }
 
-  return imageBase || apiOrigin;
+  return "";
 }
 
 export const getImageUrl = (media?: any) => {
