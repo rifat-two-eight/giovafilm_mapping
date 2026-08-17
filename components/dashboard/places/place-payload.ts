@@ -65,7 +65,14 @@ export function coordsChanged(
 
 function omitEmpty(placeData: Record<string, unknown>) {
   return Object.fromEntries(
-    Object.entries(placeData).filter(([, value]) => value !== undefined && value !== null),
+    Object.entries(placeData).filter(([key, value]) => {
+      if (value === undefined || value === null) return false;
+      // Empty media arrays wipe photos on save — skip unless there are files
+      if ((key === "media" || key === "menuImages") && Array.isArray(value) && value.length === 0) {
+        return false;
+      }
+      return true;
+    }),
   );
 }
 

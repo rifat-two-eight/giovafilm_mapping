@@ -1,8 +1,30 @@
 import type { NextConfig } from "next";
+import type { RemotePattern } from "next/dist/shared/lib/image-config";
+
+/** Uploads are served by the API, so whatever host it runs on must be allowed */
+const apiHostPatterns = (): RemotePattern[] =>
+  [process.env.NEXT_PUBLIC_BASEURL, process.env.NEXT_PUBLIC_IMAGE_BASEURL]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .flatMap(value => {
+      try {
+        const url = new URL(value);
+        return [
+          {
+            protocol: url.protocol.replace(":", "") as "http" | "https",
+            hostname: url.hostname,
+            ...(url.port ? { port: url.port } : {}),
+            pathname: "/**",
+          },
+        ];
+      } catch {
+        return [];
+      }
+    });
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      ...apiHostPatterns(),
       {
         protocol: "http",
         hostname: "10.10.7.11",

@@ -58,6 +58,48 @@ export const getUsableMediaUrl = (media?: any) => {
   return usable.length > 0 ? getImageUrl(usable[0]) : "";
 };
 
+function getApiOrigin() {
+  try {
+    return new URL(env.NEXT_PUBLIC_BASEURL).origin;
+  } catch {
+    return "";
+  }
+}
+
+function isLocalHostname(hostname: string) {
+  // Dev machines change LAN IP, so match the whole private range
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    /^10\./.test(hostname) ||
+    /^192\.168\./.test(hostname) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)
+  );
+}
+
+function getFileOrigin() {
+  const apiOrigin = getApiOrigin();
+  let imageBase = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim().replace(/\/$/, "");
+
+  if (imageBase) {
+    try {
+      const imgHost = new URL(imageBase).hostname;
+      const frontendHost =
+        typeof window !== "undefined" ? window.location.hostname : "";
+      // Uploads live on the API, not the Next.js app
+      if (frontendHost && imgHost === frontendHost) {
+        imageBase = "";
+      } else if (isLocalHostname(imgHost) && apiOrigin) {
+        imageBase = "";
+      }
+    } catch {
+      imageBase = "";
+    }
+  }
+
+  return imageBase || apiOrigin;
+}
+
 export const getImageUrl = (media?: any) => {
   if (!media) return FALLBACK_IMAGE;
 
@@ -73,39 +115,28 @@ export const getImageUrl = (media?: any) => {
     return FALLBACK_IMAGE;
   }
 
-  // If it's already a full URL, return it
-  if (mediaPath.startsWith("http")) return mediaPath;
+  if (mediaPath.startsWith("blob:") || mediaPath.startsWith("data:")) {
+    return mediaPath;
+  }
 
-  let baseURL = (env.NEXT_PUBLIC_IMAGE_BASEURL || "").trim();
+  const fileOrigin = getFileOrigin();
 
-  // If active API baseURL is set, align dev image URLs with the active server
-  if (env.NEXT_PUBLIC_BASEURL) {
+  // Full URL: rewrite leftover localhost/dev hosts onto the active API
+  if (mediaPath.startsWith("http://") || mediaPath.startsWith("https://")) {
     try {
-      const apiURL = new URL(env.NEXT_PUBLIC_BASEURL);
-      const imgURL = baseURL ? new URL(baseURL) : null;
-      if (imgURL && (imgURL.hostname === "10.10.26.173" || imgURL.hostname === "localhost")) {
-        baseURL = apiURL.origin;
-      } else if (!baseURL) {
-        baseURL = apiURL.origin;
+      const parsed = new URL(mediaPath);
+      if (fileOrigin && isLocalHostname(parsed.hostname)) {
+        return `${fileOrigin}${parsed.pathname}${parsed.search}`;
       }
-    } catch (e) {
-      // Fallback to active BASEURL if URL parsing failed
-      if (baseURL.includes("10.10.26.173") || baseURL.includes("localhost")) {
-        baseURL = env.NEXT_PUBLIC_BASEURL;
-      }
+    } catch {
+      // keep original
     }
+    return mediaPath;
   }
 
-  // Ensure there's a leading slash on media if not present and baseURL doesn't end with one
-  const separator =
-    baseURL && !baseURL.endsWith("/") && !mediaPath.startsWith("/") ? "/" : "";
-
-  // If no baseURL, ensure mediaPath starts with a slash for Next.js Image
-  if (!baseURL && !mediaPath.startsWith("/")) {
-    return `/${mediaPath}`;
-  }
-
-  return `${baseURL}${separator}${mediaPath}`;
+  const path = mediaPath.startsWith("/") ? mediaPath : `/${mediaPath}`;
+  if (!fileOrigin) return path;
+  return `${fileOrigin}${path}`;
 };
 
 export const formatDate = (dateString: string) => {
