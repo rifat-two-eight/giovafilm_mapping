@@ -66,7 +66,7 @@ export function CategoryMarker({
           width: size,
           height: size,
           borderRadius: "50%",
-          background: bgColor,
+          background: "#ffffff",
           border: isMobile ? "2px solid #fff" : "3px solid #fff",
           display: "flex",
           alignItems: "center",
@@ -74,7 +74,7 @@ export function CategoryMarker({
           boxSizing: "border-box",
         }}
       >
-        <CategoryIcon icon={icon} size={iconSize} color="#fff" />
+        <CategoryIcon icon={icon} size={iconSize} color={bgColor} />
       </div>
 
       {/* White pointer only — no colored stem */}

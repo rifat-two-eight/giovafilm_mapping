@@ -23,8 +23,10 @@ export type AppAlertOptions = {
   html?: string;
   icon?: AppAlertIcon;
   showCancelButton?: boolean;
+  showDenyButton?: boolean;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  denyButtonText?: string;
   confirmButtonColor?: string;
   timer?: number;
   timerProgressBar?: boolean;
@@ -115,8 +117,10 @@ function AppAlertModal({
     html,
     icon = "info",
     showCancelButton = false,
+    showDenyButton = false,
     confirmButtonText = "OK",
     cancelButtonText = "Cancel",
+    denyButtonText = "No",
     confirmButtonColor,
     timer,
     timerProgressBar,
@@ -216,6 +220,14 @@ function AppAlertModal({
       isDenied: false,
       isDismissed: false,
       value: input === "select" ? selected : undefined,
+    });
+  };
+
+  const deny = () => {
+    finish({
+      isConfirmed: false,
+      isDenied: true,
+      isDismissed: false,
     });
   };
 
@@ -352,6 +364,15 @@ function AppAlertModal({
                 className="h-12 flex-1 rounded-2xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
               >
                 {cancelButtonText}
+              </button>
+            ) : null}
+            {showDenyButton ? (
+              <button
+                type="button"
+                onClick={deny}
+                className="h-12 flex-1 rounded-2xl bg-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
+              >
+                {denyButtonText}
               </button>
             ) : null}
             <button

@@ -38,6 +38,7 @@ export default function RestaurantDetail() {
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [expiry, setExpiry] = useState<string | null>(null);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
  
   // Refetch the offer when component mounts and when user comes back
   useEffect(() => {
@@ -330,66 +331,81 @@ export default function RestaurantDetail() {
                   <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     {offer.description}
                   </p>
-                  <p className="mt-4 text-[11px] sm:text-xs leading-relaxed text-gray-500">
-                    NOTICE: The information for this place is for informational
-                    purposes only. Your visit and activities are at your own
-                    risk.
-                  </p>
-                </div>
-
-                {/* Validity and Rules Section */}
-                <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 p-4 sm:p-5 md:p-6 bg-gray-100/80 rounded-lg">
-                  {/* Validity Period */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                      Validity Period
-                    </h3>
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="text-xl sm:text-2xl">📅</div>
-                        <div>
-                          <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
-                            FROM
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
-                            {formatDate(offer.createdAt)}
-                          </p>
+                  {/* Collapsible Information Section */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm mt-6">
+                    <button
+                      type="button"
+                      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                      className="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors font-bold text-gray-900 border-none cursor-pointer outline-none"
+                    >
+                      <span>Information (Validity & Rules)</span>
+                      <span
+                        className="text-gray-500 transition-transform duration-200"
+                        style={{ transform: isInfoExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+                      >
+                        ▶
+                      </span>
+                    </button>
+                    <div
+                      className="transition-all duration-200 overflow-hidden"
+                      style={{
+                        maxHeight: isInfoExpanded ? "1000px" : "0px",
+                        borderTop: isInfoExpanded ? "1px solid #e5e7eb" : "none",
+                      }}
+                    >
+                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 p-4 sm:p-5 md:p-6 bg-gray-50/50">
+                        {/* Validity Period */}
+                        <div className="space-y-3 sm:space-y-4">
+                          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            Validity Period
+                          </h3>
+                          <div className="space-y-2 sm:space-y-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <div className="text-xl sm:text-2xl">📅</div>
+                              <div>
+                                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                                  FROM
+                                </p>
+                                <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
+                                  {formatDate(offer.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <div className="text-xl sm:text-2xl">📅</div>
+                              <div>
+                                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                                  UNTIL
+                                </p>
+                                <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
+                                  {offer.noExpiration || !offer.validUntil
+                                    ? "No Expiration"
+                                    : new Date(offer.validUntil).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Redemption Rules */}
+                        <div className="mt-3 sm:mt-0">
+                          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
+                            Redemption Rules
+                          </h3>
+                          <div className="space-y-2 sm:space-y-3">
+                            {redemptionRules.map((rule: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2 sm:gap-3"
+                              >
+                                <CheckCircle2 className="size-5 text-yellow-500" />
+                                <p className="text-sm sm:text-base text-gray-700">
+                                  {rule}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="text-xl sm:text-2xl">📅</div>
-                        <div>
-                          <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
-                            UNTIL
-                          </p>
-                          <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
-                            {offer.noExpiration || !offer.validUntil
-                              ? "No Expiration"
-                              : new Date(offer.validUntil).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Redemption Rules */}
-                  <div className="mt-3 sm:mt-0">
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
-                      Redemption Rules
-                    </h3>
-                    <div className="space-y-2 sm:space-y-3">
-                      {redemptionRules.map((rule: string, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex  items-center gap-2 sm:gap-3"
-                        >
-                          <CheckCircle2 className="size-5 text-yellow-500" />
-
-                          <p className="text-sm sm:text-base text-gray-700">
-                            {rule}
-                          </p>
-                        </div>
-                      ))}
                     </div>
                   </div>
                 </div>

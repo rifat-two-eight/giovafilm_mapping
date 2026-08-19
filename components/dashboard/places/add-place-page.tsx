@@ -35,7 +35,7 @@ import {
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
 import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
 import {
@@ -230,6 +230,30 @@ export default function AddPlacePage() {
   >({});
 
   const [formData, setFormData] = useState({ name: "", description: "" });
+  const [draggableMarkerId, setDraggableMarkerId] = useState<string | null>(null);
+  const dragTimeoutRef = useRef<any>(null);
+
+  const startDragTimer = (markerId: string) => {
+    if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+    dragTimeoutRef.current = setTimeout(() => {
+      setDraggableMarkerId(markerId);
+      toast.info("Marker drag enabled. Move it now!");
+    }, 2000); // 2 seconds press & hold
+  };
+
+  const clearDragTimer = () => {
+    if (dragTimeoutRef.current) {
+      clearTimeout(dragTimeoutRef.current);
+      dragTimeoutRef.current = null;
+    }
+  };
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+    };
+  }, []);
   const [isFetchingAddress, setIsFetchingAddress] = useState(false);
 
   const updateAddressFromCoords = async (lat: number, lng: number) => {
@@ -805,19 +829,24 @@ export default function AddPlacePage() {
                 if (!position.lat || !position.lng) return null;
 
                 // Resolve category — it may be a populated object or just an ID string
-                const cat =
+              const cat =
                   typeof place.category === "object"
                     ? place.category
                     : findCategoryById(place.category);
 
                 const isSelected = selectedPlace?._id === place._id;
+                const isDraggable = draggableMarkerId === place._id;
 
                 return (
                   <AdvancedMarker
                     key={place._id}
                     position={position}
-                    draggable={true}
+                    draggable={isDraggable}
+                    onDragStart={() => {
+                      clearDragTimer();
+                    }}
                     onDragEnd={(e: any) => {
+                      setDraggableMarkerId(null);
                       if (!e.latLng || !placeId) return;
                       const newLat = e.latLng.lat();
                       const newLng = e.latLng.lng();
@@ -863,11 +892,20 @@ export default function AddPlacePage() {
                     }}
                     onClick={() => handleSelectPlace(place)}
                   >
-                    <CategoryMarker
-                      icon={cat?.icon || "📍"}
-                      color={resolveCategoryColor(cat)}
-                      isSelected={isSelected}
-                    />
+                    <div
+                      onPointerDown={(e) => {
+                        if (e.button === 0) startDragTimer(place._id);
+                      }}
+                      onPointerUp={clearDragTimer}
+                      onPointerLeave={clearDragTimer}
+                      onPointerCancel={clearDragTimer}
+                    >
+                      <CategoryMarker
+                        icon={cat?.icon || "📍"}
+                        color={resolveCategoryColor(cat)}
+                        isSelected={isSelected}
+                      />
+                    </div>
                   </AdvancedMarker>
                 );
               })}
@@ -876,8 +914,12 @@ export default function AddPlacePage() {
               {tempMarker && (
                 <AdvancedMarker
                   position={tempMarker}
-                  draggable={true}
+                  draggable={draggableMarkerId === "temp"}
+                  onDragStart={() => {
+                    clearDragTimer();
+                  }}
                   onDragEnd={(e: any) => {
+                    setDraggableMarkerId(null);
                     if (e.latLng) {
                       const newLat = e.latLng.lat();
                       const newLng = e.latLng.lng();
@@ -885,7 +927,7 @@ export default function AddPlacePage() {
                       setSelectedPlace({
                         position: { lat: newLat, lng: newLng },
                         isNew: true,
-                        address: ""
+                        address: "",
                       });
                       updateAddressFromCoords(newLat, newLng);
                     }
@@ -898,12 +940,21 @@ export default function AddPlacePage() {
                     })
                   }
                 >
-                  <CategoryMarker
-                    icon={activeCategory?.icon || "📍"}
-                    color={resolveCategoryColor(activeCategory)}
-                    isTemp={true}
-                    isSelected={true}
-                  />
+                  <div
+                    onPointerDown={(e) => {
+                      if (e.button === 0) startDragTimer("temp");
+                    }}
+                    onPointerUp={clearDragTimer}
+                    onPointerLeave={clearDragTimer}
+                    onPointerCancel={clearDragTimer}
+                  >
+                    <CategoryMarker
+                      icon={activeCategory?.icon || "📍"}
+                      color={resolveCategoryColor(activeCategory)}
+                      isTemp={true}
+                      isSelected={true}
+                    />
+                  </div>
                 </AdvancedMarker>
               )}
 

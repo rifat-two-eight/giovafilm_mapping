@@ -75,22 +75,37 @@ export function PricingCard({
 
       if (businesses.length === 1) {
         const business = businesses[0];
-        try {
-          const res = await createCheckoutSession({
-            planId: plan._id,
-            businessId: business._id,
-            successUrl: `${window.location.origin}/success`,
-            cancelUrl: `${window.location.origin}/cancel`,
-          }).unwrap();
+        appAlert.fire({
+          title: "Subscribe Existing or Add New?",
+          text: `Would you like to subscribe your existing business "${business.name}" to this plan, or create a new business profile?`,
+          icon: "question",
+          showCancelButton: true,
+          showDenyButton: true,
+          confirmButtonText: `Subscribe "${business.name}"`,
+          denyButtonText: "Create New Profile",
+          cancelButtonText: "Cancel",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const res = await createCheckoutSession({
+                planId: plan._id,
+                businessId: business._id,
+                successUrl: `${window.location.origin}/success`,
+                cancelUrl: `${window.location.origin}/cancel`,
+              }).unwrap();
 
-          if (res.data?.url || res.url) {
-            window.location.href = res.data?.url || res.url;
-          } else {
-            toast.error("Failed to initiate payment. Please try again.");
+              if (res.data?.url || res.url) {
+                window.location.href = res.data?.url || res.url;
+              } else {
+                toast.error("Failed to initiate payment. Please try again.");
+              }
+            } catch (err: any) {
+              toast.error(err?.data?.message || "Something went wrong. Please try again.");
+            }
+          } else if (result.isDenied) {
+            router.push("/for-business");
           }
-        } catch (err: any) {
-          toast.error(err?.data?.message || "Something went wrong. Please try again.");
-        }
+        });
         return;
       }
 
@@ -174,7 +189,7 @@ export function PricingCard({
 
       {/* Plan Header */}
       <div className="space-y-2 mb-4">
-        <h3 className={`text-xl font-bold text-gray-900}`}>{plan.name}</h3>
+        <h3 className={`text-xl font-bold text-gray-900`}>{plan.name}</h3>
         <div className="flex items-baseline gap-1">
           <span
             className={`text-3xl font-bold ${isEnterprise ? "text-yellow-400" : "text-gray-900"}`}
@@ -189,7 +204,7 @@ export function PricingCard({
             </span>
           )}
         </div>
-        <p className={`text-sm text-gray-600}`}>{plan.description}</p>
+        <p className={`text-sm text-gray-600`}>{plan.description}</p>
       </div>
 
       {/* Select Button */}
@@ -233,8 +248,7 @@ export function PricingCard({
               }`}
             />
             <span
-              className={`text-sm text-gray-700"
-              `}
+              className={`text-sm text-gray-700`}
             >
               {feature}
             </span>

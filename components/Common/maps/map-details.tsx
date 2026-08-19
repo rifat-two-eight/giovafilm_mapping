@@ -131,6 +131,7 @@ export default function MapDetails() {
       ...rawData,
       type: "Business",
       media: rawData.media?.photos || [],
+      menuImages: rawData.menuImages || (rawData.media?.menu ? [rawData.media.menu] : []),
       address: rawData.location?.address || "",
       phone: rawData.contact?.phone || rawData.phone,
       website: rawData.contact?.website || rawData.website,
@@ -1131,14 +1132,23 @@ export default function MapDetails() {
           overlayClassName="bg-black z-50"
           className="fixed inset-0 top-0 left-0 z-[100] flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-black p-0 shadow-none sm:max-w-none data-[state=open]:zoom-in-100 overflow-hidden"
         >
-          {/* Blurred low-opacity background image */}
-          {selectedMediaIndex !== null && !isVideo(mediaList[selectedMediaIndex]) && (
-            <div
-              className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 pointer-events-none select-none"
-              style={{
-                backgroundImage: `url("${getImageUrl(mediaList[selectedMediaIndex])}")`,
-              }}
-            />
+          {/* Blurred low-opacity background image or video */}
+          {selectedMediaIndex !== null && (
+            isVideo(mediaList[selectedMediaIndex]) ? (
+              <video
+                src={getImageUrl(mediaList[selectedMediaIndex])}
+                className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-20 pointer-events-none select-none"
+                muted
+                preload="metadata"
+              />
+            ) : (
+              <div
+                className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 pointer-events-none select-none"
+                style={{
+                  backgroundImage: `url("${getImageUrl(mediaList[selectedMediaIndex])}")`,
+                }}
+              />
+            )
           )}
 
           <DialogHeader className="sr-only">

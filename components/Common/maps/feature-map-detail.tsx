@@ -341,7 +341,7 @@ export default function FeatureMapDetailPage() {
               <h3 className="text-lg font-bold text-gray-900 underline">
                 MAP DESCRIPTION
               </h3>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed" style={{ whiteSpace: "pre-line" }}>
                 {mapData.description}
               </p>
             </div>
