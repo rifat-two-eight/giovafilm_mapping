@@ -116,9 +116,14 @@ export function ProfileSidebar({ data }: ProfileProps) {
           </div>
 
           {/* User Name */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+          <h2 className="text-2xl font-bold text-gray-900 mb-0.5">
             {data?.name}
           </h2>
+
+          {/* Points / XP display */}
+          <div className="text-xs font-bold text-amber-600 mb-2 flex items-center justify-center gap-1">
+            ✨ {data?.points ?? 0} XP
+          </div>
 
           {/* Level Name Badge */}
           {(() => {
