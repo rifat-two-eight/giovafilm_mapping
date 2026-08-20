@@ -9,6 +9,7 @@ type GetPlacesArgs = {
   sort?: string;
   country?: string;
   category?: string;
+  type?: string;
   lat?: number | string;
   lng?: number | string;
 };
@@ -25,6 +26,7 @@ const placeApi = baseApi.injectEndpoints({
         sort = "",
         country = "",
         category = "",
+        type = "",
         lat,
         lng,
       }) => {
@@ -37,6 +39,7 @@ const placeApi = baseApi.injectEndpoints({
         if (sort) params.set("sort", sort);
         if (country) params.set("country", country);
         if (category) params.set("category", category);
+        if (type) params.set("type", type);
         if (lat !== undefined && lat !== "" && lng !== undefined && lng !== "") {
           params.set("lat", String(lat));
           params.set("lng", String(lng));

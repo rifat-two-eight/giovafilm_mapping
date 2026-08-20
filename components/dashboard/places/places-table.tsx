@@ -41,6 +41,7 @@ export function PlacesTable() {
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [country, setCountry] = useState("");
+  const [type, setType] = useState("");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -58,6 +59,7 @@ export function PlacesTable() {
     status,
     category,
     country,
+    type,
   });
   const [deletePlace] = useDeletePlaceMutation();
 
@@ -174,6 +176,19 @@ export function PlacesTable() {
                 {c}
               </option>
             ))}
+          </select>
+
+          <select
+            value={type}
+            onChange={(e) => {
+              setType(e.target.value);
+              setPage(1);
+            }}
+            className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
+          >
+            <option value="">All Types</option>
+            <option value="Regular">Regular (Admins)</option>
+            <option value="Business">Business (Users)</option>
           </select>
         </div>
       </div>
