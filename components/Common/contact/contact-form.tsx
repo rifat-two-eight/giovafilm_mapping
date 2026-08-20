@@ -59,7 +59,7 @@ export function ContactForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10">
+    <div className="bg-white rounded-2xl shadow-sm p-8 md:p-10 border border-gray-100">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name and Email row - two columns on desktop, one on mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -77,7 +77,7 @@ export function ContactForm() {
               placeholder="John Doe"
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
-              className="bg-gray-100 w-full px-4 py-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="bg-gray-100 w-full px-4 h-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-450"
               required
             />
           </div>
@@ -96,7 +96,7 @@ export function ContactForm() {
               placeholder="john@example.com"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              className="bg-gray-100 w-full px-4 py-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="bg-gray-100 w-full px-4 h-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-455"
               required
             />
           </div>
@@ -114,10 +114,10 @@ export function ContactForm() {
             value={formData.subject}
             onValueChange={(value) => handleInputChange("subject", value)}
           >
-            <SelectTrigger className="bg-gray-100 w-full px-4 py-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <SelectTrigger className="bg-gray-100 w-full px-4 h-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-460 text-left">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="">
+            <SelectContent className="bg-white border border-gray-200 rounded-lg">
               <SelectItem value="General Inquiry">General Inquiry</SelectItem>
               <SelectItem value="Trip Planning">Trip Planning</SelectItem>
               <SelectItem value="Partnership">Partnership</SelectItem>
@@ -149,7 +149,7 @@ export function ContactForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="px-10 h-14 w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg text-base shadow-lg shadow-yellow-500/20 disabled:opacity-75"
+          className="px-10 h-14 w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg text-base shadow-lg shadow-yellow-500/20 disabled:opacity-75 cursor-pointer border-none"
         >
           {isLoading ? "Sending..." : "Send Message →"}
         </Button>

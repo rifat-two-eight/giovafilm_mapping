@@ -47,7 +47,12 @@ export function middleware(request: NextRequest) {
   const loggedInFlag = request.cookies.get("loggedIn")?.value === "1";
   const isLoggedIn = Boolean(accessToken || loggedInFlag || userRole);
 
-  if (!isLoggedIn && !guestAllowedExact.has(pathname)) {
+  const isGuestAllowed =
+    guestAllowedExact.has(pathname) ||
+    pathname === "/catalog" ||
+    pathname.startsWith("/catalog/");
+
+  if (!isLoggedIn && !isGuestAllowed) {
     const homeUrl = new URL("/", request.url);
     homeUrl.searchParams.set("loginRequired", "1");
     homeUrl.searchParams.set("redirect", safeInternalPath(pathname, search));

@@ -5,8 +5,21 @@ import { Button } from "../../ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useLoginRequired } from "@/components/shared/login-required-modal";
+import { useAppSelector } from "@/redux/hook";
+import { selectAccessToken } from "@/redux/features/auth/authSlice";
 
 export default function HeroBanner() {
+  const accessToken = useAppSelector(selectAccessToken);
+  const { openLoginRequired } = useLoginRequired();
+
+  const handleExplorePlaces = (e: React.MouseEvent) => {
+    if (!accessToken) {
+      e.preventDefault();
+      openLoginRequired("/places");
+    }
+  };
+
   return (
     <section className="relative min-h-[80vh] py-16 flex items-center overflow-hidden font-inter">
       {/* Background Split */}
@@ -90,7 +103,7 @@ export default function HeroBanner() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
           >
-            <Link href={"/places"}>
+            <Link href={"/places"} onClick={handleExplorePlaces}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 cursor-pointer">
                   Explore Places

@@ -20,6 +20,7 @@ import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
 import { Star } from "lucide-react";
 import Link from "next/link";
+import { useLoginRequired } from "@/components/shared/login-required-modal";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -42,6 +43,7 @@ export default function FeatureMapDetailPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { openLoginRequired } = useLoginRequired();
   const rawId = params?.id;
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const redeemFreeIntent = searchParams.get("redeemFreeMap") === "1";
@@ -97,8 +99,7 @@ export default function FeatureMapDetailPage() {
 
   const handleClaimFreeMap = async () => {
     if (!accessToken) {
-      toast.error("Please log in to claim your free map.");
-      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      openLoginRequired(window.location.pathname + window.location.search);
       return;
     }
     try {
@@ -115,8 +116,7 @@ export default function FeatureMapDetailPage() {
 
   const handleBuyNow = async () => {
     if (!accessToken) {
-      toast.error("Please log in to purchase this map.");
-      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      openLoginRequired(window.location.pathname + window.location.search);
       return;
     }
 
