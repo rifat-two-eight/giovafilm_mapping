@@ -131,7 +131,10 @@ export default function MapDetails() {
       ...rawData,
       type: "Business",
       media: rawData.media?.photos || [],
-      menuImages: rawData.menuImages || (rawData.media?.menu ? [rawData.media.menu] : []),
+      menuImages: [
+        ...(Array.isArray(rawData.menuImages) ? rawData.menuImages : []),
+        ...(rawData.media?.menu ? (Array.isArray(rawData.media.menu) ? rawData.media.menu : [rawData.media.menu]) : []),
+      ].filter(Boolean),
       address: rawData.location?.address || "",
       phone: rawData.contact?.phone || rawData.phone,
       website: rawData.contact?.website || rawData.website,

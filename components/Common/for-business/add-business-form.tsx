@@ -13,7 +13,7 @@ import { useAddBusinessMutation } from "@/redux/features/business/businessApi";
 import { useCreateOfferMutation } from "@/redux/features/offer/offerApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -96,11 +96,19 @@ export function AddBusinessForm() {
 
   const { data: user } = useGetProfileQuery({});
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
 
   const form = useForm({
     mode: "all",
     defaultValues,
   });
+
+  useEffect(() => {
+    if (planParam && hydrated) {
+      form.setValue("selectedPlan", planParam);
+    }
+  }, [planParam, hydrated, form]);
 
   useEffect(() => {
     let cancelled = false;
