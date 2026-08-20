@@ -232,13 +232,26 @@ export default function AddPlacePage() {
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [draggableMarkerId, setDraggableMarkerId] = useState<string | null>(null);
   const dragTimeoutRef = useRef<any>(null);
+  const dragStartPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  const startDragTimer = (markerId: string) => {
+  const startDragTimer = (markerId: string, event: React.PointerEvent) => {
+    dragStartPosRef.current = { x: event.clientX, y: event.clientY };
     if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
     dragTimeoutRef.current = setTimeout(() => {
       setDraggableMarkerId(markerId);
       toast.info("Marker drag enabled. Move it now!");
-    }, 2000); // 2 seconds press & hold
+      dragStartPosRef.current = null;
+    }, 2500); // 2.5 seconds press & hold
+  };
+
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (!dragStartPosRef.current) return;
+    const dx = event.clientX - dragStartPosRef.current.x;
+    const dy = event.clientY - dragStartPosRef.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance > 15) {
+      clearDragTimer();
+    }
   };
 
   const clearDragTimer = () => {
@@ -246,6 +259,7 @@ export default function AddPlacePage() {
       clearTimeout(dragTimeoutRef.current);
       dragTimeoutRef.current = null;
     }
+    dragStartPosRef.current = null;
   };
 
   // Clean up timer on unmount
@@ -338,6 +352,7 @@ export default function AddPlacePage() {
     const newLat = e.detail.latLng.lat;
     const newLng = e.detail.latLng.lng;
 
+    setDraggedPositions({}); // Clear any previous unsaved dragged position
     setTempMarker({ lat: newLat, lng: newLng });
     setSelectedPlace({
       position: { lat: newLat, lng: newLng },
@@ -350,6 +365,7 @@ export default function AddPlacePage() {
   };
 
   const handleSelectPlace = async (place: any) => {
+    setDraggedPositions({}); // Clear any previous unsaved dragged position
     const placeId = place._id || place.id;
     const serverPosition = {
       lat: place?.location?.coordinates?.[1] || place?.latitude || 0,
@@ -492,13 +508,7 @@ export default function AddPlacePage() {
         `Place ${finalData.status === "Published" ? "published" : "saved as draft"} successfully!`,
       );
 
-      if (selectedPlace?._id) {
-        setDraggedPositions((prev) => {
-          const next = { ...prev };
-          delete next[selectedPlace._id];
-          return next;
-        });
-      }
+      setDraggedPositions({});
       setSelectedPlace(null);
       setTempMarker(null);
       setFormData({ name: "", description: "" });
@@ -894,11 +904,12 @@ export default function AddPlacePage() {
                   >
                     <div
                       onPointerDown={(e) => {
-                        if (e.button === 0) startDragTimer(place._id);
+                        if (e.button === 0) startDragTimer(place._id, e);
                       }}
                       onPointerUp={clearDragTimer}
-                      onPointerLeave={clearDragTimer}
+                      onPointerMove={handlePointerMove}
                       onPointerCancel={clearDragTimer}
+                      className={isDraggable ? "animate-bounce cursor-grab" : ""}
                     >
                       <CategoryMarker
                         icon={cat?.icon || "📍"}
@@ -942,11 +953,12 @@ export default function AddPlacePage() {
                 >
                   <div
                     onPointerDown={(e) => {
-                      if (e.button === 0) startDragTimer("temp");
+                      if (e.button === 0) startDragTimer("temp", e);
                     }}
                     onPointerUp={clearDragTimer}
-                    onPointerLeave={clearDragTimer}
+                    onPointerMove={handlePointerMove}
                     onPointerCancel={clearDragTimer}
+                    className={draggableMarkerId === "temp" ? "animate-bounce cursor-grab" : ""}
                   >
                     <CategoryMarker
                       icon={activeCategory?.icon || "📍"}
@@ -963,7 +975,13 @@ export default function AddPlacePage() {
                 <PlaceInfoWindow
                   key={selectedPlace._id || "new-place"}
                   position={selectedPlace.position}
-                  onClose={() => setSelectedPlace(null)}
+                  onClose={() => {
+                    setDraggedPositions({});
+                    if (selectedPlace.isNew) {
+                      setTempMarker(null);
+                    }
+                    setSelectedPlace(null);
+                  }}
                   categories={categories}
                   onSave={handleSavePlace}
                   isSaving={isCreating || isUpdating}
