@@ -338,7 +338,7 @@ export default function RestaurantDetail() {
                       onClick={() => setIsInfoExpanded(!isInfoExpanded)}
                       className="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors font-bold text-gray-900 border-none cursor-pointer outline-none"
                     >
-                      <span>Information (Validity & Rules)</span>
+                      <span>Information</span>
                       <span
                         className="text-gray-500 transition-transform duration-200"
                         style={{ transform: isInfoExpanded ? "rotate(90deg)" : "rotate(0deg)" }}

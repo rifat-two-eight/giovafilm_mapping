@@ -941,11 +941,13 @@ export default function MapDetails() {
               </AccordionItem>
             )}
           </Accordion>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-6">
-            <p className="text-xs text-amber-800 leading-relaxed font-medium">
-              NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
-            </p>
-          </div>
+          {!isBusiness && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-6">
+              <p className="text-xs text-amber-800 leading-relaxed font-medium">
+                NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
+              </p>
+            </div>
+          )}
         </div>
 
         {isBusiness && (

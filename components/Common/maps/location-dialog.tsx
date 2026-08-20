@@ -175,11 +175,13 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
 
           <p className="text-sm text-gray-600 mb-4">{location?.description}</p>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
-            <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
-              NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
-            </p>
-          </div>
+          {type !== "business" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
+              <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+                NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-3">
             <Link href={`/maps/${placeId}?type=${type}`} className="flex-1">
