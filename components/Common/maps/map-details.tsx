@@ -21,7 +21,7 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 
 import {
   Carousel,
@@ -320,11 +320,15 @@ export default function MapDetails() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
+  const [showControls, setShowControls] = useState(true);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+
   // Reset zoom and position when selected media changes
   useEffect(() => {
     if (selectedMediaIndex !== null) {
       setZoom(1);
       setPosition({ x: 0, y: 0 });
+      setShowControls(true);
     }
   }, [selectedMediaIndex]);
 
@@ -392,6 +396,69 @@ export default function MapDetails() {
 
   const handleMouseLeave = () => {
     setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now(),
+    };
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - position.x, y: e.touches[0].clientY - position.y });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && zoom > 1) {
+      setPosition({
+        x: e.touches[0].clientX - dragStart.x,
+        y: e.touches[0].clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (zoom > 1) {
+      setIsDragging(false);
+    }
+    if (!touchStartRef.current) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const dx = touchEndX - touchStartRef.current.x;
+    const dy = touchEndY - touchStartRef.current.y;
+    const dt = Date.now() - touchStartRef.current.time;
+
+    // Detect tap (very small movement, quick duration)
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && dt < 300) {
+      setShowControls((prev) => !prev);
+      touchStartRef.current = null;
+      return;
+    }
+
+    // Detect swipe (horizontal distance > vertical, fast enough, not zoomed in)
+    if (zoom === 1 && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40 && dt < 500) {
+      if (dx > 0) {
+        // Swipe right -> previous
+        setZoom(1);
+        setPosition({ x: 0, y: 0 });
+        setSelectedMediaIndex((prev) =>
+          prev !== null
+            ? (prev - 1 + mediaList.length) % mediaList.length
+            : null
+        );
+      } else {
+        // Swipe left -> next
+        setZoom(1);
+        setPosition({ x: 0, y: 0 });
+        setSelectedMediaIndex((prev) =>
+          prev !== null ? (prev + 1) % mediaList.length : null
+        );
+      }
+    }
+
+    touchStartRef.current = null;
   };
 
   const handleDirections = () => {
@@ -1160,7 +1227,11 @@ export default function MapDetails() {
             <DialogTitle>Photo gallery</DialogTitle>
           </DialogHeader>
 
-          <div className="absolute top-0 inset-x-0 z-50 flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-b from-black/80 to-transparent">
+          <div
+            className={`absolute top-0 inset-x-0 z-50 flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 ${
+              showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
             <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white backdrop-blur">
               {selectedMediaIndex !== null ? selectedMediaIndex + 1 : 0} /{" "}
               {mediaList.length}
@@ -1241,6 +1312,9 @@ export default function MapDetails() {
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseLeave}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   style={{
                     cursor:
                       zoom > 1
@@ -1277,7 +1351,11 @@ export default function MapDetails() {
                 </div>
 
                 {mediaList.length > 1 && (
-                  <>
+                  <div
+                    className={`transition-opacity duration-300 ${
+                      showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+                    }`}
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -1307,14 +1385,18 @@ export default function MapDetails() {
                     >
                       <ChevronRight size={36} strokeWidth={1.5} />
                     </button>
-                  </>
+                  </div>
                 )}
               </>
             )}
           </div>
 
           {mediaList.length > 1 && (
-            <div className="flex shrink-0 justify-center gap-2 overflow-x-auto px-4 pb-5">
+            <div
+              className={`flex shrink-0 justify-center gap-2 overflow-x-auto px-4 pb-5 transition-transform duration-300 ${
+                showControls ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
+              }`}
+            >
               {mediaList.map((media: string, index: number) => (
                 <button
                   key={index}
