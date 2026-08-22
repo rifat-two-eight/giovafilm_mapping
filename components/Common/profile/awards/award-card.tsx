@@ -27,7 +27,7 @@ export function AwardCard({
 }: AwardCardProps) {
   return (
     <Card className="border rounded-xl shadow-sm hover:shadow-md transition py-0 overflow-hidden flex flex-col justify-between">
-      <CardContent className="relative flex justify-center items-center py-10 bg-gray-100 h-64 overflow-hidden p-0">
+      <CardContent className="relative flex justify-center items-center py-10 bg-gray-100 h-40 md:h-64 overflow-hidden p-0">
         {coverPhoto ? (
           <>
             <img
@@ -43,8 +43,8 @@ export function AwardCard({
           </>
         ) : (
           /* Circle Icon Container */
-          <div className="w-32 h-32 rounded-full bg-amber-100 flex items-center justify-center relative">
-            <Icon className="text-amber-500 w-8 h-8" />
+          <div className="w-20 h-20 md:w-32 md:h-32 rounded-full bg-amber-100 flex items-center justify-center relative">
+            <Icon className="text-amber-500 w-6 h-6 md:w-8 md:h-8" />
             <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1 border-2 border-white">
               <Lock className="text-white w-3 h-3" />
             </div>
@@ -52,10 +52,10 @@ export function AwardCard({
         )}
       </CardContent>
 
-      <CardFooter className="flex flex-col items-start gap-2.5 p-5 font-public-sans flex-1">
+      <CardFooter className="flex flex-col items-start gap-1.5 md:gap-2.5 p-3 md:p-5 font-public-sans flex-1">
         <div className="w-full">
           {/* Title */}
-          <h3 className="font-bold text-base text-gray-900 leading-tight">{title}</h3>
+          <h3 className="font-bold text-sm md:text-base text-gray-900 leading-tight">{title}</h3>
           {/* Description */}
           {description && (
             <p className="text-xs text-gray-500 mt-1 line-clamp-2 min-h-[32px]">{description}</p>

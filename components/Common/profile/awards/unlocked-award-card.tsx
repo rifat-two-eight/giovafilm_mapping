@@ -18,9 +18,9 @@ export function UnlockedAwardCard({
   children,
 }: UnlockedAwardProps) {
   return (
-    <Card className="w-full! overflow-hidden rounded-xl border-2 border-amber-400 w-[320px] shadow-md py-0 gap-1.5 flex flex-col justify-between">
+    <Card className="w-full overflow-hidden rounded-xl border-2 border-amber-400 shadow-md py-0 gap-1.5 flex flex-col justify-between">
       {/* Image */}
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-40 md:h-64 overflow-hidden">
         <img
           src={typeof image === "string" ? image : image?.src}
           alt={title}
@@ -34,9 +34,9 @@ export function UnlockedAwardCard({
       </div>
 
       {/* Footer */}
-      <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+      <div className="p-3 md:p-4 space-y-1.5 md:space-y-2 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-semibold text-base text-gray-900 leading-tight">{title}</h3>
+          <h3 className="font-semibold text-sm md:text-base text-gray-900 leading-tight">{title}</h3>
           {description && (
             <p className="text-xs text-gray-500 mt-1 line-clamp-2 min-h-[32px]">{description}</p>
           )}

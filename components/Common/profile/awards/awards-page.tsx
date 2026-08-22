@@ -60,8 +60,9 @@ export default function AwardsPage() {
   const meta = awardsRes?.meta || { total: 0, page: 1, limit: 10 };
   const totalPages = Math.max(1, Math.ceil((meta.total || 0) / limit));
 
-  const lockedAwards = awardsData.filter((a: any) => !a.isUnlocked);
-  const unlockedAwards = awardsData.filter((a: any) => a.isUnlocked);
+  const sortedAwards = [...awardsData].sort((a: any, b: any) => (a.target || 0) - (b.target || 0));
+  const lockedAwards = sortedAwards.filter((a: any) => !a.isUnlocked);
+  const unlockedAwards = sortedAwards.filter((a: any) => a.isUnlocked);
 
   const hasRedeemed = !!user?.redeemedFreeMap;
 
@@ -81,10 +82,10 @@ export default function AwardsPage() {
         {/* Page Title */}
         <h1 className="text-2xl font-bold mb-5 uppercase tracking-wide">Awards & Achievements</h1>
 
-        <div className="bg-amber-500/10 p-8 rounded-3xl flex flex-col md:flex-row gap-8 items-center justify-between border border-amber-500/15 mb-10 shadow-sm">
+        <div className="bg-amber-500/10 p-5 md:p-8 rounded-3xl flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-between border border-amber-500/15 mb-10 shadow-sm">
           {/* LEFT: Progress Circle */}
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            <svg className="absolute w-full h-full -rotate-90">
+          <div className="relative w-28 h-28 md:w-40 md:h-40 flex items-center justify-center shrink-0">
+            <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 160 160">
               <circle
                 cx="80"
                 cy="80"
@@ -129,16 +130,16 @@ export default function AwardsPage() {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="flex-1 md:ml-10 text-center md:text-left">
+          <div className="flex-1 md:ml-10 text-center md:text-left w-full">
             {/* Level badge */}
-            <span className="inline-block bg-amber-500/20 text-amber-800 px-4 py-1.5 rounded-full text-xs font-bold mb-3 uppercase tracking-wider">
+            <span className="inline-block bg-amber-500/20 text-amber-800 px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold mb-2 md:mb-3 uppercase tracking-wider">
               {isProfileLoading
                 ? "Loading..."
                 : `🏆 Level ${currentLevel} Explorer`}
             </span>
 
             {/* Name */}
-            <h2 className="text-2xl font-bold text-gray-900 capitalize">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 capitalize">
               {isProfileLoading ? (
                 <span className="inline-block h-7 w-40 bg-gray-200 animate-pulse rounded" />
               ) : (
@@ -156,15 +157,15 @@ export default function AwardsPage() {
             </p>
 
             {/* Cards */}
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
-              <div className="bg-white/80 border border-gray-100 px-6 py-4 rounded-2xl w-44 shadow-sm">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">NEXT LEVEL</p>
-                <p className="font-extrabold text-gray-800 mt-1 text-sm">Level {currentLevel + 1}</p>
+            <div className="flex justify-center md:justify-start gap-2 md:gap-4 mt-4 md:mt-6 w-full">
+              <div className="bg-white/80 border border-gray-100 px-3 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
+                <p className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">NEXT LEVEL</p>
+                <p className="font-extrabold text-gray-800 mt-1 text-xs md:text-sm">Level {currentLevel + 1}</p>
               </div>
 
-              <div className="bg-white/80 border border-gray-100 px-6 py-4 rounded-2xl w-44 shadow-sm">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">LEVEL PROGRESS</p>
-                <p className="font-extrabold text-amber-600 mt-1 text-sm">{Math.round(percent)}% Complete</p>
+              <div className="bg-white/80 border border-gray-100 px-3 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
+                <p className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">LEVEL PROGRESS</p>
+                <p className="font-extrabold text-amber-600 mt-1 text-xs md:text-sm">{Math.round(percent)}% Complete</p>
               </div>
             </div>
           </div>
@@ -226,7 +227,7 @@ export default function AwardsPage() {
                   {activeFilter === "all" && lockedAwards.length > 0 && (
                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Locked / In Progress</h3>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
                     {lockedAwards.map((award: any) => {
                       const percent = Math.min(
                         Math.round((award.progress / award.target) * 100),
@@ -258,7 +259,7 @@ export default function AwardsPage() {
                   {activeFilter === "all" && (
                     <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Unlocked Awards</h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
                     {unlockedAwards.map((award: any) => {
                       const rewardImage = award.config?.coverPhoto
                         ? getImageUrl(award.config.coverPhoto)
