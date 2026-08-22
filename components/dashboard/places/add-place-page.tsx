@@ -25,6 +25,7 @@ import {
   useUpdatePlaceMutation,
   useExtractCoordinatesMutation,
   useLazyGetPlaceDetailsQuery,
+  useDeletePlaceMutation,
 } from "@/redux/features/place/placeApi";
 import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicApi";
 import {
@@ -37,6 +38,7 @@ import {
 import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
+import { appAlert } from "@/lib/app-alert";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
 import {
   asId,
@@ -166,6 +168,7 @@ export default function AddPlacePage() {
     limit: 1000,
     map: selectedMapId || ""
   });
+  const [deletePlace] = useDeletePlaceMutation();
 
   const rawMaps = mapsRes?.data || [];
   const maps =
@@ -365,21 +368,23 @@ export default function AddPlacePage() {
   };
 
   const handleSelectPlace = async (place: any) => {
-    setDraggedPositions({}); // Clear any previous unsaved dragged position
     const placeId = place._id || place.id;
+    setDraggedPositions((prev) => (prev[placeId] ? { [placeId]: prev[placeId] } : {}));
     const serverPosition = {
       lat: place?.location?.coordinates?.[1] || place?.latitude || 0,
       lng: place?.location?.coordinates?.[0] || place?.longitude || 0,
     };
-    const position =
-      (placeId && draggedPositions[placeId]) || serverPosition;
 
     // Sync marker from discovery list first (slim payload — no description)
-    setSelectedPlace({
-      ...place,
-      type: normalizePlaceType(place),
-      position,
-      isNew: false,
+    setSelectedPlace((prev: any) => {
+      const isSamePlace = (prev?._id || prev?.id) === placeId;
+      const position = (isSamePlace && prev?.position) ? prev.position : serverPosition;
+      return {
+        ...place,
+        type: normalizePlaceType(place),
+        position,
+        isNew: false,
+      };
     });
 
     const catId =
@@ -407,17 +412,20 @@ export default function AddPlacePage() {
         description: full.description || "",
       });
       const fullPosition = {
-        lat: full?.location?.coordinates?.[1] ?? position.lat,
-        lng: full?.location?.coordinates?.[0] ?? position.lng,
+        lat: full?.location?.coordinates?.[1] ?? serverPosition.lat,
+        lng: full?.location?.coordinates?.[0] ?? serverPosition.lng,
       };
-      setSelectedPlace((prev: any) => ({
-        ...full,
-        type: normalizePlaceType(full),
-        position:
-          (placeId && draggedPositions[placeId]) || fullPosition,
-        address: prev?.address || full.address,
-        isNew: false,
-      }));
+      setSelectedPlace((prev: any) => {
+        const isSamePlace = (prev?._id || prev?.id) === placeId;
+        const position = (isSamePlace && prev?.position) ? prev.position : fullPosition;
+        return {
+          ...full,
+          type: normalizePlaceType(full),
+          position,
+          address: prev?.address || full.address,
+          isNew: false,
+        };
+      });
     } catch {
       // Keep slim discovery fields if detail fetch fails
     }
@@ -517,6 +525,29 @@ export default function AddPlacePage() {
       toast.error(error?.data?.message || "Failed to save place");
       console.error("Failed to save place:", error);
     }
+  };
+
+  const handleDeletePlace = async () => {
+    if (!selectedPlace?._id) return;
+    appAlert.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deletePlace(selectedPlace._id).unwrap();
+          toast.success("Place deleted successfully");
+          setDraggedPositions({});
+          setSelectedPlace(null);
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Failed to delete place");
+        }
+      }
+    });
   };
 
   // Helper: find a category object by its _id
@@ -982,6 +1013,7 @@ export default function AddPlacePage() {
                     }
                     setSelectedPlace(null);
                   }}
+                  onDelete={handleDeletePlace}
                   categories={categories}
                   onSave={handleSavePlace}
                   isSaving={isCreating || isUpdating}

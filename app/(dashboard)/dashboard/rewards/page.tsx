@@ -118,7 +118,7 @@ export default function RewardsAdminPage() {
     e.preventDefault();
 
     try {
-      const rewardData = {
+      const rewardData: any = {
         type,
         title,
         description,
@@ -128,6 +128,10 @@ export default function RewardsAdminPage() {
           ? (Number(discountPercentage) || 0)
           : undefined,
       };
+
+      if (!isCreateMode && selectedReward) {
+        rewardData.fileUrl = selectedReward.fileUrl || "";
+      }
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(rewardData));
@@ -369,7 +373,9 @@ export default function RewardsAdminPage() {
                   onChange={(e) => setMapId(e.target.value)}
                   className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
-                  <option value="" className="text-gray-900 bg-white">No map attached</option>
+                  <option value="" className="text-gray-900 bg-white">
+                    {type === "Free Map" ? "User chooses map" : "No map attached"}
+                  </option>
                   {maps.map((map: any) => (
                     <option key={map._id} value={map._id} className="text-gray-900 bg-white">
                       {map.name || map.title}
@@ -415,10 +421,25 @@ export default function RewardsAdminPage() {
                 <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Downloadable PDF</Label>
                 <div
                   onClick={() => pdfInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50 h-[102px]"
+                  className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50 h-[102px]"
                 >
+                  {(pdfFile || selectedReward?.fileUrl) && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPdfFile(null);
+                        if (pdfInputRef.current) pdfInputRef.current.value = "";
+                        if (selectedReward) setSelectedReward({ ...selectedReward, fileUrl: "" });
+                      }}
+                      className="absolute top-2 right-2 p-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition-colors"
+                      title="Remove PDF"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                   {pdfFile || selectedReward?.fileUrl ? (
-                    <div className="text-center">
+                    <div className="text-center mt-2">
                       <FileText size={20} className="text-green-500 mx-auto" />
                       <span className="text-[10px] font-bold text-gray-600 block truncate max-w-[120px] mt-1">
                         {pdfFile ? pdfFile.name : selectedReward.fileUrl.split("/").pop()}

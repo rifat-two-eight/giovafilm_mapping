@@ -33,6 +33,7 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
@@ -45,6 +46,7 @@ interface PlaceFormContentProps {
   isSaving: boolean;
   isFetchingAddress?: boolean;
   onClose: () => void;
+  onDelete?: () => void;
   initialData?: {
     name: string;
     description: string;
@@ -86,6 +88,7 @@ export const PlaceFormContent = ({
   isSaving,
   isFetchingAddress,
   onClose,
+  onDelete,
   initialData,
 }: PlaceFormContentProps) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -1106,14 +1109,27 @@ export const PlaceFormContent = ({
 
       {/* Footer Actions */}
       <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between sticky bottom-0">
-        <Button
-          variant="destructive"
-          type="button"
-          onClick={onClose}
-          className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
-        >
-          Cancel
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="destructive"
+            type="button"
+            onClick={onClose}
+            className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
+          >
+            Cancel
+          </Button>
+          {!initialData?.isNew && onDelete && (
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onDelete}
+              className="px-5 h-10 border-red-200 text-red-500 hover:bg-red-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
+            >
+              Delete
+            </Button>
+          )}
+        </div>
+
         <div className="flex gap-2">
           {currentTabIdx > 0 && (
             <Button
@@ -1133,7 +1149,8 @@ export const PlaceFormContent = ({
               disabled={isSaving}
               className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5"
             >
-              {initialData?.isNew === false ? "Save Changes" : "Save & Publish"}
+              {isSaving && <Loader2 size={14} className="animate-spin" />}
+              {isSaving ? "Saving..." : (initialData?.isNew === false ? "Save Changes" : "Save & Publish")}
             </Button>
           )}
 

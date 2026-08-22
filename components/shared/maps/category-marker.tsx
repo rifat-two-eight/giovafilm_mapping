@@ -22,7 +22,7 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
   const size = isMobile ? 28 : 34;
-  const iconSize = isMobile ? 16 : 20;
+  const iconSize = isMobile ? 20 : 26;
 
   return (
     <div

@@ -4,6 +4,7 @@ import { PlaceFormContent } from "./PlaceFormContent";
 interface PlaceInfoWindowProps {
   position: { lat: number; lng: number };
   onClose: () => void;
+  onDelete?: () => void;
   categories: any[];
   onSave: (data: any) => Promise<void>;
   isSaving: boolean;
@@ -37,6 +38,7 @@ interface PlaceInfoWindowProps {
 export const PlaceInfoWindow = ({
   position,
   onClose,
+  onDelete,
   categories,
   onSave,
   isSaving,
@@ -54,6 +56,7 @@ export const PlaceInfoWindow = ({
           isSaving={isSaving}
           isFetchingAddress={isFetchingAddress}
           onClose={onClose}
+          onDelete={onDelete}
           onSave={onSave}
           initialData={initialData}
         />
