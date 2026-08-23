@@ -8,13 +8,18 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useAppSelector } from "@/redux/hook";
 import { MapLocation } from "@/lib/types/place/map";
 import { Suspense } from "react";
 
 function FeaturedMapsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redeemFreeMap = searchParams.get("redeemFreeMap") === "1";
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
+  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const hasRedeemed = !!userProfile?.redeemedFreeMap;
+  const redeemFreeMap = searchParams.get("redeemFreeMap") === "1" && !hasRedeemed;
   const mapHref = (mapId: string) =>
     redeemFreeMap ? `/catalog/${mapId}?redeemFreeMap=1` : `/catalog/${mapId}`;
 

@@ -604,25 +604,27 @@ export default function MapPage() {
     return () => clearTimeout(timer);
   }, [pendingFocus, focusReady, isPlacesSettledForMap]);
 
-  const displayPlaces = fetchedPlaces?.filter((place: any) => {
-    if (!belongsToSelectedMap(place)) return false;
+  const displayPlaces = (selectedCountry && isPlacesSettledForMap)
+    ? fetchedPlaces?.filter((place: any) => {
+        if (!belongsToSelectedMap(place)) return false;
 
-    const categoryId = getCategoryId(place);
-    if (!categoryId) return true;
+        const categoryId = getCategoryId(place);
+        if (!categoryId) return true;
 
-    // Guest: only business-type locations OR inherently business categories
-    if (!isLoggedIn && isUserResolved) {
-      if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
-        return false;
-      }
-    }
+        // Guest: only business-type locations OR inherently business categories
+        if (!isLoggedIn && isUserResolved) {
+          if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
+            return false;
+          }
+        }
 
-    return enabledCategories[categoryId] !== false;
-  });
+        return enabledCategories[categoryId] !== false;
+      })
+    : [];
 
   // Guest sidebar: same visibility rules as map markers
-  const sidebarPlaces =
-    !isLoggedIn && isUserResolved
+  const sidebarPlaces = (selectedCountry && isPlacesSettledForMap)
+    ? (!isLoggedIn && isUserResolved
       ? fetchedPlaces.filter((place: any) => {
         if (!belongsToSelectedMap(place)) return false;
         const categoryId = getCategoryId(place);
@@ -631,7 +633,8 @@ export default function MapPage() {
           inherentlyBusinessCatIds.has(categoryId)
         );
       })
-      : fetchedPlaces.filter(belongsToSelectedMap);
+      : fetchedPlaces.filter(belongsToSelectedMap))
+    : [];
 
   if (!hasMounted) return null;
 

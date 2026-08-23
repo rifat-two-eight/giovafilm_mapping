@@ -213,10 +213,12 @@ export default function AddPlacePage() {
   };
 
   // Map shows ALL places by default — only manually disabled ones are hidden
-  const displayPlaces = fetchedPlaces.filter((place: any) => {
-    const pCatId = typeof place.category === "object" ? place.category?._id : place.category;
-    return !disabledPlaces.has(place._id) && (!pCatId || !disabledCategories.has(pCatId));
-  });
+  const displayPlaces = selectedMapId
+    ? fetchedPlaces.filter((place: any) => {
+        const pCatId = typeof place.category === "object" ? place.category?._id : place.category;
+        return !disabledPlaces.has(place._id) && (!pCatId || !disabledCategories.has(pCatId));
+      })
+    : [];
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -861,9 +863,12 @@ export default function AddPlacePage() {
               {/* ── Saved markers from server ── */}
               {displayPlaces.map((place: any) => {
                 const placeId = place._id || place.id;
+                const coords =
+                  place?.location?.mapLocation?.coordinates ||
+                  place?.location?.coordinates;
                 const serverPosition = {
-                  lat: place?.location?.coordinates?.[1] || place?.latitude,
-                  lng: place?.location?.coordinates?.[0] || place?.longitude,
+                  lat: coords?.[1] || place?.latitude,
+                  lng: coords?.[0] || place?.longitude,
                 };
                 const position = (placeId && draggedPositions[placeId]) || serverPosition;
 
@@ -893,41 +898,66 @@ export default function AddPlacePage() {
                       const newLng = e.latLng.lng();
                       const updatedPosition = { lat: newLat, lng: newLng };
 
+                      // Save locally for UI responsiveness
                       setDraggedPositions((prev) => ({
                         ...prev,
                         [placeId]: updatedPosition,
                       }));
-                      setSelectedPlace((prev: any) => ({
-                        ...(prev?._id === placeId ? prev : place),
-                        position: updatedPosition,
-                        isNew: false,
-                      }));
-                      updateAddressFromCoords(newLat, newLng);
-                      toast.info("Location moved. Click Save to save changes.");
+
+                      const toastId = toast.loading("Saving location...");
 
                       void (async () => {
                         try {
-                          const res = await fetchPlaceDetails(String(placeId)).unwrap();
-                          const full = res?.data || res;
-                          if (!full) return;
-                          const catId =
-                            typeof full.category === "object"
-                              ? full.category?._id
-                              : full.category;
-                          setSelectedCategoryId(catId || null);
-                          setFormData({
-                            name: full.name || "",
-                            description: full.description || "",
+                          let address = "";
+                          try {
+                            const response = await fetch(
+                              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLat},${newLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`
+                            );
+                            const geocodeData = await response.json();
+                            if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                              address = geocodeData.results[0].formatted_address;
+                            }
+                          } catch (geocodeErr) {
+                            console.error("Geocoding failed during drag auto-save", geocodeErr);
+                          }
+
+                          const payload: any = {
+                            location: {
+                              type: "Point",
+                              coordinates: [newLng, newLat]
+                            }
+                          };
+                          if (address) {
+                            payload.address = address;
+                          }
+
+                          await updatePlace({
+                            id: placeId,
+                            data: payload
+                          }).unwrap();
+
+                          toast.success("Location updated successfully!", { id: toastId });
+
+                          // Only update selectedPlace if it was already open
+                          setSelectedPlace((prev: any) => {
+                            if (prev && prev._id === placeId) {
+                              return {
+                                ...prev,
+                                position: updatedPosition,
+                                ...(address && { address })
+                              };
+                            }
+                            return prev;
                           });
-                          setSelectedPlace((prev: any) => ({
-                            ...full,
-                            type: normalizePlaceType(full),
-                            position: prev?.position || updatedPosition,
-                            address: prev?.address || full.address,
-                            isNew: false,
-                          }));
-                        } catch (err) {
-                          console.error("Failed to load details on drag", err);
+
+                          setDraggedPositions(prev => {
+                            const next = { ...prev };
+                            delete next[placeId];
+                            return next;
+                          });
+                        } catch (err: any) {
+                          toast.error(err?.data?.message || "Failed to auto-save location", { id: toastId });
+                          console.error("Auto-save drag failed", err);
                         }
                       })();
                     }}

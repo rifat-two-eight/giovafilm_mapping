@@ -127,7 +127,11 @@ export default function FeatureMapDetailPage() {
     }
 
     if (redeemFreeIntent) {
-      toast.error("Unlock the Free Map award first, then claim a map.");
+      if (userProfile?.redeemedFreeMap) {
+        toast.error("You have already redeemed your free map.");
+      } else {
+        toast.error("Unlock the Free Map award first, then claim a map.");
+      }
       return;
     }
 
