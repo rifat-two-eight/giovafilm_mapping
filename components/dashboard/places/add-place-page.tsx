@@ -164,10 +164,13 @@ export default function AddPlacePage() {
   const { data: user } = useGetProfileQuery({});
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const { data: categoriesRes } = useGetCategoriesQuery({ limit: 100 });
-  const { data: placesRes } = useGetPublicPlacesBusinessQuery({
-    limit: 1000,
-    map: selectedMapId || ""
-  });
+  const { data: placesRes } = useGetPublicPlacesBusinessQuery(
+    {
+      limit: 1000,
+      map: selectedMapId || ""
+    },
+    { skip: !selectedMapId }
+  );
   const [deletePlace] = useDeletePlaceMutation();
 
   const rawMaps = mapsRes?.data || [];
@@ -233,11 +236,15 @@ export default function AddPlacePage() {
   const [draggedPositions, setDraggedPositions] = useState<
     Record<string, { lat: number; lng: number }>
   >({});
+  const [animatingPins, setAnimatingPins] = useState<
+    Record<string, "bounce" | "shake" | null>
+  >({});
 
   const [formData, setFormData] = useState({ name: "", description: "" });
   const [draggableMarkerId, setDraggableMarkerId] = useState<string | null>(null);
   const dragTimeoutRef = useRef<any>(null);
   const dragStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  const wasDraggingRef = useRef(false);
 
   const startDragTimer = (markerId: string, event: React.PointerEvent) => {
     dragStartPosRef.current = { x: event.clientX, y: event.clientY };
@@ -246,6 +253,7 @@ export default function AddPlacePage() {
       setDraggableMarkerId(markerId);
       toast.info("Marker drag enabled. Move it now!");
       dragStartPosRef.current = null;
+      wasDraggingRef.current = true; // Block the immediate pointerup click
     }, 2500); // 2.5 seconds press & hold
   };
 
@@ -890,10 +898,15 @@ export default function AddPlacePage() {
                     draggable={isDraggable}
                     onDragStart={() => {
                       clearDragTimer();
+                      wasDraggingRef.current = true;
                     }}
                     onDragEnd={(e: any) => {
                       setDraggableMarkerId(null);
-                      if (!e.latLng || !placeId) return;
+                      if (!e.latLng || !placeId) {
+                        wasDraggingRef.current = false;
+                        return;
+                      }
+
                       const newLat = e.latLng.lat();
                       const newLng = e.latLng.lng();
                       const updatedPosition = { lat: newLat, lng: newLng };
@@ -904,9 +917,38 @@ export default function AddPlacePage() {
                         [placeId]: updatedPosition,
                       }));
 
-                      const toastId = toast.loading("Saving location...");
+                      appAlert.fire({
+                        title: "Are you sure?",
+                        text: "Are you sure to update location?",
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, update it!",
+                        cancelButtonText: "No",
+                      }).then(async (result) => {
+                        if (!result.isConfirmed) {
+                          // Snap back to original position
+                          setDraggedPositions((prev) => {
+                            const next = { ...prev };
+                            delete next[placeId];
+                            return next;
+                          });
+                          // Trigger shake animation
+                          setAnimatingPins((prev) => ({ ...prev, [placeId]: "shake" }));
+                          setTimeout(() => {
+                            setAnimatingPins((prev) => {
+                              const next = { ...prev };
+                              delete next[placeId];
+                              return next;
+                            });
+                          }, 1000);
+                          setTimeout(() => {
+                            wasDraggingRef.current = false;
+                          }, 200);
+                          return;
+                        }
 
-                      void (async () => {
+                        const toastId = toast.loading("Saving location...");
+
                         try {
                           let address = "";
                           try {
@@ -938,6 +980,16 @@ export default function AddPlacePage() {
 
                           toast.success("Location updated successfully!", { id: toastId });
 
+                          // Trigger bounce animation
+                          setAnimatingPins((prev) => ({ ...prev, [placeId]: "bounce" }));
+                          setTimeout(() => {
+                            setAnimatingPins((prev) => {
+                              const next = { ...prev };
+                              delete next[placeId];
+                              return next;
+                            });
+                          }, 1500);
+
                           // Only update selectedPlace if it was already open
                           setSelectedPlace((prev: any) => {
                             if (prev && prev._id === placeId) {
@@ -955,13 +1007,28 @@ export default function AddPlacePage() {
                             delete next[placeId];
                             return next;
                           });
+                          setTimeout(() => {
+                            wasDraggingRef.current = false;
+                          }, 200);
                         } catch (err: any) {
                           toast.error(err?.data?.message || "Failed to auto-save location", { id: toastId });
                           console.error("Auto-save drag failed", err);
+                          setTimeout(() => {
+                            wasDraggingRef.current = false;
+                          }, 200);
                         }
-                      })();
+                      });
                     }}
-                    onClick={() => handleSelectPlace(place)}
+                    onClick={() => {
+                      if (wasDraggingRef.current) {
+                        wasDraggingRef.current = false;
+                        return;
+                      }
+                      if (draggableMarkerId === place._id) {
+                        return;
+                      }
+                      handleSelectPlace(place);
+                    }}
                   >
                     <div
                       onPointerDown={(e) => {
@@ -970,7 +1037,11 @@ export default function AddPlacePage() {
                       onPointerUp={clearDragTimer}
                       onPointerMove={handlePointerMove}
                       onPointerCancel={clearDragTimer}
-                      className={isDraggable ? "animate-bounce cursor-grab" : ""}
+                      className={`
+                        ${isDraggable ? "animate-bounce cursor-grab" : ""}
+                        ${animatingPins[placeId] === "bounce" ? "pin-anim-bounce" : ""}
+                        ${animatingPins[placeId] === "shake" ? "pin-anim-shake" : ""}
+                      `}
                     >
                       <CategoryMarker
                         icon={cat?.icon || "📍"}
@@ -1070,6 +1141,24 @@ export default function AddPlacePage() {
         </div>
 
         <AddCategoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes pin-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+          }
+          @keyframes pin-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-16px); }
+          }
+          .pin-anim-shake {
+            animation: pin-shake 0.4s ease-in-out;
+          }
+          .pin-anim-bounce {
+            animation: pin-bounce 0.5s ease-in-out 2;
+          }
+        `}} />
       </div>
     </APIProvider>
   );

@@ -17,9 +17,11 @@ function FeaturedMapsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const accessToken = useAppSelector((state) => state.auth.accessToken);
-  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const { data: userProfile, isLoading: isProfileLoading } = useGetProfileQuery({}, { skip: !accessToken });
   const hasRedeemed = !!userProfile?.redeemedFreeMap;
-  const redeemFreeMap = searchParams.get("redeemFreeMap") === "1" && !hasRedeemed;
+  const redeemFreeMap = accessToken && !isProfileLoading
+    ? (searchParams.get("redeemFreeMap") === "1" && !hasRedeemed)
+    : false;
   const mapHref = (mapId: string) =>
     redeemFreeMap ? `/catalog/${mapId}?redeemFreeMap=1` : `/catalog/${mapId}`;
 

@@ -77,14 +77,14 @@ export default function AwardsPage() {
   const strokeDashoffset = 440 - (440 * percent) / 100;
 
   return (
-    <div className="py-16 bg-white min-h-screen">
+    <div className="py-6 md:py-16 bg-white min-h-screen">
       <div className="max-w-360 mx-auto px-4 md:px-6 font-public-sans">
         {/* Page Title */}
-        <h1 className="text-2xl font-bold mb-5 uppercase tracking-wide">Awards & Achievements</h1>
+        <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-5 uppercase tracking-wide">Awards & Achievements</h1>
 
-        <div className="bg-amber-500/10 p-4 md:p-8 rounded-2xl md:rounded-3xl flex flex-row md:flex-row gap-4 md:gap-8 items-center justify-between border border-amber-500/15 mb-10 shadow-sm">
+        <div className="bg-amber-500/10 p-3 md:p-8 rounded-2xl md:rounded-3xl flex flex-row md:flex-row gap-3 md:gap-8 items-center justify-between border border-amber-500/15 mb-6 md:mb-10 shadow-sm">
           {/* LEFT: Progress Circle */}
-          <div className="relative w-20 h-20 md:w-40 md:h-40 flex items-center justify-center shrink-0">
+          <div className="relative w-16 h-16 md:w-40 md:h-40 flex items-center justify-center shrink-0">
             <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 160 160">
               <circle
                 cx="80"
@@ -118,10 +118,10 @@ export default function AwardsPage() {
                 </>
               ) : (
                 <>
-                  <p className="text-base md:text-3xl font-extrabold text-gray-900 leading-none">
+                  <p className="text-xs sm:text-base md:text-3xl font-extrabold text-gray-900 leading-none">
                     {points.toLocaleString()}
                   </p>
-                  <p className="text-[6px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 leading-none">
+                  <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 leading-none">
                     XP POINTS
                   </p>
                 </>
@@ -130,16 +130,16 @@ export default function AwardsPage() {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="flex-1 md:ml-10 text-left w-full">
+          <div className="flex-1 ml-2 md:ml-10 text-left w-full">
             {/* Level badge */}
-            <span className="inline-block bg-amber-500/20 text-amber-800 px-2.5 py-0.5 md:px-4 md:py-1.5 rounded-full text-[8px] md:text-xs font-bold mb-1 md:mb-3 uppercase tracking-wider">
+            <span className="inline-block bg-amber-500/20 text-amber-800 px-1.5 py-0.5 md:px-4 md:py-1.5 rounded-full text-[6px] md:text-xs font-bold mb-0.5 md:mb-3 uppercase tracking-wider">
               {isProfileLoading
                 ? "Loading..."
                 : `🏆 Level ${currentLevel} Explorer`}
             </span>
 
             {/* Name */}
-            <h2 className="text-base md:text-2xl font-bold text-gray-900 capitalize">
+            <h2 className="text-xs sm:text-base md:text-2xl font-bold text-gray-900 capitalize leading-tight">
               {isProfileLoading ? (
                 <span className="inline-block h-5 w-24 bg-gray-200 animate-pulse rounded" />
               ) : (
@@ -157,15 +157,15 @@ export default function AwardsPage() {
             </p>
 
             {/* Cards */}
-            <div className="flex gap-2 md:gap-4 mt-2 md:mt-6 w-full">
-              <div className="bg-white/80 border border-gray-100 px-2 py-1.5 md:px-6 md:py-4 rounded-lg md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
-                <p className="text-[7px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">NEXT LEVEL</p>
-                <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-sm">Level {currentLevel + 1}</p>
+            <div className="flex gap-1.5 md:gap-4 mt-1.5 md:mt-6 w-full">
+              <div className="bg-white/80 border border-gray-100 px-1.5 py-1 md:px-6 md:py-4 rounded-md md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
+                <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">NEXT LEVEL</p>
+                <p className="font-extrabold text-gray-800 mt-0.5 text-[8px] md:text-sm leading-none">Level {currentLevel + 1}</p>
               </div>
 
-              <div className="bg-white/80 border border-gray-100 px-2 py-1.5 md:px-6 md:py-4 rounded-lg md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
-                <p className="text-[7px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">LEVEL PROGRESS</p>
-                <p className="font-extrabold text-amber-600 mt-0.5 text-[9px] md:text-sm">{Math.round(percent)}%</p>
+              <div className="bg-white/80 border border-gray-100 px-1.5 py-1 md:px-6 md:py-4 rounded-md md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
+                <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">LEVEL PROGRESS</p>
+                <p className="font-extrabold text-amber-600 mt-0.5 text-[8px] md:text-sm leading-none">{Math.round(percent)}%</p>
               </div>
             </div>
           </div>
@@ -243,7 +243,11 @@ export default function AwardsPage() {
                         >
                           {award.type === "Free Map" ? (
                             <div className="pt-2">
-                              {hasRedeemed ? (
+                              {isProfileLoading ? (
+                                <Button className="w-full bg-gray-200 text-gray-400 font-bold cursor-default text-xs uppercase tracking-wider py-5.5 rounded-xl border-none" disabled>
+                                  Loading...
+                                </Button>
+                              ) : hasRedeemed ? (
                                 <Button className="w-full bg-gray-300 text-gray-500 font-bold cursor-default text-xs uppercase tracking-wider py-5.5 rounded-xl border-none" disabled>
                                   Used
                                 </Button>

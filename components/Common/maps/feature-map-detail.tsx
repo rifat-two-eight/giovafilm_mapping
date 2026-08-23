@@ -60,7 +60,7 @@ export default function FeatureMapDetailPage() {
   }, [id]);
 
   const accessToken = useAppSelector(selectAccessToken);
-  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const { data: userProfile, isLoading: isProfileLoading } = useGetProfileQuery({}, { skip: !accessToken });
   const { data: awardsRes } = useGetAwardsQuery(
     { page: 1, limit: 50 },
     { skip: !accessToken },
@@ -75,14 +75,14 @@ export default function FeatureMapDetailPage() {
   const hasAccess = mapData?.isPaid === false || isPurchased;
 
   const canClaimFreeMap = useMemo(() => {
-    if (!accessToken || userProfile?.redeemedFreeMap || !mapData?.isPaid) {
+    if (!accessToken || isProfileLoading || !userProfile || userProfile?.redeemedFreeMap || !mapData?.isPaid) {
       return false;
     }
     const awards = awardsRes?.data || [];
     return awards.some(
       (a: any) => a.type === "Free Map" && a.isUnlocked,
     );
-  }, [accessToken, userProfile?.redeemedFreeMap, mapData?.isPaid, awardsRes?.data]);
+  }, [accessToken, isProfileLoading, userProfile, mapData?.isPaid, awardsRes?.data]);
 
   const handleViewMap = () => {
     if (mapData?.name) {
