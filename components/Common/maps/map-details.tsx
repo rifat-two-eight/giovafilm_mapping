@@ -101,6 +101,8 @@ export default function MapDetails() {
   const {
     data: placeRes,
     isLoading: isPlaceLoading,
+    isFetching: isPlaceFetching,
+    status: placeStatus,
     error: placeError,
   } = useGetPlaceDetailsQuery(id, {
     skip: !id || isBusinessEntity,
@@ -108,6 +110,8 @@ export default function MapDetails() {
   const {
     data: businessRes,
     isLoading: isBusinessLoading,
+    isFetching: isBusinessFetching,
+    status: businessStatus,
     error: businessError,
   } = useGetSingleBusinessQuery(id, {
     skip: !id || !isBusinessEntity,
@@ -117,7 +121,9 @@ export default function MapDetails() {
     trackUsage(isBusinessEntity ? "business" : "place", id);
   }, [id, isBusinessEntity]);
 
-  const isLoading = isBusinessEntity ? isBusinessLoading : isPlaceLoading;
+  const isLoading = isBusinessEntity
+    ? isBusinessLoading || isBusinessFetching || businessStatus === "pending" || businessStatus === "uninitialized"
+    : isPlaceLoading || isPlaceFetching || placeStatus === "pending" || placeStatus === "uninitialized";
   const error = isBusinessEntity ? businessError : placeError;
 
   const rawData = isBusinessEntity ? businessRes?.data : placeRes?.data;

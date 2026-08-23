@@ -21,23 +21,35 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
   const type = normalizePinType(id?.type);
 
   // Fetch based on type
-  const { data: businessRes, isLoading: isBusinessLoading } =
-    useGetSingleBusinessQuery(placeId, {
-      skip: type !== "business",
-    });
+  const {
+    data: businessRes,
+    isLoading: isBusinessLoading,
+    isFetching: isBusinessFetching,
+    status: businessStatus,
+  } = useGetSingleBusinessQuery(placeId, {
+    skip: type !== "business",
+  });
 
-  const { data: placeRes, isLoading: isPlaceLoading, error: placeError } = useGetPlaceDetailsQuery(
-    placeId,
-    {
-      skip: type !== "place",
-    },
-  );
+  const {
+    data: placeRes,
+    isLoading: isPlaceLoading,
+    isFetching: isPlaceFetching,
+    status: placeStatus,
+    error: placeError,
+  } = useGetPlaceDetailsQuery(placeId, {
+    skip: type !== "place",
+  });
+
   useEffect(() => {
     if (!placeId) return;
     trackUsage(type, placeId);
   }, [placeId, type]);
 
-  const isLoading = isBusinessLoading || isPlaceLoading;
+  const isLoading =
+    type === "business"
+      ? isBusinessLoading || isBusinessFetching || businessStatus === "pending" || businessStatus === "uninitialized"
+      : isPlaceLoading || isPlaceFetching || placeStatus === "pending" || placeStatus === "uninitialized";
+
   const location: any =
     type === "business" ? businessRes?.data : placeRes?.data;
 
