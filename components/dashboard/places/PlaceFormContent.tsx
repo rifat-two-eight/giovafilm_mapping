@@ -31,6 +31,8 @@ import {
   Grid,
   ArrowLeft,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   AlertCircle,
   Loader2,
@@ -38,6 +40,7 @@ import {
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { motion } from "motion/react";
 import { asMediaUrls, isPlaceKind, normalizePlaceType } from "./place-payload";
 
 interface PlaceFormContentProps {
@@ -92,6 +95,11 @@ export const PlaceFormContent = ({
   initialData,
 }: PlaceFormContentProps) => {
   const [activeTab, setActiveTab] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuFileInputRef = useRef<HTMLInputElement>(null);
   const typeTouchedRef = useRef(false);
@@ -337,6 +345,46 @@ export const PlaceFormContent = ({
 
   const currentTabIdx = dynamicTabs.findIndex((t) => t.id === activeTab);
 
+  const checkScroll = () => {
+    const container = scrollRef.current;
+    if (container) {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      setShowLeftArrow(scrollLeft > 2);
+      setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 2);
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (container) {
+      container.addEventListener("scroll", checkScroll);
+      checkScroll();
+      window.addEventListener("resize", checkScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", checkScroll);
+      }
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [formData.type]);
+
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+    setTimeout(checkScroll, 300);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const timer = setTimeout(checkScroll, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (!isBusinessOrRestaurant && activeTab === 2) {
       setActiveTab(0);
@@ -346,57 +394,102 @@ export const PlaceFormContent = ({
   return (
     <div className="w-full bg-white flex flex-col font-arial">
       {/* Navigation Header */}
-      <div className="bg-white border-b border-gray-200 px-4 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1 min-w-max">
-          {dynamicTabs.map((tab) => {
-            const TabIcon = tab.icon;
-            const isSelected = activeTab === tab.id;
-            
-            // Validation indicator logic
-            let indicator = null;
-            if (tab.id === 0) {
-              if (hasBasicInfoErrors) {
-                indicator = <AlertCircle size={12} className="text-red-500 animate-pulse flex-shrink-0" />;
-              } else if (isBasicInfoValid) {
-                indicator = <CheckCircle2 size={12} className="text-green-500 flex-shrink-0" />;
+      <div className="relative bg-gray-50/50 border-b border-gray-200/80 px-4 flex items-center h-14">
+        {/* Left Arrow & Fade */}
+        {showLeftArrow && (
+          <div className="absolute left-0 top-0 bottom-0 flex items-center pl-1 z-20 bg-gradient-to-r from-gray-50 via-gray-50/90 to-transparent pr-8">
+            <button
+              type="button"
+              onClick={() => {
+                scrollRef.current?.scrollBy({ left: -150, behavior: "smooth" });
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white border border-gray-200 shadow-md text-gray-600 hover:text-gray-900 transition-all active:scale-95"
+            >
+              <ChevronLeft size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Scroll Container */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center h-full"
+          onScroll={checkScroll}
+        >
+          <div className="flex items-center gap-1 bg-gray-200/50 p-1 rounded-xl min-w-max relative select-none">
+            {dynamicTabs.map((tab) => {
+              const TabIcon = tab.icon;
+              const isSelected = activeTab === tab.id;
+              
+              // Validation indicator logic
+              let indicator = null;
+              if (tab.id === 0) {
+                if (hasBasicInfoErrors) {
+                  indicator = <AlertCircle size={12} className="text-red-500 animate-pulse flex-shrink-0" />;
+                } else if (isBasicInfoValid) {
+                  indicator = <CheckCircle2 size={12} className="text-green-500 flex-shrink-0" />;
+                }
               }
-            }
 
-            return (
-              <button
-                key={tab.label}
-                type="button"
-                onClick={() => {
-                  if (tab.id > 0) {
-                    const newErrors: Record<string, string> = {};
-                    if (!formData.name.trim()) newErrors.name = "Place name is required";
-                    if (!formData.category) newErrors.category = "Category is required";
-                    if (!formData.description.trim()) newErrors.description = "Description is required";
-                    if (!formData.address.trim()) newErrors.address = "Address is required";
-                    if (mediaFiles.length === 0 && existingImages.length === 0) newErrors.media = "At least one media file (image/video) is required";
-                    if (!formData.type) newErrors.type = "Location type is required";
+              return (
+                <button
+                  key={tab.label}
+                  ref={isSelected ? activeTabRef : null}
+                  type="button"
+                  onClick={() => {
+                    if (tab.id > 0) {
+                      const newErrors: Record<string, string> = {};
+                      if (!formData.name.trim()) newErrors.name = "Place name is required";
+                      if (!formData.category) newErrors.category = "Category is required";
+                      if (!formData.description.trim()) newErrors.description = "Description is required";
+                      if (!formData.address.trim()) newErrors.address = "Address is required";
+                      if (mediaFiles.length === 0 && existingImages.length === 0) newErrors.media = "At least one media file (image/video) is required";
+                      if (!formData.type) newErrors.type = "Location type is required";
 
-                    if (Object.keys(newErrors).length > 0) {
-                      setErrors(newErrors);
-                      toast.error("Please fill in all required fields first.");
-                      return;
+                      if (Object.keys(newErrors).length > 0) {
+                        setErrors(newErrors);
+                        toast.error("Please fill in all required fields first.");
+                        return;
+                      }
                     }
-                  }
-                  setActiveTab(tab.id);
-                }}
-                className={`flex items-center gap-2 px-4 py-4 text-xs font-semibold uppercase tracking-wider transition-all relative ${
-                  isSelected
-                    ? "text-blue-600 font-bold border-b-2 border-blue-500"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                <TabIcon size={14} className="flex-shrink-0" />
-                <span>{tab.label}</span>
-                {indicator}
-              </button>
-            );
-          })}
+                    setActiveTab(tab.id);
+                  }}
+                  className={`relative flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg transition-all duration-200 select-none whitespace-nowrap z-10 ${
+                    isSelected
+                      ? "text-blue-600 font-bold"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="activeTabBackground"
+                      className="absolute inset-0 bg-white border border-gray-200/80 shadow-sm rounded-lg -z-10"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <TabIcon size={14} className="flex-shrink-0" />
+                  <span>{tab.label}</span>
+                  {indicator}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Right Arrow & Fade */}
+        {showRightArrow && (
+          <div className="absolute right-0 top-0 bottom-0 flex items-center pr-1 z-20 bg-gradient-to-l from-gray-50 via-gray-50/90 to-transparent pl-8">
+            <button
+              type="button"
+              onClick={() => {
+                scrollRef.current?.scrollBy({ left: 150, behavior: "smooth" });
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white border border-gray-200 shadow-md text-gray-600 hover:text-gray-900 transition-all active:scale-95"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Content Body */}
