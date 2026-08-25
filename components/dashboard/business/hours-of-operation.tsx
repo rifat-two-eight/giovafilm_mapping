@@ -4,6 +4,7 @@ import { Clock } from "lucide-react";
 
 type ScheduleItem = {
   days?: string;
+  day?: string;
   openTime?: string;
   closeTime?: string;
 };
@@ -13,7 +14,7 @@ export default function HoursOfOperation({
 }: {
   schedule?: ScheduleItem[];
 }) {
-  const items = Array.isArray(schedule) ? schedule.filter((item) => item?.days) : [];
+  const items = Array.isArray(schedule) ? schedule.filter((item) => item?.days || item?.day) : [];
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -32,11 +33,11 @@ export default function HoursOfOperation({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {items.map((item, index) => (
             <div
-              key={`${item.days}-${index}`}
+              key={`${item.days || item.day}-${index}`}
               className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-3 text-center"
             >
               <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                {item.days}
+                {item.days || item.day}
               </p>
               <p className="text-sm text-gray-700 font-medium">
                 {item.openTime || "--"}

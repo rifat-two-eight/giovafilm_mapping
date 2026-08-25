@@ -577,7 +577,7 @@ export default function BusinessDetails() {
                       className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
                     >
                       <span className="font-black text-slate-900 text-sm uppercase tracking-wide">
-                        {h.days}
+                        {h.days || h.day}
                       </span>
                       <span className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
                         {h.openTime} - {h.closeTime}

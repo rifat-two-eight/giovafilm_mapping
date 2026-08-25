@@ -153,10 +153,11 @@ export default function MapDetails() {
       map: { name: rawData.location?.country },
       schedules:
         rawData.hours?.schedule
-          ?.map(
-            (s: any) =>
-              `${s.days}: ${s.openTime || ""} - ${s.closeTime || ""}`,
-          )
+          ?.map((s: any) => {
+            const dayName = s.days || s.day;
+            return dayName ? `${dayName}: ${s.openTime || ""} - ${s.closeTime || ""}` : "";
+          })
+          .filter(Boolean)
           .join(", ") || "",
     };
   }, [rawData, isBusinessEntity]);
@@ -196,17 +197,33 @@ export default function MapDetails() {
     typeof v === "string" && v.trim().length > 0;
 
   const formatHours = () => {
-    if (hasText(placeData?.schedules)) return placeData.schedules.trim();
+    if (hasText(placeData?.schedules)) {
+      const trimmed = placeData.schedules.trim();
+      if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-" && !trimmed.includes("?: ? - ?")) {
+        return trimmed;
+      }
+    }
+
     const schedule = placeData?.hours?.schedule;
     if (Array.isArray(schedule) && schedule.length > 0) {
-      return schedule
-        .map((s: any) => {
-          const days = s.days || "Days";
-          const open = s.openTime || "?";
-          const close = s.closeTime || "?";
-          return `${days}: ${open} – ${close}`;
-        })
-        .join(" · ");
+      const validItems = schedule.filter((s: any) => (s.days || s.day) && (s.openTime || s.closeTime));
+      if (validItems.length > 0) {
+        return validItems
+          .map((s: any) => {
+            const days = s.days || s.day;
+            const open = s.openTime;
+            const close = s.closeTime;
+            if (open && close) {
+              return `${days}: ${open} – ${close}`;
+            } else if (open) {
+              return `${days}: ${open}`;
+            } else if (close) {
+              return `${days}: ${close}`;
+            }
+            return `${days}: Closed`;
+          })
+          .join(" · ");
+      }
     }
     return "";
   };
@@ -223,7 +240,7 @@ export default function MapDetails() {
     {
       icon: Clock,
       label: "HOURS",
-      value: schedulesValue || "Hours not listed yet",
+      value: schedulesValue || "Hours not specified",
       empty: !schedulesValue,
     },
     {
@@ -255,7 +272,7 @@ export default function MapDetails() {
     {
       icon: Clock,
       label: "HOURS",
-      value: schedulesValue || "Hours not listed yet",
+      value: schedulesValue || "Hours not specified",
       empty: !schedulesValue,
     },
     {
