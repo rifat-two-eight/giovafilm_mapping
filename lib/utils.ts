@@ -41,7 +41,7 @@ export const isUnusableMediaPath = (path?: string) => {
 
 export const isVideoUrl = (url?: string) => {
   if (!url || typeof url !== "string") return false;
-  const path = url.split("?")[0].toLowerCase();
+  const path = url.split("?")[0].split("#")[0].toLowerCase();
   if (/\.(jpe?g|png|gif|webp|bmp|heic|svg|pdf)$/i.test(path)) return false;
   return /\.(mp4|webm|ogv|mov|mkv|3gp|3gpp|avi|wmv|flv|m4v|mpeg|mpg)$/i.test(
     path,
@@ -70,7 +70,8 @@ function isLocalHostname(hostname: string) {
 }
 
 function getFileOrigin() {
-  const pageHost = typeof window !== "undefined" ? window.location.hostname : "";
+  // Use window.location.host which includes port (e.g. "10.10.26.208:3000")
+  const pageHost = typeof window !== "undefined" ? window.location.host : "";
   const candidates = [
     env.NEXT_PUBLIC_IMAGE_BASEURL,
     env.NEXT_PUBLIC_BASEURL,
@@ -85,12 +86,13 @@ function getFileOrigin() {
       const base = `${url.origin}${path}`;
 
       // Don't use a leftover LAN IP when the site is on a public host
-      if (pageHost && isLocalHostname(url.hostname) && !isLocalHostname(pageHost)) {
+      if (pageHost && isLocalHostname(url.hostname) && !isLocalHostname(url.hostname.split(":")[0])) {
         continue;
       }
 
-      // Same host with no path = Next.js, which does not serve /uploads
-      if (pageHost && url.hostname === pageHost && !path) {
+      // Same host:port with no path = Next.js dev server, which does not serve /uploads
+      // Use url.host (includes port) so backend on :5004 is NOT skipped when page is on :3000
+      if (pageHost && url.host === pageHost && !path) {
         continue;
       }
 

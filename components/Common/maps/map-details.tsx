@@ -552,18 +552,28 @@ export default function MapDetails() {
                         className="pl-0 h-full basis-full cursor-zoom-in"
                         onClick={() => openGallery(index)}
                       >
-                        <div className="relative h-full w-full min-h-[280px] md:min-h-[420px]">
+                        <div className="relative h-full w-full min-h-[280px] md:min-h-[420px] group">
                           {isVideo(media) ? (
-                            <video
-                              src={getImageUrl(media)}
-                              className="object-cover w-full h-full absolute inset-0"
-                              muted
-                              loop
-                              playsInline
-                              preload="metadata"
-                              onMouseOver={(e) => e.currentTarget.play()}
-                              onMouseOut={(e) => e.currentTarget.pause()}
-                            />
+                            <>
+                              <video
+                                src={`${getImageUrl(media)}#t=0.1`}
+                                className="object-cover w-full h-full absolute inset-0"
+                                muted
+                                loop
+                                playsInline
+                                preload="auto"
+                                crossOrigin="anonymous"
+                                onMouseOver={(e) => e.currentTarget.play()}
+                                onMouseOut={(e) => e.currentTarget.pause()}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="bg-black/40 text-white rounded-full p-3 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </>
                           ) : (
                             <SafeImage
                               src={getImageUrl(media)}
@@ -1214,10 +1224,11 @@ export default function MapDetails() {
           {selectedMediaIndex !== null && (
             isVideo(mediaList[selectedMediaIndex]) ? (
               <video
-                src={getImageUrl(mediaList[selectedMediaIndex])}
+                src={`${getImageUrl(mediaList[selectedMediaIndex])}#t=0.1`}
                 className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-20 pointer-events-none select-none"
                 muted
-                preload="metadata"
+                preload="auto"
+                crossOrigin="anonymous"
               />
             ) : (
               <div
@@ -1332,10 +1343,12 @@ export default function MapDetails() {
                 >
                   {isVideo(mediaList[selectedMediaIndex]) ? (
                     <video
-                      src={getImageUrl(mediaList[selectedMediaIndex])}
+                      src={`${getImageUrl(mediaList[selectedMediaIndex])}#t=0.1`}
                       className="max-h-[min(85dvh,900px)] max-w-full object-contain"
                       controls
                       autoPlay
+                      preload="auto"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div
@@ -1418,11 +1431,20 @@ export default function MapDetails() {
                     }`}
                 >
                   {isVideo(media) ? (
-                    <video
-                      src={getImageUrl(media)}
-                      className="h-full w-full object-cover"
-                      muted
-                    />
+                    <div className="relative w-full h-full">
+                      <video
+                        src={`${getImageUrl(media)}#t=0.1`}
+                        className="h-full w-full object-cover"
+                        muted
+                        preload="auto"
+                        crossOrigin="anonymous"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+                        <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
                   ) : (
                     <LightboxImage
                       src={getImageUrl(media)}

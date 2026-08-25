@@ -76,6 +76,14 @@ function omitEmpty(placeData: Record<string, unknown>) {
   );
 }
 
+function isVideoFile(file: File): boolean {
+  if (file.type && file.type.startsWith("video/")) {
+    return true;
+  }
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  return !!ext && ["mp4", "webm", "ogv", "mov", "mkv", "3gp", "3gpp", "avi", "wmv", "flv", "m4v", "mpeg", "mpg"].includes(ext);
+}
+
 export function buildPlaceRequestBody(
   placeData: Record<string, unknown>,
   mediaFiles: File[] = [],
@@ -89,7 +97,7 @@ export function buildPlaceRequestBody(
   const formDataPayload = new FormData();
   formDataPayload.append("data", JSON.stringify(compactData));
   mediaFiles.forEach((file) => {
-    if (file.type && file.type.startsWith("video/")) {
+    if (isVideoFile(file)) {
       formDataPayload.append("media", file);
     } else {
       formDataPayload.append("images", file);

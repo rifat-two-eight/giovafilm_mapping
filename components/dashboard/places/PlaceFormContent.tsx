@@ -711,11 +711,13 @@ export const PlaceFormContent = ({
                       >
                         {isVideo ? (
                           <video
-                            src={getImageUrl(url)}
+                            src={`${getImageUrl(url)}#t=0.1`}
                             className="w-full h-full object-cover"
                             muted
                             controls
                             playsInline
+                            preload="auto"
+                            crossOrigin="anonymous"
                           />
                         ) : (
                           <img
@@ -752,11 +754,13 @@ export const PlaceFormContent = ({
                       >
                         {isVideo ? (
                           <video
-                            src={url}
+                            src={`${url}#t=0.1`}
                             className="w-full h-full object-cover"
                             muted
                             controls
                             playsInline
+                            preload="auto"
+                            crossOrigin="anonymous"
                           />
                         ) : (
                           <img
