@@ -20,8 +20,9 @@ import {
   Utensils,
   Wifi,
   X,
+  Maximize2,
 } from "lucide-react";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
 import {
   Carousel,
@@ -321,7 +322,26 @@ export default function MapDetails() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isCarouselVideoPlaying, setIsCarouselVideoPlaying] = useState(false);
-  const carouselVideoRef = useRef<HTMLVideoElement | null>(null);
+  const activeVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const videoRefCallback = useCallback((el: HTMLVideoElement | null) => {
+    if (el) {
+      activeVideoRef.current = el;
+      el.play().then(() => {
+        setIsCarouselVideoPlaying(true);
+      }).catch((err) => {
+        console.warn("Autoplay blocked by browser policy:", err);
+        setIsCarouselVideoPlaying(false);
+      });
+    } else {
+      if (activeVideoRef.current) {
+        activeVideoRef.current.pause();
+        activeVideoRef.current.currentTime = 0;
+        activeVideoRef.current = null;
+        setIsCarouselVideoPlaying(false);
+      }
+    }
+  }, []);
 
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -344,15 +364,6 @@ export default function MapDetails() {
       lightboxVideoRef.current.pause();
     }
   }, [selectedMediaIndex]);
-
-  // Stop carousel video when slide changes
-  useEffect(() => {
-    setIsCarouselVideoPlaying(false);
-    if (carouselVideoRef.current) {
-      carouselVideoRef.current.pause();
-      carouselVideoRef.current.currentTime = 0;
-    }
-  }, [currentSlide]);
 
   const mediaList = useMemo(() => {
     return getUsableMediaList(placeData?.media);
@@ -572,7 +583,8 @@ export default function MapDetails() {
                           {isVideo(media) ? (
                             <>
                               <video
-                                ref={currentSlide === index ? carouselVideoRef : undefined}
+                                key={`${index}-${currentSlide === index}`}
+                                ref={currentSlide === index ? videoRefCallback : undefined}
                                 src={`${getImageUrl(media)}#t=0.1`}
                                 className="object-cover w-full h-full absolute inset-0"
                                 muted
@@ -580,6 +592,9 @@ export default function MapDetails() {
                                 playsInline
                                 preload="auto"
                                 crossOrigin="anonymous"
+                                autoPlay={currentSlide === index}
+                                onPlay={() => setIsCarouselVideoPlaying(true)}
+                                onPause={() => setIsCarouselVideoPlaying(false)}
                               />
                               {/* Play/Pause overlay — click to play inline, not open lightbox */}
                               {!isCarouselVideoPlaying || currentSlide !== index ? (
@@ -587,9 +602,8 @@ export default function MapDetails() {
                                   className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer z-10"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (carouselVideoRef.current) {
-                                      carouselVideoRef.current.play();
-                                      setIsCarouselVideoPlaying(true);
+                                    if (activeVideoRef.current) {
+                                      activeVideoRef.current.play();
                                     }
                                   }}
                                 >
@@ -605,9 +619,8 @@ export default function MapDetails() {
                                   className="absolute inset-0 flex items-end justify-center pb-6 cursor-pointer z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (carouselVideoRef.current) {
-                                      carouselVideoRef.current.pause();
-                                      setIsCarouselVideoPlaying(false);
+                                    if (activeVideoRef.current) {
+                                      activeVideoRef.current.pause();
                                     }
                                   }}
                                 >
@@ -618,27 +631,7 @@ export default function MapDetails() {
                                   </div>
                                 </div>
                               )}
-                              {/* Fullscreen button — bottom right */}
-                              <button
-                                type="button"
-                                title="Fullscreen"
-                                className="absolute bottom-3 right-3 z-20 bg-black/50 backdrop-blur-sm text-white rounded-full p-2 border border-white/20 hover:bg-black/70 transition-all"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const vid = carouselVideoRef.current;
-                                  if (!vid) return;
-                                  if (vid.requestFullscreen) vid.requestFullscreen();
-                                  else if ((vid as any).webkitRequestFullscreen) (vid as any).webkitRequestFullscreen();
-                                }}
-                              >
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                                </svg>
-                              </button>
-                              <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded-full border border-white/15 pointer-events-none">
-                                <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                Video
-                              </div>
+
                             </>
                           ) : (
                             <SafeImage
@@ -679,16 +672,48 @@ export default function MapDetails() {
               />
 
               {mediaList.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => openGallery(currentSlide)}
-                  className="absolute top-4 right-4 z-20 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur hover:bg-black/70"
-                >
-                  {currentSlide + 1} / {mediaList.length}
-                  <span className="ml-1.5 font-normal text-white/80">
-                    · {isVideo(mediaList[currentSlide]) ? "tap to open" : "tap to enlarge"}
-                  </span>
-                </button>
+                <>
+                  {/* Slide Counter Badge */}
+                  <div className="absolute top-4 right-17 z-20 rounded-full bg-black/55 px-3 py-2 text-xs font-bold text-white backdrop-blur-sm pointer-events-none select-none flex items-center justify-center h-11">
+                    {currentSlide + 1} / {mediaList.length}
+                  </div>
+
+                  {/* Smart Fullscreen Square Icon Button */}
+                  <button
+                    type="button"
+                    title="Fullscreen"
+                    className="absolute top-4 right-4 z-20 w-11 h-11 border-none bg-black/50 hover:bg-black/75 text-white hover:scale-105 active:scale-95 shadow-md flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer backdrop-blur-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const isVid = isVideo(mediaList[currentSlide]);
+                      if (isVid && activeVideoRef.current) {
+                        const vid = activeVideoRef.current;
+                        const onFullscreenChange = () => {
+                          const isFs = document.fullscreenElement === vid || 
+                                       (document as any).webkitFullscreenElement === vid ||
+                                       (document as any).msFullscreenElement === vid;
+                          if (!isFs) {
+                            vid.controls = false;
+                            document.removeEventListener("fullscreenchange", onFullscreenChange);
+                            document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+                          }
+                        };
+
+                        vid.controls = true;
+                        document.addEventListener("fullscreenchange", onFullscreenChange);
+                        document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+
+                        if (vid.requestFullscreen) vid.requestFullscreen();
+                        else if ((vid as any).webkitRequestFullscreen) (vid as any).webkitRequestFullscreen();
+                        else if ((vid as any).msRequestFullscreen) (vid as any).msRequestFullscreen();
+                      } else {
+                        openGallery(currentSlide);
+                      }
+                    }}
+                  >
+                    <Maximize2 size={18} className="shrink-0" />
+                  </button>
+                </>
               )}
 
               {/* Bottom title card (Desktop Only) */}
