@@ -320,6 +320,8 @@ export default function MapDetails() {
   );
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isCarouselVideoPlaying, setIsCarouselVideoPlaying] = useState(false);
+  const carouselVideoRef = useRef<HTMLVideoElement | null>(null);
 
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -328,6 +330,7 @@ export default function MapDetails() {
 
   const [showControls, setShowControls] = useState(true);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const lightboxVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Reset zoom and position when selected media changes
   useEffect(() => {
@@ -336,7 +339,20 @@ export default function MapDetails() {
       setPosition({ x: 0, y: 0 });
       setShowControls(true);
     }
+    // Pause lightbox video when navigating
+    if (lightboxVideoRef.current) {
+      lightboxVideoRef.current.pause();
+    }
   }, [selectedMediaIndex]);
+
+  // Stop carousel video when slide changes
+  useEffect(() => {
+    setIsCarouselVideoPlaying(false);
+    if (carouselVideoRef.current) {
+      carouselVideoRef.current.pause();
+      carouselVideoRef.current.currentTime = 0;
+    }
+  }, [currentSlide]);
 
   const mediaList = useMemo(() => {
     return getUsableMediaList(placeData?.media);
@@ -556,6 +572,7 @@ export default function MapDetails() {
                           {isVideo(media) ? (
                             <>
                               <video
+                                ref={currentSlide === index ? carouselVideoRef : undefined}
                                 src={`${getImageUrl(media)}#t=0.1`}
                                 className="object-cover w-full h-full absolute inset-0"
                                 muted
@@ -563,15 +580,64 @@ export default function MapDetails() {
                                 playsInline
                                 preload="auto"
                                 crossOrigin="anonymous"
-                                onMouseOver={(e) => e.currentTarget.play()}
-                                onMouseOut={(e) => e.currentTarget.pause()}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="bg-black/40 text-white rounded-full p-3 backdrop-blur-sm group-hover:scale-110 transition-transform">
-                                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                  </svg>
+                              {/* Play/Pause overlay — click to play inline, not open lightbox */}
+                              {!isCarouselVideoPlaying || currentSlide !== index ? (
+                                <div
+                                  className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer z-10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (carouselVideoRef.current) {
+                                      carouselVideoRef.current.play();
+                                      setIsCarouselVideoPlaying(true);
+                                    }
+                                  }}
+                                >
+                                  <div className="bg-black/50 backdrop-blur-sm text-white rounded-full p-5 shadow-2xl group-hover:scale-110 transition-transform duration-200 border border-white/20">
+                                    <svg className="w-10 h-10 fill-current ml-1" viewBox="0 0 24 24">
+                                      <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                  </div>
+                                  <span className="mt-3 text-white/80 text-xs font-medium tracking-widest uppercase bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">Click to play</span>
                                 </div>
+                              ) : (
+                                <div
+                                  className="absolute inset-0 flex items-end justify-center pb-6 cursor-pointer z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (carouselVideoRef.current) {
+                                      carouselVideoRef.current.pause();
+                                      setIsCarouselVideoPlaying(false);
+                                    }
+                                  }}
+                                >
+                                  <div className="bg-black/50 backdrop-blur-sm text-white rounded-full p-3 shadow-xl border border-white/20">
+                                    <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              )}
+                              {/* Fullscreen button — bottom right */}
+                              <button
+                                type="button"
+                                title="Fullscreen"
+                                className="absolute bottom-3 right-3 z-20 bg-black/50 backdrop-blur-sm text-white rounded-full p-2 border border-white/20 hover:bg-black/70 transition-all"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const vid = carouselVideoRef.current;
+                                  if (!vid) return;
+                                  if (vid.requestFullscreen) vid.requestFullscreen();
+                                  else if ((vid as any).webkitRequestFullscreen) (vid as any).webkitRequestFullscreen();
+                                }}
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                                </svg>
+                              </button>
+                              <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded-full border border-white/15 pointer-events-none">
+                                <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                Video
                               </div>
                             </>
                           ) : (
@@ -598,8 +664,8 @@ export default function MapDetails() {
 
                 {mediaList.length > 1 && (
                   <>
-                    <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 border-0 bg-black/45 hover:bg-black/65 text-white shadow-lg disabled:opacity-30" />
-                    <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 border-0 bg-black/45 hover:bg-black/65 text-white shadow-lg disabled:opacity-30" />
+                    <CarouselPrevious className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 !border-0 !bg-black/50 hover:!bg-black/75 !text-white hover:!text-white shadow-lg disabled:opacity-30 cursor-pointer" />
+                    <CarouselNext className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 !border-0 !bg-black/50 hover:!bg-black/75 !text-white hover:!text-white shadow-lg disabled:opacity-30 cursor-pointer" />
                   </>
                 )}
               </Carousel>
@@ -609,7 +675,7 @@ export default function MapDetails() {
               <FavouriteButton
                 placeId={id}
                 type={isBusinessEntity ? "Business" : "Place"}
-                Style="absolute top-4 left-4 z-20 w-11 h-11 border-none bg-white/50 backdrop-blur p-3 rounded-lg"
+                Style="absolute top-4 left-4 z-20 w-11 h-11 border-none bg-white hover:bg-white hover:scale-105 active:scale-95 shadow-md p-3 rounded-xl transition-all duration-200 cursor-pointer"
               />
 
               {mediaList.length > 0 && (
@@ -620,7 +686,7 @@ export default function MapDetails() {
                 >
                   {currentSlide + 1} / {mediaList.length}
                   <span className="ml-1.5 font-normal text-white/80">
-                    · tap to enlarge
+                    · {isVideo(mediaList[currentSlide]) ? "tap to open" : "tap to enlarge"}
                   </span>
                 </button>
               )}
@@ -647,7 +713,7 @@ export default function MapDetails() {
                   </div>
                 )}
 
-                <div className="rounded-2xl border border-white/15 bg-black/45 px-4 py-3.5 md:px-5 md:py-4 backdrop-blur-md shadow-lg">
+                <div className="rounded-2xl border border-white/15 bg-black/45 px-4 py-3.5 md:px-5 md:py-4 backdrop-blur-md shadow-lg pointer-events-auto">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     {placeData?.category?.name && (
                       <span className="inline-flex items-center rounded-full bg-yellow-400/95 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-black">
@@ -671,7 +737,7 @@ export default function MapDetails() {
                       )}
                   </div>
 
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-public-sans text-white leading-tight tracking-tight">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-public-sans text-white leading-tight tracking-tight" style={{userSelect:'text'}}>
                     {placeData?.name || "Untitled location"}
                   </h1>
 
@@ -679,7 +745,7 @@ export default function MapDetails() {
                     <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EC5B13]/20">
                       <MapPin size={13} className="text-[#FF8A4C]" />
                     </span>
-                    <span className="leading-snug pt-0.5">
+                    <span className="leading-snug pt-0.5" style={{userSelect:'text'}}>
                       {placeData?.address || "Address not available"}
                     </span>
                   </div>
@@ -708,7 +774,7 @@ export default function MapDetails() {
                 )}
               </div>
 
-              <h1 className="text-2xl font-bold font-public-sans text-gray-900 leading-tight tracking-tight">
+              <h1 className="text-2xl font-bold font-public-sans text-gray-900 leading-tight tracking-tight" style={{userSelect:'text'}}>
                 {placeData?.name || "Untitled location"}
               </h1>
 
@@ -716,7 +782,7 @@ export default function MapDetails() {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EC5B13]/10">
                   <MapPin size={13} className="text-[#FF8A4C]" />
                 </span>
-                <span className="leading-snug pt-0.5">
+                <span className="leading-snug pt-0.5" style={{userSelect:'text'}}>
                   {placeData?.address || "Address not available"}
                 </span>
               </div>
@@ -745,49 +811,52 @@ export default function MapDetails() {
 
             <div className="flex flex-col gap-2 mt-1">
               <div className="grid grid-cols-2 gap-2">
-              <Button
+              <button
+                type="button"
                 onClick={handleViewOnMap}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer"
               >
-                <Map size={16} className="mr-1 sm:mr-2 shrink-0" />
+                <Map size={16} className="shrink-0" />
                 View on Map
-              </Button>
-                <Button
+              </button>
+                <button
+                  type="button"
                   onClick={handleDirections}
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer"
                 >
-                  <Send size={16} className="mr-1 sm:mr-1.5 shrink-0" />
+                  <Send size={16} className="shrink-0" />
                   Directions
-                </Button>
+                </button>
               </div>
 
               {isBusiness && (
                 <>
                   <div>
                     {hasText(placeData?.phone) ? (
-                      <a href={`tel:${placeData.phone}`} className="w-full">
-                        <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold h-11 text-sm rounded-xl transition-all">
-                          <Phone size={16} className="mr-1.5" />
+                      <a href={`tel:${placeData.phone}`} className="w-full block">
+                        <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
+                          <Phone size={16} />
                           Call
-                        </Button>
+                        </button>
                       </a>
                     ) : (
-                      <Button
+                      <button
+                        type="button"
                         disabled
-                        title="This business hasn’t shared a phone number"
-                        className="w-full bg-gray-50 text-gray-500 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed"
+                        title="This business hasn't shared a phone number"
+                        className="w-full inline-flex items-center justify-center gap-2 bg-gray-50 text-gray-400 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed opacity-60"
                       >
-                        <Phone size={16} className="mr-1.5" />
+                        <Phone size={16} />
                         No phone
-                      </Button>
+                      </button>
                     )}
                   </div>
                   {offerId && (
                     <Link href={`/offer/${offerId}`} className="block">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all">
-                        <Ticket size={16} className="mr-1.5" />
+                      <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
+                        <Ticket size={16} />
                         Discounts
-                      </Button>
+                      </button>
                     </Link>
                   )}
                 </>
@@ -1343,12 +1412,15 @@ export default function MapDetails() {
                 >
                   {isVideo(mediaList[selectedMediaIndex]) ? (
                     <video
-                      src={`${getImageUrl(mediaList[selectedMediaIndex])}#t=0.1`}
-                      className="max-h-[min(85dvh,900px)] max-w-full object-contain"
+                      ref={lightboxVideoRef}
+                      key={selectedMediaIndex}
+                      src={getImageUrl(mediaList[selectedMediaIndex])}
+                      className="max-h-[min(85dvh,900px)] max-w-full object-contain rounded-lg shadow-2xl"
                       controls
                       autoPlay
                       preload="auto"
                       crossOrigin="anonymous"
+                      playsInline
                     />
                   ) : (
                     <div
@@ -1439,11 +1511,16 @@ export default function MapDetails() {
                         preload="auto"
                         crossOrigin="anonymous"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                        <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                        <div className="bg-black/60 rounded-full p-1">
+                          <svg className="w-3.5 h-3.5 fill-white" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
                       </div>
+                      {selectedMediaIndex === index && (
+                        <div className="absolute bottom-0 inset-x-0 h-0.5 bg-yellow-400" />
+                      )}
                     </div>
                   ) : (
                     <LightboxImage

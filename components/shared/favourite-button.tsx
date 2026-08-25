@@ -81,9 +81,9 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
   };
 
   return (
-    <Button
-      variant="outline"
-      className={Style || ""}
+    <button
+      type="button"
+      className={`inline-flex items-center justify-center shrink-0 transition-all duration-200 ${Style || ""}`}
       onClick={handleFavourite}
       disabled={isLoading}
     >
@@ -94,9 +94,9 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
             ? "text-red-500 fill-red-500"
             : isLoading
               ? "animate-pulse text-gray-300"
-              : "text-gray-400"
+              : "text-slate-800 hover:text-red-500 hover:fill-red-500/20 transition-all duration-200"
         }
       />
-    </Button>
+    </button>
   );
 }
