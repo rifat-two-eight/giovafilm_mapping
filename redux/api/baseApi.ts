@@ -75,6 +75,7 @@ export const baseApi = createApi({
     "Subscription",
     "Favourite",
     "Award",
+    "Promo",
   ],
   endpoints: () => ({}),
 });
