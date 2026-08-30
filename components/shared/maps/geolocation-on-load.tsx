@@ -4,8 +4,10 @@ import { useEffect } from "react";
 // ─── Geolocation on load ──────────────────────────────────────────────────────
 export function GeolocationOnLoad({
   onLocation,
+  shouldPan = true,
 }: {
   onLocation: (pos: { lat: number; lng: number }) => void;
+  shouldPan?: boolean;
 }) {
   const map = useMap();
 
@@ -14,7 +16,9 @@ export function GeolocationOnLoad({
 
     const handleSuccess = (pos: GeolocationPosition) => {
       const location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      map.panTo(location);
+      if (shouldPan) {
+        map.panTo(location);
+      }
       onLocation(location);
     };
 
@@ -24,7 +28,9 @@ export function GeolocationOnLoad({
         const data = await response.json();
         if (data.latitude && data.longitude) {
           const location = { lat: data.latitude, lng: data.longitude };
-          map.panTo(location);
+          if (shouldPan) {
+            map.panTo(location);
+          }
           onLocation(location);
         }
       } catch (error) {

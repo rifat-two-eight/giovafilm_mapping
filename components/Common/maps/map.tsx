@@ -468,7 +468,7 @@ export default function MapPage() {
 
     if (place?.type === "business" || place?.map == null) {
       const placeCountry = place?.location?.country || place?.country || "";
-      const target = selectedMapObj?.name || selectedCountry;
+      const target = selectedMapObj?.country || selectedMapObj?.name || selectedCountry;
       return placeCountry.toLowerCase() === String(target).toLowerCase();
     }
 
@@ -562,10 +562,19 @@ export default function MapPage() {
       }
     } else if (detectedCountry && availableCountries.includes(detectedCountry)) {
       setSelectedCountry(detectedCountry);
+      if (!sessionStorage.getItem("mapCameraState")) {
+        setIsManualSelection(true);
+      }
     } else if (userProfile?.country && availableCountries.includes(userProfile.country)) {
       setSelectedCountry(userProfile.country);
+      if (!sessionStorage.getItem("mapCameraState")) {
+        setIsManualSelection(true);
+      }
     } else {
       setSelectedCountry(availableCountries[0]);
+      if (!sessionStorage.getItem("mapCameraState")) {
+        setIsManualSelection(true);
+      }
     }
   }, [detectedCountry, userProfile, isManualSelection, selectedCountry, availableCountries]);
 
@@ -667,7 +676,10 @@ export default function MapPage() {
             }}
             clickableIcons={false}
           >
-            <GeolocationOnLoad onLocation={setMarkerPos} />
+            <GeolocationOnLoad
+              onLocation={setMarkerPos}
+              shouldPan={!selectedCountry && !sessionStorage.getItem("mapCameraState")}
+            />
             <CountryPanner
               selectedCountry={selectedCountry}
               isManualSelection={isManualSelection}
