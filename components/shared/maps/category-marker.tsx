@@ -22,7 +22,7 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
   const size = isMobile ? 28 : 34;
-  const iconSize = isMobile ? 20 : 26;
+  const iconSize = isMobile ? 14 : 18;
 
   return (
     <div
@@ -39,17 +39,18 @@ export function CategoryMarker({
         cursor: "pointer",
       }}
     >
+      {/* Lock Icon overlay - positioned relative to the non-rotated parent */}
       {isLocked && (
         <div
           style={{
             position: "absolute",
-            top: -6,
-            right: -6,
+            top: -2,
+            right: -2,
             background: "#EF4444",
             color: "#fff",
             borderRadius: "50%",
-            width: 18,
-            height: 18,
+            width: isMobile ? 14 : 18,
+            height: isMobile ? 14 : 18,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -57,37 +58,37 @@ export function CategoryMarker({
             zIndex: 10,
           }}
         >
-          <Lock size={10} style={{ strokeWidth: 3 }} />
+          <Lock size={isMobile ? 8 : 10} style={{ strokeWidth: 3 }} />
         </div>
       )}
 
+      {/* Teardrop Pin Head */}
       <div
         style={{
           width: size,
           height: size,
-          borderRadius: "50%",
-          background: "#ffffff",
-          border: isMobile ? "2px solid #fff" : "3px solid #fff",
+          borderRadius: "50% 50% 50% 0",
+          transform: "rotate(-45deg)",
+          background: bgColor,
+          border: isMobile ? "1.5px solid #ffffff" : "2px solid #ffffff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           boxSizing: "border-box",
         }}
       >
-        <CategoryIcon icon={icon} size={iconSize} color={bgColor} />
+        {/* Undo rotation for icon */}
+        <div
+          style={{
+            transform: "rotate(45deg)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <CategoryIcon icon={icon} size={iconSize} color="#ffffff" />
+        </div>
       </div>
-
-      {/* White pointer only — no colored stem */}
-      <div
-        style={{
-          width: 0,
-          height: 0,
-          marginTop: -1,
-          borderLeft: "5px solid transparent",
-          borderRight: "5px solid transparent",
-          borderTop: "8px solid #fff",
-        }}
-      />
     </div>
   );
 }
