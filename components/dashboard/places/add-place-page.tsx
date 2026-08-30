@@ -254,7 +254,7 @@ export default function AddPlacePage() {
       toast.info("Marker drag enabled. Move it now!");
       dragStartPosRef.current = null;
       wasDraggingRef.current = true; // Block the immediate pointerup click
-    }, 2500); // 2.5 seconds press & hold
+    }, 500); // 0.5 seconds press & hold
   };
 
   const handlePointerMove = (event: React.PointerEvent) => {
