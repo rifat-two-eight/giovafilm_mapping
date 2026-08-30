@@ -283,7 +283,8 @@ export default function RestaurantDetail() {
 
         {/* Main Content */}
         <div className="">
-          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          {/* Desktop View */}
+          <div className="hidden md:grid lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {/* Left Section - Image and Details */}
             <div className="bg-white lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 rounded-xl sm:rounded-2xl overflow-hidden">
               {/* Hero Image with Rating */}
@@ -530,6 +531,193 @@ export default function RestaurantDetail() {
                     </div>
                   </div>
                 </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile View */}
+          <div className="block md:hidden space-y-4 px-1 pb-4">
+            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-gray-100 shadow-xl shadow-gray-200/40 space-y-4">
+              {/* Restaurant/Business Header */}
+              <div className="text-center">
+                <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-widest">
+                  {offer.place?.name || "Premium Spot"}
+                </span>
+              </div>
+
+              {/* Offer Photo with Discount Badge Overlay */}
+              <div className="relative w-full h-52 sm:h-60 rounded-2xl overflow-hidden bg-gray-200 shadow-md">
+                <Image
+                  src={getImageUrl(offer.photo)}
+                  alt={offer?.title}
+                  width={400}
+                  height={300}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Bottom gradient overlay to make text/badges pop */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+                {/* Discount Badge bottom right */}
+                <div className="absolute bottom-3 right-3 bg-red-500 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs shadow-lg shadow-red-500/30 uppercase tracking-wider border border-red-400/20">
+                  {formatOfferDiscountLabel(offer)}
+                </div>
+                {/* Rating Badge top right */}
+                <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-md rounded-xl px-2.5 py-1.5 flex items-center gap-1 shadow-md border border-white/40">
+                  <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs font-bold text-gray-900">
+                    {offer?.place?.rating || 0}
+                  </span>
+                </div>
+              </div>
+
+              {/* Location Name or Title */}
+              <div className="text-center px-2 space-y-1">
+                <h1 className="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug tracking-tight">
+                  {offer?.title}
+                </h1>
+                <p className="text-xs text-gray-500 font-medium flex items-center justify-center gap-1">
+                  <span>📍</span> {offer.place?.address || "Location not specified"}
+                </p>
+              </div>
+
+              {/* Expandable Offer Info */}
+              <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                  className="w-full flex items-center justify-between p-3.5 bg-gray-50/50 hover:bg-gray-50 active:scale-[0.99] transition-all font-bold text-xs text-gray-700 border-none cursor-pointer outline-none uppercase tracking-wider"
+                >
+                  <span>Offer Information</span>
+                  <ChevronRight
+                    className="w-4 h-4 text-gray-400 transition-transform duration-200"
+                    style={{ transform: isInfoExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+                  />
+                </button>
+                <div
+                  className="transition-all duration-200 overflow-hidden"
+                  style={{
+                    maxHeight: isInfoExpanded ? "1000px" : "0px",
+                    borderTop: isInfoExpanded ? "1px solid #f3f4f6" : "none",
+                  }}
+                >
+                  <div className="p-4 space-y-4 bg-gray-50/30 text-sm">
+                    {/* Description */}
+                    <div className="space-y-1">
+                      <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
+                        Description
+                      </h4>
+                      <p className="text-gray-700 leading-relaxed text-xs">
+                        {offer.description}
+                      </p>
+                    </div>
+
+                    {/* Validity Period */}
+                    <div className="space-y-2 border-t pt-3 border-gray-200/60">
+                      <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
+                        Validity Period
+                      </h4>
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <div>
+                          <span className="font-semibold block text-[9px] text-gray-400 uppercase tracking-wider">
+                            From
+                          </span>
+                          <span className="font-medium">{formatDate(offer.createdAt)}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-semibold block text-[9px] text-gray-400 uppercase tracking-wider">
+                            Until
+                          </span>
+                          <span className="font-medium">
+                            {offer.noExpiration || !offer.validUntil
+                              ? "No Expiration"
+                              : new Date(offer.validUntil).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rules */}
+                    <div className="space-y-2 border-t pt-3 border-gray-200/60">
+                      <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
+                        Redemption Rules
+                      </h4>
+                      <div className="space-y-1.5">
+                        {redemptionRules.map((rule: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="size-4 text-yellow-500 shrink-0 mt-0.5" />
+                            <span className="text-xs text-gray-600">{rule}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timer and Redeem Button Block */}
+              <div className="bg-gray-50/50 rounded-2xl border border-gray-100 p-4 flex flex-col items-center space-y-4">
+                {/* Timer Circle */}
+                <div
+                  className={`w-24 h-24 rounded-full border-4 flex items-center justify-center bg-white shadow-sm transition-all duration-300 ${
+                    unavailable ? "border-gray-200" : "border-yellow-400 animate-pulse-subtle"
+                  }`}
+                >
+                  <div className="text-center px-1">
+                    {unavailable ? (
+                      <>
+                        <Lock className="w-5 h-5 text-gray-400 mx-auto mb-0.5" />
+                        <div className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wide">
+                          {unavailable.label}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-xl font-black text-gray-900 leading-none tracking-tight">
+                          {isTimerActive ? timeLeft : (offer?.redemptionDuration ?? 0)}
+                          {!isTimerActive && <span className="text-xs font-semibold ml-0.5">Min</span>}
+                        </div>
+                        <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                          {isTimerActive ? "Time Left" : "Timer"}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Message / Instruction */}
+                <p className="text-xs text-gray-500 text-center px-2 leading-relaxed">
+                  {unavailable ? (
+                    unavailable.message
+                  ) : (
+                    <>
+                      Present this to the staff member at{" "}
+                      <span className="font-bold text-gray-700">{offer.place?.name}</span> to validate your redemption.
+                    </>
+                  )}
+                </p>
+
+                {redemptionsLeft !== null && !unavailable && (
+                  <p className="text-[10px] font-medium text-gray-400 -mt-2">
+                    {redemptionsLeft} of {offer.maxRedemptions} redemptions left
+                  </p>
+                )}
+
+                {/* Redeem Button */}
+                <Button
+                  onClick={handleRedeem}
+                  disabled={isRedeeming || isTimerActive || Boolean(unavailable)}
+                  className="w-full bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-black font-extrabold rounded-2xl h-13 text-xs uppercase tracking-widest shadow-lg shadow-yellow-400/20 active:scale-[0.98] transition-all duration-150 disabled:bg-gray-200 disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:shadow-none"
+                >
+                  {isRedeeming
+                    ? "REDEEMING..."
+                    : isTimerActive
+                      ? "OFFER REDEEMED"
+                      : unavailable
+                        ? unavailable.label
+                        : "REDEEM OFFER"}
+                </Button>
               </div>
             </div>
           </div>
