@@ -46,7 +46,7 @@ function FeaturedMapsInner() {
           </div>
 
           <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mt-10"
+            className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-7 mt-10"
           >
             {isLoading ? (
               [1, 2, 3, 4].map((i) => (
@@ -92,20 +92,20 @@ function FeaturedMapsInner() {
                     </div>
 
                     {/* Card Details */}
-                    <div className="p-3 flex flex-col flex-1">
-                      <h3 className="text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
+                    <div className="p-2 sm:p-3 flex flex-col flex-1">
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
                         {map.name}
                       </h3>
-                      <p className="text-sm text-[#9E9E9E] mb-2 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-[#9E9E9E] mb-2 line-clamp-2">
                         {map.description ||
                           "Explore the best of the city with this curated guide."}
                       </p>
                       <div className="mt-auto">
-                        <span className="text-xl font-bold text-[#1A1A1A] block mb-2">
+                        <span className="text-base sm:text-lg md:text-xl font-bold text-[#1A1A1A] block mb-2">
                           ${map.price || "0.00"}
                         </span>
                         <Link href={mapHref(map._id)} onClick={(e) => e.stopPropagation()}>
-                          <Button className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
+                          <Button className="w-full text-black py-2.5 md:py-4 text-xs md:text-base bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
                             {redeemFreeMap ? "Claim this map" : "View details"}
                           </Button>
                         </Link>
