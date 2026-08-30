@@ -12,7 +12,7 @@ import { getImageUrl } from "@/lib/utils";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { Lock, Search } from "lucide-react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 
@@ -94,38 +94,21 @@ export default function OfferSection() {
             Offers
           </h1>
         </div>
-        {/* Filters and Search */}
-        <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-8">
-          <div className="flex gap-3 flex-wrap">
-            {/* <Button className="text-black ">
-              <SlidersHorizontal className="w-4 h-4 mr-2" />
-              Filter
-            </Button> */}
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative w-full">
+            <div className="flex items-center gap-3 bg-white border rounded-lg px-2 shadow-sm">
+              <Search className="text-gray-400 ml-2" size={20} />
 
-            {filters.map((filter) => (
-              <Button
-                key={filter}
-                variant={activeFilter === filter ? "default" : "outline"}
-                className={`rounded-full ${activeFilter === filter
-                  ? "bg-yellow-400 text-black hover:bg-yellow-500 border-none"
-                  : ""
-                  }`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </Button>
-            ))}
-          </div>
-
-          <div className="relative w-full md:w-80">
-            <Input
-              placeholder="Search offers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
-              className="bg-white"
-            />
+              <Input
+                placeholder="Search offers..."
+                className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+              />
+            </div>
             {searchFocused && searchTerm.trim().length >= 2 && (
               <div className="absolute top-full z-40 mt-2 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
                 {offerSuggestions.length > 0 ? (
@@ -164,6 +147,24 @@ export default function OfferSection() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-3 mb-8 flex-wrap items-center">
+          {filters.map((filter) => (
+            <Button
+              key={filter}
+              variant={activeFilter === filter ? "default" : "outline"}
+              className={`rounded-full transition-all ${
+                activeFilter === filter
+                  ? "bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500 shadow-md"
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() => setActiveFilter(filter)}
+            >
+              {filter}
+            </Button>
+          ))}
         </div>
 
         {/* Offer Grid */}

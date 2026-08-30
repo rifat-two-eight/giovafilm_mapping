@@ -73,23 +73,19 @@ export default function ExplorePlaces() {
   );
   const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
 
+  // Load country from localStorage or default to the first one available
   useEffect(() => {
+    if (isLoadingMaps || !mapsResponse?.data?.length) return;
+    const maps = mapsResponse.data;
     const saved = localStorage.getItem("selectedCountryFilter");
-    if (saved) {
+    if (saved && maps.some((m: any) => m.name === saved)) {
       setSelectedCountry(saved);
+    } else {
+      const defaultCountry = maps[0].name;
+      setSelectedCountry(defaultCountry);
+      localStorage.setItem("selectedCountryFilter", defaultCountry);
     }
-  }, []);
-
-  // Clear stale localStorage country that no longer exists in maps
-  useEffect(() => {
-    const maps = mapsResponse?.data;
-    if (isLoadingMaps || !maps?.length || !selectedCountry) return;
-    const exists = maps.some((m: any) => m.name === selectedCountry);
-    if (!exists) {
-      setSelectedCountry("");
-      localStorage.removeItem("selectedCountryFilter");
-    }
-  }, [isLoadingMaps, mapsResponse, selectedCountry]);
+  }, [isLoadingMaps, mapsResponse]);
 
   const { data: response, isLoading, isFetching } = useGetPlacesQuery({
     page,
@@ -146,8 +142,8 @@ export default function ExplorePlaces() {
         </div>
 
         {/* Search */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-6">
-          <div className="relative flex-1">
+        <div className="mb-6">
+          <div className="relative w-full">
             <div className="flex items-center gap-3 bg-white border rounded-lg px-2 shadow-sm">
               <Search className="text-gray-400 ml-2" size={20} />
 
@@ -209,23 +205,21 @@ export default function ExplorePlaces() {
               </div>
             )}
           </div>
+        </div>
 
+        {/* Filters */}
+        <div className="flex gap-3 mb-8 flex-wrap items-center">
           {/* Country Filter Selector */}
           <select
             value={selectedCountry}
             onChange={(e) => {
               const val = e.target.value;
               setSelectedCountry(val);
-              if (val) {
-                localStorage.setItem("selectedCountryFilter", val);
-              } else {
-                localStorage.removeItem("selectedCountryFilter");
-              }
+              localStorage.setItem("selectedCountryFilter", val);
               setPage(1);
             }}
-            className="h-12 px-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer min-w-[200px] shadow-sm"
+            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors"
           >
-            <option value="">All Countries</option>
             {mapsResponse?.data?.map((map: any) => (
               <option key={map._id} value={map.name}>
                 {map.name}
@@ -233,16 +227,6 @@ export default function ExplorePlaces() {
             ))}
           </select>
 
-          <Button
-            onClick={handleSearch}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg px-8 h-12 font-bold"
-          >
-            Search
-          </Button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-3 mb-8 flex-wrap items-center">
           {/* Categories Selector */}
           <select
             value={selectedCategory}
@@ -366,8 +350,13 @@ export default function ExplorePlaces() {
                   setActiveFilter(null);
                   setUserLocation(null);
                   setSelectedCategory("");
-                  setSelectedCountry("");
-                  localStorage.removeItem("selectedCountryFilter");
+                  const defaultCountry = mapsResponse?.data?.[0]?.name || "";
+                  setSelectedCountry(defaultCountry);
+                  if (defaultCountry) {
+                    localStorage.setItem("selectedCountryFilter", defaultCountry);
+                  } else {
+                    localStorage.removeItem("selectedCountryFilter");
+                  }
                   setPage(1);
                 }}
               >
