@@ -7,7 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useRegisterMutation } from "@/redux/features/auth/authApi";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import SocialLogin from "../shared/social-login/social-login";
 import { Button } from "../ui/button";
@@ -35,6 +35,8 @@ type FormValues = z.infer<typeof registerSchema>;
 
 export const RegisterForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const {
     register,
     handleSubmit,
@@ -57,7 +59,8 @@ export const RegisterForm = () => {
       if (res?.data?.email) {
         toast.success(res.message || "User created successfully!");
         router.push(
-          `/otp-verify?email=${encodeURIComponent(res.data.email)}&authType=createAccount`,
+          `/otp-verify?email=${encodeURIComponent(res.data.email)}&authType=createAccount` +
+            (redirect ? `&redirect=${encodeURIComponent(redirect)}` : ""),
         );
       } else {
         toast.error("User registration failed. No email returned.");

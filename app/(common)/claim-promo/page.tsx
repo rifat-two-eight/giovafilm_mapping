@@ -12,6 +12,7 @@ import {
 } from "@/redux/features/promo/promoApi";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { motion } from "motion/react";
 import {
   Ticket,
   AlertCircle,
@@ -138,12 +139,21 @@ function ClaimPromoContent() {
     router.push("/catalog");
   };
 
+  const isVipTheme = promoType === "influencer";
+
   // Render Loader
   if (isLoadingVerify && !success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-gray-500 font-semibold text-sm">Verifying invitation credentials...</p>
+      <div className={`flex items-center justify-center min-h-[75vh] py-16 px-4 relative overflow-hidden font-inter ${
+        isVipTheme ? "bg-[#0B0F19] text-white" : "bg-[#F9FAFB] text-gray-900"
+      }`}>
+        <div className="flex flex-col items-center space-y-4 max-w-sm text-center relative z-10">
+          <Loader2 className="w-12 h-12 animate-spin text-[#FFC107]" />
+          <h3 className="text-xl font-bold tracking-tight">Verifying invitation...</h3>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Please wait while we confirm your invitation details and map access settings.
+          </p>
+        </div>
       </div>
     );
   }
@@ -151,62 +161,62 @@ function ClaimPromoContent() {
   // Case A: Stripe Checkout SUCCESS Redirect
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-gray-100 shadow-xl p-8 text-center space-y-6">
-          <div className="mx-auto w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-green-500" />
+      <section className="relative min-h-[75vh] py-16 flex items-center justify-center overflow-hidden font-inter bg-[#F9FAFB] text-gray-900">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-100 shadow-xl p-8 text-center space-y-6 relative z-10">
+          <div className="mx-auto w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center">
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-gray-900">Upgrade Successful!</h2>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">Upgrade Successful!</h2>
             <p className="text-sm text-gray-500 leading-relaxed">
               Payment verified. The map access has been successfully added to your account.
             </p>
           </div>
-          <div className="bg-green-50/50 p-4 rounded-2xl border border-green-100 text-xs font-bold text-green-800">
+          <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 text-xs font-bold text-emerald-800 uppercase tracking-wider">
             Status: Lifetime Access Granted ✅
           </div>
           <Button
             onClick={handleGoToCatalog}
-            className="w-full h-11 bg-primary hover:bg-primary/95 text-black font-extrabold rounded-xl transition-all shadow-md"
+            className="w-full h-14 bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg transition-all shadow-lg shadow-yellow-500/20 text-base"
           >
-            Open Maps Dashboard <ArrowRight size={16} className="ml-1" />
+            Open Maps Dashboard <ArrowRight size={18} className="ml-1 inline" />
           </Button>
         </div>
-      </div>
+      </section>
     );
   }
 
   // Case B: Stripe Checkout CANCELLED Redirect
   if (cancelled) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-gray-100 shadow-xl p-8 text-center space-y-6">
-          <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
-            <XCircle className="w-10 h-10 text-red-500" />
+      <section className="relative min-h-[75vh] py-16 flex items-center justify-center overflow-hidden font-inter bg-[#F9FAFB] text-gray-900">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-100 shadow-xl p-8 text-center space-y-6 relative z-10">
+          <div className="mx-auto w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
+            <XCircle className="w-10 h-10 text-[#FFC107]" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-gray-900">Upgrade Paused</h2>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">Checkout Canceled</h2>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Checkout was cancelled. No charges were made to your account. You can complete the upgrade whenever you are ready.
+              Checkout was canceled. No charges were made. You can complete the upgrade whenever you're ready.
             </p>
           </div>
-          <div className="flex flex-col gap-2 pt-2">
+          <div className="flex flex-col gap-3 pt-2">
             <Button
               onClick={handlePaidCheckout}
-              className="w-full h-11 bg-primary hover:bg-primary/95 text-black font-extrabold rounded-xl"
+              className="w-full h-14 bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg shadow-lg shadow-yellow-500/20 text-base"
             >
               Retry Checkout
             </Button>
             <Button
               onClick={handleGoToCatalog}
               variant="outline"
-              className="w-full h-11 border-gray-200 text-gray-600 font-bold rounded-xl"
+              className="w-full h-14 border-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-50 text-base"
             >
-              Return to Directory
+              Return to Catalog
             </Button>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -216,176 +226,191 @@ function ClaimPromoContent() {
       (verifyError as any)?.data?.message ||
       "Invalid promo link or invitation code.";
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-gray-100 shadow-xl p-8 text-center space-y-6">
+      <section className="relative min-h-[75vh] py-16 flex items-center justify-center overflow-hidden font-inter bg-[#F9FAFB] text-gray-900">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-100 shadow-xl p-8 text-center space-y-6 relative z-10">
           <div className="mx-auto w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
             <AlertCircle className="w-10 h-10 text-red-500" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-gray-900">Invitation Expired</h2>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">Invitation Expired</h2>
             <p className="text-sm text-red-500 font-bold leading-relaxed">{errorMsg}</p>
           </div>
           <Button
             onClick={handleGoToCatalog}
             variant="outline"
-            className="w-full h-11 border-gray-200 text-gray-600 font-bold rounded-xl"
+            className="w-full h-14 border-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-50 text-base"
           >
             View Public Maps
           </Button>
         </div>
-      </div>
+      </section>
     );
   }
 
-  const isVipTheme = promoType === "influencer";
+  // Features list
+  const features = [
+    {
+      icon: MapPin,
+      title: "Curated Places & Spots",
+      desc: "Handpicked points of interest including photo locations, sights, and dining."
+    },
+    {
+      icon: WifiOff,
+      title: "Offline Access Navigation",
+      desc: "Save all custom pins directly to Google Maps to access offline without signal."
+    },
+    {
+      icon: Navigation,
+      title: "Curated Road Routes",
+      desc: "Optimized road routes mapping the best path for your road trip experience."
+    },
+    {
+      icon: RefreshCw,
+      title: "Regular Auto Updates",
+      desc: "Updates and new recommendations automatically sync to your dashboard instantly."
+    }
+  ];
 
   // Case D: Render User Claim Split Screen Panel
   return (
-    <div
-      className={`min-h-screen flex items-center justify-center p-6 md:p-12 transition-all ${
-        isVipTheme
-          ? "bg-[#090D1A] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0B0F19] to-black text-white"
-          : "bg-gradient-to-tr from-gray-50 via-slate-100 to-gray-50 text-gray-900"
-      }`}
-    >
-      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+    <section className={`relative min-h-[80vh] py-16 flex items-center overflow-hidden font-inter transition-colors duration-500 ${
+      isVipTheme ? "bg-[#0B0F19] text-white" : "bg-[#F9FAFB] text-gray-900"
+    }`}>
+      {/* Background Split Pattern (Aligns with HeroBanner layout style) */}
+      <div className="absolute inset-0 flex pointer-events-none">
+        <div className={`w-full relative`}>
+          <svg
+            className={`absolute inset-0 w-full h-full ${isVipTheme ? "opacity-[0.03] stroke-white" : "opacity-[0.06] stroke-black"}`}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" strokeWidth="0.1" />
+            <line x1="-20" y1="100" x2="80" y2="0" stroke="currentColor" strokeWidth="0.1" />
+            <line x1="20" y1="100" x2="120" y2="0" stroke="currentColor" strokeWidth="0.1" />
+          </svg>
+          {isVipTheme && (
+            <div className="absolute inset-0 bg-[radial-gradient(100%_100%_at_top_right,rgba(250,191,19,0.12),transparent_50%)]" />
+          )}
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
         
         {/* Left Column: Platform features details */}
-        <div className="lg:col-span-7 space-y-8 pr-0 lg:pr-4">
-          <div className="space-y-3">
+        <motion.div
+          className="lg:col-span-7 space-y-8"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <div className="space-y-4">
             <span
-              className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                isVipTheme ? "bg-amber-400/10 text-yellow-400" : "bg-primary/20 text-gray-800"
+              className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-md ${
+                isVipTheme
+                  ? "bg-amber-400/10 text-yellow-400 border border-yellow-400/20"
+                  : "bg-amber-50 text-amber-800 border border-amber-200/50"
               }`}
             >
               {isVipTheme ? "✨ Premium VIP Access" : "🗺️ Platform Upgrade"}
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
               Unlock the Ultimate <br />
-              <span className={isVipTheme ? "text-yellow-400" : "text-primary-dark"}>
+              <span className={isVipTheme ? "text-yellow-400" : "text-[#FFC107]"}>
                 Interactive Road Trip Map
               </span>
             </h1>
-            <p className={`text-sm sm:text-base leading-relaxed ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
+            <p className={`text-base leading-relaxed max-w-lg ${isVipTheme ? "text-slate-400" : "text-gray-600"}`}>
               Welcome to Roadtripeado! Get ready to explore curated routes, offline navigation pins, and expert local guidelines.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-            <div className="flex gap-4">
-              <div
-                className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
-                  isVipTheme ? "bg-slate-800 text-yellow-400" : "bg-white text-primary shadow-sm"
-                }`}
-              >
-                <MapPin size={20} />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm">Curated Places & Spots</h4>
-                <p className={`text-xs mt-0.5 ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
-                  Handpicked points of interest including photo locations, sights, and dining.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div
-                className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
-                  isVipTheme ? "bg-slate-800 text-yellow-400" : "bg-white text-primary shadow-sm"
-                }`}
-              >
-                <WifiOff size={20} />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm">Offline Access Navigation</h4>
-                <p className={`text-xs mt-0.5 ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
-                  Save all custom pins directly to Google Maps to access offline without signal.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div
-                className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
-                  isVipTheme ? "bg-slate-800 text-yellow-400" : "bg-white text-primary shadow-sm"
-                }`}
-              >
-                <Navigation size={20} />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm">Curated Road Routes</h4>
-                <p className={`text-xs mt-0.5 ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
-                  Optimized road routes mapping the best path for your road trip experience.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div
-                className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
-                  isVipTheme ? "bg-slate-800 text-yellow-400" : "bg-white text-primary shadow-sm"
-                }`}
-              >
-                <RefreshCw size={20} />
-              </div>
-              <div>
-                <h4 className="font-bold text-sm">Regular Auto Updates</h4>
-                <p className={`text-xs mt-0.5 ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
-                  Updates and new recommendations automatically sync to your dashboard instantly.
-                </p>
-              </div>
-            </div>
+          {/* Features cards grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {features.map((feat, index) => {
+              const Icon = feat.icon;
+              return (
+                <motion.div
+                  key={index}
+                  className={`flex gap-4 p-5 rounded-xl border transition-all duration-300 group ${
+                    isVipTheme
+                      ? "bg-slate-900/40 border-slate-800/80 hover:bg-slate-900/60 hover:border-yellow-400/20"
+                      : "bg-white border-gray-100 hover:shadow-lg shadow-black/5 hover:-translate-y-0.5"
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-lg shrink-0 flex items-center justify-center ${
+                      isVipTheme ? "bg-slate-850 text-yellow-400" : "bg-amber-50 text-amber-500"
+                    }`}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <h4 className="font-bold text-sm tracking-tight">{feat.title}</h4>
+                    <p className={`text-xs leading-relaxed ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
+                      {feat.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Column: Pre-existing Invitation card with double checks validations */}
-        <div className="lg:col-span-5 flex justify-center w-full">
+        <motion.div
+          className="lg:col-span-5 flex justify-center w-full"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <div
-            className={`w-full max-w-md rounded-3xl border shadow-2xl overflow-hidden transition-all duration-300 ${
+            className={`w-full max-w-md rounded-2xl border shadow-xl overflow-hidden ${
               isVipTheme
-                ? "bg-[#0E1527] border-slate-800 text-white"
+                ? "bg-[#0E1527] border-slate-800/80 text-white"
                 : "bg-white border-gray-100 text-gray-900"
             }`}
           >
             {/* Card Header Banner */}
             <div
-              className={`py-6 px-8 flex items-center gap-4 border-b ${
+              className={`py-5 px-6 flex items-center gap-4 border-b ${
                 isVipTheme
-                  ? "bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-black border-slate-800"
-                  : "bg-primary/10 text-gray-900 border-gray-100"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-slate-800"
+                  : "bg-amber-50/40 text-gray-900 border-gray-100"
               }`}
             >
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-md ${
-                  isVipTheme ? "bg-black text-yellow-400" : "bg-primary text-black"
+                className={`w-11 h-11 rounded-lg flex items-center justify-center ${
+                  isVipTheme ? "bg-black text-yellow-400" : "bg-[#FFC107] text-black"
                 }`}
               >
-                {isVipTheme ? <Star className="fill-yellow-400" size={24} /> : <Ticket size={24} />}
+                {isVipTheme ? <Star className="fill-yellow-400" size={22} /> : <Ticket size={22} />}
               </div>
               <div>
                 <span
-                  className={`text-[9px] uppercase tracking-widest font-black ${
-                    isVipTheme ? "text-black" : "text-gray-500"
+                  className={`text-[9px] uppercase tracking-widest font-bold ${
+                    isVipTheme ? "text-black/60" : "text-amber-800/70"
                   }`}
                 >
                   {isVipTheme ? "VIP GUEST INVITATION" : "EXCLUSIVE MAP OFFER"}
                 </span>
-                <h2 className="text-lg font-black leading-tight">
+                <h2 className="text-base font-extrabold leading-tight">
                   {isVipTheme ? "Exclusive Guest Pass" : "Upgrade Map Pass"}
                 </h2>
               </div>
             </div>
 
-            <div className="p-8 space-y-6">
+            <div className="p-6 space-y-6 font-inter">
               {/* Map Target Details */}
               <div
-                className={`p-5 rounded-2xl border space-y-1.5 ${
+                className={`p-4 rounded-xl border space-y-1 ${
                   isVipTheme ? "bg-slate-900/60 border-slate-800" : "bg-gray-50 border-gray-100"
                 }`}
               >
                 <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Target Map</span>
-                <h3 className="text-xl font-extrabold flex items-center gap-1.5 leading-tight">
-                  {mapName} {isVipTheme && <Sparkles size={16} className="text-yellow-400" />}
+                <h3 className="text-lg font-black flex items-center gap-1.5 leading-tight">
+                  {mapName} {isVipTheme && <Sparkles size={14} className="text-yellow-400" />}
                 </h3>
                 <p className={`text-xs leading-relaxed ${isVipTheme ? "text-slate-400" : "text-gray-500"}`}>
                   Unlocks full geographic locations, guides, pins, and reviews.
@@ -398,27 +423,27 @@ function ClaimPromoContent() {
                   isVipTheme ? "border-slate-800" : "border-gray-200"
                 }`}
               >
-                <span className="text-xs font-semibold text-gray-400">Upgrade Cost:</span>
+                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Upgrade Cost</span>
                 {isFree ? (
-                  <span className={`text-lg font-black uppercase ${isVipTheme ? "text-yellow-400" : "text-green-600"}`}>
-                    100% Free VIP Pass
+                  <span className={`text-base font-extrabold uppercase ${isVipTheme ? "text-yellow-400" : "text-green-600"}`}>
+                    Free VIP Pass
                   </span>
                 ) : (
-                  <span className="text-lg font-black">${promoData?.price?.toFixed(2)} USD</span>
+                  <span className="text-xl font-black">${promoData?.price?.toFixed(2)} USD</span>
                 )}
               </div>
 
-              {/* Validation Warnings / notices */}
+              {/* Warnings / notices */}
               
               {/* Warning A: User already owns the map */}
               {alreadyOwnsMap && (
                 <div
-                  className={`p-4 rounded-2xl border flex gap-3 ${
-                    isVipTheme ? "bg-emerald-950/20 border-emerald-900/50" : "bg-emerald-50 border-emerald-100"
+                  className={`p-4 rounded-xl border flex gap-3 ${
+                    isVipTheme ? "bg-emerald-950/20 border-emerald-800/30" : "bg-emerald-50 border-emerald-100/50"
                   }`}
                 >
                   <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <h4 className={`text-xs font-bold ${isVipTheme ? "text-emerald-400" : "text-emerald-900"}`}>
                       Already Unlocked
                     </h4>
@@ -429,15 +454,15 @@ function ClaimPromoContent() {
                 </div>
               )}
 
-              {/* Warning B: Email Mismatch (Warning only - they can still claim as per client description) */}
+              {/* Warning B: Email Mismatch */}
               {emailMismatch && !alreadyOwnsMap && (
                 <div
-                  className={`p-4 rounded-2xl border flex gap-3 ${
-                    isVipTheme ? "bg-amber-950/20 border-amber-900/50" : "bg-amber-50 border-amber-100"
+                  className={`p-4 rounded-xl border flex gap-3 ${
+                    isVipTheme ? "bg-amber-950/20 border-amber-800/30" : "bg-amber-50 border-amber-100/50"
                   }`}
                 >
                   <MailCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <h4 className={`text-xs font-bold ${isVipTheme ? "text-amber-400" : "text-amber-900"}`}>
                       Account Email Note
                     </h4>
@@ -451,12 +476,12 @@ function ClaimPromoContent() {
               {/* Warning C: Not logged in */}
               {!accessToken && (
                 <div
-                  className={`p-4 rounded-2xl border flex gap-3 ${
-                    isVipTheme ? "bg-slate-900 border-slate-800" : "bg-yellow-50 border-yellow-100/50"
+                  className={`p-4 rounded-xl border flex gap-3 ${
+                    isVipTheme ? "bg-slate-900 border-slate-800" : "bg-yellow-50/70 border-yellow-100"
                   }`}
                 >
                   <Lock className={`w-5 h-5 shrink-0 mt-0.5 ${isVipTheme ? "text-yellow-400" : "text-yellow-600"}`} />
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <h4 className={`text-xs font-bold ${isVipTheme ? "text-white" : "text-yellow-900"}`}>
                       Sign In Required
                     </h4>
@@ -468,56 +493,57 @@ function ClaimPromoContent() {
               )}
 
               {/* Action Button */}
-              {alreadyOwnsMap ? (
-                <Button
-                  onClick={handleGoToCatalog}
-                  className="w-full h-12 bg-gray-900 hover:bg-black text-white font-extrabold rounded-xl transition-all"
-                >
-                  Go to Maps Directory <ArrowRight size={16} className="ml-1.5" />
-                </Button>
-              ) : isFree ? (
-                <Button
-                  onClick={handleFreeClaim}
-                  disabled={isProcessing}
-                  className={`w-full h-12 font-extrabold rounded-xl shadow-lg transition-all text-sm uppercase tracking-wider ${
-                    isVipTheme
-                      ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-400/10"
-                      : "bg-green-600 hover:bg-green-700 text-white shadow-green-600/10"
-                  }`}
-                >
-                  {isProcessing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : accessToken ? (
-                    <>
-                      Redeem Guest Pass <Unlock size={16} className="ml-1.5" />
-                    </>
-                  ) : (
-                    "Log In to Redeem"
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handlePaidCheckout}
-                  disabled={isProcessing}
-                  className="w-full h-12 bg-primary hover:bg-primary/95 text-black font-extrabold rounded-xl shadow-lg shadow-primary/10 transition-all text-sm uppercase tracking-wider"
-                >
-                  {isProcessing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : accessToken ? (
-                    <>
-                      Confirm Upgrade <ShieldCheck size={16} className="ml-1.5" />
-                    </>
-                  ) : (
-                    "Log In to Upgrade"
-                  )}
-                </Button>
-              )}
+              <div>
+                {alreadyOwnsMap ? (
+                  <Button
+                    onClick={handleGoToCatalog}
+                    className="w-full h-14 bg-gray-900 hover:bg-black text-white font-bold rounded-lg transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    Go to Maps Directory <ArrowRight size={16} className="ml-1.5 inline" />
+                  </Button>
+                ) : isFree ? (
+                  <Button
+                    onClick={handleFreeClaim}
+                    disabled={isProcessing}
+                    className={`w-full h-14 font-bold rounded-lg shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-sm uppercase tracking-wider ${
+                      isVipTheme
+                        ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-400/20"
+                        : "bg-green-600 hover:bg-green-700 text-white shadow-green-600/20"
+                    }`}
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                    ) : accessToken ? (
+                      <>
+                        Redeem Guest Pass <Unlock size={16} className="ml-1.5 inline" />
+                      </>
+                    ) : (
+                      "Log In to Redeem"
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handlePaidCheckout}
+                    disabled={isProcessing}
+                    className="w-full h-14 bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg shadow-lg shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-sm uppercase tracking-wider"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                    ) : accessToken ? (
+                      <>
+                        Confirm Upgrade <ShieldCheck size={16} className="ml-1.5 inline" />
+                      </>
+                    ) : (
+                      "Log In to Upgrade"
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -525,9 +551,9 @@ export default function ClaimPromoPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 gap-2">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-gray-500">Retrieving invitation link...</p>
+        <div className="flex flex-col items-center justify-center min-h-[75vh] bg-slate-50 gap-3">
+          <Loader2 className="w-10 h-10 animate-spin text-[#FFC107]" />
+          <p className="text-sm font-bold text-gray-500 animate-pulse">Retrieving invitation link...</p>
         </div>
       }
     >

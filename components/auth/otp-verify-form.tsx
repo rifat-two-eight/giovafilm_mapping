@@ -21,6 +21,7 @@ export default function OtpVerify() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const otpFromQuery = searchParams.get("otp") || "";
+  const redirect = searchParams.get("redirect");
 
   const authFlow: AuthFlow = useMemo(() => {
     const raw = (searchParams.get("authType") || "").trim();
@@ -118,7 +119,9 @@ export default function OtpVerify() {
       userRole = decoded?.role;
     }
 
-    if (isDashboardRole(userRole)) {
+    if (redirect) {
+      navigateAfterAuth(redirect);
+    } else if (isDashboardRole(userRole)) {
       navigateAfterAuth("/dashboard");
     } else if (authFlow === "createAccount") {
       navigateAfterAuth("/catalog");

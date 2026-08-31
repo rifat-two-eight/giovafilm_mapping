@@ -220,7 +220,7 @@ export const LoginForm = () => {
       <div className="text-sm text-center mt-6">
         <span className="text-[#0A0A0A]">Don't have an account? </span>
         <Link
-          href="/register"
+          href={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"}
           className="text-base font-semibold text-primary font-public-sans cursor-pointer hover:underline"
         >
           Create an account

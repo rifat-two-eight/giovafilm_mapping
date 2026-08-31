@@ -2,16 +2,24 @@
 import Image from "next/image";
 import googleIcon from "@/public/google.png";
 import facebookIcon from "@/public/facebook.png";
+import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BASEURL ?? "http://10.10.7.50:4009";
 
 export default function SocialLogin() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
   const handleGoogleLogin = () => {
     // Redirect to the backend's Google OAuth initiation endpoint.
     // The backend will redirect the user to Google for authentication,
     // then callback with a token/session after successful login.
-    window.location.href = `${BACKEND_URL}/api/v1/auth/google`;
+    let url = `${BACKEND_URL}/api/v1/auth/google`;
+    if (redirect) {
+      url += `?redirect=${encodeURIComponent(redirect)}`;
+    }
+    window.location.href = url;
   };
 
   return (

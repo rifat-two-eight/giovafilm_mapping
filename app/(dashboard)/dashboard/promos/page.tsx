@@ -7,6 +7,8 @@ import {
   useGetPromoLinksQuery,
   useBulkGeneratePromosMutation,
   useSendBulkEmailsMutation,
+  useGetPromoStatsQuery,
+  useDeletePromoLinkMutation,
 } from "@/redux/features/promo/promoApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +28,9 @@ import {
   ArrowUpCircle,
   Settings,
   HelpCircle,
+  Trash2,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
 type PromoType = "upgrade" | "influencer" | "custom";
@@ -52,6 +57,9 @@ export default function PromosPage() {
   const { data: user } = useGetProfileQuery({});
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const maps = mapsRes?.data || [];
+
+  const { data: statsRes, refetch: refetchStats } = useGetPromoStatsQuery();
+  const [deletePromoLink] = useDeletePromoLinkMutation();
 
   const {
     data: promoRes,
@@ -134,11 +142,26 @@ export default function PromosPage() {
         `Successfully generated ${result?.data?.length || "promo"} invitation link(s)!`
       );
 
+      // Automatically trigger sending emails if target emails were provided
+      if (emailsArray && emailsArray.length > 0 && result?.data && result.data.length > 0) {
+        const promoIds = result.data.map((promo: any) => promo._id || promo.id);
+        if (promoIds.length > 0) {
+          try {
+            await sendBulkEmails({ promoIds }).unwrap();
+            toast.success(`Queued ${promoIds.length} invitation emails in the background!`);
+          } catch (emailErr) {
+            console.error("Auto email sending failed:", emailErr);
+            toast.error("Links generated, but automatic email invitations failed to queue.");
+          }
+        }
+      }
+
       // Reset fields
       setEmailsText("");
       setLinksCount(1);
       setExpiresAt("");
       refetchPromos();
+      refetchStats();
     } catch (error: any) {
       toast.error(
         error?.data?.message || error?.message || "Failed to generate promo links"
@@ -168,9 +191,28 @@ export default function PromosPage() {
       await sendBulkEmails({ promoIds: [id] }).unwrap();
       toast.success("Invitation email sent successfully!");
       refetchPromos();
+      refetchStats();
     } catch (error: any) {
       toast.error(
         error?.data?.message || error?.message || "Failed to send email"
+      );
+    }
+  };
+
+  // Delete invitation code
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this promo invitation? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await deletePromoLink(id).unwrap();
+      toast.success("Promo invitation link deleted successfully!");
+      refetchPromos();
+      refetchStats();
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error?.message || "Failed to delete promo link"
       );
     }
   };
@@ -190,6 +232,7 @@ export default function PromosPage() {
       await sendBulkEmails({ promoIds: pendingIds }).unwrap();
       toast.success(`Started sending ${pendingIds.length} emails in background!`);
       refetchPromos();
+      refetchStats();
     } catch (error: any) {
       toast.error(
         error?.data?.message || error?.message || "Failed to trigger bulk emails"
@@ -267,7 +310,10 @@ export default function PromosPage() {
             <FileSpreadsheet size={16} /> Export CSV
           </Button>
           <Button
-            onClick={() => refetchPromos()}
+            onClick={() => {
+              refetchPromos();
+              refetchStats();
+            }}
             variant="outline"
             className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 rounded-xl"
           >
@@ -275,6 +321,61 @@ export default function PromosPage() {
           </Button>
         </div>
       </div>
+
+      {/* Promo Stats Cards */}
+      {statsRes?.data && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Total Promo Invites */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Total Generated</span>
+              <h3 className="text-2xl font-black text-gray-900">{statsRes.data.total}</h3>
+              <p className="text-[10px] text-gray-500">invitation codes in system</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
+              <Ticket size={24} />
+            </div>
+          </div>
+
+          {/* Card 2: Old Customer Upgrades ($5) */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Customer Upgrades</span>
+              <h3 className="text-2xl font-black text-gray-900">{statsRes.data.upgrade}</h3>
+              <p className="text-[10px] text-gray-500">upgrade links generated</p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+              <ArrowUpCircle size={24} />
+            </div>
+          </div>
+
+          {/* Card 3: Influencer Invites ($0) */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Influencer Invites</span>
+              <h3 className="text-2xl font-black text-gray-900">{statsRes.data.influencer}</h3>
+              <p className="text-[10px] text-gray-500">free guest passes in system</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center shrink-0">
+              <UserCheck size={24} />
+            </div>
+          </div>
+
+          {/* Card 4: Conversion Rate / Claims */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Claimed & Redeemed</span>
+              <h3 className="text-2xl font-black text-emerald-600">
+                {statsRes.data.used} <span className="text-xs font-bold text-gray-400">({Math.round((statsRes.data.used / (statsRes.data.total || 1)) * 100)}%)</span>
+              </h3>
+              <p className="text-[10px] text-gray-500">{statsRes.data.unused} codes active/unused</p>
+            </div>
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+              <TrendingUp size={24} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Guide/Helper Info Box */}
       <div className="bg-blue-50/50 rounded-2xl border border-blue-100 p-5 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-blue-900">
@@ -640,15 +741,24 @@ customer@gmail.com"
                           )}
                         </td>
                         <td className="p-4 text-right">
-                          {promo.recipientEmail && !promo.isUsed && !isExpired && (
+                          <div className="flex items-center justify-end gap-1.5">
+                            {promo.recipientEmail && !promo.isUsed && !isExpired && (
+                              <button
+                                onClick={() => handleSendEmail(promo._id)}
+                                className="p-1.5 text-gray-500 hover:text-primary transition-colors hover:bg-gray-100 rounded-lg"
+                                title="Send Email Invitation"
+                              >
+                                <Send size={14} />
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleSendEmail(promo._id)}
-                              className="p-1.5 text-gray-500 hover:text-primary transition-colors hover:bg-gray-100 rounded-lg"
-                              title="Send Email Invitation"
+                              onClick={() => handleDelete(promo._id)}
+                              className="p-1.5 text-gray-500 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
+                              title="Delete Invitation Link"
                             >
-                              <Send size={14} />
+                              <Trash2 size={14} />
                             </button>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     );

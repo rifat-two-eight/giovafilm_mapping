@@ -53,10 +53,22 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/catalog/");
 
   if (!isLoggedIn && !isGuestAllowed) {
-    const homeUrl = new URL("/", request.url);
-    homeUrl.searchParams.set("loginRequired", "1");
-    homeUrl.searchParams.set("redirect", safeInternalPath(pathname, search));
-    return NextResponse.redirect(homeUrl);
+    const loginRequiredFlag = request.nextUrl.searchParams.get("loginRequired") === "1";
+    if (loginRequiredFlag) {
+      return NextResponse.next();
+    }
+
+    const isDashboardRoute = pathname.startsWith("/dashboard");
+    if (isDashboardRoute) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", safeInternalPath(pathname, search));
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const targetUrl = new URL(request.url);
+    targetUrl.searchParams.set("loginRequired", "1");
+    targetUrl.searchParams.set("redirect", safeInternalPath(pathname, search));
+    return NextResponse.redirect(targetUrl);
   }
 
   const isDashboardRoute = dashboardRoutes.some((route) =>

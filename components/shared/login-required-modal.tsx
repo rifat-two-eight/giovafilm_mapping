@@ -53,6 +53,27 @@ function labelFromPath(path: string): string {
   return PATH_LABELS[first] || "this page";
 }
 
+function isPublicPath(pathname: string): boolean {
+  const guestAllowedExact = new Set([
+    "/",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/otp-verify",
+    "/reset-password",
+    "/privacy-policy",
+    "/terms-of-service",
+    "/success",
+    "/cancel",
+  ]);
+
+  return (
+    guestAllowedExact.has(pathname) ||
+    pathname === "/catalog" ||
+    pathname.startsWith("/catalog/")
+  );
+}
+
 export function useLoginRequired() {
   return useContext(LoginRequiredContext);
 }
@@ -88,6 +109,13 @@ export function LoginRequiredProvider({
     const next =
       raw.startsWith("/") && !raw.startsWith("//") ? raw : "/maps";
 
+    // Clean up loginRequired and redirect parameters from the current URL to keep other params intact
+    const cleanParams = new URLSearchParams(searchParams.toString());
+    cleanParams.delete("loginRequired");
+    cleanParams.delete("redirect");
+    const qs = cleanParams.toString();
+    const cleanUrl = qs ? `${pathname}?${qs}` : pathname;
+
     if (accessToken) {
       setOpen(false);
       syncAuthCookies(accessToken, role);
@@ -99,7 +127,7 @@ export function LoginRequiredProvider({
           const parsed = JSON.parse(prev) as { path?: string; at?: number };
           if (parsed.path === next && Date.now() - (parsed.at || 0) < 4000) {
             sessionStorage.removeItem(guardKey);
-            router.replace(pathname, { scroll: false });
+            router.replace(cleanUrl, { scroll: false });
             return;
           }
         }
@@ -116,7 +144,9 @@ export function LoginRequiredProvider({
     }
 
     openLoginRequired(next);
-    router.replace(pathname, { scroll: false });
+    if (isPublicPath(pathname)) {
+      router.replace(cleanUrl, { scroll: false });
+    }
   }, [
     accessToken,
     role,
@@ -135,11 +165,23 @@ export function LoginRequiredProvider({
     router.push(target);
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      if (!isPublicPath(pathname)) {
+        router.push("/catalog");
+      }
+    }
+  };
+
   return (
     <LoginRequiredContext.Provider value={{ openLoginRequired }}>
       {children}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md bg-white border border-gray-200 rounded-2xl">
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent
+          overlayClassName="backdrop-blur-sm bg-black/40"
+          className="max-w-md bg-white border border-gray-200 rounded-2xl"
+        >
           <DialogHeader className="items-center text-center sm:text-center">
             <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600">
               <LogIn size={22} />

@@ -70,6 +70,22 @@ const promoApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Promo"],
     }),
+
+    getPromoStats: builder.query<any, void>({
+      query: () => ({
+        url: "/promo-links/stats",
+        method: "GET",
+      }),
+      providesTags: ["Promo"],
+    }),
+
+    deletePromoLink: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/promo-links/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Promo"],
+    }),
   }),
 });
 
@@ -81,4 +97,6 @@ export const {
   useCreatePromoCheckoutSessionMutation,
   useBulkGeneratePromosMutation,
   useSendBulkEmailsMutation,
+  useGetPromoStatsQuery,
+  useDeletePromoLinkMutation,
 } = promoApi;
