@@ -2,6 +2,8 @@
 
 import Image, { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import whiteLogo from "@/public/white-logo.png";
+import logo from "@/public/logo.png";
 
 import Link from "next/link";
 
@@ -32,7 +34,7 @@ export function AuthLayout({
           <div className="shrink-0">
             <Link href="/">
               <Image
-                src={require("@/public/white-logo.png")}
+                src={whiteLogo}
                 alt="Dashboard Logo"
                 height={500}
                 width={500}
@@ -56,7 +58,7 @@ export function AuthLayout({
           <div className="shrink-0">
             <Link href="/" className="lg:hidden">
               <Image
-                src={require("@/public/logo.png")}
+                src={logo}
                 alt="Dashboard Logo"
                 height={500}
                 width={500}

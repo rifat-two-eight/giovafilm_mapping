@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import Image from "next/image";
+import logo from "@/public/logo.png";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -26,23 +27,21 @@ import { baseApi } from "@/redux/api/baseApi";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data: user } = useGetProfileQuery({});
+  const router = useRouter();
 
-  const menuItems =
-    user?.role === "admin" || user?.role === "super_admin"
-      ? adminMenuItems
-      : user?.role === "map_editor"
-        ? mapEditorMenuItems
-        : [];
+  const { data: userProfile } = useGetProfileQuery({});
+
+  const role = userProfile?.data?.role;
+  const menuItems = role === "MAP_EDITOR" ? mapEditorMenuItems : adminMenuItems;
 
   const [logoutApi] = useLogoutMutation();
 
   const handleLogout = async () => {
     try {
       await logoutApi({}).unwrap();
-    } catch {
+    } catch (err) {
+      console.error("Logout API error", err);
     } finally {
       broadcastLogout(); // signal all other tabs
       dispatch(logout());
@@ -59,7 +58,7 @@ export function AppSidebar() {
       <div className="py-3 flex justify-center border-b border-gray-300/50">
         <Link href="/maps">
           <Image
-            src={require("@/public/logo.png")}
+            src={logo}
             alt="Dashboard Logo"
             height={200}
             width={200}

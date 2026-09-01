@@ -218,9 +218,9 @@ export default function AddPlacePage() {
   // Map shows ALL places by default — only manually disabled ones are hidden
   const displayPlaces = selectedMapId
     ? fetchedPlaces.filter((place: any) => {
-        const pCatId = typeof place.category === "object" ? place.category?._id : place.category;
-        return !disabledPlaces.has(place._id) && (!pCatId || !disabledCategories.has(pCatId));
-      })
+      const pCatId = typeof place.category === "object" ? place.category?._id : place.category;
+      return !disabledPlaces.has(place._id) && (!pCatId || !disabledCategories.has(pCatId));
+    })
     : [];
 
   // --- States for Marker Management ---
@@ -883,7 +883,7 @@ export default function AddPlacePage() {
                 if (!position.lat || !position.lng) return null;
 
                 // Resolve category — it may be a populated object or just an ID string
-              const cat =
+                const cat =
                   typeof place.category === "object"
                     ? place.category
                     : findCategoryById(place.category);
@@ -1142,7 +1142,8 @@ export default function AddPlacePage() {
 
         <AddCategoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
 
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           @keyframes pin-shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-6px); }
