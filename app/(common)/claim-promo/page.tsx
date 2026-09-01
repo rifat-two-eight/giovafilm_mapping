@@ -102,7 +102,7 @@ function ClaimPromoContent() {
       const res = await claimFreePromo({ code }).unwrap();
       toast.success(res?.message || "Invitation claimed successfully!");
       setTimeout(() => {
-        router.push("/catalog");
+        handleGoToMap();
       }, 2000);
     } catch (error: any) {
       toast.error(
@@ -162,6 +162,21 @@ function ClaimPromoContent() {
     router.push("/catalog");
   };
 
+  const handleGoToPurchasedMaps = () => {
+    router.push("/profile/purchased-maps");
+  };
+
+  const handleGoToMap = () => {
+    if (mapName && mapName !== "Selected Map") {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("selectedCountryFilter", mapName);
+      }
+      router.push("/maps");
+    } else {
+      router.push("/profile/purchased-maps");
+    }
+  };
+
   const isVipTheme = promoType === "influencer";
 
   // Render Loader
@@ -199,10 +214,10 @@ function ClaimPromoContent() {
             Status: Lifetime Access Granted ✅
           </div>
           <Button
-            onClick={handleGoToCatalog}
+            onClick={handleGoToPurchasedMaps}
             className="w-full h-14 bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg transition-all shadow-lg shadow-yellow-500/20 text-base"
           >
-            Open Maps Dashboard <ArrowRight size={18} className="ml-1 inline" />
+            View My Purchased Maps <ArrowRight size={18} className="ml-1 inline" />
           </Button>
         </div>
       </section>
@@ -535,12 +550,25 @@ function ClaimPromoContent() {
               {/* Action Button */}
               <div>
                 {alreadyOwnsMap ? (
-                  <Button
-                    onClick={handleGoToCatalog}
-                    className="w-full h-14 bg-gray-900 hover:bg-black text-white font-bold rounded-lg transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                  >
-                    Go to Maps Directory <ArrowRight size={16} className="ml-1.5 inline" />
-                  </Button>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={handleGoToMap}
+                      className="w-full h-14 bg-gray-900 hover:bg-black text-white font-bold rounded-lg transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    >
+                      Open {mapName} <ArrowRight size={16} className="ml-1.5 inline" />
+                    </Button>
+                    <Button
+                      onClick={handleGoToPurchasedMaps}
+                      variant="outline"
+                      className={`w-full h-12 font-semibold rounded-lg text-sm transition-all cursor-pointer ${
+                        isVipTheme
+                          ? "border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white"
+                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      View All My Purchased Maps
+                    </Button>
+                  </div>
                 ) : !accessToken ? (
                   <div className="space-y-3">
                     <Button
