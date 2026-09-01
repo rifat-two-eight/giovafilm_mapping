@@ -333,7 +333,7 @@ export function UsersTable(): React.ReactElement {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {currentUser?._id === user._id ||
-                      !canManageUserRole(currentUser?.role, user.role) ? (
+                        !canManageUserRole(currentUser?.role, user.role) ? (
                         <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200 inline-block text-[10px] font-bold uppercase tracking-wider">
                           {user.role}
                         </div>
@@ -372,13 +372,12 @@ export function UsersTable(): React.ReactElement {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       <div
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-block ${
-                          user.status === "active"
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-block ${user.status === "active"
                             ? "bg-green-100 text-green-700"
                             : user.status === "inactive"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                       >
                         {user.status}
                       </div>
@@ -390,15 +389,15 @@ export function UsersTable(): React.ReactElement {
                       <div className="flex items-center gap-3">
                         {user.role === "map_editor" &&
                           canManageUserRole(currentUser?.role, user.role) && (
-                          <button
-                            onClick={() => handleEditAccess(user)}
-                            className="text-blue-500 hover:text-blue-700 transition-colors p-2 hover:bg-blue-50 rounded"
-                            title="Edit Map Editor Access"
-                            aria-label="Edit editor access"
-                          >
-                            <Map size={18} />
-                          </button>
-                        )}
+                            <button
+                              onClick={() => handleEditAccess(user)}
+                              className="text-blue-500 hover:text-blue-700 transition-colors p-2 hover:bg-blue-50 rounded"
+                              title="Edit Map Editor Access"
+                              aria-label="Edit editor access"
+                            >
+                              <Map size={18} />
+                            </button>
+                          )}
                         {canDeleteUser(currentUser?.role, user.role) &&
                           currentUser?._id !== user._id && (
                             <button
@@ -443,11 +442,10 @@ export function UsersTable(): React.ReactElement {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-md border transition-all font-medium ${
-                        page === p
+                      className={`w-8 h-8 flex items-center justify-center rounded-md border transition-all font-medium ${page === p
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-white hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {p}
                     </button>
@@ -525,11 +523,10 @@ export function UsersTable(): React.ReactElement {
                     return (
                       <label
                         key={mapId}
-                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${
-                          isChecked
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium cursor-pointer select-none transition-all ${isChecked
                             ? "bg-blue-50/80 text-blue-700 border border-blue-100"
                             : "text-gray-700 border border-transparent hover:bg-gray-100/70"
-                        }`}
+                          }`}
                       >
                         <input
                           type="checkbox"

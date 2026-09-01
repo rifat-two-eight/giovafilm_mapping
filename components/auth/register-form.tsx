@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Lock, Mail, User, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -37,6 +38,8 @@ export const RegisterForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
+  const emailParam = searchParams.get("email");
+
   const {
     register,
     handleSubmit,
@@ -47,6 +50,12 @@ export const RegisterForm = () => {
     defaultValues: { terms: false },
   });
   const [registerUser, { isLoading }] = useRegisterMutation();
+
+  useEffect(() => {
+    if (emailParam) {
+      setValue("email", emailParam);
+    }
+  }, [emailParam, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -223,7 +232,13 @@ export const RegisterForm = () => {
       <div className="text-sm text-center mt-6">
         <span className="text-[#0A0A0A]">Already have an account? </span>
         <Link
-          href="/login"
+          href={
+            `/login?` +
+            new URLSearchParams({
+              ...(redirect ? { redirect } : {}),
+              ...(emailParam ? { email: emailParam } : {}),
+            }).toString()
+          }
           className="text-base font-semibold text-primary font-public-sans hover:underline"
         >
           LogIn

@@ -2,8 +2,8 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useAppSelector } from "@/redux/hook";
-import { selectAccessToken } from "@/redux/features/auth/authSlice";
+import { useAppSelector, useAppDispatch } from "@/redux/hook";
+import { selectAccessToken, logout } from "@/redux/features/auth/authSlice";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
   useVerifyPromoCodeQuery,
@@ -30,11 +30,15 @@ import {
   Navigation,
   RefreshCw,
   MailCheck,
+  UserPlus,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 
 function ClaimPromoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const code = searchParams.get("code") || "";
   const success = searchParams.get("success") === "true";
   const cancelled = searchParams.get("cancelled") === "true";
@@ -133,6 +137,25 @@ function ClaimPromoContent() {
       );
       setIsProcessing(false);
     }
+  };
+
+  // Navigation for unauthenticated visitors
+  const handleGoToRegister = () => {
+    const emailParam = promoData?.recipientEmail
+      ? `&email=${encodeURIComponent(promoData.recipientEmail)}`
+      : "";
+    router.push(
+      `/register?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}${emailParam}`
+    );
+  };
+
+  const handleGoToLogin = () => {
+    const emailParam = promoData?.recipientEmail
+      ? `&email=${encodeURIComponent(promoData.recipientEmail)}`
+      : "";
+    router.push(
+      `/login?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}${emailParam}`
+    );
   };
 
   const handleGoToCatalog = () => {
@@ -457,19 +480,36 @@ function ClaimPromoContent() {
               {/* Warning B: Email Mismatch */}
               {emailMismatch && !alreadyOwnsMap && (
                 <div
-                  className={`p-4 rounded-xl border flex gap-3 ${
+                  className={`p-4 rounded-xl border flex flex-col gap-2.5 ${
                     isVipTheme ? "bg-amber-950/20 border-amber-800/30" : "bg-amber-50 border-amber-100/50"
                   }`}
                 >
-                  <MailCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <h4 className={`text-xs font-bold ${isVipTheme ? "text-amber-400" : "text-amber-900"}`}>
-                      Account Email Note
-                    </h4>
-                    <p className={`text-[10px] leading-relaxed ${isVipTheme ? "text-slate-400" : "text-amber-700"}`}>
-                      This invite was sent to <strong>{promoData.recipientEmail}</strong>. You are currently logged in as <strong>{userProfile?.email}</strong>. Unlocking will link it to your current account.
-                    </p>
+                  <div className="flex gap-3 items-start">
+                    <MailCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      <h4 className={`text-xs font-bold ${isVipTheme ? "text-amber-400" : "text-amber-900"}`}>
+                        Account Email Note
+                      </h4>
+                      <p className={`text-[10px] leading-relaxed ${isVipTheme ? "text-slate-400" : "text-amber-700"}`}>
+                        This invite was sent to <strong>{promoData.recipientEmail}</strong>. You are currently logged in as <strong>{userProfile?.email}</strong>.
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      dispatch(logout());
+                      toast.info("Logged out. Please sign up or log in with your invited email.");
+                    }}
+                    className={`text-[11px] font-semibold flex items-center gap-1.5 self-start px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                      isVipTheme
+                        ? "text-yellow-400 hover:bg-yellow-400/10"
+                        : "text-amber-800 hover:bg-amber-100/70"
+                    }`}
+                  >
+                    <LogOut size={13} />
+                    Log out & switch account
+                  </button>
                 </div>
               )}
 
@@ -483,10 +523,10 @@ function ClaimPromoContent() {
                   <Lock className={`w-5 h-5 shrink-0 mt-0.5 ${isVipTheme ? "text-yellow-400" : "text-yellow-600"}`} />
                   <div className="space-y-0.5">
                     <h4 className={`text-xs font-bold ${isVipTheme ? "text-white" : "text-yellow-900"}`}>
-                      Sign In Required
+                      Sign In or Sign Up Required
                     </h4>
                     <p className={`text-[10px] leading-relaxed ${isVipTheme ? "text-slate-400" : "text-yellow-700"}`}>
-                      Redeem this invitation pass by logging in or creating a new free account. The map will be locked to your profile.
+                      Create a free account or sign in to claim this exclusive invitation pass. The unlocked map will be permanently attached to your profile.
                     </p>
                   </div>
                 </div>
@@ -501,6 +541,32 @@ function ClaimPromoContent() {
                   >
                     Go to Maps Directory <ArrowRight size={16} className="ml-1.5 inline" />
                   </Button>
+                ) : !accessToken ? (
+                  <div className="space-y-3">
+                    <Button
+                      onClick={handleGoToRegister}
+                      className={`w-full h-14 font-bold rounded-lg shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-sm uppercase tracking-wider ${
+                        isVipTheme
+                          ? "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-400/20"
+                          : "bg-[#FFC107] hover:bg-[#FFB300] text-black shadow-yellow-500/20"
+                      }`}
+                    >
+                      <UserPlus size={18} className="mr-2 inline" />
+                      {isFree ? "Create Free Account & Claim" : "Create Account to Upgrade"}
+                    </Button>
+                    <Button
+                      onClick={handleGoToLogin}
+                      variant="outline"
+                      className={`w-full h-12 font-semibold rounded-lg text-sm transition-all cursor-pointer ${
+                        isVipTheme
+                          ? "border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white"
+                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <LogIn size={16} className="mr-2 inline" />
+                      Already have an account? Log In
+                    </Button>
+                  </div>
                 ) : isFree ? (
                   <Button
                     onClick={handleFreeClaim}
@@ -513,12 +579,10 @@ function ClaimPromoContent() {
                   >
                     {isProcessing ? (
                       <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                    ) : accessToken ? (
+                    ) : (
                       <>
                         Redeem Guest Pass <Unlock size={16} className="ml-1.5 inline" />
                       </>
-                    ) : (
-                      "Log In to Redeem"
                     )}
                   </Button>
                 ) : (
@@ -529,12 +593,10 @@ function ClaimPromoContent() {
                   >
                     {isProcessing ? (
                       <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                    ) : accessToken ? (
+                    ) : (
                       <>
                         Confirm Upgrade <ShieldCheck size={16} className="ml-1.5 inline" />
                       </>
-                    ) : (
-                      "Log In to Upgrade"
                     )}
                   </Button>
                 )}

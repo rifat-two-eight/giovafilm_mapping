@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { appAlert } from "@/lib/app-alert";
+import { env } from "@/lib/config";
 import {
   Ticket,
   Search,
@@ -171,18 +173,51 @@ export default function PromosPage() {
     }
   };
 
+  // Robust clipboard copy — works on HTTP+IP (no HTTPS required)
+  // navigator.clipboard is blocked on non-secure origins (HTTP + non-localhost IP)
+  const copyToClipboard = (text: string): boolean => {
+    // Modern API — works on HTTPS or localhost
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+      return true;
+    }
+    // Fallback — works everywhere including HTTP + IP
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const success = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return success;
+    } catch {
+      return false;
+    }
+  };
+
   // Copy claiming link to clipboard
   const handleCopyLink = (code: string) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    // Use NEXT_PUBLIC_CLIENT_URL so link is always correct regardless of what port dashboard runs on
+    const origin = env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== "undefined" ? window.location.origin : "");
     const claimUrl = `${origin}/claim-promo?code=${code}`;
-    navigator.clipboard.writeText(claimUrl);
-    toast.success("Promo Claim Link copied to clipboard!");
+    const ok = copyToClipboard(claimUrl);
+    if (ok) {
+      toast.success("Promo Claim Link copied to clipboard!");
+    } else {
+      toast.error("Copy failed — please copy manually: " + claimUrl);
+    }
   };
 
   // Copy plain code to clipboard
   const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success("Promo Code copied!");
+    const ok = copyToClipboard(code);
+    if (ok) {
+      toast.success("Promo Code copied!");
+    } else {
+      toast.error("Copy failed — code: " + code);
+    }
   };
 
   // Send invitation email
@@ -201,19 +236,26 @@ export default function PromosPage() {
 
   // Delete invitation code
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this promo invitation? This action cannot be undone.")) {
-      return;
-    }
+    const result = await appAlert.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this promo invitation deletion!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-    try {
-      await deletePromoLink(id).unwrap();
-      toast.success("Promo invitation link deleted successfully!");
-      refetchPromos();
-      refetchStats();
-    } catch (error: any) {
-      toast.error(
-        error?.data?.message || error?.message || "Failed to delete promo link"
-      );
+    if (result.isConfirmed) {
+      try {
+        await deletePromoLink(id).unwrap();
+        toast.success("Promo invitation link deleted successfully!");
+        refetchPromos();
+        refetchStats();
+      } catch (error: any) {
+        toast.error(
+          error?.data?.message || error?.message || "Failed to delete promo link"
+        );
+      }
     }
   };
 
@@ -247,7 +289,8 @@ export default function PromosPage() {
       return;
     }
 
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    // Use NEXT_PUBLIC_CLIENT_URL so exported claim URLs are always correct
+    const origin = env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== "undefined" ? window.location.origin : "");
     const headers = [
       "Promo Code",
       "Claim URL",
@@ -422,33 +465,30 @@ export default function PromosPage() {
             <button
               type="button"
               onClick={() => handleTypeChange("upgrade")}
-              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
-                promoType === "upgrade"
+              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${promoType === "upgrade"
                   ? "bg-white text-black shadow-sm"
                   : "text-gray-500 hover:text-gray-800"
-              }`}
+                }`}
             >
               Customer ($5)
             </button>
             <button
               type="button"
               onClick={() => handleTypeChange("influencer")}
-              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
-                promoType === "influencer"
+              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${promoType === "influencer"
                   ? "bg-white text-black shadow-sm"
                   : "text-gray-500 hover:text-gray-800"
-              }`}
+                }`}
             >
               Influencer ($0)
             </button>
             <button
               type="button"
               onClick={() => handleTypeChange("custom")}
-              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${
-                promoType === "custom"
+              className={`py-2 text-[10px] md:text-xs font-bold rounded-xl transition-all ${promoType === "custom"
                   ? "bg-white text-black shadow-sm"
                   : "text-gray-500 hover:text-gray-800"
-              }`}
+                }`}
             >
               Custom Offer
             </button>
@@ -487,9 +527,8 @@ export default function PromosPage() {
                   placeholder="e.g. 5.00"
                   value={price}
                   onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-                  className={`pl-7 h-10 rounded-xl ${
-                    promoType !== "custom" ? "bg-gray-50 text-gray-500 cursor-not-allowed" : ""
-                  }`}
+                  className={`pl-7 h-10 rounded-xl ${promoType !== "custom" ? "bg-gray-50 text-gray-500 cursor-not-allowed" : ""
+                    }`}
                 />
               </div>
               <p className="text-[10px] text-gray-400 leading-tight">

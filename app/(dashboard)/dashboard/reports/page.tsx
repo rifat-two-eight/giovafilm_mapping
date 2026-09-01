@@ -93,7 +93,7 @@ export default function ReportsPage() {
     },
     { refetchOnMountOrArgChange: true }
   );
-  
+
   const reportData = response?.data;
   const categoryLabel =
     categoriesResponse?.data?.find((cat: any) => cat._id === category)?.name ||
@@ -123,15 +123,15 @@ export default function ReportsPage() {
   // ==================== EXPORTS IMPLEMENTATION ====================
   const handleExportCSV = () => {
     if (!reportData) return;
-    
+
     // Construct CSV file
     let csvContent = "";
-    
+
     // 1. Sales Summary
     csvContent += "SALES & TAXES SUMMARY\n";
     csvContent += `Total Sales,Taxes Collected,Net Revenue\n`;
     csvContent += `"${reportData.salesAndTaxes?.totalSales}","${reportData.salesAndTaxes?.taxesCollected}","${reportData.salesAndTaxes?.netRevenue}"\n\n`;
-    
+
     // 2. Monthly Breakdown
     csvContent += "MONTHLY BREAKDOWN\n";
     csvContent += "Month,Total Sales,Taxes,Net Revenue\n";
@@ -139,7 +139,7 @@ export default function ReportsPage() {
       csvContent += `"${item.month}","${item.totalSales}","${item.taxes}","${item.netRevenue}"\n`;
     });
     csvContent += "\n";
-    
+
     // 3. Usage Lists
     csvContent += "USAGE STATISTICS - TOP VIEWED MAPS\n";
     csvContent += "Map Name,Views\n";
@@ -533,8 +533,8 @@ export default function ReportsPage() {
       )}
 
       <div className="space-y-8">
-        <SalesTaxes 
-          data={reportData?.salesAndTaxes} 
+        <SalesTaxes
+          data={reportData?.salesAndTaxes}
           onExportCSV={handleExportCSV}
           onExportPDF={handleExportPDF}
         />

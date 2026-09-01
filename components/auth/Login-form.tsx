@@ -31,6 +31,7 @@ export const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
+  const emailParam = searchParams.get("email");
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
@@ -79,12 +80,16 @@ export const LoginForm = () => {
   useEffect(() => {
     // Never store passwords in localStorage — only remember email
     localStorage.removeItem("rememberedPassword");
+    if (emailParam) {
+      setValue("email", emailParam);
+      return;
+    }
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     if (rememberedEmail) {
       setValue("email", rememberedEmail);
       setValue("rememberMe", true);
     }
-  }, [setValue]);
+  }, [emailParam, setValue]);
 
   // Google OAuth callback lands on /login?accessToken=...
   useEffect(() => {
@@ -220,7 +225,13 @@ export const LoginForm = () => {
       <div className="text-sm text-center mt-6">
         <span className="text-[#0A0A0A]">Don't have an account? </span>
         <Link
-          href={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"}
+          href={
+            `/register?` +
+            new URLSearchParams({
+              ...(redirect ? { redirect } : {}),
+              ...(emailParam ? { email: emailParam } : {}),
+            }).toString()
+          }
           className="text-base font-semibold text-primary font-public-sans cursor-pointer hover:underline"
         >
           Create an account

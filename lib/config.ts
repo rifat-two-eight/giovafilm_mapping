@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NEXT_PUBLIC_BASEURL: z.string().url("NEXT_PUBLIC_BASEURL must be a valid URL"),
+  NEXT_PUBLIC_CLIENT_URL: z.string().url("NEXT_PUBLIC_CLIENT_URL must be a valid URL").optional(),
   NEXT_PUBLIC_GOOGLE_MAP_API_KEY: z.string().min(1, "NEXT_PUBLIC_GOOGLE_MAP_API_KEY is required"),
   NEXT_PUBLIC_GOOGLE_MAP_ID: z.string().min(1, "NEXT_PUBLIC_GOOGLE_MAP_ID is required"),
   NEXT_PUBLIC_IMAGE_BASEURL: z
@@ -13,6 +14,7 @@ const envSchema = z.object({
 const getRawEnv = () => {
   return {
     NEXT_PUBLIC_BASEURL: process.env.NEXT_PUBLIC_BASEURL?.trim(),
+    NEXT_PUBLIC_CLIENT_URL: process.env.NEXT_PUBLIC_CLIENT_URL?.trim(),
     NEXT_PUBLIC_GOOGLE_MAP_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY?.trim(),
     NEXT_PUBLIC_GOOGLE_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID?.trim(),
@@ -36,6 +38,7 @@ export const env = parseResult.success
   ? parseResult.data
   : {
       NEXT_PUBLIC_BASEURL: process.env.NEXT_PUBLIC_BASEURL || "http://localhost:5004",
+      NEXT_PUBLIC_CLIENT_URL: process.env.NEXT_PUBLIC_CLIENT_URL || "",
       NEXT_PUBLIC_GOOGLE_MAP_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "",
       NEXT_PUBLIC_GOOGLE_MAP_ID: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "",
       NEXT_PUBLIC_IMAGE_BASEURL: process.env.NEXT_PUBLIC_IMAGE_BASEURL || "http://localhost:5004",
