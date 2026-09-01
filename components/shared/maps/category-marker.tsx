@@ -21,8 +21,8 @@ export function CategoryMarker({
   isMobile = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
-  const size = isMobile ? 28 : 34;
-  const iconSize = isMobile ? 14 : 18;
+  const size = isMobile ? 30 : 36;
+  const iconSize = isMobile ? 18 : 22;
 
   return (
     <div
