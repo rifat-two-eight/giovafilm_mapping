@@ -51,7 +51,6 @@ export default function PromosPage() {
   const [price, setPrice] = useState<number>(5.0);
   const [label, setLabel] = useState("");
   const [emailsText, setEmailsText] = useState("");
-  const [linksCount, setLinksCount] = useState<number>(1);
   const [expiresAt, setExpiresAt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -119,13 +118,22 @@ export default function PromosPage() {
 
     setIsGenerating(true);
 
-    // Parse emails from text input
-    let emailsArray: string[] | undefined = undefined;
-    if (emailsText.trim()) {
-      emailsArray = emailsText
-        .split(/[\n,]+/)
-        .map((email) => email.trim())
-        .filter((email) => email.length > 0 && email.includes("@"));
+    // Parse emails from text input — now required
+    if (!emailsText.trim()) {
+      toast.error("Please enter at least one recipient email.");
+      setIsGenerating(false);
+      return;
+    }
+
+    const emailsArray: string[] = emailsText
+      .split(/[\n,]+/)
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0 && email.includes("@"));
+
+    if (emailsArray.length === 0) {
+      toast.error("No valid emails found. Please check the format.");
+      setIsGenerating(false);
+      return;
     }
 
     try {
@@ -135,7 +143,6 @@ export default function PromosPage() {
         promoType,
         label: label.trim(),
         emails: emailsArray,
-        count: emailsArray ? undefined : linksCount,
         expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
       };
 
@@ -160,7 +167,6 @@ export default function PromosPage() {
 
       // Reset fields
       setEmailsText("");
-      setLinksCount(1);
       setExpiresAt("");
       refetchPromos();
       refetchStats();
@@ -551,37 +557,73 @@ export default function PromosPage() {
               />
             </div>
 
-            {/* Target Emails Textarea */}
+            {/* Target Emails Textarea — Live UX */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 uppercase">Target Emails (Optional)</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-gray-700 uppercase">Target Emails *</label>
+                {/* Live email counter badge */}
+                {emailsText.trim() && (() => {
+                  const parsed = emailsText
+                    .split(/[\n,]+/)
+                    .map(e => e.trim())
+                    .filter(e => e.length > 0);
+                  const valid = parsed.filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+                  const invalid = parsed.length - valid.length;
+                  return (
+                    <div className="flex items-center gap-1.5">
+                      {valid.length > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          ✓ {valid.length} valid
+                        </span>
+                      )}
+                      {invalid > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-50 text-red-600 border border-red-100">
+                          ✗ {invalid} invalid
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
               <textarea
-                placeholder="Paste emails separated by commas or new lines. E.g.
-influencer@domain.com
-customer@gmail.com"
+                required
+                placeholder={`Paste emails separated by commas or new lines. E.g.\ninfluencer@domain.com\ncustomer@gmail.com`}
                 value={emailsText}
                 onChange={(e) => setEmailsText(e.target.value)}
                 rows={4}
-                className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white"
+                className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 text-sm bg-white transition-colors duration-200 ${
+                  !emailsText.trim()
+                    ? "border-gray-300 focus:ring-primary/50"
+                    : (() => {
+                        const valid = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+                        return valid.length > 0
+                          ? "border-emerald-400 focus:ring-emerald-400/40 bg-emerald-50/30"
+                          : "border-red-400 focus:ring-red-400/40 bg-red-50/30";
+                      })()
+                }`}
               />
-              <p className="text-[10px] text-gray-400 leading-tight">
-                Enter emails to automatically send email invites. If left blank, generic links will be generated below.
+              <p className={`text-[10px] leading-tight transition-colors ${
+                !emailsText.trim()
+                  ? "text-gray-400"
+                  : (() => {
+                      const valid = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+                      return valid.length > 0 ? "text-emerald-600 font-medium" : "text-red-500 font-medium";
+                    })()
+              }`}>
+                {!emailsText.trim()
+                  ? "Enter at least one recipient email to generate invitation links."
+                  : (() => {
+                      const parsed = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => e.length > 0);
+                      const valid = parsed.filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+                      if (valid.length === 0) return "No valid emails detected. Check format: name@domain.com";
+                      if (valid.length === parsed.length) return `✓ ${valid.length} invitation${valid.length > 1 ? "s" : ""} ready to generate.`;
+                      return `✓ ${valid.length} valid — ${parsed.length - valid.length} will be skipped (invalid format).`;
+                    })()
+                }
               </p>
             </div>
 
-            {/* Quantity */}
-            {!emailsText.trim() && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700 uppercase">Quantity of Links</label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="5000"
-                  value={linksCount}
-                  onChange={(e) => setLinksCount(parseInt(e.target.value) || 1)}
-                  className="h-10 rounded-xl"
-                />
-              </div>
-            )}
+
 
             {/* Expiry Date */}
             <div className="space-y-1.5">
@@ -615,14 +657,40 @@ customer@gmail.com"
                 Distinguish influencer passes from customer upgrades in real-time.
               </p>
             </div>
-            {promoLinks.length > 0 && (
-              <Button
-                onClick={handleSendAllEmails}
-                className="bg-primary/80 hover:bg-primary text-black font-semibold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 h-9 self-end md:self-auto"
-              >
-                <Send size={12} /> Send Pending Invites
-              </Button>
-            )}
+            {(() => {
+              const pendingCount = promoLinks.filter(
+                (promo: any) => !promo.isUsed && promo.recipientEmail && !promo.isEmailSent
+              ).length;
+
+              return (
+                <Button
+                  onClick={handleSendAllEmails}
+                  disabled={pendingCount === 0}
+                  className={`text-xs px-4 py-2 rounded-xl flex items-center gap-2 h-9 self-end md:self-auto font-bold transition-all ${
+                    pendingCount > 0
+                      ? "bg-amber-400 hover:bg-amber-500 text-black shadow-sm"
+                      : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                  }`}
+                  title={
+                    pendingCount > 0
+                      ? `Send background email to ${pendingCount} pending recipient(s)`
+                      : "No pending emails to send in current list"
+                  }
+                >
+                  <Send size={13} className={pendingCount > 0 ? "animate-pulse" : ""} />
+                  <span>Send Pending Invites</span>
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
+                      pendingCount > 0
+                        ? "bg-black/10 text-black"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {pendingCount}
+                  </span>
+                </Button>
+              );
+            })()}
           </div>
 
           {/* Table Filters */}
@@ -703,9 +771,20 @@ customer@gmail.com"
                   promoLinks.map((promo: any) => {
                     const isExpired =
                       promo.expiresAt && new Date(promo.expiresAt) < new Date();
+                    const isPendingEmail = !promo.isUsed && promo.recipientEmail && !promo.isEmailSent && !isExpired;
+                    const isEmailSent = !promo.isUsed && promo.recipientEmail && promo.isEmailSent && !isExpired;
 
                     return (
-                      <tr key={promo._id} className="hover:bg-gray-50/30">
+                      <tr
+                        key={promo._id}
+                        className={`transition-colors ${
+                          isPendingEmail
+                            ? "bg-amber-50/30 hover:bg-amber-50/50"
+                            : isEmailSent
+                            ? "bg-blue-50/10 hover:bg-blue-50/30"
+                            : "hover:bg-gray-50/30"
+                        }`}
+                      >
                         <td className="p-4 font-mono font-bold text-xs">
                           <div className="flex flex-col gap-1">
                             <span className="text-gray-900">{promo.code}</span>
@@ -753,10 +832,20 @@ customer@gmail.com"
                           {promo.label}
                         </td>
                         <td className="p-4 max-w-[200px] truncate">
-                          <div className="flex flex-col gap-0.5">
+                          <div className="flex flex-col gap-1 items-start">
                             <span className="text-gray-900 font-semibold" title={promo.recipientEmail || "Generic (No email)"}>
                               {promo.recipientEmail || "Generic (No email)"}
                             </span>
+                            {isPendingEmail && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200">
+                                <Send size={9} /> Pending Email Send
+                              </span>
+                            )}
+                            {isEmailSent && (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                                <CheckCircle size={9} /> Email Sent
+                              </span>
+                            )}
                             {promo.isUsed && promo.usedBy?.email && (
                               <span className="text-[10px] text-gray-400 font-medium" title={`Claimed by: ${promo.usedBy.email}`}>
                                 ↳ Claimed: {promo.usedBy.email}
@@ -766,15 +855,23 @@ customer@gmail.com"
                         </td>
                         <td className="p-4">
                           {promo.isUsed ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-50 text-green-700">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-green-50 text-green-700 border border-green-200">
                               <CheckCircle size={10} /> Claimed
                             </span>
                           ) : isExpired ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-50 text-red-700">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-red-50 text-red-700 border border-red-200">
                               <XCircle size={10} /> Expired
                             </span>
+                          ) : isPendingEmail ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-amber-100/80 text-amber-800 border border-amber-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending Send
+                            </span>
+                          ) : isEmailSent ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                              <Send size={10} className="text-blue-600" /> Email Sent
+                            </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                               Active
                             </span>
                           )}
@@ -784,8 +881,12 @@ customer@gmail.com"
                             {promo.recipientEmail && !promo.isUsed && !isExpired && (
                               <button
                                 onClick={() => handleSendEmail(promo._id)}
-                                className="p-1.5 text-gray-500 hover:text-primary transition-colors hover:bg-gray-100 rounded-lg"
-                                title="Send Email Invitation"
+                                className={`p-1.5 transition-colors rounded-lg ${
+                                  isPendingEmail
+                                    ? "text-amber-600 hover:text-amber-700 hover:bg-amber-100"
+                                    : "text-gray-400 hover:text-primary hover:bg-gray-100"
+                                }`}
+                                title={isEmailSent ? "Resend Email Invitation" : "Send Email Invitation"}
                               >
                                 <Send size={14} />
                               </button>
