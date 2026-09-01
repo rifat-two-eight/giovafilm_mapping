@@ -268,11 +268,11 @@ export default function PromosPage() {
   // Bulk send emails to all visible pending/unused links in the table
   const handleSendAllEmails = async () => {
     const pendingIds = promoLinks
-      .filter((promo: any) => !promo.isUsed && promo.recipientEmail)
+      .filter((promo: any) => !promo.isUsed && promo.recipientEmail && !promo.isEmailSent)
       .map((promo: any) => promo._id);
 
     if (pendingIds.length === 0) {
-      toast.error("No pending links with recipient emails found to send.");
+      toast.error("No pending links with unsent recipient emails found.");
       return;
     }
 
@@ -288,7 +288,7 @@ export default function PromosPage() {
     }
   };
 
-  // Export promo links list as CSV file
+  // Export promo links list as CSV file (Blob + UTF-8 BOM for perfect Excel/Sheets support)
   const handleExportCSV = () => {
     if (promoLinks.length === 0) {
       toast.error("No links available to export.");
@@ -305,37 +305,62 @@ export default function PromosPage() {
       "Price (USD)",
       "Label",
       "Recipient Email",
-      "Used Status",
+      "Email Status",
+      "Claim Status",
       "Claimed By",
       "Claimed At",
       "Expiry Date",
     ];
 
-    const rows = promoLinks.map((promo: any) => [
-      promo.code,
-      `${origin}/claim-promo?code=${promo.code}`,
-      promo.promoType || "upgrade",
-      promo.mapId?.name || "N/A",
-      `$${promo.price.toFixed(2)}`,
-      `"${promo.label.replace(/"/g, '""')}"`,
-      promo.recipientEmail || "Generic/None",
-      promo.isUsed ? "Used" : "Active",
-      promo.usedBy?.email || "N/A",
-      promo.usedAt ? new Date(promo.usedAt).toLocaleString() : "N/A",
-      promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString() : "Never",
-    ]);
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((r: any) => r.join(","))].join("\n");
+    const rows = promoLinks.map((promo: any) => {
+      const isExpired = promo.expiresAt && new Date(promo.expiresAt) < new Date();
+      const emailStatus = !promo.recipientEmail
+        ? "N/A (Generic)"
+        : promo.isEmailSent
+        ? "Email Sent"
+        : "Pending Send";
 
-    const encodedUri = encodeURI(csvContent);
+      const claimStatus = promo.isUsed
+        ? "Claimed"
+        : isExpired
+        ? "Expired"
+        : "Active / Unclaimed";
+
+      return [
+        escapeCsv(promo.code),
+        escapeCsv(`${origin}/claim-promo?code=${promo.code}`),
+        escapeCsv(promo.promoType || "upgrade"),
+        escapeCsv(promo.mapId?.name || "N/A"),
+        escapeCsv(`$${promo.price.toFixed(2)}`),
+        escapeCsv(promo.label),
+        escapeCsv(promo.recipientEmail || "Generic/None"),
+        escapeCsv(emailStatus),
+        escapeCsv(claimStatus),
+        escapeCsv(promo.usedBy?.email || "N/A"),
+        escapeCsv(promo.usedAt ? new Date(promo.usedAt).toLocaleString() : "N/A"),
+        escapeCsv(promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString() : "Never"),
+      ];
+    });
+
+    const csvString = [headers.map(escapeCsv).join(","), ...rows.map((r: any) => r.join(","))].join("\n");
+    
+    // Add UTF-8 BOM for Excel compatibility
+    const blob = new Blob(["\uFEFF" + csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.href = url;
     link.setAttribute("download", `Promo_Links_Export_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Promo links exported to CSV successfully!");
   };
 
   return (
