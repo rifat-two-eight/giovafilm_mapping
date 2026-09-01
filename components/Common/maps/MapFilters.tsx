@@ -36,6 +36,7 @@ interface MapFiltersProps {
   availableCountries: string[];
   isLoggedIn?: boolean;
   isLoading?: boolean;
+  hideDesktopMapFilter?: boolean;
 }
 
 export function MapFilters({
@@ -52,6 +53,7 @@ export function MapFilters({
   availableCountries,
   isLoggedIn = true,
   isLoading = false,
+  hideDesktopMapFilter = false,
 }: MapFiltersProps) {
   const hasCategories = !isLoading && fetchedCategories.length > 0;
   const showEmpty = !isLoading && fetchedCategories.length === 0;
@@ -274,49 +276,75 @@ export function MapFilters({
       </div>
 
       {/* Selected Map Filter — Desktop */}
-      <div className={`min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex-col gap-0 ${isMobile ? "hidden" : "flex"}`}>
-        <div className="px-4 py-2.5 bg-gray-50/50">
-          <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-            Selected Map
-          </span>
-        </div>
-        <Select
-          onValueChange={(val) => {
-            setSelectedCountry(val);
-            setIsManualSelection(true);
-          }}
-          value={selectedCountry}
-        >
-          <SelectTrigger className="w-full !h-auto !min-h-0 rounded-none border-0 border-t border-gray-100 shadow-none py-2.5 px-3 focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
-            <SelectValue placeholder="Select map" />
-          </SelectTrigger>
-          <SelectContent
-            position="popper"
-            side="bottom"
-            align="start"
-            sideOffset={4}
-            avoidCollisions={false}
-            className="rounded-xl border border-gray-100 shadow-xl min-w-[var(--radix-select-trigger-width)] max-w-[min(90vw,320px)]"
-          >
-            {availableCountries.length === 0 ? (
-              <div className="px-3 py-6 text-center text-sm text-gray-500">
-                No maps available.
-              </div>
-            ) : (
-              availableCountries.map((country: string) => (
-                <SelectItem
-                  key={country}
-                  value={country}
-                  className="font-medium whitespace-normal break-words py-2.5"
-                  title={country}
-                >
-                  {country}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
+      {!hideDesktopMapFilter && (
+        <SelectedMapFilter
+          selectedCountry={selectedCountry}
+          setSelectedCountry={setSelectedCountry}
+          setIsManualSelection={setIsManualSelection}
+          availableCountries={availableCountries}
+          isMobile={isMobile}
+        />
+      )}
+    </div>
+  );
+}
+
+export function SelectedMapFilter({
+  selectedCountry,
+  setSelectedCountry,
+  setIsManualSelection,
+  availableCountries,
+  isMobile,
+}: {
+  selectedCountry: string;
+  setSelectedCountry: (val: string) => void;
+  setIsManualSelection: (val: boolean) => void;
+  availableCountries: string[];
+  isMobile?: boolean;
+}) {
+  return (
+    <div className={`min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex-col gap-0 pointer-events-auto ${isMobile ? "hidden" : "flex"}`}>
+      <div className="px-4 py-2.5 bg-gray-50/50">
+        <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
+          Selected Map
+        </span>
       </div>
+      <Select
+        onValueChange={(val) => {
+          setSelectedCountry(val);
+          setIsManualSelection(true);
+        }}
+        value={selectedCountry}
+      >
+        <SelectTrigger className="w-full !h-auto !min-h-0 rounded-none border-0 border-t border-gray-100 shadow-none py-2.5 px-3 focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
+          <SelectValue placeholder="Select map" />
+        </SelectTrigger>
+        <SelectContent
+          position="popper"
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          avoidCollisions={false}
+          className="rounded-xl border border-gray-100 shadow-xl min-w-[var(--radix-select-trigger-width)] max-w-[min(90vw,320px)]"
+        >
+          {availableCountries.length === 0 ? (
+            <div className="px-3 py-6 text-center text-sm text-gray-500">
+              No maps available.
+            </div>
+          ) : (
+            availableCountries.map((country: string) => (
+              <SelectItem
+                key={country}
+                value={country}
+                className="font-medium whitespace-normal break-words py-2.5"
+                title={country}
+              >
+                {country}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

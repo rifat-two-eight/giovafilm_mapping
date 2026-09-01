@@ -20,7 +20,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapFilters } from "./MapFilters";
+import { MapFilters, SelectedMapFilter } from "./MapFilters";
 import LocationDialog from "./location-dialog";
 
 export function getCategoryColor(cat: any) {
@@ -724,7 +724,7 @@ export default function MapPage() {
             />
 
             <MapControl position={ControlPosition.TOP_LEFT}>
-              <div className="flex items-start gap-2 m-3">
+              <div className="m-3 pointer-events-auto">
                 <MapFilters
                   isMobile={isMobile}
                   fetchedCategories={fetchedCategories}
@@ -739,9 +739,24 @@ export default function MapPage() {
                   availableCountries={availableCountries}
                   isLoggedIn={isLoggedIn}
                   isLoading={isSidebarLoading}
+                  hideDesktopMapFilter={true}
                 />
               </div>
             </MapControl>
+
+            {!isMobile && (
+              <MapControl position={ControlPosition.TOP_LEFT}>
+                <div className="my-3 pointer-events-auto">
+                  <SelectedMapFilter
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={handleSelectCountry}
+                    setIsManualSelection={setIsManualSelection}
+                    availableCountries={availableCountries}
+                    isMobile={isMobile}
+                  />
+                </div>
+              </MapControl>
+            )}
           </Map>
         </APIProvider>
 
