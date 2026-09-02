@@ -1,11 +1,11 @@
-// components/shared/maps/category-marker.tsx
-
+import React, { useState } from "react";
 import { CategoryIcon } from "../categories/category-icon";
 import { Lock } from "lucide-react";
 
 interface CategoryMarkerProps {
   icon: string;
   color?: string;
+  name?: string;
   isTemp?: boolean;
   isSelected?: boolean;
   isLocked?: boolean;
@@ -15,20 +15,25 @@ interface CategoryMarkerProps {
 export function CategoryMarker({
   icon,
   color = "#FA7B17",
+  name,
   isTemp = false,
   isSelected = false,
   isLocked = false,
   isMobile = false,
 }: CategoryMarkerProps) {
+  const [isHovered, setIsHovered] = useState(false);
   const bgColor = isTemp ? "#F59E0B" : color;
 
   // Proportions for a Google Maps POI Pin (slightly enlarged for optimal readability)
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
   const iconSize = isMobile ? 15 : 18.5;
+  const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
 
   return (
     <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         position: "relative",
         width: `${width}px`,
@@ -38,14 +43,53 @@ export function CategoryMarker({
         justifyContent: "center",
         cursor: "pointer",
         transformOrigin: "bottom center",
-        transform: isSelected ? "scale(1.2)" : "scale(1)",
-        filter: isSelected
+        transform: isSelected || isHovered ? "scale(1.02)" : "scale(1)",
+        filter: isSelected || isHovered
           ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))"
           : "drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35))",
         transition: "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease",
         userSelect: "none",
       }}
     >
+      {/* ── Hover Name Tooltip for Unlocked Pins ── */}
+      {showTooltip && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: `${height + 6}px`,
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "rgba(15, 23, 42, 0.92)",
+            color: "#FFFFFF",
+            padding: "4px 10px",
+            borderRadius: "8px",
+            fontSize: "11px",
+            fontWeight: "700",
+            whiteSpace: "nowrap",
+            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
+            border: "1px solid rgba(255, 255, 255, 0.18)",
+            pointerEvents: "none",
+            zIndex: 100,
+          }}
+        >
+          {name}
+          {/* Arrow Triangle pointing down to pin */}
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 0,
+              height: 0,
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: "5px solid rgba(15, 23, 42, 0.92)",
+            }}
+          />
+        </div>
+      )}
+
       {/* ── 100% Google Maps Replica SVG ── */}
       <svg
         width={width}

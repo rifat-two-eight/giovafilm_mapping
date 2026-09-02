@@ -131,6 +131,7 @@ function ViewportPlaceMarkers({
             <CategoryMarker
               icon={icon}
               color={color}
+              name={place.name}
               isSelected={selectedLocation?.id === place._id}
               isLocked={place.isLocked}
               isMobile={isMobile}

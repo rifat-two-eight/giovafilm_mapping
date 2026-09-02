@@ -1069,6 +1069,7 @@ export default function AddPlacePage() {
                       <CategoryMarker
                         icon={cat?.icon || "📍"}
                         color={resolveCategoryColor(cat)}
+                        name={place.name}
                         isSelected={isSelected}
                       />
                     </div>
