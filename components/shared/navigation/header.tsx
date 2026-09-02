@@ -158,6 +158,7 @@ export default function Header() {
     if (!next) return;
     setEnterSearching(true);
     setDebouncedSearch(next);
+    router.push(`/maps?q=${encodeURIComponent(next)}`, { scroll: false });
   };
 
   useEffect(() => {

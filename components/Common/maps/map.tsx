@@ -613,9 +613,26 @@ export default function MapPage() {
     return () => clearTimeout(timer);
   }, [pendingFocus, focusReady, isPlacesSettledForMap]);
 
+  const searchQuery = (searchParams.get("q") || searchParams.get("search") || "").trim().toLowerCase();
+
   const displayPlaces = (selectedCountry && isPlacesSettledForMap)
     ? fetchedPlaces?.filter((place: any) => {
       if (!belongsToSelectedMap(place)) return false;
+
+      // Municipality/region/city/town address filter when searching
+      if (searchQuery) {
+        const placeAddr = String(
+          place?.address ||
+          place?.location?.address ||
+          place?.location?.city ||
+          place?.location?.state ||
+          place?.name ||
+          ""
+        ).toLowerCase();
+        if (!placeAddr.includes(searchQuery)) {
+          return false;
+        }
+      }
 
       const categoryId = getCategoryId(place);
       if (!categoryId) return true;
@@ -636,13 +653,46 @@ export default function MapPage() {
     ? (!isLoggedIn && isUserResolved
       ? fetchedPlaces.filter((place: any) => {
         if (!belongsToSelectedMap(place)) return false;
+
+        if (searchQuery) {
+          const placeAddr = String(
+            place?.address ||
+            place?.location?.address ||
+            place?.location?.city ||
+            place?.location?.state ||
+            place?.name ||
+            ""
+          ).toLowerCase();
+          if (!placeAddr.includes(searchQuery)) {
+            return false;
+          }
+        }
+
         const categoryId = getCategoryId(place);
         return (
           isBusinessLocation(place) ||
           inherentlyBusinessCatIds.has(categoryId)
         );
       })
-      : fetchedPlaces.filter(belongsToSelectedMap))
+      : fetchedPlaces.filter((place: any) => {
+        if (!belongsToSelectedMap(place)) return false;
+
+        if (searchQuery) {
+          const placeAddr = String(
+            place?.address ||
+            place?.location?.address ||
+            place?.location?.city ||
+            place?.location?.state ||
+            place?.name ||
+            ""
+          ).toLowerCase();
+          if (!placeAddr.includes(searchQuery)) {
+            return false;
+          }
+        }
+
+        return true;
+      }))
     : [];
 
   if (!hasMounted) return null;
