@@ -26,6 +26,7 @@ const guestAllowedExact = new Set([
   "/terms-of-service",
   "/success",
   "/cancel",
+  "/claim-promo",
 ]);
 
 function isAdminOnlyDashboardPath(pathname: string): boolean {
@@ -50,7 +51,9 @@ export function middleware(request: NextRequest) {
   const isGuestAllowed =
     guestAllowedExact.has(pathname) ||
     pathname === "/catalog" ||
-    pathname.startsWith("/catalog/");
+    pathname.startsWith("/catalog/") ||
+    pathname === "/claim-promo" ||
+    pathname.startsWith("/claim-promo");
 
   if (!isLoggedIn && !isGuestAllowed) {
     const loginRequiredFlag = request.nextUrl.searchParams.get("loginRequired") === "1";

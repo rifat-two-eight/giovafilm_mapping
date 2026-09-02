@@ -65,12 +65,15 @@ function isPublicPath(pathname: string): boolean {
     "/terms-of-service",
     "/success",
     "/cancel",
+    "/claim-promo",
   ]);
 
   return (
     guestAllowedExact.has(pathname) ||
     pathname === "/catalog" ||
-    pathname.startsWith("/catalog/")
+    pathname.startsWith("/catalog/") ||
+    pathname === "/claim-promo" ||
+    pathname.startsWith("/claim-promo")
   );
 }
 

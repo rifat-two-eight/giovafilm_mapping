@@ -45,6 +45,8 @@ function ClaimPromoContent() {
 
   const accessToken = useAppSelector(selectAccessToken);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showMismatchModal, setShowMismatchModal] = useState(false);
+  const [mismatchMessage, setMismatchMessage] = useState("");
 
   // RTK Query calls
   const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
@@ -63,25 +65,31 @@ function ClaimPromoContent() {
   const [createPromoCheckoutSession] = useCreatePromoCheckoutSessionMutation();
 
   const promoData = verifyRes?.data;
-  const isFree = promoData ? promoData.price === 0 : false;
-  const mapName = promoData?.mapName || "Selected Map";
+  const promoPrice = typeof promoData?.price === "number" ? promoData.price : Number(promoData?.price || 0);
+  const isFree = promoData ? promoPrice === 0 : false;
+  const rawMapName = typeof promoData?.mapId === "object" ? promoData?.mapId?.name : promoData?.mapName;
+  const mapName = rawMapName || promoData?.mapName || "Selected Map";
   const promoType = promoData?.promoType || (isFree ? "influencer" : "upgrade");
 
-  // Validate if logged-in user already owns this map
-  const purchasedMaps = userProfile?.purchasedMaps || [];
+  // Validate if logged-in user already owns this map safely (null-safe check)
+  const purchasedMaps = Array.isArray(userProfile?.purchasedMaps) ? userProfile.purchasedMaps : [];
+  const promoMapId = typeof promoData?.mapId === "object" ? promoData?.mapId?._id : promoData?.mapId;
   const alreadyOwnsMap =
-    promoData?.mapId &&
+    Boolean(promoMapId) &&
     purchasedMaps.some((m: any) => {
-      const mId = typeof m === "object" ? m._id : m;
-      return mId === promoData.mapId;
+      if (!m) return false;
+      const mId = typeof m === "object" && m !== null ? m._id : m;
+      return String(mId) === String(promoMapId);
     });
 
-  // Verify if email matches target email warning
+  // Verify if email matches target email warning safely
+  const userEmailStr = typeof userProfile?.email === "string" ? userProfile.email.toLowerCase() : "";
+  const recipientEmailStr = typeof promoData?.recipientEmail === "string" ? promoData.recipientEmail.toLowerCase() : "";
   const emailMismatch =
-    accessToken &&
-    promoData?.recipientEmail &&
-    userProfile?.email &&
-    userProfile.email.toLowerCase() !== promoData.recipientEmail.toLowerCase();
+    Boolean(accessToken) &&
+    Boolean(recipientEmailStr) &&
+    Boolean(userEmailStr) &&
+    userEmailStr !== recipientEmailStr;
 
   // Auto claim or verify after logging in
   useEffect(() => {
@@ -93,7 +101,15 @@ function ClaimPromoContent() {
   // Handle Free Claiming
   const handleFreeClaim = async () => {
     if (!accessToken) {
-      router.push(`/login?redirect=/claim-promo?code=${code}`);
+      const redirectUrl = `/login?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}`;
+      router.push(redirectUrl);
+      return;
+    }
+
+    if (emailMismatch) {
+      const msg = `This invitation is specifically reserved for ${promoData?.recipientEmail}. You are logged in as ${userProfile?.email}.`;
+      setMismatchMessage(msg);
+      setShowMismatchModal(true);
       return;
     }
 
@@ -105,9 +121,13 @@ function ClaimPromoContent() {
         handleGoToMap();
       }, 2000);
     } catch (error: any) {
-      toast.error(
-        error?.data?.message || error?.message || "Failed to redeem pass"
-      );
+      const errMsg = error?.data?.message || error?.message || "";
+      if (errMsg.includes("specifically reserved for")) {
+        setMismatchMessage(errMsg);
+        setShowMismatchModal(true);
+      } else {
+        toast.error(errMsg || "Failed to redeem pass");
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -116,7 +136,15 @@ function ClaimPromoContent() {
   // Handle Paid Upgrade Stripe Checkout redirection
   const handlePaidCheckout = async () => {
     if (!accessToken) {
-      router.push(`/login?redirect=/claim-promo?code=${code}`);
+      const redirectUrl = `/login?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}`;
+      router.push(redirectUrl);
+      return;
+    }
+
+    if (emailMismatch) {
+      const msg = `This invitation is specifically reserved for ${promoData?.recipientEmail}. You are logged in as ${userProfile?.email}.`;
+      setMismatchMessage(msg);
+      setShowMismatchModal(true);
       return;
     }
 
@@ -130,11 +158,13 @@ function ClaimPromoContent() {
         throw new Error("Stripe checkout session creation failed");
       }
     } catch (error: any) {
-      toast.error(
-        error?.data?.message ||
-          error?.message ||
-          "Failed to process upgrade"
-      );
+      const errMsg = error?.data?.message || error?.message || "";
+      if (errMsg.includes("specifically reserved for")) {
+        setMismatchMessage(errMsg);
+        setShowMismatchModal(true);
+      } else {
+        toast.error(errMsg || "Failed to process upgrade");
+      }
       setIsProcessing(false);
     }
   };
@@ -467,7 +497,7 @@ function ClaimPromoContent() {
                     Free VIP Pass
                   </span>
                 ) : (
-                  <span className="text-xl font-black">${promoData?.price?.toFixed(2)} USD</span>
+                  <span className="text-xl font-black">${promoPrice.toFixed(2)} USD</span>
                 )}
               </div>
 
@@ -506,15 +536,16 @@ function ClaimPromoContent() {
                         Account Email Note
                       </h4>
                       <p className={`text-[10px] leading-relaxed ${isVipTheme ? "text-slate-400" : "text-amber-700"}`}>
-                        This invite was sent to <strong>{promoData.recipientEmail}</strong>. You are currently logged in as <strong>{userProfile?.email}</strong>.
+                        This invitation is specifically reserved for <strong>{promoData?.recipientEmail}</strong>. You are logged in as <strong>{userProfile?.email}</strong>.
                       </p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      dispatch(logout());
-                      toast.info("Logged out. Please sign up or log in with your invited email.");
+                      const msg = `This invitation is specifically reserved for ${promoData?.recipientEmail}. You are logged in as ${userProfile?.email}.`;
+                      setMismatchMessage(msg);
+                      setShowMismatchModal(true);
                     }}
                     className={`text-[11px] font-semibold flex items-center gap-1.5 self-start px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                       isVipTheme
@@ -522,8 +553,8 @@ function ClaimPromoContent() {
                         : "text-amber-800 hover:bg-amber-100/70"
                     }`}
                   >
-                    <LogOut size={13} />
-                    Log out & switch account
+                    <MailCheck size={13} />
+                    View Mismatch Details
                   </button>
                 </div>
               )}
@@ -540,8 +571,16 @@ function ClaimPromoContent() {
                     <h4 className={`text-xs font-bold ${isVipTheme ? "text-white" : "text-yellow-900"}`}>
                       Sign In or Sign Up Required
                     </h4>
-                    <p className={`text-[10px] leading-relaxed ${isVipTheme ? "text-slate-400" : "text-yellow-700"}`}>
-                      Create a free account or sign in to claim this exclusive invitation pass. The unlocked map will be permanently attached to your profile.
+                    <p className={`text-[11px] leading-relaxed ${isVipTheme ? "text-slate-300" : "text-yellow-900"}`}>
+                      {promoData?.recipientEmail ? (
+                        <>
+                          This invitation was sent to <strong className="font-bold underline">{promoData.recipientEmail}</strong>. Please sign in or create an account with <strong className="font-bold underline">{promoData.recipientEmail}</strong> to claim this map pass.
+                        </>
+                      ) : (
+                        <>
+                          Create a free account or sign in to claim this exclusive invitation pass. The unlocked map will be permanently attached to your profile.
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -633,6 +672,63 @@ function ClaimPromoContent() {
           </div>
         </motion.div>
       </div>
+
+      {/* ── Custom Email Mismatch Modal ── */}
+      {showMismatchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full p-6 text-center space-y-6 relative overflow-hidden">
+            {/* Top Banner Icon */}
+            <div className="mx-auto w-16 h-16 bg-amber-50 border border-amber-100 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm">
+              <MailCheck className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-xl font-black text-gray-900 tracking-tight">
+                Account Email Mismatch
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed font-medium px-2">
+                {mismatchMessage ||
+                  `This invitation is specifically reserved for ${promoData?.recipientEmail}. You are logged in as ${userProfile?.email}.`}
+              </p>
+            </div>
+
+            <div className="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200/60 text-xs text-amber-900 text-left font-medium space-y-1">
+              <p className="font-bold text-amber-950 flex items-center gap-1.5">
+                <AlertCircle size={14} className="text-amber-600 shrink-0" /> Important Notice:
+              </p>
+              <p className="text-[11px] leading-relaxed text-amber-800">
+                To claim this map access, please log out of your current account and log in or sign up with <strong>{promoData?.recipientEmail || "the invited email"}</strong>.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2.5 pt-2">
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowMismatchModal(false);
+                  dispatch(logout());
+                  const targetEmail = promoData?.recipientEmail ? `&email=${encodeURIComponent(promoData.recipientEmail)}` : "";
+                  router.push(`/login?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}${targetEmail}`);
+                  toast.info("Logged out. Please log in with your invited email.");
+                }}
+                className="w-full h-12 bg-[#FFC107] hover:bg-[#FFB300] text-black font-extrabold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogOut size={16} />
+                Log Out & Switch Account
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowMismatchModal(false)}
+                className="w-full h-11 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 text-sm cursor-pointer"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
