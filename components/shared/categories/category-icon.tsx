@@ -1,9 +1,6 @@
-"use client";
-
-import React, { useState } from "react";
+import React from "react";
 import { Icon } from "@iconify/react";
 import { getImageUrl } from "@/lib/utils";
-import { MapPin } from "lucide-react";
 
 interface CategoryIconProps {
   icon: string;
@@ -18,11 +15,7 @@ export function CategoryIcon({
   color = "#ffffff",
   className = "",
 }: CategoryIconProps) {
-  const [imageError, setImageError] = useState(false);
-
-  if (!icon) {
-    return <MapPin size={size} color={color} className={className} />;
-  }
+  if (!icon) return null;
 
   // Check if it's a custom image (URL, base64, or file path)
   const isCustomImage =
@@ -31,24 +24,15 @@ export function CategoryIcon({
     icon.includes("/") ||
     icon.includes(".");
 
-  if (isCustomImage && !imageError) {
+  if (isCustomImage) {
     return (
       <img
         src={getImageUrl(icon)}
-        alt=""
+        alt="category icon"
         className={`object-contain ${className}`}
-        style={{
-          width: size,
-          height: size,
-          filter: "brightness(0) invert(1)",
-        }}
-        onError={() => setImageError(true)}
+        style={{ width: size, height: size }}
       />
     );
-  }
-
-  if (isCustomImage && imageError) {
-    return <MapPin size={size} color={color} className={className} />;
   }
 
   // Check if it's an emoji
@@ -73,4 +57,5 @@ export function CategoryIcon({
     />
   );
 }
+
 
