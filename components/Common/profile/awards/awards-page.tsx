@@ -77,14 +77,14 @@ export default function AwardsPage() {
   const strokeDashoffset = 440 - (440 * percent) / 100;
 
   return (
-    <div className="py-6 md:py-16 bg-white min-h-screen">
-      <div className="max-w-360 mx-auto px-4 md:px-6 font-public-sans">
+    <div className="py-3 md:py-12 bg-white min-h-screen">
+      <div className="max-w-360 mx-auto px-3 md:px-6 font-public-sans">
         {/* Page Title */}
-        <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-5 uppercase tracking-wide">Awards & Achievements</h1>
+        <h1 className="text-lg md:text-2xl font-bold mb-2 md:mb-5 uppercase tracking-wide">Awards & Achievements</h1>
 
-        <div className="bg-amber-500/10 p-3 md:p-8 rounded-2xl md:rounded-3xl flex flex-row md:flex-row gap-3 md:gap-8 items-center justify-between border border-amber-500/15 mb-6 md:mb-10 shadow-sm">
+        <div className="bg-amber-500/10 p-2.5 md:p-6 rounded-xl md:rounded-3xl flex flex-row items-center justify-between border border-amber-500/15 mb-4 md:mb-8 shadow-sm">
           {/* LEFT: Progress Circle */}
-          <div className="relative w-16 h-16 md:w-40 md:h-40 flex items-center justify-center shrink-0">
+          <div className="relative w-14 h-14 md:w-36 md:h-36 flex items-center justify-center shrink-0">
             <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 160 160">
               <circle
                 cx="80"
@@ -111,17 +111,17 @@ export default function AwardsPage() {
             <div className="text-center">
               {isProfileLoading ? (
                 <>
-                  <div className="mx-auto h-4 w-12 bg-gray-200 animate-pulse rounded" />
-                  <p className="text-[6px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                  <div className="mx-auto h-3 w-10 bg-gray-200 animate-pulse rounded" />
+                  <p className="text-[6px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                     XP POINTS
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-xs sm:text-base md:text-3xl font-extrabold text-gray-900 leading-none">
+                  <p className="text-xs sm:text-base md:text-2xl font-extrabold text-gray-900 leading-none">
                     {points.toLocaleString()}
                   </p>
-                  <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 leading-none">
+                  <p className="text-[6px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 leading-none">
                     XP POINTS
                   </p>
                 </>
@@ -130,25 +130,25 @@ export default function AwardsPage() {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="flex-1 ml-2 md:ml-10 text-left w-full">
+          <div className="flex-1 ml-2 md:ml-8 text-left w-full">
             {/* Level badge */}
-            <span className="inline-block bg-amber-500/20 text-amber-800 px-1.5 py-0.5 md:px-4 md:py-1.5 rounded-full text-[6px] md:text-xs font-bold mb-0.5 md:mb-3 uppercase tracking-wider">
+            <span className="inline-block bg-amber-500/20 text-amber-800 px-2 py-0.5 md:px-4 md:py-1 rounded-full text-[8px] md:text-xs font-bold mb-0.5 md:mb-2 uppercase tracking-wider">
               {isProfileLoading
                 ? "Loading..."
                 : `🏆 Level ${currentLevel} Explorer`}
             </span>
 
             {/* Name */}
-            <h2 className="text-xs sm:text-base md:text-2xl font-bold text-gray-900 capitalize leading-tight">
+            <h2 className="text-xs sm:text-base md:text-xl font-bold text-gray-900 capitalize leading-tight">
               {isProfileLoading ? (
-                <span className="inline-block h-5 w-24 bg-gray-200 animate-pulse rounded" />
+                <span className="inline-block h-4 w-20 bg-gray-200 animate-pulse rounded" />
               ) : (
                 user?.name || "Explorer"
               )}
             </h2>
 
             {/* Description */}
-            <p className="hidden md:block text-gray-500 mt-2 text-sm leading-relaxed max-w-xl">
+            <p className="hidden md:block text-gray-500 mt-1.5 text-sm leading-relaxed max-w-xl">
               You're making incredible progress! Earn{" "}
               <span className="font-bold text-gray-900">
                 {pointsNeededForNext.toLocaleString()} more XP
@@ -157,34 +157,34 @@ export default function AwardsPage() {
             </p>
 
             {/* Cards */}
-            <div className="flex gap-1.5 md:gap-4 mt-1.5 md:mt-6 w-full">
-              <div className="bg-white/80 border border-gray-100 px-1.5 py-1 md:px-6 md:py-4 rounded-md md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
-                <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">NEXT LEVEL</p>
-                <p className="font-extrabold text-gray-800 mt-0.5 text-[8px] md:text-sm leading-none">Level {currentLevel + 1}</p>
+            <div className="flex gap-1.5 md:gap-3 mt-1 md:mt-3 w-full">
+              <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">
+                <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">NEXT LEVEL</p>
+                <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-xs leading-none">Level {currentLevel + 1}</p>
               </div>
 
-              <div className="bg-white/80 border border-gray-100 px-1.5 py-1 md:px-6 md:py-4 rounded-md md:rounded-2xl flex-1 md:flex-none md:w-44 shadow-sm">
-                <p className="text-[5px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">LEVEL PROGRESS</p>
-                <p className="font-extrabold text-amber-600 mt-0.5 text-[8px] md:text-sm leading-none">{Math.round(percent)}%</p>
+              <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">
+                <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">LEVEL PROGRESS</p>
+                <p className="font-extrabold text-amber-600 mt-0.5 text-[9px] md:text-xs leading-none">{Math.round(percent)}%</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-4 mb-8 gap-4">
+        <div className="mt-4 md:mt-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-3 md:pb-4 mb-4 md:mb-8 gap-3">
             <div>
-              <h2 className="text-xl font-bold uppercase tracking-wide">Achievement Vault</h2>
-              <p className="text-gray-500 text-xs mt-0.5">
+              <h2 className="text-lg md:text-xl font-bold uppercase tracking-wide">Achievement Vault</h2>
+              <p className="text-gray-500 text-[11px] md:text-xs mt-0.5">
                 Collect trophies and unlock premium travel perks.
               </p>
             </div>
             
             {/* Filter Tabs */}
-            <div className="flex bg-gray-100 p-1 rounded-xl">
+            <div className="flex bg-gray-100 p-0.5 md:p-1 rounded-xl self-start md:self-auto">
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 text-xs font-bold uppercase rounded-lg transition-all ${
+                className={`px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-bold uppercase rounded-lg transition-all ${
                   activeFilter === "all"
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-900"
@@ -194,7 +194,7 @@ export default function AwardsPage() {
               </button>
               <button
                 onClick={() => setActiveFilter("unlocked")}
-                className={`px-4 py-2 text-xs font-bold uppercase rounded-lg transition-all ${
+                className={`px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-bold uppercase rounded-lg transition-all ${
                   activeFilter === "unlocked"
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-900"
@@ -204,7 +204,7 @@ export default function AwardsPage() {
               </button>
               <button
                 onClick={() => setActiveFilter("locked")}
-                className={`px-4 py-2 text-xs font-bold uppercase rounded-lg transition-all ${
+                className={`px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-bold uppercase rounded-lg transition-all ${
                   activeFilter === "locked"
                     ? "bg-white text-gray-900 shadow-sm"
                     : "text-gray-500 hover:text-gray-900"

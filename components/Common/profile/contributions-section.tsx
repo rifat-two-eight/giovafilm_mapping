@@ -43,62 +43,62 @@ export function ContributionsSection() {
   const progressToNextLevel = nextLevelPoints > 0 ? Math.min(100, Math.round((currentPoints / nextLevelPoints) * 100)) : 100;
 
   return (
-    <div className="bg-white rounded-2xl p-8 border border-gray-200 space-y-8">
+    <div className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 space-y-4 sm:space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-0.5">
           Your Contributions
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-xs sm:text-sm">
           Track your impact in the community
         </p>
       </div>
 
       {/* Statistics Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-gray-50 rounded-xl p-6 border border-gray-100 h-28 animate-pulse"
+              className="bg-gray-50 rounded-xl p-3 sm:p-6 border border-gray-100 h-20 sm:h-28 animate-pulse"
             />
           ))}
         </div>
       ) : (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {/* Total Points */}
-        <div className="bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
-          <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
-            TOTAL POINTS
-          </p>
-          <p className="text-4xl font-bold text-yellow-500">{currentPoints}</p>
-        </div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          {/* Total Points */}
+          <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
+            <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
+              TOTAL POINTS
+            </p>
+            <p className="text-lg sm:text-4xl font-extrabold text-amber-500">{currentPoints}</p>
+          </div>
 
-        {/* Reviews */}
-        <div className="bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
-          <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
-            APPROVED REVIEWS
-          </p>
-          <p className="text-4xl font-bold text-yellow-500">{user?.totalReviewsApproved || 0}</p>
-        </div>
+          {/* Reviews */}
+          <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
+            <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
+              APPROVED REVIEWS
+            </p>
+            <p className="text-lg sm:text-4xl font-extrabold text-amber-500">{user?.totalReviewsApproved || 0}</p>
+          </div>
 
-        {/* Level */}
-        <div className="bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
-          <p className="text-gray-500 text-xs font-semibold tracking-wide mb-2">
-            CURRENT LEVEL
-          </p>
-          <p className="text-4xl font-bold text-yellow-500">Lv {currentLevel}</p>
+          {/* Level */}
+          <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
+            <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
+              CURRENT LEVEL
+            </p>
+            <p className="text-lg sm:text-4xl font-extrabold text-amber-500">Lv {currentLevel}</p>
+          </div>
         </div>
-      </div>
       )}
 
       {/* Progress Section */}
-      <div className="space-y-3 pt-4 border-t border-gray-200">
+      <div className="space-y-2 pt-3 border-t border-gray-200">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-2">
-            Progress to Level {nextLevelIndex}: <span className="text-yellow-600 font-bold">{nextLevel.name}</span>
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">
+            Progress to Level {nextLevelIndex}: <span className="text-amber-600 font-bold">{nextLevel.name}</span>
           </h3>
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-[11px] sm:text-xs text-gray-500 mb-2">
             {pointsUntilNextLevel} pts and {Math.max(0, nextLevel.reviews - (user?.totalReviewsApproved || 0))} reviews until next rank
           </p>
         </div>
@@ -112,12 +112,12 @@ export function ContributionsSection() {
         </div>
 
         {/* Progress Percentage */}
-        <p className="text-xs text-right text-gray-600 font-medium">
+        <p className="text-[11px] sm:text-xs text-right text-gray-600 font-medium">
           {progressToNextLevel}%
         </p>
 
         {/* Help Text */}
-        <p className="text-xs text-gray-400 pt-2">
+        <p className="text-[11px] sm:text-xs text-gray-400 pt-1">
           💡 Earn points by adding reviews, uploading photos, and exploring new
           places.
         </p>
