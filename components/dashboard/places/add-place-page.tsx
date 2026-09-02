@@ -950,35 +950,46 @@ export default function AddPlacePage() {
                         const toastId = toast.loading("Saving location...");
 
                         try {
-                          let address = "";
-                          try {
-                            const response = await fetch(
-                              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLat},${newLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`
-                            );
-                            const geocodeData = await response.json();
-                            if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
-                              address = geocodeData.results[0].formatted_address;
-                            }
-                          } catch (geocodeErr) {
-                            console.error("Geocoding failed during drag auto-save", geocodeErr);
-                          }
-
                           const payload: any = {
                             location: {
                               type: "Point",
                               coordinates: [newLng, newLat]
                             }
                           };
-                          if (address) {
-                            payload.address = address;
-                          }
 
+                          // Save new coordinates immediately (~100ms instant save)
                           await updatePlace({
                             id: placeId,
                             data: payload
                           }).unwrap();
 
                           toast.success("Location updated successfully!", { id: toastId });
+
+                          // Reverse geocode address asynchronously in background without blocking UI
+                          fetch(
+                            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLat},${newLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`
+                          )
+                            .then((res) => res.json())
+                            .then((geocodeData) => {
+                              if (geocodeData.status === "OK" && geocodeData.results.length > 0) {
+                                const address = geocodeData.results[0].formatted_address;
+                                if (address) {
+                                  updatePlace({
+                                    id: placeId,
+                                    data: { address }
+                                  });
+                                  setSelectedPlace((prev: any) => {
+                                    if (prev && prev._id === placeId) {
+                                      return { ...prev, address };
+                                    }
+                                    return prev;
+                                  });
+                                }
+                              }
+                            })
+                            .catch((geocodeErr) => {
+                              console.error("Geocoding failed during background drag save", geocodeErr);
+                            });
 
                           // Trigger bounce animation
                           setAnimatingPins((prev) => ({ ...prev, [placeId]: "bounce" }));
@@ -990,29 +1001,41 @@ export default function AddPlacePage() {
                             });
                           }, 1500);
 
-                          // Only update selectedPlace if it was already open
+                          // Only update selectedPlace position if it was already open
                           setSelectedPlace((prev: any) => {
                             if (prev && prev._id === placeId) {
                               return {
                                 ...prev,
-                                position: updatedPosition,
-                                ...(address && { address })
+                                position: updatedPosition
                               };
                             }
                             return prev;
                           });
 
-                          setDraggedPositions(prev => {
-                            const next = { ...prev };
-                            delete next[placeId];
-                            return next;
-                          });
+                          // Keep draggedPositions[placeId] so the marker position remains seamless
+                          // without snapping back to the old position while RTK Query background refetch completes.
                           setTimeout(() => {
                             wasDraggingRef.current = false;
                           }, 200);
                         } catch (err: any) {
                           toast.error(err?.data?.message || "Failed to auto-save location", { id: toastId });
                           console.error("Auto-save drag failed", err);
+
+                          // Revert to original position on error
+                          setDraggedPositions((prev) => {
+                            const next = { ...prev };
+                            delete next[placeId];
+                            return next;
+                          });
+                          setAnimatingPins((prev) => ({ ...prev, [placeId]: "shake" }));
+                          setTimeout(() => {
+                            setAnimatingPins((prev) => {
+                              const next = { ...prev };
+                              delete next[placeId];
+                              return next;
+                            });
+                          }, 1000);
+
                           setTimeout(() => {
                             wasDraggingRef.current = false;
                           }, 200);
