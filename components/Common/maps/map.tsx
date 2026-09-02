@@ -251,7 +251,7 @@ export default function MapPage() {
   const [focusReady, setFocusReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
-  const [initialMapState, setInitialMapState] = useState<{center: {lat: number, lng: number}, zoom: number} | null>(null);
+  const [initialMapState, setInitialMapState] = useState<{ center: { lat: number, lng: number }, zoom: number } | null>(null);
   const focusMapAppliedRef = useRef(false);
 
   // Capture View-on-Map / search deep-link whenever focus params appear
@@ -303,7 +303,7 @@ export default function MapPage() {
       if (savedLoc) {
         setSelectedLocation(JSON.parse(savedLoc));
       }
-    } catch (e) {}
+    } catch (e) { }
     setHasMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -615,20 +615,20 @@ export default function MapPage() {
 
   const displayPlaces = (selectedCountry && isPlacesSettledForMap)
     ? fetchedPlaces?.filter((place: any) => {
-        if (!belongsToSelectedMap(place)) return false;
+      if (!belongsToSelectedMap(place)) return false;
 
-        const categoryId = getCategoryId(place);
-        if (!categoryId) return true;
+      const categoryId = getCategoryId(place);
+      if (!categoryId) return true;
 
-        // Guest: only business-type locations OR inherently business categories
-        if (!isLoggedIn && isUserResolved) {
-          if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
-            return false;
-          }
+      // Guest: only business-type locations OR inherently business categories
+      if (!isLoggedIn && isUserResolved) {
+        if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
+          return false;
         }
+      }
 
-        return enabledCategories[categoryId] !== false;
-      })
+      return enabledCategories[categoryId] !== false;
+    })
     : [];
 
   // Guest sidebar: same visibility rules as map markers
@@ -662,7 +662,7 @@ export default function MapPage() {
                   center: ev.detail.center,
                   zoom: ev.detail.zoom
                 }));
-              } catch (e) {}
+              } catch (e) { }
             }}
             minZoom={3}
             maxZoom={19}

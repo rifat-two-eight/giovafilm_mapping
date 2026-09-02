@@ -1,4 +1,4 @@
-// components/shared/maps/CategoryMarker.tsx
+// components/shared/maps/category-marker.tsx
 
 import { CategoryIcon } from "../categories/category-icon";
 import { Lock } from "lucide-react";
@@ -14,32 +14,83 @@ interface CategoryMarkerProps {
 
 export function CategoryMarker({
   icon,
-  color = "#3B82F6",
+  color = "#FA7B17",
   isTemp = false,
   isSelected = false,
   isLocked = false,
   isMobile = false,
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
-  const size = isMobile ? 30 : 36;
+
+  // Exact proportions for a Google Maps POI Pin with flat bottom
+  const width = isMobile ? 36 : 44;
+  const height = isMobile ? 45 : 55;
   const iconSize = isMobile ? 18 : 22;
 
   return (
     <div
       style={{
         position: "relative",
+        width: `${width}px`,
+        height: `${height}px`,
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
-        filter: isSelected
-          ? "drop-shadow(0 4px 12px rgba(0,0,0,0.35))"
-          : "drop-shadow(0 2px 6px rgba(0,0,0,0.25))",
-        transform: isSelected ? "scale(1.2)" : "scale(1)",
-        transition: "transform 0.15s ease, filter 0.15s ease",
+        justifyContent: "center",
         cursor: "pointer",
+        transformOrigin: "bottom center",
+        transform: isSelected ? "scale(1.2)" : "scale(1)",
+        filter: isSelected
+          ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))"
+          : "drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35))",
+        transition: "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease",
+        userSelect: "none",
       }}
     >
-      {/* Lock Icon overlay - positioned relative to the non-rotated parent */}
+      {/* ── 100% Google Maps Replica SVG ── */}
+      <svg
+        width={width}
+        height={height}
+        viewBox="0 0 40 50"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+        }}
+      >
+        {/* Outer White Pin Body with Flat/Cut Rounded Tip */}
+        <path
+          d="M20 0C8.95 0 0 8.95 0 20C0 29 10 39 15 43.5C16.5 44.8 18.2 45.5 20 45.5C21.8 45.5 23.5 44.8 25 43.5C30 39 40 29 40 20C40 8.95 31.05 0 20 0Z"
+          fill="#FFFFFF"
+        />
+        {/* Inner Solid Color Circle (large, leaving thin white border) */}
+        <circle cx="20" cy="20" r="17" fill={bgColor} />
+      </svg>
+
+      {/* ── Centered Category Icon Inside Colored Circle ── */}
+      <div
+        style={{
+          position: "absolute",
+          top: `${(20 / 50) * 100}%`,
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: `${iconSize}px`,
+          height: `${iconSize}px`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      >
+        <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
+      </div>
+
+      {/* ── Lock Badge (if locked) ── */}
       {isLocked && (
         <div
           style={{
@@ -49,46 +100,25 @@ export function CategoryMarker({
             background: "#EF4444",
             color: "#fff",
             borderRadius: "50%",
-            width: isMobile ? 14 : 18,
-            height: isMobile ? 14 : 18,
+            width: isMobile ? 15 : 18,
+            height: isMobile ? 15 : 18,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             border: "1.5px solid white",
             zIndex: 10,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
           }}
         >
           <Lock size={isMobile ? 8 : 10} style={{ strokeWidth: 3 }} />
         </div>
       )}
-
-      {/* Teardrop Pin Head */}
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50% 50% 50% 0",
-          transform: "rotate(-45deg)",
-          background: bgColor,
-          border: isMobile ? "1.5px solid #ffffff" : "2px solid #ffffff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* Undo rotation for icon */}
-        <div
-          style={{
-            transform: "rotate(45deg)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <CategoryIcon icon={icon} size={iconSize} color="#ffffff" />
-        </div>
-      </div>
     </div>
   );
 }
+
+
+
+
+
+
