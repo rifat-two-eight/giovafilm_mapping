@@ -145,20 +145,21 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 flex items-end sm:items-center justify-center pointer-events-none p-4 pb-[max(5rem,env(safe-area-inset-bottom))] sm:pb-4">
-      <div className="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col overflow-hidden max-h-full min-h-0">
+    <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none p-3 sm:p-4 pb-16 sm:pb-4">
+      <div className="bg-white rounded-t-[28px] rounded-b-[20px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col overflow-hidden max-h-[80dvh] sm:max-h-[85vh] min-h-0 animate-in slide-in-from-bottom-4 duration-200">
         {/* Close — always tappable above image + description */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close location"
-          className="absolute top-3 right-3 z-[60] w-11 h-11 bg-white/95 rounded-full flex items-center justify-center shadow-lg"
+          className="absolute top-3 right-3 z-[60] w-9 h-9 sm:w-11 sm:h-11 bg-white/95 rounded-full flex items-center justify-center shadow-lg hover:bg-white"
         >
-          <X size={22} />
+          <X size={20} className="sm:hidden" />
+          <X size={22} className="hidden sm:block" />
         </button>
 
         {/* Image stays visible; long copy only scrolls below */}
-        <div className="h-40 sm:h-48 shrink-0 grow-0 overflow-hidden rounded-t-[32px]">
+        <div className="h-32 sm:h-48 shrink-0 grow-0 overflow-hidden rounded-t-[28px] sm:rounded-t-[32px]">
           {coverImage ? (
             <SafeImage
               src={coverImage}
@@ -170,34 +171,34 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
           )}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">
-          <h2 className="text-2xl font-black mb-2 pr-6">{location?.name}</h2>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+          <h2 className="text-xl sm:text-2xl font-black mb-1.5 pr-8 leading-tight">{location?.name}</h2>
 
-          <div className="flex items-center gap-2 mb-4">
-            <div className="flex items-center text-sm font-bold">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center text-xs sm:text-sm font-bold">
               <Star size={14} className="fill-black mr-1" />
               {location?.rating ?? "—"}
             </div>
 
-            <span className="text-gray-400 text-sm">
+            <span className="text-gray-400 text-xs sm:text-sm truncate">
               ({location?.totalReview ?? 0} reviews){" "}
               {location?.map?.name || location?.location?.country || ""}
             </span>
           </div>
 
-          <p className="text-sm text-gray-600 mb-4">{location?.description}</p>
+          <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">{location?.description}</p>
 
           {type !== "business" && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
               <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
                 NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
               </p>
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-1">
             <Link href={`/maps/${placeId}?type=${type}`} className="flex-1">
-              <Button className="w-full bg-[#FFC107] text-black font-bold rounded-xl h-12">
+              <Button className="w-full bg-[#FFC107] text-black font-bold rounded-xl h-11 sm:h-12 text-xs sm:text-sm">
                 View Details
               </Button>
             </Link>
@@ -206,7 +207,7 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
               <FavouriteButton
                 placeId={locationId}
                 type={type === "business" ? "Business" : "Place"}
-                Style="w-12 h-12 rounded-xl"
+                Style="w-11 h-11 sm:w-12 sm:h-12 rounded-xl"
               />
             )}
           </div>

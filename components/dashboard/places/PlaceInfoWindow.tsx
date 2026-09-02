@@ -50,7 +50,7 @@ export const PlaceInfoWindow = ({
 
   return (
     <InfoWindow position={position} onCloseClick={onClose} headerDisabled pixelOffset={offsetSize}>
-      <div className="w-[650px] max-w-[650px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300">
+      <div className="w-[calc(100vw-32px)] max-w-[calc(100vw-32px)] sm:w-[550px] sm:max-w-[550px] md:w-[650px] md:max-w-[650px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col animate-in fade-in duration-300 max-h-[85vh]">
         <PlaceFormContent
           categories={categories}
           isSaving={isSaving}
@@ -65,7 +65,7 @@ export const PlaceInfoWindow = ({
       <style jsx global>{`
         .gm-style-iw {
           padding: 0 !important;
-          max-width: none !important;
+          max-width: calc(100vw - 32px) !important;
           background: transparent !important;
           box-shadow: none !important;
         }
@@ -77,7 +77,8 @@ export const PlaceInfoWindow = ({
           padding: 0 !important;
           border-radius: 20px !important;
           background: white !important;
-          max-width: 650px !important;
+          max-width: calc(100vw - 32px) !important;
+          max-height: 85vh !important;
           overflow: auto !important;
         }
         .gm-style-iw-tc::after {
