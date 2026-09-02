@@ -49,13 +49,17 @@ import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal
 import { shareProfile } from "@/lib/share-profile";
 
 function getPlaceSearchHref(place: any, onMapsPage: boolean) {
-  if (!onMapsPage) return `/places/${place._id}`;
+  if (!onMapsPage) return `/places/${place._id || place.id}`;
 
-  const coords = place?.location?.coordinates;
+  const coords =
+    place?.location?.mapLocation?.coordinates ||
+    place?.location?.coordinates ||
+    place?.coordinates;
   const lng = Array.isArray(coords) ? coords[0] : place?.longitude;
   const lat = Array.isArray(coords) ? coords[1] : place?.latitude;
   const mapName =
     (typeof place?.map === "object" && (place.map?.name || place.map?.country)) ||
+    place?.mapName ||
     place?.country ||
     "";
   const type =
@@ -63,7 +67,7 @@ function getPlaceSearchHref(place: any, onMapsPage: boolean) {
       ? "business"
       : "place";
   const params = new URLSearchParams({
-    focus: String(place?._id || ""),
+    focus: String(place?._id || place?.id || ""),
     type,
   });
   if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {

@@ -6,7 +6,7 @@ import { getUsableMediaUrl } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { normalizePinType, trackUsage } from "@/lib/record-visit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Star, X, Lock } from "lucide-react";
 import Link from "next/link";
 
@@ -18,16 +18,26 @@ type Props = {
 
 export default function LocationDialog({ id, onClose, mapId }: Props) {
   const placeId = id?.id;
-  const type = normalizePinType(id?.type);
+  const initialType = normalizePinType(id?.type);
+  const [activeType, setActiveType] = useState<"place" | "business">(
+    initialType === "business" ? "business" : "place"
+  );
+  const [hasFalledBack, setHasFalledBack] = useState(false);
 
-  // Fetch based on type
+  useEffect(() => {
+    setActiveType(initialType === "business" ? "business" : "place");
+    setHasFalledBack(false);
+  }, [initialType, placeId]);
+
+  // Fetch based on activeType
   const {
     data: businessRes,
     isLoading: isBusinessLoading,
     isFetching: isBusinessFetching,
     status: businessStatus,
+    isError: isBusinessError,
   } = useGetSingleBusinessQuery(placeId, {
-    skip: type !== "business",
+    skip: activeType !== "business",
   });
 
   const {
@@ -35,10 +45,30 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
     isLoading: isPlaceLoading,
     isFetching: isPlaceFetching,
     status: placeStatus,
+    isError: isPlaceError,
     error: placeError,
   } = useGetPlaceDetailsQuery(placeId, {
-    skip: type !== "place",
+    skip: activeType !== "place",
   });
+
+  // Automatic fallback if initial type query fails/returns empty
+  useEffect(() => {
+    if (hasFalledBack) return;
+    if (activeType === "business" && isBusinessError && !businessRes?.data) {
+      setHasFalledBack(true);
+      setActiveType("place");
+    } else if (
+      activeType === "place" &&
+      isPlaceError &&
+      !placeRes?.data &&
+      (placeError as any)?.status !== 403
+    ) {
+      setHasFalledBack(true);
+      setActiveType("business");
+    }
+  }, [activeType, isBusinessError, isPlaceError, businessRes, placeRes, placeError, hasFalledBack]);
+
+  const type = activeType;
 
   useEffect(() => {
     if (!placeId) return;
