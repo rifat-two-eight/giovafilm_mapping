@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getSocket } from "@/lib/socket";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import {
@@ -53,6 +54,7 @@ export default function PromosPage() {
   const [emailsText, setEmailsText] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSendingEmails, setIsSendingEmails] = useState(false);
 
   // API Queries & Mutations
   const { data: user } = useGetProfileQuery({});
@@ -81,6 +83,31 @@ export default function PromosPage() {
 
   const promoLinks = promoRes?.data || [];
   const meta = promoRes?.meta;
+
+  // Real-time socket listener for automated email status updates
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handlePromoEmailSent = () => {
+      refetchPromos();
+      refetchStats();
+    };
+
+    const handlePromoBulkComplete = () => {
+      refetchPromos();
+      refetchStats();
+      setIsSendingEmails(false);
+    };
+
+    socket.on("promo_email_sent", handlePromoEmailSent);
+    socket.on("promo_bulk_sent_complete", handlePromoBulkComplete);
+
+    return () => {
+      socket.off("promo_email_sent", handlePromoEmailSent);
+      socket.off("promo_bulk_sent_complete", handlePromoBulkComplete);
+    };
+  }, [refetchPromos, refetchStats]);
 
   // Handle link type tab changes
   const handleTypeChange = (type: PromoType) => {
@@ -156,11 +183,25 @@ export default function PromosPage() {
         const promoIds = result.data.map((promo: any) => promo._id || promo.id);
         if (promoIds.length > 0) {
           try {
+            setIsSendingEmails(true);
             await sendBulkEmails({ promoIds }).unwrap();
-            toast.success(`Queued ${promoIds.length} invitation emails in the background!`);
+            toast.success(`Queued ${promoIds.length} invitation email(s) in the background!`);
+            
+            // Poll periodically to update table status automatically while background process executes
+            let count = 0;
+            const interval = setInterval(() => {
+              count++;
+              refetchPromos();
+              refetchStats();
+              if (count >= 6) {
+                clearInterval(interval);
+                setIsSendingEmails(false);
+              }
+            }, 2000);
           } catch (emailErr) {
             console.error("Auto email sending failed:", emailErr);
             toast.error("Links generated, but automatic email invitations failed to queue.");
+            setIsSendingEmails(false);
           }
         }
       }
@@ -233,6 +274,15 @@ export default function PromosPage() {
       toast.success("Invitation email sent successfully!");
       refetchPromos();
       refetchStats();
+
+      // Poll periodically to update table status automatically while email sends
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        refetchPromos();
+        refetchStats();
+        if (count >= 5) clearInterval(interval);
+      }, 1500);
     } catch (error: any) {
       toast.error(
         error?.data?.message || error?.message || "Failed to send email"
@@ -277,11 +327,25 @@ export default function PromosPage() {
     }
 
     try {
+      setIsSendingEmails(true);
       await sendBulkEmails({ promoIds: pendingIds }).unwrap();
       toast.success(`Started sending ${pendingIds.length} emails in background!`);
       refetchPromos();
       refetchStats();
+
+      // Poll periodically to update status badges automatically while background process executes
+      let count = 0;
+      const interval = setInterval(() => {
+        count++;
+        refetchPromos();
+        refetchStats();
+        if (count >= 8) {
+          clearInterval(interval);
+          setIsSendingEmails(false);
+        }
+      }, 2000);
     } catch (error: any) {
+      setIsSendingEmails(false);
       toast.error(
         error?.data?.message || error?.message || "Failed to trigger bulk emails"
       );
@@ -683,35 +747,41 @@ export default function PromosPage() {
               </p>
             </div>
             {(() => {
-              const pendingCount = promoLinks.filter(
-                (promo: any) => !promo.isUsed && promo.recipientEmail && !promo.isEmailSent
-              ).length;
+              const pendingCount = isSendingEmails
+                ? 0
+                : promoLinks.filter(
+                    (promo: any) => !promo.isUsed && promo.recipientEmail && !promo.isEmailSent
+                  ).length;
+
+              const isDisabled = pendingCount === 0 || isSendingEmails;
 
               return (
                 <Button
                   onClick={handleSendAllEmails}
-                  disabled={pendingCount === 0}
+                  disabled={isDisabled}
                   className={`text-xs px-4 py-2 rounded-xl flex items-center gap-2 h-9 self-end md:self-auto font-bold transition-all ${
-                    pendingCount > 0
+                    !isDisabled
                       ? "bg-amber-400 hover:bg-amber-500 text-black shadow-sm"
-                      : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed opacity-60"
                   }`}
                   title={
-                    pendingCount > 0
+                    isSendingEmails
+                      ? "Sending invitation emails in background..."
+                      : pendingCount > 0
                       ? `Send background email to ${pendingCount} pending recipient(s)`
                       : "No pending emails to send in current list"
                   }
                 >
-                  <Send size={13} className={pendingCount > 0 ? "animate-pulse" : ""} />
-                  <span>Send Pending Invites</span>
+                  <Send size={13} className={isSendingEmails ? "animate-spin text-gray-400" : pendingCount > 0 ? "animate-pulse" : ""} />
+                  <span>{isSendingEmails ? "Sending Invites..." : "Send Pending Invites"}</span>
                   <span
                     className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
-                      pendingCount > 0
+                      !isDisabled
                         ? "bg-black/10 text-black"
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    {pendingCount}
+                    {isSendingEmails ? "..." : pendingCount}
                   </span>
                 </Button>
               );
