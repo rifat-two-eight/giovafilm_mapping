@@ -22,10 +22,10 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const bgColor = isTemp ? "#F59E0B" : color;
 
-  // Exact proportions for a Google Maps POI Pin with flat bottom
-  const width = isMobile ? 36 : 44;
-  const height = isMobile ? 45 : 55;
-  const iconSize = isMobile ? 18 : 22;
+  // Proportions for a Google Maps POI Pin (slightly smaller size)
+  const width = isMobile ? 28 : 34;
+  const height = isMobile ? 35 : 43;
+  const iconSize = isMobile ? 14 : 17;
 
   return (
     <div
