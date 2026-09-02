@@ -207,8 +207,8 @@ export default function ExplorePlaces() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-3 mb-8 flex-wrap items-center">
+        {/* Filters — Horizontal scrollable single row on mobile, inline wrap on desktop */}
+        <div className="flex items-center gap-2.5 mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap no-scrollbar">
           {/* Country Filter Selector */}
           <select
             value={selectedCountry}
@@ -218,7 +218,7 @@ export default function ExplorePlaces() {
               localStorage.setItem("selectedCountryFilter", val);
               setPage(1);
             }}
-            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors"
+            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
             {mapsResponse?.data?.map((map: any) => (
               <option key={map._id} value={map.name}>
@@ -234,7 +234,7 @@ export default function ExplorePlaces() {
               setSelectedCategory(e.target.value);
               setPage(1);
             }}
-            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors"
+            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
             <option value="">All Categories</option>
             {categoriesResponse?.data?.map((cat: any) => (
@@ -285,7 +285,7 @@ export default function ExplorePlaces() {
                   setActiveFilter(isActive ? null : filter.label);
                   setPage(1);
                 }}
-                className={`rounded-full flex items-center gap-2 transition-all ${
+                className={`rounded-full flex items-center gap-2 transition-all shrink-0 whitespace-nowrap ${
                   isActive
                     ? "bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500 shadow-md"
                     : "hover:bg-gray-100"
