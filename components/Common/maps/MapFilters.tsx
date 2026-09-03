@@ -184,16 +184,29 @@ export function MapFilters({
                           <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0">
                             <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
                               <div className="flex items-center gap-3 w-full">
-                                <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-gray-100"
-                                  style={{ backgroundColor: cat.color || "#FA7B17" }}
-                                >
-                                  <CategoryIcon
-                                    icon={cat.icon}
-                                    size={26}
-                                    color="#FFFFFF"
-                                  />
-                                </div>
+                              {(() => {
+                                const isCustomImage =
+                                  cat.icon?.startsWith("http") ||
+                                  cat.icon?.startsWith("data:") ||
+                                  cat.icon?.includes("/") ||
+                                  cat.icon?.includes(".");
+                                return (
+                                  <div
+                                    className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-gray-100"
+                                    style={{
+                                      backgroundColor: isCustomImage
+                                        ? "transparent"
+                                        : cat.color || "#FA7B17",
+                                    }}
+                                  >
+                                    <CategoryIcon
+                                      icon={cat.icon}
+                                      size={isCustomImage ? 26 : 16}
+                                      color="#FFFFFF"
+                                    />
+                                  </div>
+                                );
+                              })()}
                                 <span className="text-left text-sm font-semibold text-gray-700 capitalize">
                                   {cat.name.length > 25
                                     ? `${cat.name.slice(0, 25)}...`
