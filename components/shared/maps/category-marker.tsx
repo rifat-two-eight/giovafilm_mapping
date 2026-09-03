@@ -23,10 +23,10 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Proportions for a Google Maps POI Pin (enlarged icon area with clean white background)
+  // Proportions for a Google Maps POI Pin (maximized icon area with minimal white border space)
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
-  const iconSize = isMobile ? 18 : 22;
+  const iconSize = isMobile ? 23 : 28;
   const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
 
   return (
