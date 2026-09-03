@@ -26,84 +26,99 @@ export const CustomLocationButton = ({
       setLoading(false);
     };
 
-    const handleFallback = async (isPermissionDenied = false) => {
-      try {
-        const res = await fetch("https://ipwho.is/");
-        const data = await res.json();
-        if (data && data.success && data.latitude && data.longitude) {
-          panAndLocate(data.latitude, data.longitude, 13);
-          toast.warning(
-            isPermissionDenied
-              ? "Location permission blocked. Showing approximate area — allow location in browser for exact GPS."
-              : "Could not get exact GPS. Showing approximate area based on your internet connection.",
-            { duration: 5000 }
-          );
-          return;
-        }
-      } catch (e) {
-        console.warn("ipwho.is failed, trying ipapi.co", e);
-      }
-
-      try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        if (data && data.latitude && data.longitude) {
-          panAndLocate(data.latitude, data.longitude, 13);
-          toast.warning(
-            isPermissionDenied
-              ? "Location permission blocked. Showing approximate area — allow location in browser for exact GPS."
-              : "Could not get exact GPS. Showing approximate area based on your internet connection.",
-            { duration: 5000 }
-          );
-          return;
-        }
-      } catch (e) {
-        console.error("IP Geolocation failed:", e);
-      }
-
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setLoading(false);
-      toast.error("Unable to access location. Please allow location permissions in your browser.");
-    };
-
-    if (typeof window !== "undefined" && "geolocation" in navigator) {
-      // Try high accuracy GPS — maximumAge:0 forces fresh location (no stale cache)
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude, accuracy } = position.coords;
-
-          if (accuracy > 500) {
-            // Poor accuracy — try once more with high accuracy
-            console.warn(`Low accuracy GPS (${Math.round(accuracy)}m), retrying...`);
-            navigator.geolocation.getCurrentPosition(
-              (pos2) => {
-                if (pos2.coords.accuracy < accuracy) {
-                  panAndLocate(pos2.coords.latitude, pos2.coords.longitude, 16);
-                } else {
-                  panAndLocate(latitude, longitude, 16);
-                }
-                if (Math.min(accuracy, pos2.coords.accuracy) > 500) {
-                  toast.warning(`Location accuracy is low (~${Math.round(Math.min(accuracy, pos2.coords.accuracy))}m). Allow GPS in browser settings for better results.`, { duration: 5000 });
-                }
-              },
-              () => {
-                panAndLocate(latitude, longitude, 16);
-                toast.warning(`Location accuracy is low (~${Math.round(accuracy)}m). Allow GPS in browser settings for better results.`, { duration: 5000 });
-              },
-              { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-            );
-          } else {
-            panAndLocate(latitude, longitude, 16);
-          }
-        },
-        (error) => {
-          console.warn("GPS geolocation failed:", error);
-          handleFallback(error.code === error.PERMISSION_DENIED);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-      );
-    } else {
-      handleFallback(false);
+      toast.error("Geolocation is not supported by your browser.");
+      return;
     }
+
+    let settled = false; // prevent double-resolve
+
+    // ── Strategy: Show fast (low-accuracy), silently improve if better GPS arrives ──
+
+    // 1. Fast attempt: low-accuracy, short timeout (usually resolves in <2s on WiFi/laptop)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (settled) return;
+        settled = true;
+        panAndLocate(pos.coords.latitude, pos.coords.longitude, 16);
+
+        // 2. Silently try to improve accuracy in background (no extra loading state)
+        if (pos.coords.accuracy > 200) {
+          navigator.geolocation.getCurrentPosition(
+            (pos2) => {
+              if (pos2.coords.accuracy < pos.coords.accuracy) {
+                // Better result — update map silently without spinner
+                if (map) {
+                  map.setCenter({ lat: pos2.coords.latitude, lng: pos2.coords.longitude });
+                }
+                onLocated?.(pos2.coords.latitude, pos2.coords.longitude);
+              }
+            },
+            () => { /* silent — already showing first result */ },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          );
+        }
+      },
+      () => {
+        // Fast attempt failed (permission denied or unavailable)
+        if (settled) return;
+
+        // 3. Try once more with high accuracy before giving up
+        navigator.geolocation.getCurrentPosition(
+          (pos2) => {
+            if (settled) return;
+            settled = true;
+            panAndLocate(pos2.coords.latitude, pos2.coords.longitude, 16);
+          },
+          (err) => {
+            if (settled) return;
+            settled = true;
+            const isBlocked = err.code === err.PERMISSION_DENIED;
+            // 4. IP geolocation fallback
+            fetch("https://ipwho.is/")
+              .then((r) => r.json())
+              .then((data) => {
+                if (data?.success && data.latitude && data.longitude) {
+                  panAndLocate(data.latitude, data.longitude, 13);
+                  toast.warning(
+                    isBlocked
+                      ? "Location blocked. Showing approximate area — allow location in browser for exact GPS."
+                      : "Could not get GPS. Showing approximate area based on your internet connection.",
+                    { duration: 5000 }
+                  );
+                } else {
+                  throw new Error("ipwho failed");
+                }
+              })
+              .catch(() =>
+                fetch("https://ipapi.co/json/")
+                  .then((r) => r.json())
+                  .then((data) => {
+                    if (data?.latitude && data.longitude) {
+                      panAndLocate(data.latitude, data.longitude, 13);
+                      toast.warning(
+                        isBlocked
+                          ? "Location blocked. Showing approximate area — allow location in browser for exact GPS."
+                          : "Could not get GPS. Showing approximate area based on your internet connection.",
+                        { duration: 5000 }
+                      );
+                    } else {
+                      throw new Error("ipapi failed");
+                    }
+                  })
+              )
+              .catch(() => {
+                setLoading(false);
+                toast.error("Unable to get location. Please allow location permissions in your browser.");
+              });
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+      },
+      // Fast first attempt: low accuracy, very short timeout
+      { enableHighAccuracy: false, timeout: 3000, maximumAge: 30000 }
+    );
   }, [map, onLocated, loading]);
 
   return (
