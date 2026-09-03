@@ -118,11 +118,29 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
                   {/* Icon */}
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center">
-                      <CategoryIcon
-                        icon={category.icon}
-                        size={30}
-                        color={category.color}
-                      />
+                      {(() => {
+                        const isCustomImage =
+                          category.icon?.startsWith("http") ||
+                          category.icon?.startsWith("data:") ||
+                          category.icon?.includes("/") ||
+                          category.icon?.includes(".");
+                        return (
+                          <div
+                            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-gray-100"
+                            style={{
+                              backgroundColor: isCustomImage
+                                ? "transparent"
+                                : category.color || "#FA7B17",
+                            }}
+                          >
+                            <CategoryIcon
+                              icon={category.icon}
+                              size={isCustomImage ? 28 : 22}
+                              color="#FFFFFF"
+                            />
+                          </div>
+                        );
+                      })()}
                     </div>
                   </td>
 
