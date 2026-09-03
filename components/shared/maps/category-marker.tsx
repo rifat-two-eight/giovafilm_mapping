@@ -116,7 +116,7 @@ export function CategoryMarker({
       <div
         style={{
           position: "absolute",
-          top: `${(20 / 50) * 100}%`,
+          top: "40%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: `${iconSize}px`,
@@ -124,6 +124,8 @@ export function CategoryMarker({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          borderRadius: "50%",
+          overflow: "hidden",
           zIndex: 2,
           pointerEvents: "none",
         }}
