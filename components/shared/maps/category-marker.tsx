@@ -23,10 +23,10 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Proportions for a 100% Uniform Google Maps POI Pin (guarantees equal white border on all pins)
+  // Proportions for a 100% Uniform Google Maps POI Pin (4px desktop / 3px mobile white border)
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
-  const badgeSize = isMobile ? 22 : 27;
+  const badgeSize = isMobile ? 24 : 29;
 
   const isCustomImage =
     icon?.startsWith("http") ||
@@ -34,7 +34,7 @@ export function CategoryMarker({
     icon?.includes("/") ||
     icon?.includes(".");
 
-  const iconSize = isCustomImage ? badgeSize : (isMobile ? 15 : 18);
+  const iconSize = isCustomImage ? badgeSize : (isMobile ? 16 : 19);
   const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
 
   return (
