@@ -489,6 +489,30 @@ export default function MapPage() {
   if (!isSidebarLoading && isPlacesSettledForMap) {
     fetchedCategories = [...rawCategories];
 
+    // Sync latest populated category details (icon, color, name) from places into fetchedCategories
+    const categoryMapFromPlaces: Record<string, any> = {};
+    for (const place of fetchedPlaces) {
+      if (typeof place.category === "object" && place.category !== null) {
+        const catId = String(place.category._id || place.category.id);
+        if (catId) {
+          categoryMapFromPlaces[catId] = place.category;
+        }
+      }
+    }
+
+    fetchedCategories = fetchedCategories.map((cat: any) => {
+      const fromPlace = categoryMapFromPlaces[String(cat._id)];
+      if (fromPlace) {
+        return {
+          ...cat,
+          icon: fromPlace.icon || cat.icon,
+          color: fromPlace.color || cat.color,
+          name: fromPlace.name || cat.name,
+        };
+      }
+      return cat;
+    });
+
     if (!isLoggedIn) {
       const businessPlaceCatIds = new Set(
         fetchedPlaces
