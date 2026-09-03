@@ -22,12 +22,11 @@ export function CategoryMarker({
   isMobile = false,
 }: CategoryMarkerProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const bgColor = isTemp ? "#F59E0B" : color;
 
-  // Proportions for a Google Maps POI Pin (slightly enlarged for optimal readability)
+  // Proportions for a Google Maps POI Pin (enlarged icon area with clean white background)
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
-  const iconSize = isMobile ? 15 : 18.5;
+  const iconSize = isMobile ? 18 : 22;
   const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
 
   return (
@@ -90,7 +89,7 @@ export function CategoryMarker({
         </div>
       )}
 
-      {/* ── 100% Google Maps Replica SVG ── */}
+      {/* ── 100% Google Maps Replica SVG (Clean White Pin, No Colored Inner Edge) ── */}
       <svg
         width={width}
         height={height}
@@ -106,16 +105,14 @@ export function CategoryMarker({
           pointerEvents: "none",
         }}
       >
-        {/* Outer White Pin Body with Flat/Cut Rounded Tip */}
+        {/* White Pin Body */}
         <path
           d="M20 0C8.95 0 0 8.95 0 20C0 29 10 39 15 43.5C16.5 44.8 18.2 45.5 20 45.5C21.8 45.5 23.5 44.8 25 43.5C30 39 40 29 40 20C40 8.95 31.05 0 20 0Z"
           fill="#FFFFFF"
         />
-        {/* Inner Solid Color Circle (large, leaving thin white border) */}
-        <circle cx="20" cy="20" r="17" fill={bgColor} />
       </svg>
 
-      {/* ── Centered Category Icon Inside Colored Circle ── */}
+      {/* ── Centered Category Icon Inside Pin ── */}
       <div
         style={{
           position: "absolute",
@@ -131,7 +128,7 @@ export function CategoryMarker({
           pointerEvents: "none",
         }}
       >
-        <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
+        <CategoryIcon icon={icon} size={iconSize} color={color} />
       </div>
 
       {/* ── Lock Badge (if locked) ── */}
