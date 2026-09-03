@@ -112,11 +112,11 @@ export function CategoryMarker({
         />
       </svg>
 
-      {/* ── Centered Category Icon Inside Pin ── */}
+      {/* ── Centered Category Icon Inside Pin (Optically Centered in Pin Head) ── */}
       <div
         style={{
           position: "absolute",
-          top: "40%",
+          top: "43%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: `${iconSize}px`,
