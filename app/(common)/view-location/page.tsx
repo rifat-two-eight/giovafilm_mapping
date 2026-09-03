@@ -38,6 +38,7 @@ function MapContent() {
           renderingType={"RASTER"}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
+          streetViewControl={false}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
           clickableIcons={false}
         >

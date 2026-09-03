@@ -63,6 +63,7 @@ export function MapLocationPicker({
           renderingType={"RASTER"}
           gestureHandling={"greedy"}
           disableDefaultUI={false}
+          streetViewControl={false}
           mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}

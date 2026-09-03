@@ -99,6 +99,7 @@ function MapContent({
       renderingType={"RASTER"}
       gestureHandling={"greedy"}
       disableDefaultUI={false}
+      streetViewControl={false}
       mapId={mapId}
       mapTypeControl={true}
       onClick={onMapClick}

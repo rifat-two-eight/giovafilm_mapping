@@ -744,6 +744,7 @@ export default function MapPage() {
             renderingType={"RASTER"}
             gestureHandling={"greedy"}
             disableDefaultUI={false}
+            streetViewControl={false}
             mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
             mapTypeControl={!isMobile}
             mapTypeControlOptions={{
@@ -784,7 +785,13 @@ export default function MapPage() {
                   : null
               }
             />
-            <CustomLocationButton />
+            <CustomLocationButton
+              onLocated={(lat, lng) => {
+                setMarkerPos({ lat, lng });
+                // Temporarily pause CountryPanner so it doesn't fight the location pan
+                setIsManualSelection(false);
+              }}
+            />
 
             {/* User's current location marker — default pin style */}
             <AdvancedMarker position={markerPos} />
