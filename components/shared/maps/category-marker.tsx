@@ -23,10 +23,10 @@ export function CategoryMarker({
 }: CategoryMarkerProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Proportions for a Google Maps POI Pin (balanced 30px/24px icon size with clean white border)
+  // Proportions for a 100% Uniform Google Maps POI Pin (guarantees equal white border on all pins)
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
-  const iconSize = isMobile ? 24 : 30;
+  const badgeSize = isMobile ? 22 : 27;
 
   const isCustomImage =
     icon?.startsWith("http") ||
@@ -34,6 +34,7 @@ export function CategoryMarker({
     icon?.includes("/") ||
     icon?.includes(".");
 
+  const iconSize = isCustomImage ? badgeSize : (isMobile ? 15 : 18);
   const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
 
   return (
@@ -119,15 +120,15 @@ export function CategoryMarker({
         />
       </svg>
 
-      {/* ── Inner Category Circle & Icon ── */}
+      {/* ── Fixed Uniform Inner Badge (Guarantees Equal White Border on ALL Pins) ── */}
       <div
         style={{
           position: "absolute",
           top: "40%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: `${iconSize}px`,
-          height: `${iconSize}px`,
+          width: `${badgeSize}px`,
+          height: `${badgeSize}px`,
           borderRadius: "50%",
           backgroundColor: isCustomImage ? "transparent" : (color || "#FA7B17"),
           display: "flex",

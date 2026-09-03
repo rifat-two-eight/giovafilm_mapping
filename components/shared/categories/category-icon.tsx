@@ -29,7 +29,7 @@ export function CategoryIcon({
       <img
         src={getImageUrl(icon)}
         alt="category icon"
-        className={`object-contain ${className}`}
+        className={`object-cover w-full h-full ${className}`}
         style={{ width: size, height: size }}
       />
     );
