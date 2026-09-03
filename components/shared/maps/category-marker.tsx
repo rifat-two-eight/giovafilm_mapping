@@ -112,7 +112,7 @@ export function CategoryMarker({
         />
       </svg>
 
-      {/* ── Centered Category Icon Inside Pin (Optically Centered in Pin Head) ── */}
+      {/* ── Inner Category Color Circle & Icon (Fills Inner Pin Head, Leaving Only Outside White Border) ── */}
       <div
         style={{
           position: "absolute",
@@ -121,16 +121,17 @@ export function CategoryMarker({
           transform: "translate(-50%, -50%)",
           width: `${iconSize}px`,
           height: `${iconSize}px`,
+          borderRadius: "50%",
+          backgroundColor: color || "#FA7B17",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
           overflow: "hidden",
           zIndex: 2,
           pointerEvents: "none",
         }}
       >
-        <CategoryIcon icon={icon} size={iconSize} color={color} />
+        <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
       </div>
 
       {/* ── Lock Badge (if locked) ── */}
