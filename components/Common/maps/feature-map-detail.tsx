@@ -139,6 +139,8 @@ export default function FeatureMapDetailPage() {
       // Amount is resolved server-side from Map.price
       const res = await createCheckout({
         mapId: id,
+        successUrl: `${window.location.origin}?session_id={CHECKOUT_SESSION_ID}&success=true`,
+        cancelUrl: `${window.location.origin}/payment-failed?success=false`,
       }).unwrap();
 
       if (res?.data?.url) {
