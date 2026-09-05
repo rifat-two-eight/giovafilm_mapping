@@ -26,6 +26,7 @@ const guestAllowedExact = new Set([
   "/terms-of-service",
   "/success",
   "/cancel",
+  "/payment-failed",
   "/claim-promo",
 ]);
 

@@ -1,21 +1,29 @@
 "use client";
 
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useVerifySubscriptionCheckoutMutation } from "@/redux/features/subscription/subscriptionApi";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
 
 function SuccessContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const accessToken = useAppSelector(selectAccessToken);
   const [verifyCheckout, { isLoading }] = useVerifySubscriptionCheckoutMutation();
-  const [verified, setVerified] = useState(!sessionId);
+  const [verified, setVerified] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  // If no session_id is provided, redirect to home immediately
+  useEffect(() => {
+    if (!sessionId) {
+      router.replace("/");
+    }
+  }, [sessionId, router]);
 
   useEffect(() => {
     if (!sessionId || !accessToken) return;
@@ -38,16 +46,34 @@ function SuccessContent() {
     };
   }, [sessionId, accessToken, verifyCheckout]);
 
-  const waiting =
-    Boolean(sessionId) && !verified && (isLoading || Boolean(accessToken));
+  // Prevent showing success screen to direct visitors without session_id
+  if (!sessionId) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+      </main>
+    );
+  }
+
+  const waiting = !verified && (isLoading || Boolean(accessToken));
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-6 py-20">
       <div className="max-w-md w-full bg-white rounded-3xl p-10 shadow-xl text-center space-y-8 animate-in fade-in zoom-in duration-500">
         <div className="flex justify-center">
-          <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center">
+          <div
+            className={`w-24 h-24 rounded-full flex items-center justify-center ${
+              waiting
+                ? "bg-yellow-50"
+                : failed
+                  ? "bg-amber-50"
+                  : "bg-green-50"
+            }`}
+          >
             {waiting ? (
-              <Loader2 className="w-16 h-16 text-green-500 animate-spin" />
+              <Loader2 className="w-16 h-16 text-yellow-500 animate-spin" />
+            ) : failed ? (
+              <AlertCircle className="w-16 h-16 text-amber-500" />
             ) : (
               <CheckCircle2 className="w-16 h-16 text-green-500" />
             )}
@@ -56,13 +82,17 @@ function SuccessContent() {
 
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-gray-900">
-            {waiting ? "Confirming your subscription..." : "Payment Successful!"}
+            {waiting
+              ? "Confirming your subscription..."
+              : failed
+                ? "Verification Pending"
+                : "Payment Successful!"}
           </h1>
           <p className="text-gray-600 leading-relaxed">
             {waiting
               ? "Please wait while we activate your business listing."
               : failed
-                ? "Thank you. If My Business still shows unpaid, refresh that page in a moment."
+                ? "Thank you! If your listing is not active yet, it may take a moment for Stripe to process. Please check My Business shortly."
                 : "Thank you for your subscription. Your business journey with Roadtripeado starts now!"}
           </p>
         </div>

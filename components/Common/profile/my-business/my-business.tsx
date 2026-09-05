@@ -89,7 +89,7 @@ export default function MyBusinessPage() {
       planId,
       businessId,
       successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${window.location.origin}/cancel`,
+      cancelUrl: `${window.location.origin}/payment-failed`,
     };
     try {
       const res = await createPayment(data).unwrap();

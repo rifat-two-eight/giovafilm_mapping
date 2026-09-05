@@ -65,6 +65,7 @@ function isPublicPath(pathname: string): boolean {
     "/terms-of-service",
     "/success",
     "/cancel",
+    "/payment-failed",
     "/claim-promo",
   ]);
 

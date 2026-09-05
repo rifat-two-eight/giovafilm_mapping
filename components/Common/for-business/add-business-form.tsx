@@ -379,7 +379,7 @@ export function AddBusinessForm() {
               planId: values.selectedPlan,
               businessId,
               successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-              cancelUrl: `${window.location.origin}/profile/my-business`,
+              cancelUrl: `${window.location.origin}/payment-failed`,
             }).unwrap();
 
             if (checkoutRes.data?.url || checkoutRes.url) {

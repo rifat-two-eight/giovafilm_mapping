@@ -56,8 +56,8 @@ export default function BusinessDetails() {
     const data = {
       planId,
       businessId: business._id,
-      successUrl: `${window.location.origin}/success`,
-      cancelUrl: `${window.location.origin}/cancel`,
+      successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${window.location.origin}/payment-failed`,
     };
     try {
       const res = await createPayment(data).unwrap();
