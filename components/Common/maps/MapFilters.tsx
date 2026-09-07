@@ -55,7 +55,7 @@ export function MapFilters({
   isLoading = false,
   hideDesktopMapFilter = false,
 }: MapFiltersProps) {
-  const hasCategories = !isLoading && fetchedCategories.length > 0;
+  const hasCategories = fetchedCategories.length > 0;
   const showEmpty = !isLoading && fetchedCategories.length === 0;
   const mapLabel = selectedCountry || "this map";
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -152,18 +152,14 @@ export function MapFilters({
                 height: listHeight,
               }}
             >
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center gap-3 px-5 py-12 min-h-[180px]">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                  <p className="text-sm font-medium text-gray-600">
-                    Loading locations...
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Please wait while we load map data
-                  </p>
-                </div>
-              ) : hasCategories ? (
+              {hasCategories ? (
                 <div className="">
+                  {isLoading && (
+                    <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-amber-50/90 border-b border-amber-100 text-xs font-medium text-amber-800">
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                      <span>Syncing locations for {mapLabel}...</span>
+                    </div>
+                  )}
                   <Accordion type="single" collapsible className="w-full">
                     {fetchedCategories.map((cat: any) => {
                       const enabled = enabledCategories[String(cat._id)] ?? true;
@@ -262,6 +258,11 @@ export function MapFilters({
                                     </p>
                                   )}
                                 </>
+                              ) : isLoading ? (
+                                <div className="px-10 py-3 text-gray-400 flex items-center gap-2 text-xs">
+                                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                                  <span>Loading locations...</span>
+                                </div>
                               ) : (
                                 <div className="px-10 py-3 text-gray-400 italic">
                                   No places in this category yet.
@@ -273,6 +274,19 @@ export function MapFilters({
                       );
                     })}
                   </Accordion>
+                </div>
+              ) : isLoading ? (
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-3 text-xs font-medium text-amber-700">
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                    <span>Loading categories...</span>
+                  </div>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 py-1.5 animate-pulse">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                      <div className="h-4 bg-gray-200 rounded w-3/5" />
+                    </div>
+                  ))}
                 </div>
               ) : showEmpty ? (
                 <div className="px-5 py-8 text-center min-h-[140px] flex flex-col items-center justify-center">

@@ -16,6 +16,7 @@ export const publicApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["Place"],
+      keepUnusedDataFor: 300,
       transformResponse: (response: any) => response.data,
     }),
     submitContactForm: builder.mutation({

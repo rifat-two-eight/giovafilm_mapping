@@ -24,7 +24,12 @@ export function GeolocationOnLoad({
 
     const handleFallback = async () => {
       try {
-        const response = await fetch("https://ipapi.co/json/");
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2500);
+        const response = await fetch("https://ipapi.co/json/", {
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
         const data = await response.json();
         if (data.latitude && data.longitude) {
           const location = { lat: data.latitude, lng: data.longitude };
@@ -34,18 +39,22 @@ export function GeolocationOnLoad({
           onLocation(location);
         }
       } catch (error) {
-        console.error("IP Geolocation failed:", error);
+        // Silently catch abort or network failures
       }
     };
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(handleSuccess, (error) => {
-        console.warn(
-          "Browser geolocation denied or failed, using fallback:",
-          error.message,
-        );
-        handleFallback();
-      });
+      navigator.geolocation.getCurrentPosition(
+        handleSuccess,
+        (error) => {
+          handleFallback();
+        },
+        {
+          timeout: 3000,
+          maximumAge: 120000,
+          enableHighAccuracy: false,
+        },
+      );
     } else {
       handleFallback();
     }

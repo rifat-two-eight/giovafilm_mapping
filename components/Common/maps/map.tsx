@@ -237,7 +237,12 @@ export default function MapPage() {
     Record<string, boolean>
   >({});
 
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedCountryFilter") || "Puerto Rico";
+    }
+    return "Puerto Rico";
+  });
   const [detectedCountry, setDetectedCountry] = useState<string>("");
   const [isManualSelection, setIsManualSelection] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -349,7 +354,28 @@ export default function MapPage() {
   const availableCountries = mapsResponse?.data?.map((m: any) => m.name) || [];
 
   const selectedMapObj = mapsResponse?.data?.find((m: any) => m.name === selectedCountry);
-  const mapIdFilter = selectedMapObj ? String(selectedMapObj._id) : "";
+  const [cachedMapId, setCachedMapId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(`cachedMapId_${selectedCountry}`) || "";
+    }
+    return "";
+  });
+
+  useEffect(() => {
+    if (mapsResponse?.data) {
+      mapsResponse.data.forEach((m: any) => {
+        if (m.name && m._id) {
+          localStorage.setItem(`cachedMapId_${m.name}`, String(m._id));
+        }
+      });
+      const found = mapsResponse.data.find((m: any) => m.name === selectedCountry);
+      if (found?._id) {
+        setCachedMapId(String(found._id));
+      }
+    }
+  }, [mapsResponse?.data, selectedCountry]);
+
+  const mapIdFilter = selectedMapObj ? String(selectedMapObj._id) : (cachedMapId || "");
   const canFetchPlaces = Boolean(mapIdFilter);
   useEffect(() => {
     if (!mapIdFilter) return;
@@ -426,19 +452,12 @@ export default function MapPage() {
     availableCountries.length > 0 &&
     !availableCountries.includes(selectedCountry);
 
-  // Strict gate: spinner until EVERY dependency for the sidebar is ready.
-  // Empty state is ONLY allowed after this is false.
+  // Spinner only until categories are available and first places batch is loading
   const isSidebarLoading =
     !hasMounted ||
     !isUserResolved ||
-    !isMapsSettled ||
-    !isCategoriesSettled ||
-    !selectedCountry ||
-    (!mapIdFilter && !mapMissingAfterMapsLoaded) ||
-    (canFetchPlaces &&
-      (!isPlacesSettledForMap ||
-        isLoadingPlaces ||
-        (isFetchingPlaces && settledMapId !== mapIdFilter)));
+    isLoadingCategories ||
+    (canFetchPlaces && isLoadingPlaces && fetchedPlaces.length === 0);
 
   // Identify categories that are inherently "business"
   const inherentlyBusinessCatIds = new Set(
@@ -485,8 +504,8 @@ export default function MapPage() {
 
   let fetchedCategories: any[] = [];
 
-  // Never compute empty sidebar lists until loading is fully done for this map.
-  if (!isSidebarLoading && isPlacesSettledForMap) {
+  // Show rawCategories right away, then enrich with places once places arrive
+  if (rawCategories.length > 0) {
     fetchedCategories = [...rawCategories];
 
     // Sync latest populated category details (icon, color, name) from places into fetchedCategories
@@ -528,16 +547,21 @@ export default function MapPage() {
       );
     }
 
-    const validPlacesForCurrentCountry =
-      fetchedPlaces?.filter(belongsToSelectedMap) || [];
+    // Filter by places on this map once places have loaded
+    if (fetchedPlaces.length > 0) {
+      const validPlacesForCurrentCountry =
+        fetchedPlaces?.filter(belongsToSelectedMap) || [];
 
-    const validCatIds = new Set(
-      validPlacesForCurrentCountry.map(getCategoryId).filter(Boolean),
-    );
+      if (validPlacesForCurrentCountry.length > 0) {
+        const validCatIds = new Set(
+          validPlacesForCurrentCountry.map(getCategoryId).filter(Boolean),
+        );
 
-    fetchedCategories = fetchedCategories.filter((cat: any) =>
-      validCatIds.has(String(cat._id)),
-    );
+        fetchedCategories = fetchedCategories.filter((cat: any) =>
+          validCatIds.has(String(cat._id)),
+        );
+      }
+    }
   }
 
   // Detect country from markerPos (current location)
@@ -574,8 +598,12 @@ export default function MapPage() {
 
   // Set initial selectedCountry based on detection, profile, or default
   useEffect(() => {
-    // Only set automatically if it's currently empty and not manually changed
-    if (selectedCountry || isManualSelection || availableCountries.length === 0) return;
+    if (availableCountries.length === 0) return;
+
+    // If selectedCountry is already in availableCountries, we're good
+    if (selectedCountry && availableCountries.includes(selectedCountry)) return;
+
+    if (isManualSelection) return;
 
     const savedCountry = localStorage.getItem("selectedCountryFilter");
 
@@ -640,7 +668,7 @@ export default function MapPage() {
 
   const searchQuery = (searchParams.get("q") || searchParams.get("search") || "").trim().toLowerCase();
 
-  const displayPlaces = (selectedCountry && isPlacesSettledForMap)
+  const displayPlaces = (selectedCountry && (isPlacesSettledForMap || fetchedPlaces.length > 0))
     ? fetchedPlaces?.filter((place: any) => {
       if (!belongsToSelectedMap(place)) return false;
 
