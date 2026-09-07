@@ -43,9 +43,20 @@ export default function OfferSection() {
     );
 
   const filteredOffers = offersData.filter((offer: any) => {
-    const matchesSearch = offer.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const term = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      offer.title?.toLowerCase().includes(term) ||
+      (typeof offer.place === "object" &&
+        (offer.place?.name?.toLowerCase().includes(term) ||
+          offer.place?.address?.toLowerCase().includes(term) ||
+          offer.place?.country?.toLowerCase().includes(term))) ||
+      (typeof offer.business === "object" &&
+        (offer.business?.name?.toLowerCase().includes(term) ||
+          offer.business?.location?.address?.toLowerCase().includes(term) ||
+          offer.business?.location?.city?.toLowerCase().includes(term) ||
+          offer.business?.location?.country?.toLowerCase().includes(term)));
+
     const matchesFilter =
       activeFilter === "All" ||
       (activeFilter === "Favorites" && isOfferFavourited(offer._id));
@@ -62,7 +73,26 @@ export default function OfferSection() {
         typeof offer.place === "object"
           ? String(offer.place?.name || "").toLowerCase()
           : "";
-      return title.includes(q) || placeName.includes(q);
+      const placeAddress =
+        typeof offer.place === "object"
+          ? String(offer.place?.address || "").toLowerCase()
+          : "";
+      const businessName =
+        typeof offer.business === "object"
+          ? String(offer.business?.name || "").toLowerCase()
+          : "";
+      const businessAddress =
+        typeof offer.business === "object"
+          ? String(offer.business?.location?.address || "").toLowerCase()
+          : "";
+
+      return (
+        title.includes(q) ||
+        placeName.includes(q) ||
+        placeAddress.includes(q) ||
+        businessName.includes(q) ||
+        businessAddress.includes(q)
+      );
     })
     .slice(0, 6);
 

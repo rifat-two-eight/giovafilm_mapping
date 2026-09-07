@@ -3,7 +3,16 @@ import { baseApi } from "@/redux/api/baseApi";
 const offerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOffers: builder.query({
-      query: ({ map = "" }: { map?: string } = {}) => `/offer${map ? `?map=${map}` : ""}`,
+      query: (params: Record<string, any> = {}) => {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            queryParams.append(key, String(value));
+          }
+        });
+        const queryString = queryParams.toString();
+        return `/offer${queryString ? `?${queryString}` : ""}`;
+      },
       providesTags: ["Offer"],
       keepUnusedDataFor: 180, // cache for 3 minutes
     }),
