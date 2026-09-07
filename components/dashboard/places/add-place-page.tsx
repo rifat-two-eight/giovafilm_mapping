@@ -1133,6 +1133,10 @@ export default function AddPlacePage() {
                   key={selectedPlace._id || "new-place"}
                   position={selectedPlace.position}
                   onClose={() => {
+                    if (isCreating || isUpdating) {
+                      toast.warning("Upload in progress. Please wait until saving completes.");
+                      return;
+                    }
                     setDraggedPositions({});
                     if (selectedPlace.isNew) {
                       setTempMarker(null);

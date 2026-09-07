@@ -309,7 +309,15 @@ export default function MapPage() {
 
   const [enabledCategories, setEnabledCategories] = useState<
     Record<string, boolean>
-  >({});
+  >(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("mapCategoryPreferences");
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {};
+  });
 
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [detectedCountry, setDetectedCountry] = useState<string>("");
@@ -409,7 +417,13 @@ export default function MapPage() {
   const geocodingLib = useMapsLibrary("geocoding");
 
   const handleToggle = (id: string, value: boolean) => {
-    setEnabledCategories((prev) => ({ ...prev, [String(id)]: value }));
+    setEnabledCategories((prev) => {
+      const next = { ...prev, [String(id)]: value };
+      try {
+        localStorage.setItem("mapCategoryPreferences", JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
   };
 
   const {
@@ -683,19 +697,29 @@ export default function MapPage() {
     }
   }, [selectedCountry]);
 
-  // Initialize all categories to true (visible) once loaded
+  // Initialize categories once loaded, preserving user's deactivated choices
   useEffect(() => {
-    if (
-      fetchedCategories.length > 0 &&
-      Object.keys(enabledCategories).length === 0
-    ) {
-      const initial: Record<string, boolean> = {};
-      fetchedCategories.forEach((c: any) => {
-        initial[String(c._id)] = true;
+    if (fetchedCategories.length > 0) {
+      let savedPrefs: Record<string, boolean> = {};
+      try {
+        const saved = localStorage.getItem("mapCategoryPreferences");
+        if (saved) savedPrefs = JSON.parse(saved);
+      } catch (e) {}
+
+      setEnabledCategories((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        fetchedCategories.forEach((c: any) => {
+          const id = String(c._id);
+          if (next[id] === undefined) {
+            next[id] = savedPrefs[id] !== undefined ? savedPrefs[id] : true;
+            changed = true;
+          }
+        });
+        return changed ? next : prev;
       });
-      setEnabledCategories(initial);
     }
-  }, [fetchedCategories, enabledCategories]);
+  }, [fetchedCategories]);
 
   // Select pin + open popup once places are ready, then release focus lock
   useEffect(() => {

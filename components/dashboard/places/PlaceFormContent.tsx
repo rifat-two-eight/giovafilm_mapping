@@ -48,6 +48,7 @@ import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { formatFileSize, optimizeMediaFiles } from "@/lib/image-compress";
 import { asMediaUrls, isPlaceKind, normalizePlaceType } from "./place-payload";
 
 interface PlaceFormContentProps {
@@ -121,6 +122,9 @@ export const PlaceFormContent = ({
   const [previews, setPreviews] = useState<string[]>([]);
   const [menuPreviews, setMenuPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDraggingMedia, setIsDraggingMedia] = useState(false);
+  const [isDraggingMenu, setIsDraggingMenu] = useState(false);
+  const [isOptimizingMedia, setIsOptimizingMedia] = useState(false);
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -234,25 +238,95 @@ export const PlaceFormContent = ({
     initialData?.instagram,
   ]);
 
+  const MAX_VIDEO_SIZE_BYTES = 200 * 1024 * 1024; // 200MB limit
+
+  const isVideoFile = (file: File): boolean => {
+    if (file.type && file.type.startsWith("video/")) return true;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    return !!ext && ["mp4", "webm", "ogv", "mov", "mkv", "3gp", "3gpp", "avi", "wmv", "flv", "m4v", "mpeg", "mpg"].includes(ext);
+  };
+
+  const handleIncomingMediaFiles = async (rawFiles: File[]) => {
+    if (!rawFiles || rawFiles.length === 0) return;
+
+    const validFiles: File[] = [];
+    for (const file of rawFiles) {
+      const isVideo = isVideoFile(file);
+      const isImage = file.type.startsWith("image/");
+
+      if (!isVideo && !isImage) {
+        toast.error(`"${file.name}" is not a supported image or video format.`);
+        continue;
+      }
+
+      if (isVideo && file.size > MAX_VIDEO_SIZE_BYTES) {
+        toast.error(
+          `Video "${file.name}" is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed video size is 200MB.`,
+          { duration: 6000 }
+        );
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    try {
+      setIsOptimizingMedia(true);
+      // Auto-compress oversized photos for 20x faster uploads; videos remain untouched
+      const processedFiles = await optimizeMediaFiles(validFiles);
+
+      setMediaFiles((prev) => [...prev, ...processedFiles]);
+      if (errors.media) setErrors((prev) => ({ ...prev, media: "" }));
+
+      const newPreviews = processedFiles.map((file) => URL.createObjectURL(file));
+      setPreviews((prev) => [...prev, ...newPreviews]);
+    } catch (err) {
+      console.error("Failed to optimize media:", err);
+      setMediaFiles((prev) => [...prev, ...validFiles]);
+      if (errors.media) setErrors((prev) => ({ ...prev, media: "" }));
+      const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+      setPreviews((prev) => [...prev, ...newPreviews]);
+    } finally {
+      setIsOptimizingMedia(false);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    e.target.value = "";
+    handleIncomingMediaFiles(files);
+  };
 
-    setMediaFiles((prev) => [...prev, ...files]);
-    if (errors.media) setErrors((prev) => ({ ...prev, media: "" }));
+  const handleIncomingMenuFiles = async (rawFiles: File[]) => {
+    if (!rawFiles || rawFiles.length === 0) return;
 
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setPreviews((prev) => [...prev, ...newPreviews]);
+    const validFiles = rawFiles.filter(
+      (file) => file.type.startsWith("image/") || file.type === "application/pdf"
+    );
+
+    if (validFiles.length === 0) {
+      toast.error("Please upload image or PDF files only for menus.");
+      return;
+    }
+
+    try {
+      const processed = await optimizeMediaFiles(validFiles);
+      setMenuFiles((prev) => [...prev, ...processed]);
+      const newPreviews = processed.map((file) => URL.createObjectURL(file));
+      setMenuPreviews((prev) => [...prev, ...newPreviews]);
+    } catch (err) {
+      setMenuFiles((prev) => [...prev, ...validFiles]);
+      const newPreviews = validFiles.map((file) => URL.createObjectURL(file));
+      setMenuPreviews((prev) => [...prev, ...newPreviews]);
+    }
   };
 
   const handleMenuFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    setMenuFiles((prev) => [...prev, ...files]);
-
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setMenuPreviews((prev) => [...prev, ...newPreviews]);
+    e.target.value = "";
+    handleIncomingMenuFiles(files);
   };
 
   const removeMedia = (index: number) => {
@@ -751,18 +825,59 @@ export const PlaceFormContent = ({
             <div className="space-y-2">
               <Label className="text-sm font-medium">Media <span className="text-red-500">*</span></Label>
               <div
-                onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 group transition-all cursor-pointer ${errors.media ? "border-red-500 hover:border-red-600 bg-red-50/10" : "border-gray-200 hover:border-blue-400"}`}
+                onClick={() => {
+                  if (!isOptimizingMedia && !isSaving) fileInputRef.current?.click();
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMedia(true);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMedia(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMedia(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMedia(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    handleIncomingMediaFiles(Array.from(e.dataTransfer.files));
+                  }
+                }}
+                className={`border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 group transition-all cursor-pointer select-none ${
+                  isDraggingMedia
+                    ? "border-blue-500 bg-blue-50/60 ring-2 ring-blue-400/30 scale-[1.01]"
+                    : errors.media
+                      ? "border-red-500 hover:border-red-600 bg-red-50/10"
+                      : "border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
-                  <Upload size={20} />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  isDraggingMedia ? "bg-blue-100 text-blue-600" : "bg-gray-50 text-gray-400 group-hover:text-blue-500 group-hover:bg-blue-50"
+                }`}>
+                  {isOptimizingMedia ? (
+                    <Loader2 size={20} className="animate-spin text-blue-500" />
+                  ) : (
+                    <Upload size={20} />
+                  )}
                 </div>
                 <div className="text-center">
                   <p className="text-xs font-bold text-gray-700">
-                    Click to upload or drag and drop
+                    {isOptimizingMedia
+                      ? "Optimizing media for rapid upload..."
+                      : isDraggingMedia
+                        ? "Drop photos or videos here"
+                        : "Click to upload or drag and drop"}
                   </p>
-                  <p className="text-[9px] text-gray-400 tracking-tight">
-                    (Images and videos up to 200MB)
+                  <p className="text-[9px] text-gray-400 tracking-tight mt-0.5">
+                    Images and videos up to 200MB (drag & drop supported)
                   </p>
                 </div>
               </div>
@@ -785,8 +900,7 @@ export const PlaceFormContent = ({
                             muted
                             controls
                             playsInline
-                            preload="auto"
-                            crossOrigin="anonymous"
+                            preload="metadata"
                           />
                         ) : (
                           <img
@@ -815,11 +929,11 @@ export const PlaceFormContent = ({
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {previews.map((url, index) => {
                     const file = mediaFiles[index];
-                    const isVideo = file?.type?.startsWith("video/") || isVideoUrl(url);
+                    const isVideo = file ? isVideoFile(file) : isVideoUrl(url);
                     return (
                       <div
                         key={`new-${index}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group bg-gray-900"
                       >
                         {isVideo ? (
                           <video
@@ -828,22 +942,28 @@ export const PlaceFormContent = ({
                             muted
                             controls
                             playsInline
-                            preload="auto"
-                            crossOrigin="anonymous"
+                            preload="metadata"
                           />
                         ) : (
                           <img
-                            src={url} // Raw blob URL
+                            src={url}
                             alt={`preview-${index}`}
                             className="w-full h-full object-cover"
                           />
                         )}
+                        {file && (
+                          <span className="absolute bottom-1 left-1 bg-black/75 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded font-mono font-medium tracking-tight pointer-events-none z-10">
+                            {isVideo ? "🎬 " : ""}{formatFileSize(file.size)}
+                          </span>
+                        )}
                         <button
+                          type="button"
+                          disabled={isSaving}
                           onClick={(e) => {
                             e.stopPropagation();
                             removeMedia(index);
                           }}
-                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20 disabled:pointer-events-none"
                         >
                           <CloseIcon size={10} />
                         </button>
@@ -1093,18 +1213,49 @@ export const PlaceFormContent = ({
               </div>
 
               <div
-                onClick={() => menuFileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 border-gray-200 hover:border-blue-400 cursor-pointer transition-all"
+                onClick={() => {
+                  if (!isSaving) menuFileInputRef.current?.click();
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMenu(true);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMenu(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMenu(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingMenu(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    handleIncomingMenuFiles(Array.from(e.dataTransfer.files));
+                  }
+                }}
+                className={`border-2 border-dashed rounded-xl p-6 bg-white flex flex-col items-center justify-center gap-3 transition-all cursor-pointer select-none ${
+                  isDraggingMenu
+                    ? "border-blue-500 bg-blue-50/60 ring-2 ring-blue-400/30 scale-[1.01]"
+                    : "border-gray-200 hover:border-blue-400 hover:bg-gray-50/50"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  isDraggingMenu ? "bg-blue-100 text-blue-600" : "bg-gray-50 text-gray-400"
+                }`}>
                   <Upload size={20} />
                 </div>
                 <div className="text-center">
                   <p className="text-xs font-bold text-gray-700">
-                    Click to upload menu photos
+                    {isDraggingMenu ? "Drop menu photos here" : "Click to upload menu photos or drag and drop"}
                   </p>
-                  <p className="text-[9px] text-gray-400 tracking-tight">
-                    (Images up to 10MB)
+                  <p className="text-[9px] text-gray-400 tracking-tight mt-0.5">
+                    Images and PDF up to 20MB (drag & drop supported)
                   </p>
                 </div>
               </div>
@@ -1320,14 +1471,32 @@ export const PlaceFormContent = ({
         )}
       </div>
 
-      {/* Footer Actions */}
-      <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between sticky bottom-0">
-        <div className="flex items-center gap-2">
+      {/* Upload & Saving Banner */}
+      {isSaving && (
+        <div className="mx-6 mb-2 p-3 bg-blue-50/90 border border-blue-200 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <Loader2 size={18} className="animate-spin text-blue-600 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-blue-950">
+              {mediaFiles.some(f => isVideoFile(f))
+                ? "Uploading video and saving place..."
+                : "Uploading media and saving place..."}
+            </p>
+            <p className="text-[11px] text-blue-700">
+              Please keep this window open while the upload finishes.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center shrink-0">
+        <div className="flex gap-2">
           <Button
-            variant="destructive"
             type="button"
+            variant="destructive"
             onClick={onClose}
-            className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
+            disabled={isSaving}
+            className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
           >
             Cancel
           </Button>
@@ -1336,7 +1505,8 @@ export const PlaceFormContent = ({
               variant="outline"
               type="button"
               onClick={onDelete}
-              className="px-5 h-10 border-red-200 text-red-500 hover:bg-red-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-all"
+              disabled={isSaving}
+              className="px-5 h-10 border-red-200 text-red-500 hover:bg-red-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
             >
               Delete
             </Button>
@@ -1348,8 +1518,9 @@ export const PlaceFormContent = ({
             <Button
               type="button"
               variant="outline"
+              disabled={isSaving}
               onClick={() => setActiveTab(dynamicTabs[currentTabIdx - 1].id)}
-              className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5"
+              className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               <ArrowLeft size={14} /> Back
             </Button>
@@ -1359,11 +1530,13 @@ export const PlaceFormContent = ({
             <Button
               type="button"
               onClick={() => handleSave(true)}
-              disabled={isSaving}
-              className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5"
+              disabled={isSaving || isOptimizingMedia}
+              className="px-5 h-10 bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-green-100 flex items-center gap-1.5 disabled:opacity-60"
             >
               {isSaving && <Loader2 size={14} className="animate-spin" />}
-              {isSaving ? "Saving..." : (initialData?.isNew === false ? "Save Changes" : "Save & Publish")}
+              {isSaving
+                ? (mediaFiles.some(f => isVideoFile(f)) ? "Uploading Video..." : "Uploading...")
+                : (initialData?.isNew === false ? "Save Changes" : "Save & Publish")}
             </Button>
           )}
 
