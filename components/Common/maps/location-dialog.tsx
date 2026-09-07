@@ -24,10 +24,12 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
     initialType === "business" ? "business" : "place"
   );
   const [hasFalledBack, setHasFalledBack] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     setActiveType(initialType === "business" ? "business" : "place");
     setHasFalledBack(false);
+    setIsDescriptionExpanded(false);
   }, [initialType, placeId]);
 
   // Fetch based on activeType
@@ -258,7 +260,24 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
           </div>
 
           {location?.description ? (
-            <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">{location.description}</p>
+            <div className="mb-4">
+              <p
+                className={`text-xs sm:text-sm text-gray-600 leading-relaxed ${
+                  !isDescriptionExpanded ? "line-clamp-3" : ""
+                }`}
+              >
+                {location.description}
+              </p>
+              {location.description.length > 140 && (
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="text-xs font-semibold text-amber-600 hover:text-amber-700 mt-1 inline-flex items-center transition-colors cursor-pointer"
+                >
+                  {isDescriptionExpanded ? "Show less" : "Read more"}
+                </button>
+              )}
+            </div>
           ) : isLoading ? (
             <div className="space-y-2 mb-4">
               <div className="h-3.5 w-full bg-gray-100 rounded animate-pulse" />

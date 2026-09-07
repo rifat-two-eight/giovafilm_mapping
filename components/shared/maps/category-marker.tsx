@@ -35,7 +35,7 @@ export function CategoryMarker({
     icon?.includes(".");
 
   const iconSize = isCustomImage ? badgeSize : (isMobile ? 16 : 19);
-  const showTooltip = !isMobile && !isLocked && Boolean(name) && isHovered;
+  const showName = Boolean(name) && (isSelected || (!isMobile && !isLocked && isHovered));
 
   return (
     <div
@@ -50,31 +50,53 @@ export function CategoryMarker({
         justifyContent: "center",
         cursor: "pointer",
         transformOrigin: "bottom center",
-        transform: isSelected || isHovered ? "scale(1.02)" : "scale(1)",
-        filter: isSelected || isHovered
-          ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))"
-          : "drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35))",
-        transition: "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease",
+        transform: isSelected ? "scale(1.22)" : isHovered ? "scale(1.08)" : "scale(1)",
+        filter: isSelected
+          ? "drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55))"
+          : isHovered
+            ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))"
+            : "drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35))",
+        transition: "transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease",
         userSelect: "none",
       }}
     >
-      {/* ── Hover Name Tooltip for Unlocked Pins ── */}
-      {showTooltip && (
+      {/* ── Selection Beacon / Glowing Halo ── */}
+      {isSelected && (
         <div
           style={{
             position: "absolute",
-            bottom: `${height + 6}px`,
+            top: "40%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: `${badgeSize + 16}px`,
+            height: `${badgeSize + 16}px`,
+            borderRadius: "50%",
+            border: "2.5px solid #FFC107",
+            boxShadow: "0 0 16px rgba(255, 193, 7, 0.65)",
+            animation: "ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite",
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+      )}
+
+      {/* ── Name Tooltip for Selected or Hovered Pin ── */}
+      {showName && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: `${height + (isSelected ? 10 : 6)}px`,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "rgba(15, 23, 42, 0.92)",
+            backgroundColor: isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.92)",
             color: "#FFFFFF",
             padding: "4px 10px",
             borderRadius: "8px",
-            fontSize: "11px",
-            fontWeight: "700",
+            fontSize: isSelected ? "12px" : "11px",
+            fontWeight: isSelected ? "800" : "700",
             whiteSpace: "nowrap",
-            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
-            border: "1px solid rgba(255, 255, 255, 0.18)",
+            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.45)",
+            border: isSelected ? "1.5px solid #FFC107" : "1px solid rgba(255, 255, 255, 0.18)",
             pointerEvents: "none",
             zIndex: 100,
           }}
@@ -91,7 +113,7 @@ export function CategoryMarker({
               height: 0,
               borderLeft: "5px solid transparent",
               borderRight: "5px solid transparent",
-              borderTop: "5px solid rgba(15, 23, 42, 0.92)",
+              borderTop: `5px solid ${isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.92)"}`,
             }}
           />
         </div>

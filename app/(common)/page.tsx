@@ -25,18 +25,36 @@ export default function HomePage() {
 
   const accessToken = useAppSelector(selectAccessToken);
   const currentUser = useAppSelector((state) => state.auth.user);
-  const [hasAuthCookie, setHasAuthCookie] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Synchronously detect auth from cookies or persisted storage on client render 1
+  const [hasAuthClient, setHasAuthClient] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      if (document.cookie.includes("loggedIn=1") || document.cookie.includes("accessToken=")) {
+        return true;
+      }
+      const persisted = localStorage.getItem("persist:auth");
+      if (persisted) {
+        const parsed = JSON.parse(persisted);
+        if (parsed.accessToken && parsed.accessToken !== "null") return true;
+        if (parsed.user && parsed.user !== "null") return true;
+      }
+    } catch { }
+    return false;
+  });
 
   useEffect(() => {
+    setHasMounted(true);
     if (typeof document !== "undefined") {
       const hasCookie =
         document.cookie.includes("loggedIn=1") ||
         document.cookie.includes("accessToken=");
-      setHasAuthCookie(hasCookie);
+      if (hasCookie) setHasAuthClient(true);
     }
   }, []);
 
-  const isAuthed = Boolean(accessToken || currentUser || hasAuthCookie);
+  const isAuthed = Boolean(accessToken || currentUser || hasAuthClient);
 
   // Skip profile query for unauthenticated guests to avoid wasteful 401 calls
   const { data: userProfile } = useGetProfileQuery({}, { skip: !isAuthed });
@@ -77,9 +95,9 @@ export default function HomePage() {
     );
   }
 
-  // If the user is logged in, DO NOT flash the landing page!
+  // If the user is logged in or client hydration has not resolved yet, DO NOT flash the landing page!
   // Show a neutral loading spinner while redirecting to /maps.
-  if ((isAuthed || userProfile) && !sessionId) {
+  if ((!hasMounted || isAuthed || userProfile) && !sessionId) {
     return (
       <div className="flex h-[calc(100vh-90px)] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />

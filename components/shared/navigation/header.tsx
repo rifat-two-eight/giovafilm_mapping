@@ -158,6 +158,7 @@ export default function Header() {
     if (!next) return;
     setEnterSearching(true);
     setDebouncedSearch(next);
+    closeMenus();
     router.push(`/maps?q=${encodeURIComponent(next)}`, { scroll: false });
   };
 
@@ -721,17 +722,31 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile & Tablet Search Slide-in */}
+        {/* Mobile & Tablet Search Backdrop — keeps map visible underneath with soft blur */}
+        {isSearchOpen && (
+          <div
+            className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-50 lg:hidden transition-opacity duration-300 animate-in fade-in"
+            onClick={closeMenus}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile & Tablet Search Header Drawer */}
         <div
-          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${isSearchOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+          className={`fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out z-50 lg:hidden border-b border-gray-200/80 ${
+            isSearchOpen
+              ? "opacity-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 -translate-y-8 pointer-events-none"
+          }`}
         >
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold">Search</h2>
+          <div className="p-4 sm:p-5 max-w-2xl mx-auto">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Search Map</span>
               <button
+                type="button"
                 onClick={closeMenus}
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="p-1.5 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
+                aria-label="Close search"
               >
                 <X className="size-5" />
               </button>
@@ -740,7 +755,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={submitHeaderSearch}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
                 aria-label="Search"
               >
                 <Search className="size-5" />
@@ -755,21 +770,40 @@ export default function Header() {
                     submitHeaderSearch();
                   }
                 }}
-                placeholder="Search digital maps, cities, landmarks..."
-                className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                placeholder="Search municipality, city, landmark..."
+                className="w-full bg-[#F5F5F5] border border-gray-200/70 rounded-full py-3 pl-12 pr-10 text-sm focus:bg-white focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner"
                 autoFocus
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
 
               {/* Search Results Dropdown Mobile */}
               {searchTerm && (
-                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                <div className="mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-[60vh] overflow-y-auto">
+                  {/* Direct search on map action (perfect for municipalities) */}
+                  <button
+                    type="button"
+                    onClick={submitHeaderSearch}
+                    className="w-full flex items-center gap-3 p-3.5 text-left text-sm font-bold text-amber-700 bg-amber-50/80 hover:bg-amber-100/80 border-b border-amber-100 transition-colors"
+                  >
+                    <Search className="size-4 shrink-0 text-amber-600" />
+                    <span>Search &ldquo;{searchTerm}&rdquo; on map</span>
+                  </button>
+
                   {isSearchPending ? (
                     <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
                       Searching...
                     </div>
                   ) : places.length > 0 ? (
-                    <div className="max-h-60 overflow-y-auto">
+                    <div>
                       {places.map((place: any) => (
                         <Link
                           key={place._id}
@@ -805,8 +839,8 @@ export default function Header() {
                               </div>
                             )}
                           </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-gray-900">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold text-gray-900 truncate">
                               {place.name}
                             </h4>
                             <p className="text-xs text-gray-500 truncate">
@@ -817,8 +851,8 @@ export default function Header() {
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-sm text-gray-500">
-                      No places found
+                    <div className="p-4 text-center text-xs text-gray-500">
+                      Press enter or tap &ldquo;Search &lsquo;{searchTerm}&rsquo; on map&rdquo; to filter all matching spots.
                     </div>
                   )}
                 </div>

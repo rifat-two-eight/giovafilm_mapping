@@ -24,6 +24,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapFilters, SelectedMapFilter } from "./MapFilters";
 import LocationDialog from "./location-dialog";
 import { getUsableMediaUrl } from "@/lib/utils";
+import { X } from "lucide-react";
 
 export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
@@ -203,14 +204,14 @@ function MapPanner({
   const map = useMap();
   useEffect(() => {
     if (map && position) {
-      // Focus smoothly on the selected pin without aggressive zoom
+      // Focus smoothly on the selected pin with clear visibility
       map.panTo(position);
 
-      // Only adjust zoom if the user was zoomed out too far to see details (< 9).
-      // Otherwise, PRESERVE their exploration zoom 100% so they never have to zoom out!
+      // Zoom in close enough to clearly distinguish the selected pin from neighboring pins (level 15)
       const currentZoom = map.getZoom();
-      if (currentZoom != null && currentZoom < 9) {
-        map.setZoom(11);
+      const targetZoom = isMobile ? 15 : 14.5;
+      if (currentZoom != null && currentZoom < targetZoom) {
+        map.setZoom(targetZoom);
       }
 
       // On mobile, offset slightly so the pin is clearly visible above the bottom preview drawer
@@ -251,6 +252,48 @@ function FocusSetup({
       }
     }
   }, [map, lat, lng, satellite, active]);
+
+  return null;
+}
+
+function SearchPanner({
+  searchQuery,
+  places,
+}: {
+  searchQuery: string;
+  places: any[];
+}) {
+  const map = useMap();
+  const lastSearchRef = useRef("");
+
+  useEffect(() => {
+    if (!map || !searchQuery || lastSearchRef.current === searchQuery) return;
+    lastSearchRef.current = searchQuery;
+
+    if (places && places.length > 0) {
+      if (places.length === 1) {
+        const coords = getPlaceLatLng(places[0]);
+        if (coords) {
+          map.panTo(coords);
+          const curr = map.getZoom();
+          if (curr == null || curr < 12) map.setZoom(13);
+        }
+      } else {
+        const bounds = new google.maps.LatLngBounds();
+        let count = 0;
+        for (const p of places) {
+          const coords = getPlaceLatLng(p);
+          if (coords) {
+            bounds.extend(coords);
+            count++;
+          }
+        }
+        if (count > 0) {
+          map.fitBounds(bounds, { top: 80, bottom: 90, left: 40, right: 40 });
+        }
+      }
+    }
+  }, [map, searchQuery, places]);
 
   return null;
 }
@@ -788,7 +831,11 @@ export default function MapPage() {
                 setMarkerPos(pos);
                 setHasUserLocation(true);
               }}
-              shouldPan={!selectedCountry && !sessionStorage.getItem("mapCameraState")}
+              shouldPan={false}
+            />
+            <SearchPanner
+              searchQuery={searchQuery}
+              places={displayPlaces}
             />
             <CountryPanner
               selectedCountry={selectedCountry}
@@ -877,6 +924,23 @@ export default function MapPage() {
             )}
           </Map>
         </APIProvider>
+
+        {/* Active Search Filter Chip */}
+        {searchQuery && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-lg border border-gray-200/80 text-xs sm:text-sm font-medium text-gray-800 animate-in fade-in slide-in-from-top-2">
+            <span>
+              Searching: <strong className="text-black">&ldquo;{searchQuery}&rdquo;</strong> ({displayPlaces.length})
+            </span>
+            <button
+              type="button"
+              onClick={() => router.push("/maps", { scroll: false })}
+              className="p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-black transition-colors"
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         {/* Location Dialog Overlay */}
         {selectedLocation && (
