@@ -14,9 +14,10 @@ type Props = {
   id: { id: string; type: string };
   onClose: () => void;
   mapId?: string;
+  initialData?: any;
 };
 
-export default function LocationDialog({ id, onClose, mapId }: Props) {
+export default function LocationDialog({ id, onClose, mapId, initialData }: Props) {
   const placeId = id?.id;
   const initialType = normalizePinType(id?.type);
   const [activeType, setActiveType] = useState<"place" | "business">(
@@ -81,25 +82,35 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
       : isPlaceLoading || isPlaceFetching || placeStatus === "pending" || placeStatus === "uninitialized";
 
   const location: any =
-    type === "business" ? businessRes?.data : placeRes?.data;
+    type === "business"
+      ? businessRes?.data || initialData
+      : placeRes?.data || initialData;
 
   // Place: media[]; Business: media.photos[]
   const coverSource =
-    type === "business" ? location?.media?.photos : location?.media;
+    type === "business"
+      ? location?.media?.photos || location?.media
+      : location?.media || location?.media?.photos;
   const coverImage = getUsableMediaUrl(coverSource);
   const locationId = location?._id || location?.id || placeId;
 
-  const isLocked = (placeError as any)?.status === 403;
+  const isLocked = (placeError as any)?.status === 403 || location?.isLocked;
 
   if (isLocked) {
     const message = (placeError as any)?.data?.message || "This information and these benefits can be unlocked by purchasing your favorite map.";
     return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative p-8 text-center space-y-6">
+      <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        {/* Click outside backdrop */}
+        <div
+          className="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity duration-300 animate-in fade-in"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md relative z-10 p-8 text-center space-y-6 transition-all duration-300 ease-out animate-in fade-in-0 zoom-in-95">
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow"
+            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow hover:bg-gray-200 transition-colors"
           >
             <X size={20} />
           </button>
@@ -137,11 +148,26 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
     );
   }
 
-  if (isLoading) {
+  // Smooth skeleton card instead of small jumpy spinner box
+  if (isLoading && !location) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-        <div className="bg-white rounded-[32px] p-10 shadow-2xl flex items-center justify-center pointer-events-auto">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 pb-16 sm:pb-4">
+        <div
+          className="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity duration-300 animate-in fade-in"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div className="bg-white rounded-t-[28px] rounded-b-[20px] sm:rounded-[32px] shadow-2xl w-full max-w-md relative z-10 flex flex-col overflow-hidden max-h-[80dvh] sm:max-h-[85vh] min-h-0 transition-all duration-300 ease-out animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 sm:slide-in-from-bottom-4">
+          <div className="h-36 sm:h-48 shrink-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+          <div className="p-4 sm:p-6 space-y-3">
+            <div className="h-6 w-3/4 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
+            <div className="space-y-2 pt-2">
+              <div className="h-3.5 w-full bg-gray-100 rounded animate-pulse" />
+              <div className="h-3.5 w-5/6 bg-gray-100 rounded animate-pulse" />
+            </div>
+            <div className="h-11 w-full bg-gray-200 rounded-xl animate-pulse mt-4" />
+          </div>
         </div>
       </div>
     );
@@ -149,11 +175,16 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
 
   if (!location) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md pointer-events-auto relative p-8 text-center space-y-4">
+      <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity duration-300 animate-in fade-in"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl w-full max-w-md relative z-10 p-8 text-center space-y-4 transition-all duration-300 ease-out animate-in fade-in-0 zoom-in-95">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow"
+            className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shadow hover:bg-gray-200 transition-colors"
           >
             <X size={20} />
           </button>
@@ -175,27 +206,37 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none p-3 sm:p-4 pb-16 sm:pb-4">
-      <div className="bg-white rounded-t-[28px] rounded-b-[20px] sm:rounded-[32px] shadow-2xl w-full max-w-md pointer-events-auto relative flex flex-col overflow-hidden max-h-[80dvh] sm:max-h-[85vh] min-h-0 animate-in slide-in-from-bottom-4 duration-200">
+    <div className="absolute inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 pb-16 sm:pb-4">
+      {/* Click outside backdrop */}
+      <div
+        className="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity duration-300 animate-in fade-in"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="bg-white rounded-t-[28px] rounded-b-[20px] sm:rounded-[32px] shadow-2xl w-full max-w-md relative z-10 flex flex-col overflow-hidden max-h-[80dvh] sm:max-h-[85vh] min-h-0 transition-all duration-300 ease-out animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 sm:slide-in-from-bottom-4">
         {/* Close — always tappable above image + description */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close location"
-          className="absolute top-3 right-3 z-[60] w-9 h-9 sm:w-11 sm:h-11 bg-white/95 rounded-full flex items-center justify-center shadow-lg hover:bg-white"
+          className="absolute top-3 right-3 z-[60] w-9 h-9 sm:w-11 sm:h-11 bg-white/95 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-transform active:scale-95"
         >
           <X size={20} className="sm:hidden" />
           <X size={22} className="hidden sm:block" />
         </button>
 
         {/* Image stays visible; long copy only scrolls below */}
-        <div className="h-32 sm:h-48 shrink-0 grow-0 overflow-hidden rounded-t-[28px] sm:rounded-t-[32px]">
+        <div className="relative h-36 sm:h-52 shrink-0 grow-0 overflow-hidden rounded-t-[28px] sm:rounded-t-[32px] bg-gray-100">
           {coverImage ? (
             <SafeImage
               src={coverImage}
               alt={location?.name}
+              fill
+              priority={true}
               className="w-full h-full object-cover"
             />
+          ) : isLoading ? (
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
           ) : (
             <NoImage />
           )}
@@ -216,7 +257,14 @@ export default function LocationDialog({ id, onClose, mapId }: Props) {
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">{location?.description}</p>
+          {location?.description ? (
+            <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">{location.description}</p>
+          ) : isLoading ? (
+            <div className="space-y-2 mb-4">
+              <div className="h-3.5 w-full bg-gray-100 rounded animate-pulse" />
+              <div className="h-3.5 w-4/5 bg-gray-100 rounded animate-pulse" />
+            </div>
+          ) : null}
 
           {type !== "business" && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">

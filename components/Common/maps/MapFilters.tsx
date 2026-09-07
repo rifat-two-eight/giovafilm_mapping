@@ -18,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { normalizePinType } from "@/lib/record-visit";
+import { getUsableMediaUrl } from "@/lib/utils";
 
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
@@ -239,12 +240,18 @@ export function MapFilters({
                                     .map((place: any) => (
                                       <button
                                         key={place._id}
-                                        onClick={() =>
+                                        onClick={() => {
+                                          const cover = getUsableMediaUrl(place.media?.photos || place.media);
+                                          if (cover && typeof window !== "undefined") {
+                                            const img = new Image();
+                                            img.src = cover;
+                                          }
                                           setSelectedLocation({
                                             id: place._id,
                                             type: normalizePinType(place.type),
-                                          })
-                                        }
+                                            data: place,
+                                          });
+                                        }}
                                         className={`w-full flex items-center gap-3 px-6 py-2 text-left transition-all ${
                                           selectedLocation?.id === place._id
                                             ? "bg-blue-600 text-white font-bold shadow-md"

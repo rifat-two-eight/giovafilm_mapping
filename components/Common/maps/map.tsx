@@ -3,6 +3,7 @@
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
+import { UserLocationMarker } from "@/components/shared/maps/user-location-marker";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { normalizePinType, trackUsage } from "@/lib/record-visit";
@@ -22,6 +23,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapFilters, SelectedMapFilter } from "./MapFilters";
 import LocationDialog from "./location-dialog";
+import { getUsableMediaUrl } from "@/lib/utils";
 
 export function getCategoryColor(cat: any) {
   return cat?.color || "#FF9800";
@@ -121,10 +123,17 @@ function ViewportPlaceMarkers({
           <AdvancedMarker
             key={place._id}
             position={position}
+            zIndex={selectedLocation?.id === place._id ? 9999 : 10}
             onClick={() => {
+              const cover = getUsableMediaUrl(place.media?.photos || place.media);
+              if (cover && typeof window !== "undefined") {
+                const img = new Image();
+                img.src = cover;
+              }
               setSelectedLocation({
                 id: place._id,
                 type: normalizePinType(place.type),
+                data: place,
               });
             }}
           >
@@ -186,16 +195,33 @@ function CountryPanner({
 
 function MapPanner({
   position,
+  isMobile,
 }: {
   position: { lat: number; lng: number } | null;
+  isMobile?: boolean;
 }) {
   const map = useMap();
   useEffect(() => {
     if (map && position) {
+      // Focus smoothly on the selected pin without aggressive zoom
       map.panTo(position);
-      map.setZoom(17);
+
+      // Only adjust zoom if the user was zoomed out too far to see details (< 9).
+      // Otherwise, PRESERVE their exploration zoom 100% so they never have to zoom out!
+      const currentZoom = map.getZoom();
+      if (currentZoom != null && currentZoom < 9) {
+        map.setZoom(11);
+      }
+
+      // On mobile, offset slightly so the pin is clearly visible above the bottom preview drawer
+      if (isMobile) {
+        const timer = setTimeout(() => {
+          map.panBy(0, 75);
+        }, 120);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [map, position]);
+  }, [map, position, isMobile]);
   return null;
 }
 
@@ -219,7 +245,10 @@ function FocusSetup({
     }
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       map.panTo({ lat, lng });
-      map.setZoom(17);
+      const currentZoom = map.getZoom();
+      if (currentZoom == null || currentZoom < 12) {
+        map.setZoom(13);
+      }
     }
   }, [map, lat, lng, satellite, active]);
 
@@ -230,8 +259,10 @@ export default function MapPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const defaultPosition = { lat: 23.8103, lng: 90.4125 };
+  // Puerto Rico center as natural default coordinates
+  const defaultPosition = { lat: 18.2208, lng: -66.5901 };
   const [markerPos, setMarkerPos] = useState(defaultPosition);
+  const [hasUserLocation, setHasUserLocation] = useState(false);
 
   const [enabledCategories, setEnabledCategories] = useState<
     Record<string, boolean>
@@ -542,7 +573,7 @@ export default function MapPage() {
 
   // Detect country from markerPos (current location)
   useEffect(() => {
-    if (!geocodingLib || !markerPos.lat || !markerPos.lng) return;
+    if (!geocodingLib || !hasUserLocation || !markerPos.lat || !markerPos.lng) return;
 
     const geocoder = new geocodingLib.Geocoder();
     geocoder.geocode(
@@ -753,7 +784,10 @@ export default function MapPage() {
             clickableIcons={false}
           >
             <GeolocationOnLoad
-              onLocation={setMarkerPos}
+              onLocation={(pos) => {
+                setMarkerPos(pos);
+                setHasUserLocation(true);
+              }}
               shouldPan={!selectedCountry && !sessionStorage.getItem("mapCameraState")}
             />
             <CountryPanner
@@ -784,17 +818,19 @@ export default function MapPage() {
                   })()
                   : null
               }
+              isMobile={isMobile}
             />
             <CustomLocationButton
               onLocated={(lat, lng) => {
                 setMarkerPos({ lat, lng });
+                setHasUserLocation(true);
                 // Temporarily pause CountryPanner so it doesn't fight the location pan
                 setIsManualSelection(false);
               }}
             />
 
-            {/* User's current location marker — default pin style */}
-            <AdvancedMarker position={markerPos} />
+            {/* User's current location marker — subtle modern navigation puck */}
+            {hasUserLocation && <UserLocationMarker position={markerPos} />}
 
             {/* Viewport-culled markers — avoids mounting 1000 pins for purchased maps */}
             <ViewportPlaceMarkers
@@ -846,6 +882,12 @@ export default function MapPage() {
         {selectedLocation && (
           <LocationDialog
             id={selectedLocation}
+            initialData={
+              selectedLocation?.data ||
+              fetchedPlaces?.find(
+                (p: any) => String(p._id) === String(selectedLocation.id)
+              ) || null
+            }
             mapId={mapIdFilter || undefined}
             onClose={() => setSelectedLocation(null)}
           />
