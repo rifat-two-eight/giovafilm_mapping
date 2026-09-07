@@ -126,9 +126,13 @@ export function MapFilters({
       <div
         className={`${
           isMobile 
-            ? "absolute top-full left-0 z-50 mt-1.5 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden w-[340px] max-w-[92vw]" 
+            ? `absolute top-full left-0 z-50 mt-1.5 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden w-[340px] max-w-[92vw] transition-all duration-200 ease-out origin-top ${
+                mobileOpen
+                  ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 scale-95 -translate-y-2 pointer-events-none invisible"
+              }`
             : "bg-white rounded-lg shadow-lg border border-gray-200"
-        } ${isMobile && !mobileOpen ? "hidden" : ""}`}
+        }`}
         style={!isMobile ? { width: panelWidth } : undefined}
       >
         <Accordion
@@ -146,16 +150,16 @@ export function MapFilters({
               </AccordionTrigger>
             )}
             <AccordionContent
-              className={`pb-0 ${!isMobile ? "border-t border-gray-100" : ""}`}
+              className={`pb-0 scroll-smooth ${!isMobile ? "border-t border-gray-100" : ""}`}
               style={{
                 overflowY: "auto",
                 height: listHeight,
               }}
             >
               {hasCategories ? (
-                <div className="">
+                <div className="transition-opacity duration-300">
                   {isLoading && (
-                    <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-amber-50/90 border-b border-amber-100 text-xs font-medium text-amber-800">
+                    <div className="flex items-center justify-center gap-2 py-1.5 px-3 bg-amber-50/90 border-b border-amber-100 text-xs font-medium text-amber-800 transition-all duration-300">
                       <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
                       <span>Syncing locations for {mapLabel}...</span>
                     </div>
@@ -177,7 +181,7 @@ export function MapFilters({
                           value={cat._id}
                           className=""
                         >
-                          <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0">
+                          <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0 hover:bg-amber-50/30 transition-colors duration-150">
                             <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
                               <div className="flex items-center gap-3 w-full">
                                 {(() => {
@@ -188,7 +192,7 @@ export function MapFilters({
                                    cat.icon?.includes(".");
                                  return (
                                    <div
-                                     className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-gray-100"
+                                     className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-gray-100 transition-transform group-hover:scale-105 duration-150"
                                      style={{
                                        backgroundColor: isCustomImage
                                          ? "transparent"
@@ -202,15 +206,20 @@ export function MapFilters({
                                      />
                                    </div>
                                  );
-                               })()}
-                                <span className="text-left text-sm font-semibold text-gray-700 capitalize">
+                                })()}
+                                <span className="text-left text-sm font-semibold text-gray-700 capitalize flex-1 truncate">
                                   {cat.name.length > 25
                                     ? `${cat.name.slice(0, 25)}...`
                                     : cat.name}
                                 </span>
+                                {placesInCat.length > 0 && (
+                                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 tabular-nums shrink-0 transition-opacity duration-200">
+                                    {placesInCat.length}
+                                  </span>
+                                )}
                               </div>
                             </AccordionTrigger>
-                            <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50 transition-colors">
+                            <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50/60 transition-colors">
                               <Switch
                                 checked={enabled}
                                 onCheckedChange={(val) =>
