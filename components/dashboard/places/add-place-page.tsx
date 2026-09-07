@@ -1146,15 +1146,51 @@ export default function AddPlacePage() {
                   isFetchingAddress={isFetchingAddress}
                   initialData={{
                     ...selectedPlace,
-                    category: selectedCategoryId || "",
+                    category:
+                      selectedCategoryId ||
+                      (typeof selectedPlace.category === "object"
+                        ? selectedPlace.category?._id
+                        : selectedPlace.category) ||
+                      "",
                     type: normalizePlaceType(selectedPlace),
                     phone: selectedPlace.phone || "",
                     website: selectedPlace.website || "",
                     instagram: selectedPlace.instagram || "",
                     address: selectedPlace.address || "",
-                    accessDescription: selectedPlace.access || selectedPlace.details?.access || "",
+                    accessDescription:
+                      selectedPlace.access || selectedPlace.details?.access || "",
                     tips:
-                      selectedPlace.recommendations?.tips || selectedPlace.details?.recommendations || "",
+                      selectedPlace.recommendations?.tips ||
+                      selectedPlace.details?.recommendations ||
+                      "",
+                    services: selectedPlace.services || [],
+                    accessibility: {
+                      wheelchair:
+                        (selectedPlace.accessibility?.features || []).includes("wheelchair") ||
+                        !!selectedPlace.accessibility?.wheelchair,
+                      children:
+                        (selectedPlace.accessibility?.features || []).includes("children") ||
+                        !!selectedPlace.accessibility?.children,
+                      pets:
+                        (selectedPlace.accessibility?.features || []).includes("pets") ||
+                        !!selectedPlace.accessibility?.pets,
+                      senior:
+                        (selectedPlace.accessibility?.features || []).includes("senior") ||
+                        !!selectedPlace.accessibility?.senior,
+                      notes: selectedPlace.accessibility?.notes || "",
+                    },
+                    schedules: selectedPlace.schedules || "",
+                    entryCost:
+                      selectedPlace.entryCost !== undefined && selectedPlace.entryCost !== null
+                        ? String(selectedPlace.entryCost)
+                        : "",
+                    hikeTime:
+                      selectedPlace.hikeTime !== undefined && selectedPlace.hikeTime !== null
+                        ? String(selectedPlace.hikeTime)
+                        : "",
+                    atmosphere: selectedPlace.atmosphere || "",
+                    difficulty: selectedPlace.difficulty || "",
+                    operatingHours: selectedPlace.operatingHours || undefined,
                     images: asMediaUrls(selectedPlace.media),
                     menuImages: asMediaUrls(selectedPlace.menuImages),
                     isNew: selectedPlace.isNew,

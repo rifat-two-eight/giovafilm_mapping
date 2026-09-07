@@ -52,7 +52,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { getImageUrl, getUsableMediaList, isVideoUrl } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
@@ -230,11 +230,9 @@ export default function MapDetails() {
 
   const schedulesValue = formatHours();
   const entryCostRaw = placeData?.entryCost;
-  const entryCostValue = hasText(entryCostRaw)
-    ? String(entryCostRaw).match(/^\$/)
-      ? String(entryCostRaw)
-      : `$${entryCostRaw}`
-    : "";
+  const entryCostValue = formatEntryCost(entryCostRaw);
+  const hikeTimeRaw = placeData?.hikeTime;
+  const hikeTimeValue = formatHikeTime(hikeTimeRaw);
 
   const infoData = [
     {
@@ -261,10 +259,8 @@ export default function MapDetails() {
     {
       icon: Timer,
       label: "WALKING TIME",
-      value: hasText(placeData?.hikeTime)
-        ? placeData.hikeTime
-        : "Not specified",
-      empty: !hasText(placeData?.hikeTime),
+      value: hikeTimeValue || "Not specified",
+      empty: !hikeTimeValue,
     },
   ];
 

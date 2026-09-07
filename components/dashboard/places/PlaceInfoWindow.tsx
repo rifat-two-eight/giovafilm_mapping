@@ -26,7 +26,7 @@ interface PlaceInfoWindowProps {
     website?: string;
     instagram?: string;
     schedules?: string;
-    entryCost?: number;
+    entryCost?: string | number;
     hikeTime?: string | number;
     atmosphere?: string;
     difficulty?: string;

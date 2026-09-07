@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getImageUrl } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -340,10 +340,10 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-4 rounded-xl space-y-1.5 shadow-sm">
                           <div className="flex items-center gap-2 text-indigo-500">
                             <Clock size={14} />
-                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Hike Time</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Walking Time</span>
                           </div>
                           <p className="text-[11px] font-bold text-gray-800">
-                            {place.hikeTime}
+                            {formatHikeTime(place.hikeTime)}
                           </p>
                         </div>
                       )}
@@ -356,7 +356,7 @@ export function ViewPlaceModal({
                             <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Entry Cost</span>
                           </div>
                           <p className="text-[11px] font-bold text-gray-800">
-                            {place.entryCost}
+                            {formatEntryCost(place.entryCost)}
                           </p>
                         </div>
                       )}

@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TimeRangePicker } from "@/components/ui/time-range-picker";
-import { getImageUrl, isVideoUrl } from "@/lib/utils";
+import {
+  composeEntryCost,
+  composeHikeTime,
+  getImageUrl,
+  isVideoUrl,
+  parseEntryCost,
+  parseHikeTime,
+} from "@/lib/utils";
 import {
   Baby,
   Car,
@@ -67,7 +74,7 @@ interface PlaceFormContentProps {
     website?: string;
     instagram?: string;
     schedules?: string;
-    entryCost?: number;
+    entryCost?: string | number;
     hikeTime?: string | number;
     atmosphere?: string;
     difficulty?: string;
@@ -123,17 +130,17 @@ export const PlaceFormContent = ({
     address: initialData?.address || "",
     accessDescription: initialData?.accessDescription || "",
     accessibility: {
-      wheelchair: initialData?.accessibility?.wheelchair || false,
-      children: initialData?.accessibility?.children || false,
-      pets: initialData?.accessibility?.pets || false,
-      senior: initialData?.accessibility?.senior || false,
+      wheelchair: !!(initialData?.accessibility?.wheelchair ?? (initialData?.accessibility?.features || []).includes("wheelchair")),
+      children: !!(initialData?.accessibility?.children ?? (initialData?.accessibility?.features || []).includes("children")),
+      pets: !!(initialData?.accessibility?.pets ?? (initialData?.accessibility?.features || []).includes("pets")),
+      senior: !!(initialData?.accessibility?.senior ?? (initialData?.accessibility?.features || []).includes("senior")),
       notes: initialData?.accessibility?.notes || "",
     },
     tips: initialData?.tips || "",
     services: initialData?.services || ([] as string[]),
     schedules: initialData?.schedules || "",
-    entryCost: initialData?.entryCost || "",
-    hikeTime: initialData?.hikeTime || "",
+    entryCost: initialData?.entryCost !== undefined && initialData?.entryCost !== null ? String(initialData.entryCost) : "",
+    hikeTime: initialData?.hikeTime !== undefined && initialData?.hikeTime !== null ? String(initialData.hikeTime) : "",
     atmosphere: initialData?.atmosphere || "",
     difficulty: initialData?.difficulty || "",
     phone: initialData?.phone || "",
@@ -154,24 +161,50 @@ export const PlaceFormContent = ({
 
   useEffect(() => {
     if (!initialData) return;
-    setFormData((prev) => ({
-      ...prev,
-      name: prev.name.trim() ? prev.name : initialData.name || "",
-      description: prev.description.trim()
-        ? prev.description
-        : initialData.description || "",
-      address: prev.address.trim() ? prev.address : initialData.address || "",
-      category: prev.category || initialData.category || "",
-      type: typeTouchedRef.current
-        ? prev.type
-        : normalizePlaceType(initialData),
-      accessDescription:
-        prev.accessDescription || initialData.accessDescription || "",
-      tips: prev.tips || initialData.tips || "",
-      phone: prev.phone || initialData.phone || "",
-      website: prev.website || initialData.website || "",
-      instagram: prev.instagram || initialData.instagram || "",
-    }));
+    setFormData((prev) => {
+      const resolvedAccessibility = initialData.accessibility
+        ? {
+            wheelchair: !!(initialData.accessibility.wheelchair ?? (initialData.accessibility.features || []).includes("wheelchair")),
+            children: !!(initialData.accessibility.children ?? (initialData.accessibility.features || []).includes("children")),
+            pets: !!(initialData.accessibility.pets ?? (initialData.accessibility.features || []).includes("pets")),
+            senior: !!(initialData.accessibility.senior ?? (initialData.accessibility.features || []).includes("senior")),
+            notes: initialData.accessibility.notes !== undefined ? initialData.accessibility.notes : prev.accessibility.notes,
+          }
+        : prev.accessibility;
+
+      return {
+        ...prev,
+        name: prev.name.trim() ? prev.name : initialData.name || "",
+        description: prev.description.trim()
+          ? prev.description
+          : initialData.description || "",
+        address: prev.address.trim() ? prev.address : initialData.address || "",
+        category: prev.category || initialData.category || "",
+        type: typeTouchedRef.current
+          ? prev.type
+          : normalizePlaceType(initialData),
+        accessDescription:
+          prev.accessDescription || initialData.accessDescription || "",
+        tips: prev.tips || initialData.tips || "",
+        phone: prev.phone || initialData.phone || "",
+        website: prev.website || initialData.website || "",
+        instagram: prev.instagram || initialData.instagram || "",
+        schedules: prev.schedules || initialData.schedules || "",
+        entryCost:
+          prev.entryCost !== undefined && prev.entryCost !== ""
+            ? prev.entryCost
+            : (initialData.entryCost !== undefined && initialData.entryCost !== null ? String(initialData.entryCost) : ""),
+        hikeTime:
+          prev.hikeTime !== undefined && prev.hikeTime !== ""
+            ? prev.hikeTime
+            : (initialData.hikeTime !== undefined && initialData.hikeTime !== null ? String(initialData.hikeTime) : ""),
+        atmosphere: prev.atmosphere || initialData.atmosphere || "",
+        difficulty: prev.difficulty || initialData.difficulty || "",
+        operatingHours: initialData.operatingHours || prev.operatingHours,
+        services: prev.services && prev.services.length > 0 ? prev.services : (initialData.services || []),
+        accessibility: resolvedAccessibility,
+      };
+    });
     if (!existingImages.length && initialData.images?.length) {
       setExistingImages(asMediaUrls(initialData.images));
     }
@@ -186,6 +219,19 @@ export const PlaceFormContent = ({
     initialData?.type,
     initialData?.images,
     initialData?.menuImages,
+    initialData?.entryCost,
+    initialData?.hikeTime,
+    initialData?.atmosphere,
+    initialData?.difficulty,
+    initialData?.schedules,
+    initialData?.accessDescription,
+    initialData?.tips,
+    initialData?.accessibility,
+    initialData?.services,
+    initialData?.operatingHours,
+    initialData?.phone,
+    initialData?.website,
+    initialData?.instagram,
   ]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -284,6 +330,29 @@ export const PlaceFormContent = ({
       menuFiles,
       existingMenuImages,
     });
+  };
+
+  const { amount: entryCostAmount, type: entryCostType } = parseEntryCost(formData.entryCost);
+  const { value: hikeTimeAmount, unit: hikeTimeUnit } = parseHikeTime(formData.hikeTime);
+
+  const handleEntryCostAmountChange = (amount: string) => {
+    const nextCost = composeEntryCost(amount, entryCostType);
+    setFormData((prev) => ({ ...prev, entryCost: nextCost }));
+  };
+
+  const handleEntryCostTypeChange = (type: string) => {
+    const nextCost = composeEntryCost(type === "Free" ? "" : (entryCostAmount || "10"), type);
+    setFormData((prev) => ({ ...prev, entryCost: nextCost }));
+  };
+
+  const handleHikeTimeAmountChange = (val: string) => {
+    const nextHike = composeHikeTime(val, hikeTimeUnit);
+    setFormData((prev) => ({ ...prev, hikeTime: nextHike }));
+  };
+
+  const handleHikeTimeUnitChange = (unit: "mins" | "hours") => {
+    const nextHike = composeHikeTime(hikeTimeAmount || "30", unit);
+    setFormData((prev) => ({ ...prev, hikeTime: nextHike }));
   };
 
   const toggleService = (service: string) => {
@@ -881,23 +950,47 @@ export const PlaceFormContent = ({
                   .find((c: any) => c._id === formData.category)
                   ?.name?.toLowerCase() !== "restaurant" && (
                     <>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Entry Cost</Label>
-                        <Input
-                          placeholder='e.g., "$15.00 / vehicle"'
-                          type="number"
-                          min={0}
-                          value={formData.entryCost}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              entryCost: e.target.value,
-                            })
-                          }
-                          className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
-                        />
+                      {/* Entry Cost */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Entry Cost</Label>
+                          {formData.entryCost && (
+                            <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                              {formData.entryCost}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex rounded-lg border border-gray-200 bg-white h-9 overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                          <span className="flex items-center pl-3 text-xs font-bold text-gray-500 select-none">
+                            $
+                          </span>
+                          <input
+                            type="text"
+                            placeholder={entryCostType === "Free" ? "Free" : "10"}
+                            value={entryCostType === "Free" ? "" : entryCostAmount}
+                            disabled={entryCostType === "Free"}
+                            onChange={(e) => handleEntryCostAmountChange(e.target.value)}
+                            className="w-full bg-transparent pl-1.5 pr-2 text-sm italic focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                          />
+                          <select
+                            value={entryCostType}
+                            onChange={(e) => handleEntryCostTypeChange(e.target.value)}
+                            className="border-l border-gray-200 bg-gray-50 px-2.5 text-xs font-medium text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-100 transition-colors"
+                          >
+                            <option value="/ person">/ person</option>
+                            <option value="/ vehicle">/ vehicle</option>
+                            <option value="/ group">/ group</option>
+                            <option value="flat">flat fee</option>
+                            <option value="Free">Free entry</option>
+                          </select>
+                        </div>
+                        <p className="text-[10px] text-gray-400">
+                          e.g., $10 / person, $15 / vehicle, or Free
+                        </p>
                       </div>
-                      <div className="space-y-2">
+
+                      {/* Difficulty */}
+                      <div className="space-y-1.5">
                         <Label className="text-sm font-medium">Difficulty</Label>
                         <Select
                           value={formData.difficulty || undefined}
@@ -917,18 +1010,41 @@ export const PlaceFormContent = ({
                             <SelectItem value="Hard">Hard</SelectItem>
                           </SelectContent>
                         </Select>
+                        <p className="text-[10px] text-gray-400">
+                          Trail or terrain difficulty level
+                        </p>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Walking Time</Label>
-                        <Input
-                          placeholder='e.g., "30 minutes" or "~ 3.5 Hours"'
-                          value={formData.hikeTime}
-                          type="text"
-                          onChange={(e) =>
-                            setFormData({ ...formData, hikeTime: e.target.value })
-                          }
-                          className="w-full bg-white border-gray-200 rounded-lg h-9 text-sm italic"
-                        />
+
+                      {/* Walking Time */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Walking Time</Label>
+                          {formData.hikeTime && (
+                            <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                              {formData.hikeTime}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex rounded-lg border border-gray-200 bg-white h-9 overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                          <input
+                            type="text"
+                            placeholder="e.g. 45"
+                            value={hikeTimeAmount}
+                            onChange={(e) => handleHikeTimeAmountChange(e.target.value)}
+                            className="w-full bg-transparent px-3 text-sm italic focus:outline-none"
+                          />
+                          <select
+                            value={hikeTimeUnit}
+                            onChange={(e) => handleHikeTimeUnitChange(e.target.value as "mins" | "hours")}
+                            className="border-l border-gray-200 bg-gray-50 px-2.5 text-xs font-medium text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-100 transition-colors"
+                          >
+                            <option value="mins">Minutes</option>
+                            <option value="hours">Hours</option>
+                          </select>
+                        </div>
+                        <p className="text-[10px] text-gray-400">
+                          Approx. time to walk/hike (e.g. 45 mins, 1.5 hours)
+                        </p>
                       </div>
                     </>
                   )}

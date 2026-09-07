@@ -307,3 +307,118 @@ export const mapEditorMenuItems = [
     icon: BadgePercent,
   },
 ];
+
+/**
+ * Formats entry cost for user & admin display.
+ * e.g. "10" -> "$10 / person"
+ *      "15 / vehicle" -> "$15 / vehicle"
+ *      "Free" -> "Free Entrance"
+ */
+export function formatEntryCost(raw?: unknown): string {
+  if (raw == null) return "";
+  const str = String(raw).trim();
+  if (!str) return "";
+
+  const lower = str.toLowerCase();
+  if (lower === "free" || lower === "0" || lower === "$0" || lower === "free entrance") {
+    return "Free Entrance";
+  }
+
+  if (str.includes("/") || lower.includes("person") || lower.includes("vehicle") || lower.includes("group")) {
+    return str.startsWith("$") ? str : `$${str}`;
+  }
+
+  const numMatch = str.replace(/^\$/, "").trim();
+  if (!Number.isNaN(Number(numMatch))) {
+    return `$${numMatch} / person`;
+  }
+
+  return str.startsWith("$") ? str : `$${str}`;
+}
+
+/**
+ * Formats walking time for user & admin display.
+ * e.g. "45" -> "45 mins"
+ *      "30 minutes" -> "30 mins"
+ *      "1.5 hours" -> "1.5 hours"
+ */
+export function formatHikeTime(raw?: unknown): string {
+  if (raw == null) return "";
+  const str = String(raw).trim();
+  if (!str) return "";
+
+  const lower = str.toLowerCase();
+  if (lower.includes("min") || lower.includes("hour") || lower.includes("hr")) {
+    return str;
+  }
+
+  const num = Number(str);
+  if (!Number.isNaN(num)) {
+    if (num <= 5 && str.includes(".")) {
+      return `${num} hours`;
+    }
+    return `${num} mins`;
+  }
+
+  return str;
+}
+
+export function parseEntryCost(val?: unknown): { amount: string; type: string } {
+  if (val == null) return { amount: "", type: "/ person" };
+  const str = String(val).trim();
+  if (!str) return { amount: "", type: "/ person" };
+
+  const lower = str.toLowerCase();
+  if (lower === "free" || lower === "0" || lower === "$0" || lower === "free entrance") {
+    return { amount: "", type: "Free" };
+  }
+
+  let type = "/ person";
+  if (lower.includes("vehicle") || lower.includes("car")) type = "/ vehicle";
+  else if (lower.includes("group")) type = "/ group";
+  else if (lower.includes("flat") || lower.includes("total")) type = "flat";
+  else if (lower.includes("person")) type = "/ person";
+
+  const match = str.match(/\d+(?:\.\d+)?/);
+  const amount = match ? match[0] : "";
+  return { amount, type };
+}
+
+export function composeEntryCost(amount: string, type: string): string {
+  if (type === "Free") return "Free";
+  const trimmed = amount.trim().replace(/^\$/, "");
+  if (!trimmed) return "";
+  if (type === "flat") return `$${trimmed}`;
+  return `$${trimmed} ${type}`;
+}
+
+export function parseHikeTime(val?: unknown): { value: string; unit: "mins" | "hours" } {
+  if (val == null) return { value: "", unit: "mins" };
+  const str = String(val).trim();
+  if (!str) return { value: "", unit: "mins" };
+
+  const lower = str.toLowerCase();
+  let unit: "mins" | "hours" = "mins";
+  if (lower.includes("hour") || lower.includes("hr")) {
+    unit = "hours";
+  }
+
+  const match = str.match(/\d+(?:\.\d+)?/);
+  const value = match ? match[0] : "";
+  return { value, unit };
+}
+
+export function composeHikeTime(value: string, unit: "mins" | "hours"): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const num = Number(trimmed);
+  if (!Number.isNaN(num)) {
+    if (unit === "hours") {
+      return num === 1 ? "1 hour" : `${trimmed} hours`;
+    }
+    return num === 1 ? "1 min" : `${trimmed} mins`;
+  }
+  return `${trimmed} ${unit}`;
+}
+
+
