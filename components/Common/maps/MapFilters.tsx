@@ -181,9 +181,9 @@ export function MapFilters({
                           value={cat._id}
                           className=""
                         >
-                          <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0 hover:bg-amber-50/30 transition-colors duration-150">
-                            <AccordionTrigger className="flex-1 py-2 px-4 transition-colors">
-                              <div className="flex items-center gap-3 w-full">
+                          <div className="flex items-center justify-between group border-b border-gray-100 last:border-b-0 hover:bg-amber-50/30 transition-colors duration-150 w-full min-w-0">
+                            <AccordionTrigger className="flex-1 min-w-0 py-2.5 pl-3 pr-2 transition-colors gap-2">
+                              <div className="flex items-center gap-2.5 w-full min-w-0 flex-1">
                                 {(() => {
                                  const isCustomImage =
                                    cat.icon?.startsWith("http") ||
@@ -207,10 +207,11 @@ export function MapFilters({
                                    </div>
                                  );
                                 })()}
-                                <span className="text-left text-sm font-semibold text-gray-700 capitalize flex-1 truncate">
-                                  {cat.name.length > 25
-                                    ? `${cat.name.slice(0, 25)}...`
-                                    : cat.name}
+                                <span
+                                  title={cat.name}
+                                  className="text-left text-sm font-semibold text-gray-700 capitalize flex-1 min-w-0 truncate"
+                                >
+                                  {cat.name}
                                 </span>
                                 {placesInCat.length > 0 && (
                                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 tabular-nums shrink-0 transition-opacity duration-200">
@@ -219,13 +220,13 @@ export function MapFilters({
                                 )}
                               </div>
                             </AccordionTrigger>
-                            <div className="pr-4 py-3 bg-transparent group-hover:bg-gray-50/60 transition-colors">
+                            <div className="pr-3 pl-1 py-2 shrink-0 flex items-center justify-center">
                               <Switch
                                 checked={enabled}
                                 onCheckedChange={(val) =>
                                   handleToggle(String(cat._id), val)
                                 }
-                                className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75`}
+                                className={`${enabled ? "bg-primary" : "bg-gray-300"} data-[state=checked]:bg-amber-400 data-[state=unchecked]:bg-gray-300 scale-75 shrink-0`}
                               />
                             </div>
                           </div>
