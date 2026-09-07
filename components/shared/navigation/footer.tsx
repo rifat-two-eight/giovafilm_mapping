@@ -6,9 +6,11 @@ import Link from "next/link";
 import logo from "@/public/logo.png";
 import { usePathname } from "next/navigation";
 import { AuthLink } from "@/components/shared/auth-link";
+import { useAppSelector } from "@/redux/hook";
 
 export default function Footer() {
   const pathname = usePathname();
+  const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
 
   if (pathname === "/maps") return null;
 
@@ -20,7 +22,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div>
-              <Link href="/">
+              <Link href={isAuthenticated ? "/maps" : "/"}>
                 <Image
                   src={logo}
                   alt="Dashboard Logo"

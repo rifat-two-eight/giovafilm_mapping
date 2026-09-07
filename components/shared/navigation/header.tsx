@@ -270,7 +270,7 @@ export default function Header() {
         <nav className="flex items-center justify-between px-1 md:px-6 py-4 max-w-360 mx-auto gap-4">
           {/* Logo */}
           <div className="shrink-0">
-            <Link href="/">
+            <Link href={isAuthenticated ? "/maps" : "/"}>
               <Image
                 src={logo}
                 alt="Dashboard Logo"

@@ -75,6 +75,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(targetUrl);
   }
 
+  // If a logged-in user visits root "/", immediately redirect to /maps on the edge/server
+  // (except when verifying a Stripe checkout session)
+  if (pathname === "/" && isLoggedIn) {
+    const sessionId = request.nextUrl.searchParams.get("session_id");
+    const loginRequiredFlag = request.nextUrl.searchParams.get("loginRequired") === "1";
+    if (!sessionId && !loginRequiredFlag) {
+      return NextResponse.redirect(new URL("/maps", request.url));
+    }
+  }
+
   const isDashboardRoute = dashboardRoutes.some((route) =>
     pathname.startsWith(route),
   );
@@ -88,7 +98,7 @@ export function middleware(request: NextRequest) {
       role === "super_admin";
 
     if (!isDashboardRole) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/maps", request.url));
     }
 
     if (role === "map_editor" && isAdminOnlyDashboardPath(pathname)) {

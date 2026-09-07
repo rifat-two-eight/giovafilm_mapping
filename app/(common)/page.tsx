@@ -9,20 +9,37 @@ import MapCollection from "@/components/Common/landing-page/map-collection";
 import PersonalizedExperience from "@/components/Common/landing-page/personalized-experience";
 import PromoteBusiness from "@/components/Common/landing-page/promote-business";
 import StartExploring from "@/components/Common/landing-page/start-exploring";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useVerifyCheckoutSessionQuery } from "@/redux/features/payment/paymentApi";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useAppSelector } from "@/redux/hook";
+import { selectAccessToken } from "@/redux/features/auth/authSlice";
 
 export default function HomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const success = searchParams.get("success");
 
-  const { data: userProfile, isLoading } = useGetProfileQuery({});
+  const accessToken = useAppSelector(selectAccessToken);
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const [hasAuthCookie, setHasAuthCookie] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const hasCookie =
+        document.cookie.includes("loggedIn=1") ||
+        document.cookie.includes("accessToken=");
+      setHasAuthCookie(hasCookie);
+    }
+  }, []);
+
+  const isAuthed = Boolean(accessToken || currentUser || hasAuthCookie);
+
+  // Skip profile query for unauthenticated guests to avoid wasteful 401 calls
+  const { data: userProfile } = useGetProfileQuery({}, { skip: !isAuthed });
 
   // Trigger verify checkout query if session_id query exists
   const { data: verifyData, error: verifyError, isLoading: isVerifying } = useVerifyCheckoutSessionQuery(
@@ -33,19 +50,21 @@ export default function HomePage() {
   useEffect(() => {
     if (verifyData) {
       toast.success("Payment verified successfully! Redirecting to your purchased maps...");
-      router.push("/profile/purchased-maps");
+      router.replace("/profile/purchased-maps");
     } else if (verifyError) {
       toast.error("Payment verification failed.");
-      router.push("/maps");
+      router.replace("/maps");
     }
   }, [verifyData, verifyError, router]);
 
   useEffect(() => {
-    // Only auto-redirect to /maps if we are NOT currently verifying a Stripe checkout session!
-    if (sessionId || isLoading || !userProfile) return;
+    // Only auto-redirect to /maps if we are NOT currently verifying a Stripe checkout session
+    if (sessionId) return;
     if (searchParams.get("loginRequired") === "1") return;
-    router.push("/maps");
-  }, [userProfile, isLoading, router, sessionId, searchParams]);
+    if (isAuthed || userProfile) {
+      router.replace("/maps");
+    }
+  }, [isAuthed, userProfile, router, sessionId, searchParams]);
 
   // Loading state for checkout verification
   if (sessionId && isVerifying) {
@@ -58,7 +77,17 @@ export default function HomePage() {
     );
   }
 
-  // If loading or user is not logged in, show landing page
+  // If the user is logged in, DO NOT flash the landing page!
+  // Show a neutral loading spinner while redirecting to /maps.
+  if ((isAuthed || userProfile) && !sessionId) {
+    return (
+      <div className="flex h-[calc(100vh-90px)] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />
+      </div>
+    );
+  }
+
+  // If user is not logged in, show landing page
   return (
     <div>
       <HeroBanner />
