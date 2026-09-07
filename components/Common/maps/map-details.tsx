@@ -21,6 +21,10 @@ import {
   Wifi,
   X,
   Maximize2,
+  AlertCircle,
+  CheckCircle2,
+  Edit3,
+  Sparkles,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
@@ -65,6 +69,10 @@ import {
 import Link from "next/link";
 import InfoCard from "./info-card";
 import { ReviewModal } from "./review-modal";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useAppSelector } from "@/redux/hook";
+import { selectAccessToken } from "@/redux/features/auth/authSlice";
+import { useLoginRequired } from "@/components/shared/login-required-modal";
 
 function LightboxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [failed, setFailed] = useState(false);
@@ -98,6 +106,11 @@ export default function MapDetails() {
   const entityType = normalizePinType(searchParams.get("type") || "place");
   const isBusinessEntity = entityType === "business";
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [selectedReviewForEdit, setSelectedReviewForEdit] = useState<any>(null);
+
+  const accessToken = useAppSelector(selectAccessToken);
+  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const { openLoginRequired } = useLoginRequired();
 
   const {
     data: placeRes,
@@ -129,28 +142,33 @@ export default function MapDetails() {
 
   const rawData = isBusinessEntity ? businessRes?.data : placeRes?.data;
 
+  const isActuallyBusiness =
+    isBusinessEntity ||
+    rawData?.type === "Business" ||
+    rawData?.placeType === "Business";
+
   // Normalize Place vs Business schemas for the shared details UI
   const placeData = useMemo(() => {
     if (!rawData) return null;
-    if (!isBusinessEntity) return rawData;
+    if (!isActuallyBusiness) return rawData;
 
     return {
       ...rawData,
       type: "Business",
-      media: rawData.media?.photos || [],
+      media: rawData.media?.photos || (Array.isArray(rawData.media) ? rawData.media : []),
       menuImages: [
         ...(Array.isArray(rawData.menuImages) ? rawData.menuImages : []),
         ...(rawData.media?.menu ? (Array.isArray(rawData.media.menu) ? rawData.media.menu : [rawData.media.menu]) : []),
       ].filter(Boolean),
-      address: rawData.location?.address || "",
+      address: rawData.location?.address || rawData.address || "",
       phone: rawData.contact?.phone || rawData.phone,
       website: rawData.contact?.website || rawData.website,
       instagram: rawData.contact?.instagram || rawData.instagram,
       location: {
         type: "Point",
-        coordinates: rawData.location?.mapLocation?.coordinates || [],
+        coordinates: rawData.location?.mapLocation?.coordinates || rawData.location?.coordinates || [],
       },
-      map: { name: rawData.location?.country },
+      map: { name: rawData.location?.country || rawData.country },
       schedules:
         rawData.hours?.schedule
           ?.map((s: any) => {
@@ -158,9 +176,9 @@ export default function MapDetails() {
             return dayName ? `${dayName}: ${s.openTime || ""} - ${s.closeTime || ""}` : "";
           })
           .filter(Boolean)
-          .join(", ") || "",
+          .join(", ") || rawData.schedules || "",
     };
-  }, [rawData, isBusinessEntity]);
+  }, [rawData, isActuallyBusiness]);
 
   const coordinates = placeData?.location?.coordinates;
 
@@ -182,14 +200,14 @@ export default function MapDetails() {
 
   const { data: placeReviews, isLoading: isPlaceReviewsLoading } =
     useGetReviewsByPlaceQuery(id, {
-      skip: !id || isBusinessEntity,
+      skip: !id || isActuallyBusiness,
     });
   const { data: businessReviews, isLoading: isBusinessReviewsLoading } =
     useGetReviewsByBusinessQuery(id, {
-      skip: !id || !isBusinessEntity,
+      skip: !id || !isActuallyBusiness,
     });
-  const reviews = isBusinessEntity ? businessReviews : placeReviews;
-  const isReviewsLoading = isBusinessEntity
+  const reviews = isActuallyBusiness ? businessReviews : placeReviews;
+  const isReviewsLoading = isActuallyBusiness
     ? isBusinessReviewsLoading
     : isPlaceReviewsLoading;
 
@@ -292,8 +310,48 @@ export default function MapDetails() {
       placeData.accessDescription.trim()) ||
     "";
 
-  const reviewData = reviews?.data;
-  // console.log("placeRes", reviewData);
+  const reviewData: any[] = reviews?.data || [];
+
+  const myReview = useMemo(() => {
+    if (!userProfile?._id || !Array.isArray(reviewData)) return null;
+    return reviewData.find((rev: any) => {
+      const reviewerId = typeof rev.reviewer === "object" ? rev.reviewer?._id : rev.reviewer;
+      return reviewerId && String(reviewerId) === String(userProfile._id);
+    });
+  }, [reviewData, userProfile?._id]);
+
+  const approvedReviews = useMemo(() => {
+    if (!Array.isArray(reviewData)) return [];
+    return reviewData.filter((rev: any) => rev.status === "Approved");
+  }, [reviewData]);
+
+  const otherReviews = useMemo(() => {
+    return approvedReviews.filter((rev: any) => {
+      const reviewerId = typeof rev.reviewer === "object" ? rev.reviewer?._id : rev.reviewer;
+      return !myReview || String(reviewerId) !== String(userProfile?._id);
+    });
+  }, [approvedReviews, myReview, userProfile?._id]);
+
+  const averageRating = useMemo(() => {
+    if (approvedReviews.length > 0) {
+      const sum = approvedReviews.reduce((acc: number, r: any) => acc + (Number(r.rating) || 0), 0);
+      return (sum / approvedReviews.length).toFixed(1);
+    }
+    return placeData?.rating ? Number(placeData.rating).toFixed(1) : null;
+  }, [approvedReviews, placeData?.rating]);
+
+  const handleOpenReviewModal = () => {
+    if (!accessToken) {
+      openLoginRequired("write a review");
+      return;
+    }
+    if (myReview) {
+      setSelectedReviewForEdit(myReview);
+    } else {
+      setSelectedReviewForEdit(null);
+    }
+    setIsReviewOpen(true);
+  };
 
   const servicesMap: Record<string, any> = {
     Parking: { icon: Car, label: "PARKING" },
@@ -1234,70 +1292,283 @@ export default function MapDetails() {
             </div>
           </div>
         )}
-        {/* REVIEWS LIST SECTION */}
-        <div className="mt-12 bg-white rounded-2xl border p-6 md:p-8 space-y-6">
-          <div className="flex items-center justify-between border-b pb-4">
-            <h3 className="font-black text-xl uppercase tracking-tight text-gray-900">
-              Reviews & Experiences ({reviewData?.length || 0})
-            </h3>
+        {/* REVIEWS & EXPERIENCES SECTION */}
+        <div className="mt-12 bg-white rounded-3xl border border-gray-100 shadow-xs p-6 md:p-8 space-y-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-xl sm:text-2xl uppercase tracking-tight text-gray-900">
+                  Reviews & Experiences
+                </h3>
+                <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
+                  {approvedReviews.length}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                Real feedback from our community of local explorers
+              </p>
+            </div>
+
             <Button
-              onClick={() => setIsReviewOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs uppercase"
+              onClick={handleOpenReviewModal}
+              className="bg-amber-400 hover:bg-amber-500 text-black font-black px-6 py-3 rounded-2xl text-xs sm:text-sm uppercase tracking-wider shadow-sm hover:shadow-md transition-all active:scale-95 shrink-0 border-none flex items-center gap-2"
             >
-              Write Review
+              {myReview ? (
+                <>
+                  <Edit3 size={15} /> Edit Your Review
+                </>
+              ) : (
+                <>
+                  <Star size={15} className="fill-black" /> Write a Review
+                </>
+              )}
             </Button>
           </div>
 
+          {/* Rating Summary Highlight */}
+          <div className="bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-transparent p-5 rounded-2xl border border-amber-100/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight flex items-baseline gap-1">
+                <span>{averageRating || "0.0"}</span>
+                <span className="text-lg text-gray-400 font-semibold">/ 5</span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={18}
+                      className={
+                        star <= Math.round(Number(averageRating) || 0)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-200"
+                      }
+                    />
+                  ))}
+                </div>
+                <p className="text-xs font-medium text-gray-500">
+                  {approvedReviews.length > 0
+                    ? `Based on ${approvedReviews.length} verified review${approvedReviews.length > 1 ? "s" : ""}`
+                    : "No verified reviews yet"}
+                </p>
+              </div>
+            </div>
+
+            <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-xs border border-amber-200/60 px-3.5 py-2 rounded-xl text-xs text-amber-900 font-bold">
+              <Sparkles size={16} className="text-amber-500" />
+              <span>Earn Explorer Points for every verified review!</span>
+            </div>
+          </div>
+
+          {/* User's own review if Pending or Rejected */}
+          {myReview && myReview.status !== "Approved" && (
+            <div
+              className={`p-5 rounded-2xl border-2 transition-all ${
+                myReview.status === "Pending"
+                  ? "bg-amber-50/90 border-amber-300 shadow-sm"
+                  : "bg-red-50/90 border-red-200"
+              }`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5 ${
+                      myReview.status === "Pending"
+                        ? "bg-amber-200 text-amber-950"
+                        : "bg-red-200 text-red-950"
+                    }`}
+                  >
+                    {myReview.status === "Pending" ? (
+                      <>
+                        <Clock size={13} className="animate-spin" />
+                        Under Review (Pending Approval)
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle size={13} />
+                        Needs Revision (Rejected)
+                      </>
+                    )}
+                  </span>
+                  <span className="text-xs text-gray-500 font-medium">
+                    (Visible only to you)
+                  </span>
+                </div>
+
+                <Button
+                  onClick={handleOpenReviewModal}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl font-bold text-xs border-amber-300 hover:bg-amber-100 text-amber-900 flex items-center gap-1.5 h-8 px-3"
+                >
+                  <Edit3 size={13} />
+                  {myReview.status === "Pending" ? "Edit Review" : "Edit & Resubmit"}
+                </Button>
+              </div>
+
+              <p className="text-xs text-amber-900 font-medium mb-3 leading-relaxed">
+                {myReview.status === "Pending"
+                  ? "Thank you for sharing your experience! Your review is currently being verified by our team. Once approved, it will appear publicly and award you Explorer Points."
+                  : "Your review was not approved by moderation. Please update it with helpful details and resubmit."}
+              </p>
+
+              {/* Card preview of the user's pending review */}
+              <div className="bg-white/90 rounded-xl p-4 border border-amber-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i <= myReview.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-200"
+                        }
+                      />
+                    ))}
+                    <span className="text-xs font-bold text-gray-700 ml-1.5">
+                      {myReview.rating}.0
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-gray-400">
+                    Submitted on{" "}
+                    {new Date(myReview.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 italic">
+                  "{myReview.review || "Star rating only"}"
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* User's own review if already Approved */}
+          {myReview && myReview.status === "Approved" && (
+            <div className="p-5 rounded-2xl bg-green-50/60 border border-green-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-green-100 text-green-900 flex items-center gap-1.5">
+                    <CheckCircle2 size={13} className="text-green-600" />
+                    Your Published Review
+                  </span>
+                  <span className="text-xs font-bold text-green-700">
+                    +{myReview.pointsEarned || 0} Points Earned!
+                  </span>
+                </div>
+                <Button
+                  onClick={handleOpenReviewModal}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl font-bold text-xs border-green-300 hover:bg-green-100 text-green-900 flex items-center gap-1.5 h-8 px-3"
+                >
+                  <Edit3 size={13} /> Edit
+                </Button>
+              </div>
+
+              <div className="bg-white rounded-xl p-4 border border-green-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i <= myReview.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-200"
+                        }
+                      />
+                    ))}
+                    <span className="text-xs font-bold text-gray-700 ml-1.5">
+                      {myReview.rating}.0
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-gray-400">
+                    {new Date(myReview.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-800 leading-relaxed">
+                  {myReview.review || <span className="italic text-gray-400">Rated {myReview.rating} stars (star-only review).</span>}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Community Reviews List */}
           {isReviewsLoading ? (
-            <div className="py-8 text-center text-gray-500">Loading reviews...</div>
-          ) : !reviewData || reviewData.length === 0 ? (
-            <div className="py-8 text-center text-gray-500 italic">No reviews yet. Be the first to share your experience!</div>
+            <div className="py-12 text-center text-gray-400 space-y-2">
+              <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-xs font-medium">Loading community reviews...</p>
+            </div>
+          ) : otherReviews.length === 0 && (!myReview || myReview.status !== "Approved") ? (
+            <div className="py-12 text-center text-gray-500 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 space-y-2">
+              <p className="text-base font-bold text-gray-700">No public reviews yet</p>
+              <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                Be the first to share your experience and earn Explorer Points!
+              </p>
+            </div>
           ) : (
-            <div className="space-y-6 divide-y divide-gray-100">
-              {reviewData.map((rev: any, index: number) => (
-                <div key={rev._id} className={`${index > 0 ? "pt-6" : ""} flex gap-4 items-start`}>
-                  <Avatar className="w-10 h-10 border shrink-0">
-                    <AvatarImage src={getImageUrl(rev.reviewer?.profile)} alt={rev.reviewer?.name} />
-                    <AvatarFallback className="capitalize bg-yellow-100 text-yellow-800 font-bold">
-                      {rev.reviewer?.name?.slice(0, 2) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-900 text-sm">{rev.reviewer?.name || "User"}</span>
-                        {/* Display User level badge in place reviews */}
-                        <span className="text-[9px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-200 px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                          Level {rev.reviewer?.level || 0}
+            <div className="space-y-4">
+              {otherReviews.map((rev: any) => (
+                <div
+                  key={rev._id}
+                  className="bg-gray-50/70 hover:bg-gray-50 border border-gray-100 rounded-2xl p-5 transition-all space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-11 h-11 border-2 border-white shadow-xs shrink-0">
+                        <AvatarImage
+                          src={getImageUrl(rev.reviewer?.profile)}
+                          alt={rev.reviewer?.name}
+                        />
+                        <AvatarFallback className="capitalize bg-gradient-to-br from-amber-100 to-yellow-200 text-yellow-900 font-black text-sm">
+                          {rev.reviewer?.name?.slice(0, 2) || "EX"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900 text-sm">
+                            {rev.reviewer?.name || "Explorer"}
+                          </span>
+                          <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-tight">
+                            Level {rev.reviewer?.level || 0}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-gray-400">
+                          {new Date(rev.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
                         </span>
                       </div>
-                      <span className="text-xs text-gray-400">
-                        {new Date(rev.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-white border border-gray-100 px-2.5 py-1 rounded-xl shadow-2xs">
+                      <Star size={13} className="fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs font-bold text-gray-900">
+                        {rev.rating}.0
                       </span>
                     </div>
-
-                    {/* Star ratings */}
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={`${i < Math.floor(rev.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-200"
-                            }`}
-                        />
-                      ))}
-                    </div>
-
-                    <p className="text-sm text-gray-600 leading-relaxed mt-1">
-                      {rev.review || <span className="italic text-gray-400">Rated {rev.rating} stars (star-only review).</span>}
-                    </p>
                   </div>
+
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {rev.review || (
+                      <span className="italic text-gray-400">
+                        Rated {rev.rating} stars (star-only review).
+                      </span>
+                    )}
+                  </p>
                 </div>
               ))}
             </div>
@@ -1306,9 +1577,21 @@ export default function MapDetails() {
       </div>
       <ReviewModal
         isOpen={isReviewOpen}
-        onClose={() => setIsReviewOpen(false)}
-        placeId={isBusinessEntity ? undefined : placeData?._id}
-        businessId={isBusinessEntity ? placeData?._id : undefined}
+        onClose={() => {
+          setIsReviewOpen(false);
+          setSelectedReviewForEdit(null);
+        }}
+        placeId={isActuallyBusiness ? undefined : placeData?._id}
+        businessId={isActuallyBusiness ? placeData?._id : undefined}
+        initialData={
+          selectedReviewForEdit
+            ? {
+                _id: selectedReviewForEdit._id,
+                rating: selectedReviewForEdit.rating,
+                review: selectedReviewForEdit.review,
+              }
+            : undefined
+        }
       />
 
       {/* Media Modal */}

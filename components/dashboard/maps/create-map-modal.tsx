@@ -83,8 +83,8 @@ export default function CreateMapModal({
       recommendations: { tips: data.tips || "" },
       status: initialData?.status || "Published",
       isPaid: true,
-      rating: initialData?.rating || 4.5,
-      totalReview: initialData?.totalReview || 120
+      rating: initialData?.rating ?? 0,
+      totalReview: initialData?.totalReview ?? 0,
     };
 
     const formData = new FormData();

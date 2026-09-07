@@ -276,25 +276,36 @@ export default function FeatureMapDetailPage() {
                 <span className="text-3xl font-bold text-yellow-500">
                   ${mapData.price}
                 </span>
-                <div className="flex items-center gap-1">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={18}
-                        className={
-                          i < Math.floor(mapData.rating || 0)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
+                {mapData.totalReview > 0 ? (
+                  <div className="flex items-center gap-1">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={18}
+                          className={
+                            i < Math.floor(mapData.rating || 0)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                          }
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600 ml-2">
+                      {mapData.rating} (
+                      {(mapData.totalReview || 0).toLocaleString()} reviews)
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-600 ml-2">
-                    {mapData.rating} (
-                    {(mapData.totalReview || 0).toLocaleString()} reviews)
-                  </span>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} className="text-gray-300" />
+                      ))}
+                    </div>
+                    <span>(No reviews yet)</span>
+                  </div>
+                )}
               </div>
             </div>
 
