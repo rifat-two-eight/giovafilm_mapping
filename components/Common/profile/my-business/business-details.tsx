@@ -546,11 +546,11 @@ export default function BusinessDetails() {
                     <div className="p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-600 transition-all">
                       <Instagram size={20} />
                     </div>
-                    <div>
+                    <div className="overflow-hidden min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Instagram
                       </p>
-                      <p className="text-sm font-bold text-slate-700">
+                      <p className="text-sm font-bold text-slate-700 truncate max-w-full">
                         @{business.contact.instagram}
                       </p>
                     </div>

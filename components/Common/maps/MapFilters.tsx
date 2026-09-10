@@ -73,19 +73,19 @@ export function MapFilters({
   return (
     <div className="flex flex-col md:flex-row items-start gap-2 w-full md:w-auto relative">
       {isMobile && (
-        <div className="flex items-center gap-2 w-full">
+        <div className="flex items-center gap-2 max-w-full">
           <button
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
-            className="flex-1 flex items-center justify-between gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 text-sm font-bold text-gray-900"
+            className="flex-1 max-w-[145px] min-w-0 flex items-center justify-between gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2 text-xs font-bold text-gray-900"
           >
-            <span>Categories</span>
+            <span className="truncate">Categories</span>
             <ChevronDown
-              className={`w-4 h-4 shrink-0 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
+              className={`w-3.5 h-3.5 shrink-0 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
             />
           </button>
 
-          <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+          <div className="flex-1 max-w-[155px] min-w-0 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
             <Select
               onValueChange={(val) => {
                 setSelectedCountry(val);
@@ -93,7 +93,7 @@ export function MapFilters({
               }}
               value={selectedCountry}
             >
-              <SelectTrigger className="w-full h-full border-0 py-2.5 px-3 focus:ring-0 font-bold text-gray-800 bg-white shadow-none text-sm text-left truncate">
+              <SelectTrigger className="w-full h-full border-0 py-2 px-2.5 focus:ring-0 font-bold text-gray-800 bg-white shadow-none text-xs text-left truncate">
                 <SelectValue placeholder="Select Map" />
               </SelectTrigger>
               <SelectContent

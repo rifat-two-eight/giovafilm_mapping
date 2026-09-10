@@ -44,7 +44,7 @@ export default function BusinessOverview({ businessData }: any) {
           </p>
         </div>
 
-        <div>
+        <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Website
           </p>
@@ -53,7 +53,7 @@ export default function BusinessOverview({ businessData }: any) {
               href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mt-1 inline-block"
+              className="text-blue-600 hover:underline mt-1 block truncate max-w-full"
             >
               {businessData.website} ↗
             </a>
@@ -63,7 +63,7 @@ export default function BusinessOverview({ businessData }: any) {
         </div>
 
         {instagramUrl && (
-          <div>
+          <div className="overflow-hidden min-w-0">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Instagram
             </p>
@@ -71,7 +71,7 @@ export default function BusinessOverview({ businessData }: any) {
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mt-1 inline-block"
+              className="text-blue-600 hover:underline mt-1 block truncate max-w-full"
             >
               {businessData.instagram} ↗
             </a>

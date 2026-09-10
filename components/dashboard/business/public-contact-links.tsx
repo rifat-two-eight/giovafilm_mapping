@@ -47,7 +47,7 @@ export default function PublicContactLinks({
           </p>
         </div>
 
-        <div>
+        <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Website
           </p>
@@ -56,7 +56,7 @@ export default function PublicContactLinks({
               href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline font-medium mt-2 inline-block"
+              className="text-blue-600 hover:underline font-medium mt-2 block truncate max-w-full"
             >
               {contact?.website} ↗
             </a>
@@ -65,7 +65,7 @@ export default function PublicContactLinks({
           )}
         </div>
 
-        <div>
+        <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Instagram
           </p>
@@ -74,7 +74,7 @@ export default function PublicContactLinks({
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline font-medium mt-2 inline-block"
+              className="text-blue-600 hover:underline font-medium mt-2 block truncate max-w-full"
             >
               {contact?.instagram} ↗
             </a>
