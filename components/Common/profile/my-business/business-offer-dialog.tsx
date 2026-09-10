@@ -50,6 +50,7 @@ export function BusinessOfferDialog({
   const [createOffer, { isLoading: isCreating }] = useCreateOfferMutation();
   const [updateOffer, { isLoading: isUpdating }] = useUpdateOfferMutation();
   const isLoading = isCreating || isUpdating;
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -239,7 +240,39 @@ export function BusinessOfferDialog({
             </Label>
             <div
               onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-yellow-400 transition-colors cursor-pointer bg-gray-50"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(true);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragging(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  const droppedFile = e.dataTransfer.files[0];
+                  if (droppedFile.type.startsWith("image/")) {
+                    handlePhotoChange(droppedFile);
+                  } else {
+                    toast.error("Please upload an image file.");
+                  }
+                }
+              }}
+              className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer bg-gray-50 ${
+                isDragging
+                  ? "border-yellow-500 bg-yellow-50/60 ring-2 ring-yellow-400/30 scale-[1.01]"
+                  : "border-gray-300 hover:border-yellow-400"
+              }`}
             >
               {preview ? (
                 <div className="relative inline-block">
@@ -391,15 +424,33 @@ export function BusinessOfferDialog({
               </p>
             </div>
             <div>
-              <Label htmlFor="offer-duration">Duration (Minutes)</Label>
+              <Label htmlFor="offer-frequency" className="text-sm font-medium text-gray-700">Redemption Frequency</Label>
+              <select
+                id="offer-frequency"
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                defaultValue="daily"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "daily") setRedemptionDuration("1440");
+                  else if (val === "weekly") setRedemptionDuration("10080");
+                  else if (val === "monthly") setRedemptionDuration("43200");
+                  else if (val === "once") setRedemptionDuration("525600");
+                }}
+              >
+                <option value="daily">Daily (Once per 24 hours)</option>
+                <option value="weekly">Weekly (Once per 7 days)</option>
+                <option value="monthly">Monthly (Once per 30 days)</option>
+                <option value="once">One-Time Only</option>
+                <option value="custom">Custom Duration (Minutes)</option>
+              </select>
               <Input
                 id="offer-duration"
                 type="number"
                 min={0}
                 value={redemptionDuration}
                 onChange={(e) => setRedemptionDuration(e.target.value)}
-                placeholder="e.g., 60"
-                className="mt-1"
+                placeholder="Duration in minutes (e.g., 1440)"
+                className="mt-1 text-xs"
               />
             </div>
           </div>

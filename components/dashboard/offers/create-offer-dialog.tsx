@@ -191,14 +191,25 @@ export function CreateOfferDialog({
     }
   }, [initialData, reset, open, places, businesses]);
 
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
+
   const openFileWindow = () => fileRef.current?.click();
+
+  const handleIncomingFile = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, etc.).");
+      return;
+    }
+    setPhotoFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
 
   // Store the actual File object in state so it's always available in onSubmit
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPhotoFile(file);
-      setPreview(URL.createObjectURL(file));
+      handleIncomingFile(file);
     }
   };
 
@@ -301,7 +312,34 @@ export function CreateOfferDialog({
 
             <div
               onClick={openFileWindow}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer relative"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingPhoto(true);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingPhoto(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingPhoto(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingPhoto(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  handleIncomingFile(e.dataTransfer.files[0]);
+                }
+              }}
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer relative ${
+                isDraggingPhoto
+                  ? "border-blue-500 bg-blue-50/60 ring-2 ring-blue-400/30 scale-[1.01]"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
             >
               {preview ? (
                 <div className="relative">
@@ -472,7 +510,7 @@ export function CreateOfferDialog({
             />
           </div>
 
-          {/* Redemption Limits */}
+          {/* Redemption Frequency & Limits */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label
@@ -498,21 +536,41 @@ export function CreateOfferDialog({
 
             <div>
               <Label
-                htmlFor="redemptionDuration"
+                htmlFor="redemptionFrequency"
                 className="text-sm font-medium text-gray-700"
               >
-                Duration (Minutes)
+                Redemption Frequency
               </Label>
-              <Input
-                id="redemptionDuration"
-                type="number"
-                min={0}
-                placeholder="e.g., 60"
-                className="mt-1"
-                {...register("redemptionDuration", {
-                  required: "Duration is required",
-                })}
-              />
+              <select
+                id="redemptionFrequency"
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                defaultValue="daily"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "daily") setValue("redemptionDuration", "1440");
+                  else if (val === "weekly") setValue("redemptionDuration", "10080");
+                  else if (val === "monthly") setValue("redemptionDuration", "43200");
+                  else if (val === "once") setValue("redemptionDuration", "525600");
+                }}
+              >
+                <option value="daily">Daily (Once per 24 hours)</option>
+                <option value="weekly">Weekly (Once per 7 days)</option>
+                <option value="monthly">Monthly (Once per 30 days)</option>
+                <option value="once">One-Time Only (Once per user)</option>
+                <option value="custom">Custom Duration (Minutes)</option>
+              </select>
+              <div className="mt-1.5">
+                <Input
+                  id="redemptionDuration"
+                  type="number"
+                  min={0}
+                  placeholder="Duration in minutes (e.g., 60)"
+                  className="text-xs"
+                  {...register("redemptionDuration", {
+                    required: "Duration is required",
+                  })}
+                />
+              </div>
             </div>
           </div>
 

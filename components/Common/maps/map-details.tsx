@@ -889,7 +889,10 @@ export default function MapDetails() {
           {/* RIGHT SIDE INFO */}
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-3">
-              {dataToRender.map((item, index) => {
+              {(dataToRender.some((i) => !i.empty)
+                ? dataToRender.filter((i) => !i.empty)
+                : dataToRender
+              ).map((item, index) => {
                 const Icon = item.icon;
 
                 return (
@@ -979,7 +982,7 @@ export default function MapDetails() {
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
-                {descriptionText ? (
+                {descriptionText && (
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
                       Description
@@ -988,29 +991,26 @@ export default function MapDetails() {
                       {descriptionText}
                     </p>
                   </div>
-                ) : (
-                  <p className="leading-relaxed text-gray-400 italic">
-                    {isBusiness
-                      ? "This business hasn’t added a description yet."
-                      : "No description has been added for this place yet."}
-                  </p>
                 )}
 
-                <div className="pt-3 border-t border-gray-100">
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                    Access & getting here
-                  </p>
-                  {accessText ? (
+                {accessText && (
+                  <div className={descriptionText ? "pt-3 border-t border-gray-100" : ""}>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                      Access & getting here
+                    </p>
                     <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
                       {accessText}
                     </p>
-                  ) : (
-                    <p className="leading-relaxed text-gray-400 italic">
-                      Access tips aren’t listed yet. Use Directions below to
-                      navigate with Google Maps.
-                    </p>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {!descriptionText && !accessText && (
+                  <p className="leading-relaxed text-gray-400 italic">
+                    {isBusiness
+                      ? "No description or access information provided for this business."
+                      : "No description or access information provided for this place."}
+                  </p>
+                )}
               </AccordionContent>
             </AccordionItem>
 
