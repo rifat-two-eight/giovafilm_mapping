@@ -40,6 +40,11 @@ export const isUnusableMediaPath = (path?: string) => {
   return !value || value === "undefined" || value === "null";
 };
 
+export const removeAccents = (str?: string): string => {
+  if (!str || typeof str !== "string") return "";
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
+
 export const isVideoUrl = (url?: string) => {
   if (!url || typeof url !== "string") return false;
   const path = url.split("?")[0].split("#")[0].toLowerCase();

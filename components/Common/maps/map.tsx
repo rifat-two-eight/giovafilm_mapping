@@ -207,11 +207,10 @@ function MapPanner({
       // Focus smoothly on the selected pin with clear visibility
       map.panTo(position);
 
-      // Zoom in close enough to clearly distinguish the selected pin from neighboring pins (level 15)
+      // Zoom in slightly (+1 level) from current zoom level (capped at max 13)
       const currentZoom = map.getZoom();
-      const targetZoom = isMobile ? 15 : 14.5;
-      if (currentZoom != null && currentZoom < targetZoom) {
-        map.setZoom(targetZoom);
+      if (currentZoom != null) {
+        map.setZoom(Math.min(currentZoom + 1, 13));
       }
 
       // On mobile, offset slightly so the pin is clearly visible above the bottom preview drawer

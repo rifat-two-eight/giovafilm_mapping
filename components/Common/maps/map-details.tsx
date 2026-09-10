@@ -222,9 +222,32 @@ export default function MapDetails() {
       }
     }
 
-    const schedule = placeData?.hours?.schedule;
+    if (hasText(placeData?.hours) && typeof placeData.hours === "string") {
+      const trimmed = placeData.hours.trim();
+      if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-") {
+        return trimmed;
+      }
+    }
+
+    for (const key of ["businessHours", "operatingHours", "scheduleStr"]) {
+      const val = placeData?.[key];
+      if (hasText(val)) {
+        return val.trim();
+      }
+    }
+
+    const schedule =
+      placeData?.hours?.schedule ||
+      (Array.isArray(placeData?.hours)
+        ? placeData.hours
+        : Array.isArray(placeData?.schedule)
+          ? placeData.schedule
+          : null);
+
     if (Array.isArray(schedule) && schedule.length > 0) {
-      const validItems = schedule.filter((s: any) => (s.days || s.day) && (s.openTime || s.closeTime));
+      const validItems = schedule.filter(
+        (s: any) => (s.days || s.day) && (s.openTime || s.closeTime),
+      );
       if (validItems.length > 0) {
         return validItems
           .map((s: any) => {
