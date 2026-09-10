@@ -97,11 +97,7 @@ export function buildPlaceRequestBody(
   const formDataPayload = new FormData();
   formDataPayload.append("data", JSON.stringify(compactData));
   mediaFiles.forEach((file) => {
-    if (isVideoFile(file)) {
-      formDataPayload.append("media", file);
-    } else {
-      formDataPayload.append("images", file);
-    }
+    formDataPayload.append("images", file);
   });
   menuFiles.forEach((file) => {
     formDataPayload.append("documents", file);
