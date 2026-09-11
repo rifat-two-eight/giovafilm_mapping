@@ -7,6 +7,7 @@ import logo from "@/public/logo.png";
 import { usePathname } from "next/navigation";
 import { AuthLink } from "@/components/shared/auth-link";
 import { useAppSelector } from "@/redux/hook";
+import LanguageSwitcher from "@/components/shared/language-switcher";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -144,7 +145,7 @@ export default function Footer() {
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <div className="flex items-center gap-2">
               <Globe size={16} />
-              English (US)
+              <LanguageSwitcher />
             </div>
             <span>USD</span>
           </div>

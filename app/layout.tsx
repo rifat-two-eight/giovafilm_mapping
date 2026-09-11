@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ReduxProvider } from "@/redux/ReduxProvider";
 import { SocketProvider } from "@/components/shared/socket-provider";
 import { LoginRequiredProvider } from "@/components/shared/login-required-modal";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const poppins = localFont({
   src: [
@@ -99,11 +100,13 @@ export default function RootLayout({
         className={`${poppins.variable} ${inter.variable} ${arial.variable} ${publicSans.variable} antialiased`}
       >
         <ReduxProvider>
-          <Suspense fallback={null}>
-            <LoginRequiredProvider>
-              <SocketProvider>{children}</SocketProvider>
-            </LoginRequiredProvider>
-          </Suspense>
+          <LanguageProvider>
+            <Suspense fallback={null}>
+              <LoginRequiredProvider>
+                <SocketProvider>{children}</SocketProvider>
+              </LoginRequiredProvider>
+            </Suspense>
+          </LanguageProvider>
         </ReduxProvider>
       </body>
     </html>

@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "map": "Map",
+    "places": "Places",
+    "offer": "Offers",
+    "catalog": "Catalog",
+    "menu": "Menu",
+    "profile": "Profile",
+    "contributions": "Contributions & Reviews",
+    "favorite_places": "Favorite Places",
+    "purchased_maps": "Purchased Maps",
+    "my_business": "My Business",
+    "awards": "Awards & Badges",
+    "subscription": "Subscription",
+    "pricing": "Pricing",
+    "for_business": "For Business",
+    "how_it_works": "How It Works",
+    "contact": "Contact Us",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "login": "Log In",
+    "logout": "Log Out"
+  },
+  "search": {
+    "placeholder": "Search digital maps, cities...",
+    "search_places": "Search places...",
+    "search_offers": "Search offers...",
+    "no_results": "No places found matching your query."
+  },
+  "filters": {
+    "near_me": "Near me",
+    "popular": "Popular",
+    "new": "New",
+    "all_categories": "All Categories",
+    "all_countries": "All Countries",
+    "category": "Category",
+    "country": "Country"
+  },
+  "common": {
+    "language": "Language",
+    "spanish": "Español",
+    "english": "English",
+    "filter": "Filter",
+    "categories": "Categories",
+    "countries": "Countries",
+    "all": "All",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "view_more": "View More",
+    "loading": "Loading...",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "place": {
+    "title": "Explore Places",
+    "subtitle": "Discover secret spots, restaurants, and top destinations.",
+    "business_hours": "Business Hours",
+    "access_info": "Access Information",
+    "entry_cost": "Entry Cost",
+    "website": "Website",
+    "instagram": "Instagram",
+    "reviews": "Reviews",
+    "directions": "Get Directions",
+    "tips": "Local Tips & Advice"
+  },
+  "offer": {
+    "title": "Exclusive Local Offers",
+    "subtitle": "Redeem special deals and discounts near you.",
+    "redeem": "Redeem Offer",
+    "valid_until": "Valid until",
+    "claim": "Claim Deal",
+    "claimed": "Claimed",
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    }
+  }
+}

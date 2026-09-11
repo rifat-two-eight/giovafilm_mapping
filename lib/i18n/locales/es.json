@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "map": "Mapa",
+    "places": "Lugares",
+    "offer": "Ofertas",
+    "catalog": "Catálogo",
+    "menu": "Menú",
+    "profile": "Perfil",
+    "contributions": "Contribuciones y Reseñas",
+    "favorite_places": "Lugares Favoritos",
+    "purchased_maps": "Mapas Comprados",
+    "my_business": "Mi Negocio",
+    "awards": "Premios y Insignias",
+    "subscription": "Suscripción",
+    "pricing": "Precios",
+    "for_business": "Para Negocios",
+    "how_it_works": "Cómo Funciona",
+    "contact": "Contacto",
+    "privacy_policy": "Política de Privacidad",
+    "terms_of_service": "Términos de Servicio",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión"
+  },
+  "search": {
+    "placeholder": "Buscar mapas digitales, ciudades...",
+    "search_places": "Buscar lugares...",
+    "search_offers": "Buscar ofertas...",
+    "no_results": "No se encontraron lugares con tu búsqueda."
+  },
+  "filters": {
+    "near_me": "Cerca de mí",
+    "popular": "Populares",
+    "new": "Nuevos",
+    "all_categories": "Todas las Categorías",
+    "all_countries": "Todos los Países",
+    "category": "Categoría",
+    "country": "País"
+  },
+  "common": {
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "English",
+    "filter": "Filtrar",
+    "categories": "Categorías",
+    "countries": "Países",
+    "all": "Todos",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "view_more": "Ver más",
+    "loading": "Cargando...",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "page": "Página"
+  },
+  "place": {
+    "title": "Explorar Lugares",
+    "subtitle": "Descubre rincones secretos, restaurantes y destinos principales.",
+    "business_hours": "Horario de Atención",
+    "access_info": "Información de Acceso",
+    "entry_cost": "Costo de Entrada",
+    "website": "Sitio Web",
+    "instagram": "Instagram",
+    "reviews": "Reseñas",
+    "directions": "Cómo Llegar",
+    "tips": "Consejos Locales"
+  },
+  "offer": {
+    "title": "Ofertas Locales Exclusivas",
+    "subtitle": "Canjea ofertas especiales y descuentos cerca de ti.",
+    "redeem": "Canjear Oferta",
+    "valid_until": "Válido hasta",
+    "claim": "Reclamar Oferta",
+    "claimed": "Reclamado",
+    "frequency": {
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual"
+    }
+  }
+}

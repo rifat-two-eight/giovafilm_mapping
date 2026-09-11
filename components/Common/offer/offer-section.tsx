@@ -15,8 +15,10 @@ import Link from "next/link";
 import { Lock, Search } from "lucide-react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function OfferSection() {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -121,7 +123,7 @@ export default function OfferSection() {
       <div className="max-w-360 mx-auto px-4 md:px-6 py-12">
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 leading-14">
-            Offers
+            {t("offer.title")}
           </h1>
         </div>
         {/* Search */}
@@ -131,7 +133,7 @@ export default function OfferSection() {
               <Search className="text-gray-400 ml-2" size={20} />
 
               <Input
-                placeholder="Search offers..."
+                placeholder={t("search.search_offers")}
                 className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -171,7 +173,7 @@ export default function OfferSection() {
                   </div>
                 ) : (
                   <div className="p-4 text-center text-sm text-gray-500">
-                    No matching offers
+                    {t("search.no_results")}
                   </div>
                 )}
               </div>
@@ -201,12 +203,12 @@ export default function OfferSection() {
         {filteredOffers.length === 0 ? (
           <div className="py-20 text-center bg-white rounded-xl border border-dashed border-gray-300">
             <p className="text-xl font-semibold text-gray-400">
-              No offers available
+              {t("search.no_results")}
             </p>
             <p className="mt-2 text-sm text-gray-500">
               {searchTerm
-                ? "Try a different search term."
-                : "Check back later for new deals."}
+                ? t("common.loading")
+                : t("offer.subtitle")}
             </p>
           </div>
         ) : (

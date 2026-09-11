@@ -6,6 +6,7 @@ import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import Link from "next/link";
 import {
   Flame,
@@ -19,22 +20,26 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PlaceCard } from "./place-card";
 
-const filters = [
-  {
-    label: "Near me",
-    icon: MapPin,
-  },
-  {
-    label: "Popular",
-    icon: Flame,
-  },
-  {
-    label: "New",
-    icon: Sparkles,
-  },
-];
-
 export default function ExplorePlaces() {
+  const { t } = useLanguage();
+
+  const filters = [
+    {
+      id: "Near me",
+      label: t("filters.near_me"),
+      icon: MapPin,
+    },
+    {
+      id: "Popular",
+      label: t("filters.popular"),
+      icon: Flame,
+    },
+    {
+      id: "New",
+      label: t("filters.new"),
+      icon: Sparkles,
+    },
+  ];
   const { data: profile } = useGetProfileQuery({});
   const isPremium = profile && ["super_admin", "admin", "map_editor"].includes(profile.role);
 
@@ -137,7 +142,7 @@ export default function ExplorePlaces() {
         {/* Title */}
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 leading-14">
-            Places
+            {t("place.title")}
           </h1>
         </div>
 
@@ -148,7 +153,7 @@ export default function ExplorePlaces() {
               <Search className="text-gray-400 ml-2" size={20} />
 
               <Input
-                placeholder="Search locations, parks, or beaches..."
+                placeholder={t("search.search_places")}
                 className="border-none h-12 focus-visible:ring-0 shadow-none text-base"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -168,7 +173,7 @@ export default function ExplorePlaces() {
                 {isFetching || searchInput !== searchTerm ? (
                   <div className="flex items-center justify-center gap-2 p-4 text-sm text-gray-500">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                    Searching...
+                    {t("common.loading")}
                   </div>
                 ) : places.length > 0 ? (
                   <div className="max-h-64 overflow-y-auto">
@@ -199,7 +204,7 @@ export default function ExplorePlaces() {
                   </div>
                 ) : (
                   <div className="p-4 text-center text-sm text-gray-500">
-                    No matching places
+                    {t("search.no_results")}
                   </div>
                 )}
               </div>
@@ -236,7 +241,7 @@ export default function ExplorePlaces() {
             }}
             className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
-            <option value="">All Categories</option>
+            <option value="">{t("filters.all_categories")}</option>
             {categoriesResponse?.data?.map((cat: any) => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
@@ -246,14 +251,14 @@ export default function ExplorePlaces() {
 
           {filters.map((filter) => {
             const Icon = filter.icon;
-            const isActive = activeFilter === filter.label;
+            const isActive = activeFilter === filter.id;
 
             return (
               <Button
                 key={filter.label}
                 variant={isActive ? "default" : "outline"}
                 onClick={() => {
-                  if (filter.label === "Near me") {
+                  if (filter.id === "Near me") {
                     if (isActive) {
                       setActiveFilter(null);
                       setUserLocation(null);
@@ -270,7 +275,7 @@ export default function ExplorePlaces() {
                           lat: pos.coords.latitude,
                           lng: pos.coords.longitude,
                         });
-                        setActiveFilter("Near me");
+                        setActiveFilter("Near me"); // use id not label
                         setPage(1);
                       },
                       () => {
@@ -282,7 +287,7 @@ export default function ExplorePlaces() {
                   }
 
                   setUserLocation(null);
-                  setActiveFilter(isActive ? null : filter.label);
+                  setActiveFilter(isActive ? null : filter.id);
                   setPage(1);
                 }}
                 className={`rounded-full flex items-center gap-2 transition-all shrink-0 whitespace-nowrap ${
@@ -323,7 +328,7 @@ export default function ExplorePlaces() {
         {(isFetching || enterSearching) && (
           <p className="mb-4 flex items-center gap-2 text-sm font-medium text-gray-500">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-            Updating results...
+            {t("common.loading")}
           </p>
         )}
 
@@ -339,7 +344,7 @@ export default function ExplorePlaces() {
           ) : places.length === 0 ? (
             <div className="col-span-full text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
               <p className="text-xl font-semibold text-gray-400">
-                No places found matching your search.
+                {t("search.no_results")}
               </p>
               <Button
                 variant="link"
@@ -360,7 +365,7 @@ export default function ExplorePlaces() {
                   setPage(1);
                 }}
               >
-                Clear all filters
+                {t("common.all")}
               </Button>
             </div>
           ) : (
@@ -447,7 +452,7 @@ export default function ExplorePlaces() {
               <div className="w-full max-w-[500px] flex items-center justify-between mt-2 px-2 text-sm text-gray-700">
                 {/* Result Info */}
                 <div className="font-semibold text-gray-700 text-base">
-                  Results: {(page - 1) * limit + 1} - {Math.min(page * limit, meta.total || 0)} of {meta.total || 0}
+                  {(page - 1) * limit + 1} - {Math.min(page * limit, meta.total || 0)} / {meta.total || 0}
                 </div>
 
                 {/* Dropdown Limit Selector */}

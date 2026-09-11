@@ -3,28 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MapIcon, LayoutGrid, Gift, BookOpen } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function BottomNavbar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const navItems = [
     {
-      label: "Map",
+      label: t("nav.map"),
       path: "/map",
       icon: <MapIcon className="w-6 h-6" />,
     },
     {
-      label: "Places",
+      label: t("nav.places"),
       path: "/places",
       icon: <LayoutGrid className="w-6 h-6" />,
     },
     {
-      label: "Offer",
+      label: t("nav.offer"),
       path: "/offer",
       icon: <Gift className="w-6 h-6" />,
     },
     {
-      label: "Catalog",
+      label: t("nav.catalog"),
       path: "/",
       icon: <BookOpen className="w-6 h-6" />,
     },

@@ -47,6 +47,8 @@ import { NoImage } from "@/lib/others/others";
 import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
 import { shareProfile } from "@/lib/share-profile";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import LanguageSwitcher from "@/components/shared/language-switcher";
 
 function getPlaceSearchHref(place: any, onMapsPage: boolean) {
   if (!onMapsPage) return `/places/${place._id || place.id}`;
@@ -78,51 +80,9 @@ function getPlaceSearchHref(place: any, onMapsPage: boolean) {
   return `/maps?${params.toString()}`;
 }
 
-const navLinks = [
-  { name: "Maps", href: "/maps" },
-  { name: "Places", href: "/places" },
-  { name: "Offer", href: "/offer" },
-  { name: "Catalog", href: "/catalog" },
-  { name: "For Business", href: "/for-business" },
-];
+// navLinks moved inside component to support dynamic translation
 
-export const menuItems = [
-  // {
-  //   label: "Profile",
-  //   href: "/profile",
-  //   icon: Grid2x2,
-  // },
-  {
-    label: "My Business",
-    href: "/profile/my-business",
-    icon: Grid2x2,
-  },
-  {
-    label: "Favorites",
-    href: "/profile/favorite-places",
-    icon: Heart,
-  },
-  {
-    label: "Purchased Maps",
-    href: "/profile/purchased-maps",
-    icon: Map,
-  },
-  {
-    label: "Contributions & Reviews",
-    href: "/profile/contributions-reviews",
-    icon: Star,
-  },
-  {
-    label: "Subscription",
-    href: "/profile/subscription",
-    icon: CircleDollarSign,
-  },
-  {
-    label: "Awards",
-    href: "/profile/awards",
-    icon: Trophy,
-  },
-];
+// menuItems moved inside Header component to support dynamic translation
 
 export default function Header() {
   const pathname = usePathname();
@@ -130,8 +90,27 @@ export default function Header() {
   const onMapsPage = pathname === "/maps";
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const navLinks = [
+    { name: t("nav.map"), href: "/maps" },
+    { name: t("nav.places"), href: "/places" },
+    { name: t("nav.offer"), href: "/offer" },
+    { name: t("nav.catalog"), href: "/catalog" },
+    { name: t("nav.for_business"), href: "/for-business" },
+  ];
+
+  const menuItems = [
+    { label: t("nav.my_business"), href: "/profile/my-business", icon: Grid2x2 },
+    { label: t("nav.favorite_places"), href: "/profile/favorite-places", icon: Heart },
+    { label: t("nav.purchased_maps"), href: "/profile/purchased-maps", icon: Map },
+    { label: t("nav.contributions"), href: "/profile/contributions-reviews", icon: Star },
+    { label: t("nav.subscription"), href: "/profile/subscription", icon: CircleDollarSign },
+    { label: t("nav.awards"), href: "/profile/awards", icon: Trophy },
+  ];
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -534,11 +513,14 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/login">
-                <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-8 py-6 text-base shadow-none">
-                  Log In
-                </Button>
-              </Link>
+              <div className="flex items-center gap-3">
+                <LanguageSwitcher />
+                <Link href="/login">
+                  <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-8 py-6 text-base shadow-none">
+                    {t("nav.login") || "Log In"}
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
