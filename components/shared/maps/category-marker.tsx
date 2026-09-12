@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { CategoryIcon } from "../categories/category-icon";
 import { Lock } from "lucide-react";

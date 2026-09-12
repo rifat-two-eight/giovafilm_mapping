@@ -1,3 +1,5 @@
+"use client";
+
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { SafeImage } from "@/components/shared/safe-image";
 import { Button } from "@/components/ui/button";

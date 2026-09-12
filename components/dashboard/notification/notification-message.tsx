@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { ReviewNotificationCard } from "./review-notification-card";

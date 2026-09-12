@@ -1,3 +1,5 @@
+"use client";
+
 import { ControlPosition, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";

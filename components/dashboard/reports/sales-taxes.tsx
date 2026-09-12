@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar, Download } from "lucide-react";
 import { SalesTaxesChart } from "./sales-taxes-chart";
 import { Button } from "@/components/ui/button";
