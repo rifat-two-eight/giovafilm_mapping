@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -69,12 +70,17 @@ function isPublicPath(pathname: string): boolean {
     "/cancel",
     "/payment-failed",
     "/claim-promo",
+    "/pricing",
+    "/contact",
+    "/how-it-works",
   ]);
 
   return (
     guestAllowedExact.has(pathname) ||
     pathname === "/catalog" ||
     pathname.startsWith("/catalog/") ||
+    pathname === "/details" ||
+    pathname.startsWith("/details/") ||
     pathname === "/claim-promo" ||
     pathname.startsWith("/claim-promo")
   );
@@ -98,11 +104,23 @@ export function LoginRequiredProvider({
   const [open, setOpen] = useState(false);
   const [redirectTo, setRedirectTo] = useState("/");
   const [featureName, setFeatureName] = useState("this page");
+  const isNavigatingRef = useRef(false);
 
   const openLoginRequired = useCallback((next?: string, name?: string) => {
-    const path = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    let path = "/";
+    let feature = name;
+    if (next) {
+      if (next.startsWith("/") && !next.startsWith("//")) {
+        path = next;
+      } else {
+        path = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
+        feature = next;
+      }
+    } else {
+      path = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
+    }
     setRedirectTo(path);
-    setFeatureName(name?.trim() || labelFromPath(path));
+    setFeatureName(feature?.trim() || labelFromPath(path));
     setOpen(true);
   }, []);
 
@@ -164,6 +182,7 @@ export function LoginRequiredProvider({
   ]);
 
   const goTo = (path: string) => {
+    isNavigatingRef.current = true;
     const target =
       redirectTo && redirectTo !== "/"
         ? `${path}?redirect=${encodeURIComponent(redirectTo)}`
@@ -175,6 +194,10 @@ export function LoginRequiredProvider({
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
+      if (isNavigatingRef.current) {
+        isNavigatingRef.current = false;
+        return;
+      }
       if (!isPublicPath(pathname)) {
         router.push("/catalog");
       }

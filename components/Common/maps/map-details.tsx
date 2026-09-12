@@ -365,7 +365,12 @@ export default function MapDetails() {
 
   const handleOpenReviewModal = () => {
     if (!accessToken) {
-      openLoginRequired("write a review");
+      openLoginRequired(
+        typeof window !== "undefined"
+          ? window.location.pathname + window.location.search
+          : "/maps",
+        "write a review",
+      );
       return;
     }
     if (myReview) {

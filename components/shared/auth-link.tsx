@@ -5,6 +5,30 @@ import { ComponentProps } from "react";
 import { useAppSelector } from "@/redux/hook";
 import { useLoginRequired } from "@/components/shared/login-required-modal";
 
+const PUBLIC_EXACT = new Set([
+  "/",
+  "/catalog",
+  "/pricing",
+  "/contact",
+  "/how-it-works",
+  "/privacy-policy",
+  "/terms-of-service",
+  "/claim-promo",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/otp-verify",
+]);
+
+function isPathProtected(path: string): boolean {
+  if (PUBLIC_EXACT.has(path)) return false;
+  if (path.startsWith("/catalog")) return false;
+  if (path.startsWith("/claim-promo")) return false;
+  if (path.startsWith("/details")) return false;
+  return true;
+}
+
 export function AuthLink({
   href,
   onClick,
@@ -20,7 +44,7 @@ export function AuthLink({
       href={href}
       {...props}
       onClick={(event) => {
-        if (!token) {
+        if (!token && isPathProtected(path)) {
           event.preventDefault();
           openLoginRequired(path, clickedName);
         }

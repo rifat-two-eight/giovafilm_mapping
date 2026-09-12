@@ -373,159 +373,160 @@ export default function Header() {
             <div className="h-8 w-px bg-gray-200 mx-2"></div>
 
             {/* Auth Section - Desktop */}
-            {isAuthenticated ? (
-              <DropdownMenu
-                open={isProfileMenuOpen}
-                onOpenChange={setIsProfileMenuOpen}
-              >
-                <DropdownMenuTrigger asChild>
-                  <button className="outline-none">
-                    <Avatar className="h-10 w-10 cursor-pointer border">
-                      {user?.profile ? (
-                        <AvatarImage
-                          src={getImageUrl(user.profile)}
-                          width={500}
-                          height={500}
-                          className="object-cover"
-                        />
-                      ) : (
-                        <AvatarFallback>
-                          <User className="size-5" />
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="end"
-                  className="w-72 2overflow-hidden rounded-xl shadow-lg "
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              {isAuthenticated ? (
+                <DropdownMenu
+                  open={isProfileMenuOpen}
+                  onOpenChange={setIsProfileMenuOpen}
                 >
-                  <div className="border p-3 rounded-md text-center">
-                    {/* Avatar with Achievement Badge */}
-                    <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg border">
-                      {user?.profile ? (
-                        <Image
-                          src={getImageUrl(user?.profile)}
-                          alt={"Logo"}
-                          width={500}
-                          height={500}
-                          unoptimized
-                          className="object-cover h-full"
-                        />
-                      ) : (
-                        <NoImage />
-                      )}
+                  <DropdownMenuTrigger asChild>
+                    <button className="outline-none">
+                      <Avatar className="h-10 w-10 cursor-pointer border">
+                        {user?.profile ? (
+                          <AvatarImage
+                            src={getImageUrl(user.profile)}
+                            width={500}
+                            height={500}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <AvatarFallback>
+                            <User className="size-5" />
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
 
-                      <div className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
-                        ⭐
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-72 2overflow-hidden rounded-xl shadow-lg "
+                  >
+                    <div className="border p-3 rounded-md text-center">
+                      {/* Avatar with Achievement Badge */}
+                      <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-lg border">
+                        {user?.profile ? (
+                          <Image
+                            src={getImageUrl(user?.profile)}
+                            alt={"Logo"}
+                            width={500}
+                            height={500}
+                            unoptimized
+                            className="object-cover h-full"
+                          />
+                        ) : (
+                          <NoImage />
+                        )}
+
+                        <div className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-white">
+                          ⭐
+                        </div>
+                      </div>
+
+                      {/* User Name */}
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        {user?.name}
+                      </h2>
+
+                      <div className="space-y-1 mb-4">
+                        <p>
+                          {t("levels.level")} <span className="font-bold">{user?.level}</span>
+                        </p>
+
+                        <Progress value={progress} className="h-2" />
+
+                        <p className="text-sm text-gray-500">
+                          {user?.points || 0} / {maxPoints} {t("levels.points")}
+                        </p>
+                      </div>
+
+                      {/* Level Badge */}
+                      {/* <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
+                        <span className="text-primary font-semibold capitalize">
+                          {user?.role}
+                        </span>
+                      </div> */}
+
+                      {/* Action Buttons */}
+                      <div className="space-y-3">
+                        <Button
+                          type="button"
+                          onClick={handleEditProfile}
+                          className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
+                        >
+                          <Edit2 size={18} />
+                          {t("profile.edit_profile")}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleShareProfile}
+                          disabled={isSharingProfile || !user?._id}
+                          className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-yellow-50"
+                        >
+                          {isSharingProfile ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : shareCopied ? (
+                            <Check size={18} className="text-green-600" />
+                          ) : (
+                            <Share2 size={18} />
+                          )}
+                          {shareCopied ? t("common.copied") : t("profile.share_profile")}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="py-2">
+                      {isAdminOrEditor && (
+                        <Link href={"/dashboard"}>
+                          <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                            <Grid2x2 className="mr-3 size-5" />
+                            Dashboard
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+                      <div>
+                        {visibleMenuItems.map((item, index) => {
+                          const Icon = item.icon;
+
+                          return (
+                            <Link key={index} href={item.href}>
+                              <DropdownMenuItem className="px-4 py-3 cursor-pointer">
+                                <Icon className="mr-3 size-5" />
+                                {item.label}
+                              </DropdownMenuItem>
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* User Name */}
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      {user?.name}
-                    </h2>
+                    <DropdownMenuSeparator />
 
-                    <div className="space-y-1 mb-4">
-                      <p>
-                        {t("levels.level")} <span className="font-bold">{user?.level}</span>
-                      </p>
-
-                      <Progress value={progress} className="h-2" />
-
-                      <p className="text-sm text-gray-500">
-                        {user?.points || 0} / {maxPoints} {t("levels.points")}
-                      </p>
-                    </div>
-
-                    {/* Level Badge */}
-                    {/* <div className="inline-block bg-yellow-50 px-3 py-0.5 rounded-full mb-2">
-                      <span className="text-primary font-semibold capitalize">
-                        {user?.role}
-                      </span>
-                    </div> */}
-
-                    {/* Action Buttons */}
-                    <div className="space-y-3">
-                      <Button
-                        type="button"
-                        onClick={handleEditProfile}
-                        className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
-                      >
-                        <Edit2 size={18} />
-                        {t("profile.edit_profile")}
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleShareProfile}
-                        disabled={isSharingProfile || !user?._id}
-                        className="w-full rounded flex items-center justify-center gap-2 border-gray-200 hover:bg-yellow-50"
-                      >
-                        {isSharingProfile ? (
-                          <Loader2 size={18} className="animate-spin" />
-                        ) : shareCopied ? (
-                          <Check size={18} className="text-green-600" />
-                        ) : (
-                          <Share2 size={18} />
-                        )}
-                        {shareCopied ? t("common.copied") : t("profile.share_profile")}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="py-2">
-                    {isAdminOrEditor && (
-                      <Link href={"/dashboard"}>
-                        <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                          <Grid2x2 className="mr-3 size-5" />
-                          Dashboard
-                        </DropdownMenuItem>
-                      </Link>
-                    )}
-                    <div>
-                      {visibleMenuItems.map((item, index) => {
-                        const Icon = item.icon;
-
-                        return (
-                          <Link key={index} href={item.href}>
-                            <DropdownMenuItem className="px-4 py-3 cursor-pointer">
-                              <Icon className="mr-3 size-5" />
-                              {item.label}
-                            </DropdownMenuItem>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <DropdownMenuSeparator />
-
-                  {/* ✅ Logout button wired up */}
-                  <Button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
-                  >
-                    {isLoggingOut ? t("common.loading") : t("nav.logout")}
-                  </Button>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center gap-3">
-                <LanguageSwitcher />
+                    {/* ✅ Logout button wired up */}
+                    <Button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
+                    >
+                      {isLoggingOut ? t("common.loading") : t("nav.logout")}
+                    </Button>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
                 <Link href="/login">
                   <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-8 py-6 text-base shadow-none">
                     {t("nav.login") || "Log In"}
                   </Button>
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Mobile & Tablet Icons */}
-          <div className="flex lg:hidden items-center gap-3">
+          <div className="flex lg:hidden items-center gap-2">
+            <LanguageSwitcher />
             {!hideHeaderSearch && (
             <button
               onClick={toggleSearch}
@@ -849,14 +850,17 @@ export default function Header() {
             }`}
         >
           <div className="p-6">
-            <div className="flex justify-between items-center mb-0">
-              <h2 className="text-lg font-semibold">Menu</h2>
-              <button
-                onClick={closeMenus}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <X className="size-5" />
-              </button>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">{t("nav.menu")}</h2>
+              <div className="flex items-center gap-2">
+                <LanguageSwitcher />
+                <button
+                  onClick={closeMenus}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
             </div>
 
             {/* Navigation Links */}

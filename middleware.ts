@@ -28,6 +28,9 @@ const guestAllowedExact = new Set([
   "/cancel",
   "/payment-failed",
   "/claim-promo",
+  "/pricing",
+  "/contact",
+  "/how-it-works",
 ]);
 
 function isAdminOnlyDashboardPath(pathname: string): boolean {
@@ -53,6 +56,8 @@ export function middleware(request: NextRequest) {
     guestAllowedExact.has(pathname) ||
     pathname === "/catalog" ||
     pathname.startsWith("/catalog/") ||
+    pathname === "/details" ||
+    pathname.startsWith("/details/") ||
     pathname === "/claim-promo" ||
     pathname.startsWith("/claim-promo");
 
