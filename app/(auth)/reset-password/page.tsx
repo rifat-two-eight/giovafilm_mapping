@@ -5,9 +5,9 @@ import loginImage from "@/public/auth/login.png";
 export default function page() {
   return (
     <AuthLayout
-      title="Reset your password"
+      titleKey="auth.layout_reset_title"
+      descriptionKey="auth.layout_reset_desc"
       image={loginImage}
-      description="Enter your new password below to regain access to your account."
     >
       <ResetPasswordForm />
     </AuthLayout>

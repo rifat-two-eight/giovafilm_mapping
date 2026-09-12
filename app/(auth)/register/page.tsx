@@ -5,11 +5,9 @@ import registerImg from "@/public/auth/register.png";
 export default function page() {
   return (
     <AuthLayout
-      title="Start Your Journey
-With Us Today."
+      titleKey="auth.layout_register_title"
+      descriptionKey="auth.layout_register_desc"
       image={registerImg}
-      description="Join over 50,000 travelers exploring the world's
-most scenic routes and hidden gems."
     >
       <RegisterForm />
     </AuthLayout>

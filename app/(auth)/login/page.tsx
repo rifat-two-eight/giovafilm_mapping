@@ -5,11 +5,9 @@ import loginImage from "@/public/auth/login.png";
 export default function page() {
   return (
     <AuthLayout
-      title="Your next adventure starts here."
+      titleKey="auth.layout_login_title"
+      descriptionKey="auth.layout_login_desc"
       image={loginImage}
-      description="Join thousands of travelers planning the road trip of their
-dreams. Explore new routes, discover hidden gems, and
-share your journey."
     >
       <LoginForm />
     </AuthLayout>

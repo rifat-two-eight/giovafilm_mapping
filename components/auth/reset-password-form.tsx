@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
 import { getApiErrorMessage } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const resetPasswordSchema = z
   .object({
@@ -29,6 +30,7 @@ const resetPasswordSchema = z
 type FormValues = z.infer<typeof resetPasswordSchema>;
 
 export const ResetPasswordForm = () => {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -88,12 +90,12 @@ export const ResetPasswordForm = () => {
     <div className="flex flex-col justify-center">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">
-          {isInvite ? "Set Your Password" : "Reset Password"}
+          {isInvite ? t("auth.set_password_heading") : t("auth.reset_password_heading")}
         </h2>
         <p className="text-sm text-[#757575]">
           {isInvite
-            ? "Create a password to finish accepting your invitation. Then you can log in."
-            : "Enter your new password below to regain access to your account."}
+            ? t("auth.set_password_subtitle")
+            : t("auth.reset_password_subtitle")}
         </p>
       </div>
 
@@ -102,19 +104,19 @@ export const ResetPasswordForm = () => {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-[#757575]">
             1
           </span>
-          <span className="text-[#9E9E9E]">Verify code</span>
+          <span className="text-[#9E9E9E]">{t("auth.verify_code_step")}</span>
           <span className="text-[#BDBDBD] mx-1">—</span>
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FFC107] text-black">
             2
           </span>
-          <span className="text-[#1A1A1A]">Set password</span>
+          <span className="text-[#1A1A1A]">{t("auth.set_password_step")}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5">
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            {isInvite ? "Password" : "New Password"}
+            {isInvite ? t("auth.password") : t("auth.new_password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -126,7 +128,7 @@ export const ResetPasswordForm = () => {
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
           </div>
-          <p className="text-xs text-[#9E9E9E] ml-1">At least 8 characters</p>
+          <p className="text-xs text-[#9E9E9E] ml-1">{t("auth.at_least_8_chars")}</p>
           {errors.password && (
             <p className="text-xs text-red-500 ml-1">{errors.password.message}</p>
           )}
@@ -134,7 +136,7 @@ export const ResetPasswordForm = () => {
 
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Confirm Password
+            {t("auth.confirm_password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -161,12 +163,12 @@ export const ResetPasswordForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              {isInvite ? "Saving..." : "Resetting..."}
+              {isInvite ? t("auth.setting_password_btn") : t("auth.resetting_password_btn")}
             </>
           ) : isInvite ? (
-            "Set Password"
+            t("auth.set_password_btn")
           ) : (
-            "Reset Password"
+            t("auth.reset_password_btn")
           )}
         </Button>
       </form>
@@ -176,7 +178,7 @@ export const ResetPasswordForm = () => {
           href="/login"
           className="text-base font-semibold text-primary font-public-sans cursor-pointer hover:underline"
         >
-          Back to Login
+          {t("auth.back_to_login_btn")}
         </Link>
       </div>
     </div>

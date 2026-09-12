@@ -60,7 +60,7 @@ export const ForgotPasswordForm = () => {
           {t("auth.forgot_password")}
         </h2>
         <p className="text-sm text-[#757575]">
-          Enter your email and we’ll send you a reset link.
+          {t("auth.forgot_subtitle")}
         </p>
       </div>
 
@@ -104,7 +104,7 @@ export const ForgotPasswordForm = () => {
 
       {/* Footer */}
       <div className="text-sm text-center mt-6">
-        <span className="text-[#0A0A0A]">Remember your password? </span>
+        <span className="text-[#0A0A0A]">{t("auth.remember_password_prompt")}{" "}</span>
         <Link
           href="/login"
           className="text-base font-semibold text-primary font-public-sans hover:underline"

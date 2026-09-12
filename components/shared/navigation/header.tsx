@@ -526,7 +526,7 @@ export default function Header() {
 
           {/* Mobile & Tablet Icons */}
           <div className="flex lg:hidden items-center gap-2">
-            <LanguageSwitcher />
+            <LanguageSwitcher size="sm" />
             {!hideHeaderSearch && (
             <button
               onClick={toggleSearch}

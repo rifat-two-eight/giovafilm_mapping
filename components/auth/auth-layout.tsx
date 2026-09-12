@@ -4,23 +4,39 @@ import Image, { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import whiteLogo from "@/public/white-logo.png";
 import logo from "@/public/logo.png";
-
 import Link from "next/link";
+import LanguageSwitcher from "@/components/shared/language-switcher";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface AuthLayoutProps {
   children: ReactNode;
-  title: string;
-  description: string;
+  titleKey?: string;
+  descriptionKey?: string;
+  title?: string;
+  description?: string;
   image?: StaticImageData | undefined;
 }
+
 export function AuthLayout({
   children,
   image,
-  title,
-  description,
+  titleKey,
+  descriptionKey,
+  title = "",
+  description = "",
 }: AuthLayoutProps) {
+  const { t } = useLanguage();
+
+  const displayTitle = titleKey ? t(titleKey) : title;
+  const displayDescription = descriptionKey ? t(descriptionKey) : description;
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      {/* Top Floating Language Switcher */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30">
+        <LanguageSwitcher />
+      </div>
+
       <div
         className="hidden lg:flex lg:w-1/2 bg-cover bg-center min-h-screen"
         style={{
@@ -44,25 +60,25 @@ export function AuthLayout({
           </div>
 
           <h2 className="text-5xl font-black leading-14 font-public-sans w-full md:w-2/3">
-            {title}
+            {displayTitle}
           </h2>
           <p className="text-xl font-public-sans w-full md:w-2/3">
-            {description}
+            {displayDescription}
           </p>
         </div>
       </div>
 
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-lg ">
-          {/* Logo */}
-          <div className="shrink-0">
-            <Link href="/" className="lg:hidden">
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 sm:p-8 pt-16 sm:pt-8">
+        <div className="w-full max-w-lg">
+          {/* Mobile Logo */}
+          <div className="shrink-0 mb-4 lg:hidden flex justify-center">
+            <Link href="/">
               <Image
                 src={logo}
                 alt="Dashboard Logo"
                 height={500}
                 width={500}
-                className="w-72 h-auto mx-auto "
+                className="w-60 h-auto"
               />
             </Link>
           </div>

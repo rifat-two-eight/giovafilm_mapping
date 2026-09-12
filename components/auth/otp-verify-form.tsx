@@ -13,10 +13,12 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { decodeJwtPayload } from "@/lib/utils";
 import { isDashboardRole } from "@/lib/roles";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type AuthFlow = "createAccount" | "resetPassword" | "invite";
 
 export default function OtpVerify() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
@@ -278,31 +280,31 @@ export default function OtpVerify() {
 
   const title =
     authFlow === "resetPassword"
-      ? "Reset Password"
+      ? t("auth.otp_title_reset")
       : authFlow === "invite"
-        ? "Accept Invitation"
-        : "Verify Your Account";
+        ? t("auth.otp_title_invite")
+        : t("auth.otp_title_create");
 
   const subtitle =
     authFlow === "resetPassword"
-      ? "Enter the code we sent you, then you'll set a new password."
+      ? t("auth.otp_subtitle_reset")
       : authFlow === "invite"
-        ? "Enter the invitation code to continue. You'll set your password next."
-        : "Enter the verification code we sent to complete registration.";
+        ? t("auth.otp_subtitle_invite")
+        : t("auth.otp_subtitle_create");
 
   const buttonLabel =
     authFlow === "invite"
-      ? "Continue"
+      ? t("auth.continue")
       : authFlow === "resetPassword"
-        ? "Verify Code"
-        : "Verify Account";
+        ? t("auth.verify_code")
+        : t("auth.verify_account");
 
   return (
     <div className="flex flex-col justify-center">
       <div className="mb-8 text-left">
         <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">{title}</h2>
         <p className="text-sm text-[#757575]">
-          We've sent a code to{" "}
+          {t("auth.otp_sent_to")}{" "}
           <span className="font-semibold text-[#1A1A1A] break-all">
             {email || "your email"}
           </span>
@@ -316,12 +318,12 @@ export default function OtpVerify() {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FFC107] text-black">
             1
           </span>
-          <span className="text-[#1A1A1A]">Verify code</span>
+          <span className="text-[#1A1A1A]">{t("auth.verify_code_step")}</span>
           <span className="text-[#BDBDBD] mx-1">—</span>
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-[#757575]">
             2
           </span>
-          <span className="text-[#9E9E9E]">Set password</span>
+          <span className="text-[#9E9E9E]">{t("auth.set_password_step")}</span>
         </div>
       )}
 
@@ -331,7 +333,7 @@ export default function OtpVerify() {
             1
           </span>
           <span className="text-[#1A1A1A]">
-            {authFlow === "resetPassword" ? "Verify code" : "Verify email"}
+            {authFlow === "resetPassword" ? t("auth.verify_code_step") : t("auth.verify_email_step")}
           </span>
           {authFlow === "resetPassword" && (
             <>
@@ -339,7 +341,7 @@ export default function OtpVerify() {
               <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-[#757575]">
                 2
               </span>
-              <span className="text-[#9E9E9E]">New password</span>
+              <span className="text-[#9E9E9E]">{t("auth.new_password_step")}</span>
             </>
           )}
         </div>
@@ -370,22 +372,22 @@ export default function OtpVerify() {
         disabled={!isOtpComplete || isLoading}
         className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 mb-4"
       >
-        {isLoading ? "Verifying..." : buttonLabel}
+        {isLoading ? t("auth.verifying") : buttonLabel}
       </Button>
 
       {countdown > 0 ? (
         <p className="text-sm text-[#757575] text-center">
-          Resend code in {countdown}s
+          {t("auth.resend_code_in")} {countdown}s
         </p>
       ) : (
         <div className="text-center">
-          <p className="text-sm text-[#757575] mb-2">Didn't receive the code?</p>
+          <p className="text-sm text-[#757575] mb-2">{t("auth.didnt_receive_code")}</p>
           <button
             onClick={handleResend}
             disabled={isResending}
             className="font-semibold text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isResending ? "Sending..." : "Resend Code"}
+            {isResending ? t("auth.resending") : t("auth.resend_code")}
           </button>
         </div>
       )}

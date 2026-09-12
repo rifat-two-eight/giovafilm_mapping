@@ -66,7 +66,7 @@ export default function TopHeader() {
 
           {/* Language Switcher & Profile */}
           <div className="flex items-center gap-2">
-            <LanguageSwitcher />
+            <LanguageSwitcher size="sm" />
             <Link
               href={"/profile/contributions-reviews"}
               className="w-10 h-10 rounded-full border-2 border-[#FFC107] p-0.5 overflow-hidden cursor-pointer flex-shrink-0"

@@ -180,14 +180,14 @@ export const RegisterForm = () => {
               className="w-5 h-5 border-[#E0E0E0] data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <p className="text-sm text-[#757575]">
-              I agree to the{" "}
+              {t("auth.i_agree_to")}{" "}
               <Link
                 href={"/terms-of-service"}
                 className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"
               >
                 {t("nav.terms_of_service")}
               </Link>{" "}
-              and{" "}
+              {t("auth.and")}{" "}
               <Link
                 href={"/privacy-policy"}
                 className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"

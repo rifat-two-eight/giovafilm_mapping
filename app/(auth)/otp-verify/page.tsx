@@ -4,14 +4,12 @@ import otpVerifyImage from "@/public/auth/otp-verify.png";
 
 export default function page() {
   return (
-    <div>
-      <AuthLayout
-        title="Your next adventure starts with a single step."
-        description="Secure your account and get back to planning the ultimate road trip across the most beautiful landscapes."
-        image={otpVerifyImage}
-      >
-        <OtpVerify />
-      </AuthLayout>
-    </div>
+    <AuthLayout
+      titleKey="auth.layout_otp_title"
+      descriptionKey="auth.layout_otp_desc"
+      image={otpVerifyImage}
+    >
+      <OtpVerify />
+    </AuthLayout>
   );
 }
