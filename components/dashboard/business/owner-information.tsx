@@ -5,6 +5,8 @@ import { getImageUrl } from "@/lib/utils";
 import { Mail, CheckCircle, X } from "lucide-react";
 import Image from "next/image";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function OwnerInformation({
   user,
   privateInfo,
@@ -21,6 +23,7 @@ export default function OwnerInformation({
     contactEmail?: string;
   } | null;
 }) {
+  const { t } = useLanguage();
   const phone = privateInfo?.ownerPhone || user?.phone || "N/A";
   const email = privateInfo?.contactEmail || user?.email || "N/A";
 
@@ -28,7 +31,7 @@ export default function OwnerInformation({
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
         <Mail size={20} className="text-blue-600" />
-        <h2 className="text-lg font-bold text-gray-900">Owner Information</h2>
+        <h2 className="text-lg font-bold text-gray-900">{t("business_admin.owner_info")}</h2>
       </div>
 
       <div className="flex items-center gap-4 mb-6">
@@ -55,32 +58,32 @@ export default function OwnerInformation({
       <div className="space-y-4">
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Private Email
+            {t("business_admin.private_email")}
           </p>
           <p className="text-gray-700 mt-1">{email}</p>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Mobile Phone
+            {t("business_admin.mobile_phone")}
           </p>
           <p className="text-gray-700 mt-1">{phone}</p>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Identity Verified
+            {t("business_admin.identity_verified")}
           </p>
 
           {user?.verified ? (
             <div className="flex items-center gap-2 mt-1">
               <CheckCircle size={16} className="text-green-600" />
-              <span className="text-green-600 font-medium">Verified</span>
+              <span className="text-green-600 font-medium">{t("business_admin.verified")}</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 mt-1">
               <X size={16} className="text-red-600" />
-              <span className="text-red-600 font-medium">Not Verified</span>
+              <span className="text-red-600 font-medium">{t("business_admin.not_verified")}</span>
             </div>
           )}
         </div>

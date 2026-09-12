@@ -35,7 +35,10 @@ const tableHeaders = [
   "Actions",
 ];
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +53,6 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
 
   const [updateMapStatus] = useUpdateMapStatusMutation();
 
-  console.log("map:", response?.data);
   const [deleteMap] = useDeleteMapMutation();
 
   const mapsData: Map[] = response?.data || [];
@@ -107,6 +109,15 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
       : "bg-gray-100 text-gray-800";
   };
 
+  const tableHeaders = [
+    t("maps_admin.map_name"),
+    t("maps_admin.description"),
+    t("offers_admin.status"),
+    t("maps_admin.price"),
+    t("common.page"),
+    "Actions",
+  ];
+
   return (
     <div className="bg-white rounded-lg border overflow-hidden border-gray-200 flex flex-col">
       {/* Table Toolbar */}
@@ -115,7 +126,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search maps..."
+            placeholder={t("maps_admin.search_maps")}
             className="pl-9 h-9"
             value={searchTerm}
             onChange={(e) => {
@@ -145,13 +156,13 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  Loading maps...
+                  {t("maps_admin.loading_maps")}
                 </td>
               </tr>
             ) : displayedMaps.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No maps found.
+                  {t("maps_admin.no_maps")}
                 </td>
               </tr>
             ) : (
@@ -178,7 +189,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                         map.status,
                       )}`}
                     >
-                      {map.status || "Draft"}
+                      {map.status === "Published" ? t("places_admin.published") : t("places_admin.draft")}
                     </span>
                   </td>
 
@@ -199,13 +210,6 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                       >
                         <Edit size={18} />
                       </button>
-
-                      {/* <button
-                        className="text-gray-500 hover:text-gray-700 transition-colors"
-                        aria-label="Duplicate map"
-                      >
-                        <Copy size={18} />
-                      </button> */}
 
                       <button
                         onClick={() =>
@@ -242,7 +246,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
       {!isLoading && meta && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white mt-auto">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Rows per page:</span>
+            <span className="text-sm text-gray-600">{t("dashboard.table.rows_per_page")}</span>
             <select
               value={limit}
               onChange={(e) => {
@@ -260,7 +264,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
-              Page {meta.page} of {meta.totalPage || 1}
+              {t("common.page")} {meta.page} of {meta.totalPage || 1}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -269,7 +273,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t("dashboard.table.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -277,7 +281,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= (meta.totalPage || 1)}
               >
-                Next
+                {t("dashboard.table.next")}
               </Button>
             </div>
           </div>

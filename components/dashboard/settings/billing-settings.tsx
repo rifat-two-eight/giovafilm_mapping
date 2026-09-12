@@ -12,7 +12,10 @@ import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { useAppSelector } from "@/redux/hook";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function BillingSettings() {
+  const { t } = useLanguage();
   const { data, isLoading } = useGetMySubscriptionQuery();
   const [cancelSubscription, { isLoading: isCanceling }] =
     useCancelSubscriptionMutation();
@@ -58,14 +61,14 @@ export function BillingSettings() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle>Billing & Subscription</CardTitle>
+        <CardTitle>{t("nav.subscription")}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
         {isLoading ? (
           <div className="p-4 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center min-h-[80px]">
             <p className="text-sm text-gray-500">
-              Loading subscription details...
+              {t("settings_admin.billing_loading")}
             </p>
           </div>
         ) : activeSubs.length > 0 ? (
@@ -87,19 +90,19 @@ export function BillingSettings() {
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {sub.status}
+                  {sub.status === "active" ? t("offers_admin.active") : sub.status}
                 </span>
               </div>
               <p className="text-sm text-gray-600 font-medium mt-2">
                 {sub.planId?.price != null ? `$${sub.planId.price}` : ""}
                 {sub.planId?.interval ? `/${sub.planId.interval}` : ""}
                 {sub.currentPeriodEnd
-                  ? ` • Next billing date: ${new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
+                  ? ` • ${new Date(sub.currentPeriodEnd).toLocaleDateString()}`
                   : ""}
               </p>
               {sub.cancelAtPeriodEnd && (
                 <p className="text-xs text-red-500 font-medium mt-2">
-                  Your subscription will cancel at the end of the current period.
+                  {t("settings_admin.cancel_notice")}
                 </p>
               )}
 
@@ -114,7 +117,7 @@ export function BillingSettings() {
                     {isCanceling && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Cancel Subscription
+                    {t("common.delete")}
                   </Button>
                 </div>
               )}
@@ -122,13 +125,13 @@ export function BillingSettings() {
           ))
         ) : (
           <div className="p-4 rounded-lg border border-gray-200 bg-gray-50 text-center">
-            <p className="font-bold text-gray-700 mb-1">No Active Subscriptions</p>
+            <p className="font-bold text-gray-700 mb-1">{t("settings_admin.no_active_subs")}</p>
             <p className="text-sm text-gray-500 mb-4">
-              You do not have any active business subscriptions. Activate your business listings from your dashboard.
+              {t("settings_admin.no_subs_desc")}
             </p>
             <Link href="/profile/my-business">
               <Button size="sm" className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold">
-                Go to My Businesses
+                {t("settings_admin.go_to_my_businesses")}
               </Button>
             </Link>
           </div>

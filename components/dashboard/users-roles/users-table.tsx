@@ -42,23 +42,27 @@ import {
   type AppRole,
 } from "@/lib/roles";
 
-const ROLE_LABELS: Record<AppRole, string> = {
-  user: "User",
-  map_editor: "Map Editor",
-  admin: "Admin",
-  super_admin: "Super Admin",
-};
-
-const userTableHeaders = [
-  "Name",
-  "Email",
-  "Role",
-  "Status",
-  "Joined",
-  "Actions",
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function UsersTable(): React.ReactElement {
+  const { t } = useLanguage();
+
+  const ROLE_LABELS: Record<AppRole, string> = {
+    user: t("users_admin.user"),
+    map_editor: t("users_admin.map_editor"),
+    admin: t("users_admin.admin"),
+    super_admin: t("users_admin.super_admin"),
+  };
+
+  const userTableHeaders = [
+    t("categories_admin.category_name"),
+    t("settings_admin.email_address"),
+    t("users_admin.role"),
+    t("offers_admin.status"),
+    t("profile.joined"),
+    "Actions",
+  ];
+
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [role, setRole] = useState<string>("all");
@@ -248,26 +252,26 @@ export function UsersTable(): React.ReactElement {
         <div className="flex gap-3 w-full md:w-auto">
           <Select value={role} onValueChange={setRole}>
             <SelectTrigger className="w-full md:w-[140px]">
-              <SelectValue placeholder="Role" />
+              <SelectValue placeholder={t("users_admin.role")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="map_editor">Map Editor</SelectItem>
-              <SelectItem value="super_admin">Super Admin</SelectItem>
+              <SelectItem value="all">{t("users_admin.all_roles")}</SelectItem>
+              <SelectItem value="user">{t("users_admin.user")}</SelectItem>
+              <SelectItem value="admin">{t("users_admin.admin")}</SelectItem>
+              <SelectItem value="map_editor">{t("users_admin.map_editor")}</SelectItem>
+              <SelectItem value="super_admin">{t("users_admin.super_admin")}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-full md:w-[140px]">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("users_admin.active")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="deleted">Deleted</SelectItem>
+              <SelectItem value="all">{t("users_admin.all_status")}</SelectItem>
+              <SelectItem value="active">{t("users_admin.active")}</SelectItem>
+              <SelectItem value="inactive">{t("users_admin.inactive")}</SelectItem>
+              <SelectItem value="deleted">{t("users_admin.deleted")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -295,7 +299,7 @@ export function UsersTable(): React.ReactElement {
                     colSpan={6}
                     className="px-6 py-10 text-center text-gray-500"
                   >
-                    Loading users...
+                    {t("users_admin.loading_users")}
                   </td>
                 </tr>
               ) : isError ? (
@@ -313,7 +317,7 @@ export function UsersTable(): React.ReactElement {
                     colSpan={6}
                     className="px-6 py-10 text-center text-gray-500"
                   >
-                    No users found.
+                    {t("users_admin.no_maps")}
                   </td>
                 </tr>
               ) : (
@@ -392,8 +396,8 @@ export function UsersTable(): React.ReactElement {
                             <button
                               onClick={() => handleEditAccess(user)}
                               className="text-blue-500 hover:text-blue-700 transition-colors p-2 hover:bg-blue-50 rounded"
-                              title="Edit Map Editor Access"
-                              aria-label="Edit editor access"
+                              title={t("users_admin.edit_editor_access")}
+                              aria-label={t("users_admin.edit_editor_access")}
                             >
                               <Map size={18} />
                             </button>
@@ -403,7 +407,7 @@ export function UsersTable(): React.ReactElement {
                             <button
                               onClick={() => handleDelete(user._id)}
                               className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded"
-                              aria-label="Delete user"
+                              aria-label={t("common.delete")}
                             >
                               <Trash2 size={18} />
                             </button>
@@ -474,10 +478,9 @@ export function UsersTable(): React.ReactElement {
           </DialogHeader>
 
           <div className="space-y-4 my-2">
-            <p className="text-sm text-gray-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              Assign at least one <strong>map</strong>. Access is scoped to the
-              selected maps only.
-            </p>
+              <p className="text-sm text-gray-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                {t("users_admin.assign_at_least_one")} <strong>{t("maps_admin.map_name").toLowerCase()}</strong>. {t("users_admin.scoped_access")}
+              </p>
 
             {/* Maps list */}
             <div className="flex flex-col space-y-2">
@@ -493,7 +496,7 @@ export function UsersTable(): React.ReactElement {
                     }}
                     className="text-blue-600 hover:text-blue-800 transition-colors"
                   >
-                    Select All
+                    {t("users_admin.select_all")}
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
@@ -501,7 +504,7 @@ export function UsersTable(): React.ReactElement {
                     onClick={() => setSelectedMaps([])}
                     className="text-gray-500 hover:text-gray-700 transition-colors"
                   >
-                    Clear All
+                    {t("users_admin.clear_all")}
                   </button>
                 </div>
               </div>
@@ -547,10 +550,10 @@ export function UsersTable(): React.ReactElement {
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsAccessModalOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleSaveAccess} className="bg-blue-600 hover:bg-blue-700 text-white font-medium">
-              Save Access
+              {t("users_admin.save_access")}
             </Button>
           </DialogFooter>
         </DialogContent>

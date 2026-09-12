@@ -1,15 +1,19 @@
 "use client";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function PhotosMediaReview({ businessData }: any) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-900">
-          Photos & Media Review
+          {t("business_admin.overview")}
         </h2>
 
         <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-          Re-order Photos
+          {t("business_admin.reorder_photos")}
         </button>
       </div>
 
@@ -35,15 +39,15 @@ export default function PhotosMediaReview({ businessData }: any) {
 
         <div className="flex gap-3">
           <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-            Reject
+            {t("business_admin.reject")}
           </button>
 
           <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-            Request Changes
+            {t("business_admin.request_changes")}
           </button>
 
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Approve & Publish
+            {t("business_admin.approve")}
           </button>
         </div>
       </div>

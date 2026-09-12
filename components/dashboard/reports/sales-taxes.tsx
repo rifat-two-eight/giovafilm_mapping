@@ -1,6 +1,7 @@
 import { Calendar, Download } from "lucide-react";
 import { SalesTaxesChart } from "./sales-taxes-chart";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface SalesTaxesData {
   totalSales: number;
@@ -16,19 +17,21 @@ interface SalesTaxesProps {
 }
 
 export default function SalesTaxes({ data, onExportCSV, onExportPDF }: SalesTaxesProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-gray-900">Sales & Taxes</h2>
+        <h2 className="text-lg font-bold text-gray-900">{t("dashboard.sidebar.reports")}</h2>
 
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" className="gap-2" onClick={onExportCSV}>
             <Download className="w-4 h-4" />
-            Export CSV
+            {t("reports_admin.export_csv")}
           </Button>
           <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700" onClick={onExportPDF}>
             <Download className="w-4 h-4" />
-            Export PDF
+            {t("reports_admin.export_pdf")}
           </Button>
         </div>
       </div>
@@ -36,15 +39,15 @@ export default function SalesTaxes({ data, onExportCSV, onExportPDF }: SalesTaxe
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-blue-50/50 rounded-xl p-6 border border-blue-100">
-          <p className="text-sm font-semibold text-blue-600 mb-1 uppercase tracking-wider">Total Sales</p>
+          <p className="text-sm font-semibold text-blue-600 mb-1 uppercase tracking-wider">{t("reports_admin.total_sales")}</p>
           <p className="text-2xl font-bold text-gray-900">${data?.totalSales?.toLocaleString() || "0"}</p>
         </div>
         <div className="bg-green-50/50 rounded-xl p-6 border border-green-100">
-          <p className="text-sm font-semibold text-green-600 mb-1 uppercase tracking-wider">Taxes Collected</p>
+          <p className="text-sm font-semibold text-green-600 mb-1 uppercase tracking-wider">{t("reports_admin.taxes_collected")}</p>
           <p className="text-2xl font-bold text-gray-900">${data?.taxesCollected?.toLocaleString() || "0"}</p>
         </div>
         <div className="bg-purple-50/50 rounded-xl p-6 border border-purple-100">
-          <p className="text-sm font-semibold text-purple-600 mb-1 uppercase tracking-wider">Net Revenue</p>
+          <p className="text-sm font-semibold text-purple-600 mb-1 uppercase tracking-wider">{t("reports_admin.net_revenue")}</p>
           <p className="text-2xl font-bold text-gray-900">${data?.netRevenue?.toLocaleString() || "0"}</p>
         </div>
       </div>

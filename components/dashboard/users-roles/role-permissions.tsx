@@ -1,34 +1,29 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-
-interface RolePermission {
-  role: string;
-  description: string;
-}
-
-const rolePermissions: RolePermission[] = [
-  {
-    role: "Owner",
-    description:
-      "Full access to all features including billing and workspace deletion",
-  },
-  {
-    role: "Administrator",
-    description:
-      "Manage maps, places, offers, users, and view reports (cannot delete workspace)",
-  },
-  {
-    role: "Map Editor",
-    description:
-      "Create and edit maps, places, and offers (no user management or reports)",
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function RolePermissions(): React.ReactElement {
+  const { t } = useLanguage();
+
+  const rolePermissions = [
+    {
+      role: t("users_admin.owner_role"),
+      description: t("users_admin.owner_desc"),
+    },
+    {
+      role: t("users_admin.administrator_role"),
+      description: t("users_admin.administrator_desc"),
+    },
+    {
+      role: t("users_admin.map_editor_role"),
+      description: t("users_admin.map_editor_desc"),
+    },
+  ];
+
   return (
     <Card className="p-6 bg-white border border-gray-200 gap-4">
-      <h2 className="text-xl font-bold text-gray-900 ">Role Permissions</h2>
+      <h2 className="text-xl font-bold text-gray-900 ">{t("users_admin.role_permissions_title")}</h2>
 
       <div className="space-y-4">
         {rolePermissions.map((permission) => (
@@ -46,3 +41,4 @@ export function RolePermissions(): React.ReactElement {
     </Card>
   );
 }
+

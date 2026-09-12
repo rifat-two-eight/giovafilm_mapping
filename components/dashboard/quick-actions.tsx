@@ -1,25 +1,21 @@
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { Card } from "../ui/card";
 
-interface QuickAction {
-  label: string;
-  href: string;
-}
-
-const actions: QuickAction[] = [
-  { label: "Create a new map", href: "/dashboard/maps" },
-  { label: "Add a place", href: "/dashboard/places/add-place" },
-  // { label: "Publish updates", href: "#" },
-  // { label: "Download monthly report", href: "#" },
-];
-
 export function QuickActions() {
+  const { t } = useLanguage();
+
+  const actions = [
+    { label: t("maps_admin.map_name"), href: "/dashboard/maps" },
+    { label: t("places_admin.add_category"), href: "/dashboard/places/add-place" },
+  ];
+
   return (
     <Card className="bg-white gap-3 p-6 rounded-xl border-0 shadow-sm">
-      <h3 className="text-lg font-bold text-gray-900">Quick Actions</h3>
+      <h3 className="text-lg font-bold text-gray-900">{t("dashboard.quick_actions")}</h3>
       <div className="space-y-2">
-        {actions.map((action) => (
+        {actions.map((action, idx) => (
           <a
-            key={action.label}
+            key={idx}
             href={action.href}
             className="text-blue-600 hover:text-blue-800 font-medium text-sm block transition-colors"
           >

@@ -4,11 +4,14 @@ import { useGetMyReviewsQuery } from "@/redux/features/review/reviewApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { ProfileSidebar } from "./profile-sidebar";
 import { ReviewsSection } from "./reviews-section";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function ProfilePage() {
   const { data, isLoading: isProfileLoading } = useGetProfileQuery({});
   const { data: reviewsData = [], isLoading: isReviewsLoading } =
     useGetMyReviewsQuery({});
+
+  const { t } = useLanguage();
 
   return (
     <main className="bg-gray-50 min-h-screen py-12">
@@ -30,7 +33,7 @@ export default function ProfilePage() {
             {isReviewsLoading ? (
               <div className="flex flex-col items-center justify-center gap-3 py-20 bg-white rounded-2xl border border-gray-200">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                <p className="text-sm text-gray-500">Loading reviews...</p>
+                <p className="text-sm text-gray-500">{t("profile.loading_reviews")}</p>
               </div>
             ) : (
               <ReviewsSection reviews={reviewsData?.data || []} />

@@ -165,7 +165,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
 
           {/* Join Date */}
           <p className="text-gray-500 text-sm flex items-center justify-center gap-1 mb-6">
-            📅 Joined {formatDate(data?.createdAt) || 0}
+            📅 {t("profile.joined")} {formatDate(data?.createdAt) || 0}
           </p>
 
           {/* Action Buttons */}

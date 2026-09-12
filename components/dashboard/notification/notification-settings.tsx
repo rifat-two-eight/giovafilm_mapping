@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const Toggle = ({
   enabled,
@@ -24,19 +25,20 @@ const Toggle = ({
 );
 
 export function NotificationSettings() {
+  const { t } = useLanguage();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-6">
-        Notification Settings
+        {t("notifications_page.notification_settings")}
       </h3>
 
       <div className="space-y-4">
         {/* Email Notifications */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-          <span className="text-gray-700">Email Notifications</span>
+          <span className="text-gray-700">{t("notifications_page.email_notifications")}</span>
           <Toggle
             enabled={emailNotifications}
             onChange={setEmailNotifications}
@@ -45,7 +47,7 @@ export function NotificationSettings() {
 
         {/* Push Notifications */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-200">
-          <span className="text-gray-700">Push Notifications</span>
+          <span className="text-gray-700">{t("notifications_page.push_notifications")}</span>
           <Toggle enabled={pushNotifications} onChange={setPushNotifications} />
         </div>
 
@@ -55,7 +57,7 @@ export function NotificationSettings() {
             href="#"
             className="text-blue-600 hover:underline text-sm font-medium"
           >
-            Customize alerts by category
+            {t("notifications_page.customize_alerts")}
           </a>
         </div>
       </div>

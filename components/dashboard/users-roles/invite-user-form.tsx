@@ -18,23 +18,28 @@ import { assignableRolesFor, type AppRole } from "@/lib/roles";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-const ROLE_LABELS: Record<AppRole, string> = {
-  user: "User",
-  map_editor: "Map Editor",
-  admin: "Admin",
-  super_admin: "Super Admin",
-};
+// ROLE_LABELS is now defined inside the component using useLanguage
 
 interface FormData {
   email: string;
   role: string;
 }
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function InviteUserForm(): React.ReactElement {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     role: "user",
   });
+
+  const ROLE_LABELS: Record<AppRole, string> = {
+    user: t("users_admin.user"),
+    map_editor: t("users_admin.map_editor"),
+    admin: t("users_admin.admin"),
+    super_admin: t("users_admin.super_admin"),
+  };
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
   const [mapSearch, setMapSearch] = useState("");
 
@@ -144,12 +149,12 @@ export function InviteUserForm(): React.ReactElement {
 
   return (
     <Card className="p-6 bg-white border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Invite New User</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">{t("users_admin.invite_user")}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address <span className="text-red-500">*</span>
+            {t("users_admin.email_address")} <span className="text-red-500">*</span>
           </label>
           <Input
             type="email"
@@ -164,7 +169,7 @@ export function InviteUserForm(): React.ReactElement {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Role <span className="text-red-500">*</span>
+            {t("users_admin.role")} <span className="text-red-500">*</span>
           </label>
           <select
             name="role"
@@ -188,14 +193,13 @@ export function InviteUserForm(): React.ReactElement {
         {isEditor && (
           <div className="col-span-1 md:col-span-2 space-y-3">
             <p className="text-sm text-gray-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-              Assign at least one <strong>map</strong>. Access is scoped to the
-              selected maps only.
+              {t("users_admin.assign_map")}. {t("users_admin.scoped_access")}
             </p>
 
             {isLoadingMaps ? (
               <div className="flex items-center justify-center gap-2 py-10 text-sm text-gray-500">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Loading maps...
+                {t("users_admin.loading_maps")}
               </div>
             ) : (
               <div className="flex flex-col space-y-2">
@@ -211,7 +215,7 @@ export function InviteUserForm(): React.ReactElement {
                       }}
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                     >
-                      Select All
+                      {t("users_admin.select_all")}
                     </button>
                     <span className="text-gray-300">|</span>
                     <button
@@ -219,7 +223,7 @@ export function InviteUserForm(): React.ReactElement {
                       onClick={() => setSelectedMaps([])}
                       className="text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                      Clear All
+                      {t("users_admin.clear_all")}
                     </button>
                   </div>
                 </div>
@@ -234,7 +238,7 @@ export function InviteUserForm(): React.ReactElement {
                 <div className="border border-gray-200 rounded-lg p-2 max-h-56 overflow-y-auto space-y-1.5 bg-gray-50/50">
                   {filteredMaps.length === 0 ? (
                     <p className="text-xs text-gray-500 py-4 text-center">
-                      No maps found.
+                      {t("users_admin.no_maps")}
                     </p>
                   ) : (
                     filteredMaps.map((map: any) => {

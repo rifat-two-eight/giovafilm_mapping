@@ -16,7 +16,10 @@ import { useGetPurchasedMapsQuery } from "@/redux/features/map/mapApi";
 import { getImageUrl } from "@/lib/utils";
 import Link from "next/link";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function PurchasedMapsPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("All Maps");
 
   const { data, isLoading } = useGetPurchasedMapsQuery();
@@ -30,7 +33,7 @@ export default function PurchasedMapsPage() {
     badgeColor: map.isActive
       ? "bg-green-100 text-green-700"
       : "bg-gray-100 text-gray-500",
-    info: `Added ${new Date(map.createdAt).toLocaleDateString()}`,
+    info: `${t("common.save")} ${new Date(map.createdAt).toLocaleDateString()}`,
     image: getImageUrl(map.images?.[0]),
     status: map.isActive ? "Active" : "Inactive",
     icon: map.isActive ? ShieldCheck : Compass,
@@ -44,6 +47,13 @@ export default function PurchasedMapsPage() {
     return true;
   });
 
+  const getTabLabel = (tab: string) => {
+    if (tab === "All Maps") return t("common.all");
+    if (tab === "Active") return t("offers_admin.active");
+    if (tab === "Inactive") return t("users_admin.inactive");
+    return tab;
+  };
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       <main className="flex-1 max-w-[1440px] mx-auto w-full px-6 py-12">
@@ -51,16 +61,16 @@ export default function PurchasedMapsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b pb-4 mb-4">
           <div>
             <h1 className="text-4xl font-black font-public-sans text-gray-900 mb-2">
-              Purchased Maps
+              {t("purchased_maps_page.title")}
             </h1>
             <p className="text-gray-500/80 text-lg font-public-sans">
-              Manage and access your purchased adventure maps
+              {t("purchased_maps_page.subtitle")}
             </p>
           </div>
           <Link href={"/catalog"}>
             <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-12 text-base shadow-lg shadow-yellow-500/20">
               <Compass size={20} />
-              Browse More Maps
+              {t("purchased_maps_page.browse_more")}
             </Button>
           </Link>
         </div>
@@ -77,7 +87,7 @@ export default function PurchasedMapsPage() {
                   : "text-gray-400 hover:text-gray-600 font-medium"
               }`}
             >
-              {tab}{" "}
+              {getTabLabel(tab)}{" "}
               {tab === "All Maps" && (
                 <span className="ml-1 text-[10px] opacity-60">
                   {formattedMaps.length}
@@ -95,7 +105,7 @@ export default function PurchasedMapsPage() {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center gap-3 py-10">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-              <p className="text-sm text-gray-500">Loading your maps...</p>
+              <p className="text-sm text-gray-500">{t("purchased_maps_page.loading")}</p>
             </div>
           ) : filteredMaps.length > 0 ? (
             filteredMaps.map((map: PurchasedMap) => (
@@ -103,7 +113,7 @@ export default function PurchasedMapsPage() {
             ))
           ) : (
             <div className="text-center py-10 text-gray-500">
-              No {activeTab.toLowerCase()} found.
+              {t("purchased_maps_page.no_maps")}
             </div>
           )}
         </div>

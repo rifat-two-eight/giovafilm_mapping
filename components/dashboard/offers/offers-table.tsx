@@ -21,7 +21,10 @@ import { Edit, Play, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,6 +106,13 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
     }
   };
 
+  const getStatusText = (st: string) => {
+    if (st === "Active") return t("offers_admin.active");
+    if (st === "Paused") return t("offers_admin.paused");
+    if (st === "Expired") return t("offers_admin.expired");
+    return st;
+  };
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
       {/* Table Toolbar */}
@@ -111,7 +121,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search offers, places, municipalities..."
+              placeholder={t("search.search_offers")}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -129,7 +139,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[150px]"
           >
-            <option value="">All Countries</option>
+            <option value="">{t("dashboard.table.all_countries")}</option>
             {countries?.map((c: string) => (
               <option key={c} value={c}>
                 {c}
@@ -145,10 +155,10 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Paused">Paused</option>
-            <option value="Expired">Expired</option>
+            <option value="">{t("dashboard.table.all_status")}</option>
+            <option value="Active">{t("offers_admin.active")}</option>
+            <option value="Paused">{t("offers_admin.paused")}</option>
+            <option value="Expired">{t("offers_admin.expired")}</option>
           </select>
         </div>
       </div>
@@ -159,22 +169,22 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Offer Title
+                {t("offers_admin.offer_title")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Place / Business
+                {t("offers_admin.place_business")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Discount
+                {t("offers_admin.discount")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Valid Until
+                {t("offers_admin.valid_until")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Status
+                {t("offers_admin.status")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Redemptions
+                {t("offers_admin.redemptions_per_user")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                 Actions
@@ -192,7 +202,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 >
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    Loading offers...
+                    {t("common.loading")}
                   </div>
                 </td>
               </tr>

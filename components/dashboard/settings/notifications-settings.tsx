@@ -6,7 +6,10 @@ import { useGetProfileQuery, useUpdateProfileMutation } from "@/redux/features/u
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function NotificationSettings() {
+  const { t } = useLanguage();
   const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery({});
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
@@ -35,7 +38,7 @@ export function NotificationSettings() {
     return (
       <Card className="bg-white">
         <CardHeader>
-          <CardTitle>Notifications</CardTitle>
+          <CardTitle>{t("settings_admin.notifications")}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center p-8">
           <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
@@ -51,15 +54,15 @@ export function NotificationSettings() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle>Notifications</CardTitle>
+        <CardTitle>{t("settings_admin.notifications")}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">Email Notifications</p>
+            <p className="font-medium">{t("settings_admin.email_notifications")}</p>
             <p className="text-sm text-muted-foreground">
-              Receive email updates about your maps and places
+              {t("settings_admin.email_desc")}
             </p>
           </div>
           <Switch
@@ -71,9 +74,9 @@ export function NotificationSettings() {
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">Push Notifications</p>
+            <p className="font-medium">{t("settings_admin.push_notifications")}</p>
             <p className="text-sm text-muted-foreground">
-              Get instant notifications in your browser
+              {t("settings_admin.push_desc")}
             </p>
           </div>
           <Switch
@@ -85,9 +88,9 @@ export function NotificationSettings() {
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">Weekly Reports</p>
+            <p className="font-medium">{t("settings_admin.weekly_reports")}</p>
             <p className="text-sm text-muted-foreground">
-              Receive weekly summary of activity and stats
+              {t("settings_admin.weekly_desc")}
             </p>
           </div>
           <Switch

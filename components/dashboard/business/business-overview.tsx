@@ -3,7 +3,10 @@
 import { Globe } from "lucide-react";
 import { toExternalUrl, toInstagramUrl } from "./business-links";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function BusinessOverview({ businessData }: any) {
+  const { t } = useLanguage();
   const websiteUrl = toExternalUrl(businessData.website);
   const instagramUrl = toInstagramUrl(businessData.instagram);
 
@@ -13,7 +16,7 @@ export default function BusinessOverview({ businessData }: any) {
         <div className="flex items-center gap-2">
           <Globe size={20} className="text-blue-600" />
           <h2 className="text-2xl font-bold text-gray-900">
-            Business Overview
+            {t("business_admin.overview")}
           </h2>
         </div>
       </div>
@@ -21,7 +24,7 @@ export default function BusinessOverview({ businessData }: any) {
       <div className="space-y-6">
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Business Name
+            {t("business_admin.business_name")}
           </p>
           <p className="text-lg font-semibold text-gray-900 mt-1">
             {businessData.name}
@@ -30,14 +33,14 @@ export default function BusinessOverview({ businessData }: any) {
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Category
+            {t("business_admin.category")}
           </p>
           <p className="text-gray-700 mt-1">{businessData.category}</p>
         </div>
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Description
+            {t("business_admin.description")}
           </p>
           <p className="text-gray-700 mt-1 leading-relaxed">
             {businessData.description || "N/A"}
@@ -46,7 +49,7 @@ export default function BusinessOverview({ businessData }: any) {
 
         <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Website
+            {t("business_admin.website")}
           </p>
           {websiteUrl ? (
             <a
@@ -65,7 +68,7 @@ export default function BusinessOverview({ businessData }: any) {
         {instagramUrl && (
           <div className="overflow-hidden min-w-0">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Instagram
+              {t("place.instagram")}
             </p>
             <a
               href={instagramUrl}

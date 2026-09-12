@@ -3,6 +3,8 @@
 import { Phone } from "lucide-react";
 import { toExternalUrl, toInstagramUrl } from "./business-links";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function PublicContactLinks({
   contact,
   email,
@@ -15,6 +17,7 @@ export default function PublicContactLinks({
   } | null;
   email?: string;
 }) {
+  const { t } = useLanguage();
   const websiteUrl = toExternalUrl(contact?.website);
   const instagramUrl = toInstagramUrl(contact?.instagram);
   const publicEmail = email || contact?.email;
@@ -24,14 +27,14 @@ export default function PublicContactLinks({
       <div className="flex items-center gap-2 mb-6">
         <Phone size={20} className="text-blue-600" />
         <h2 className="text-xl font-bold text-gray-900">
-          Public Contact & Links
+          {t("place.contact_and_links")}
         </h2>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Public Phone
+            {t("business_admin.public_phone")}
           </p>
           <p className="text-gray-900 font-medium mt-2">
             {contact?.phone || "N/A"}
@@ -40,7 +43,7 @@ export default function PublicContactLinks({
 
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Contact Email
+            {t("business_admin.contact_email")}
           </p>
           <p className="text-gray-900 font-medium mt-2">
             {publicEmail || "N/A"}
@@ -49,7 +52,7 @@ export default function PublicContactLinks({
 
         <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Website
+            {t("business_admin.website")}
           </p>
           {websiteUrl ? (
             <a
@@ -67,7 +70,7 @@ export default function PublicContactLinks({
 
         <div className="overflow-hidden min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Instagram
+            {t("place.instagram")}
           </p>
           {instagramUrl ? (
             <a

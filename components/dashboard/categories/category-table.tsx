@@ -24,7 +24,10 @@ interface CategoryTableProps {
   onView?: (category: Category) => void;
 }
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -66,10 +69,10 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
   };
 
   const categoryTableHeaders = [
-    "Icon",
-    "Category Name",
-    "Color",
-    "Status",
+    t("categories_admin.icon") || "Icon",
+    t("categories_admin.category_name"),
+    t("categories_admin.color"),
+    t("offers_admin.status"),
     "Actions",
   ];
 
@@ -96,13 +99,13 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
             {isLoading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  Loading categories...
+                  {t("categories_admin.loading")}
                 </td>
               </tr>
             ) : categories.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                  No categories found.
+                  {t("categories_admin.no_categories")}
                 </td>
               </tr>
             ) : (
@@ -168,7 +171,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
                         category.status,
                       )}`}
                     >
-                      {category.status}
+                      {category.status === "Active" ? t("offers_admin.active") : category.status}
                     </span>
                   </td>
 
@@ -211,7 +214,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
       {!isLoading && meta && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Rows per page:</span>
+            <span className="text-sm text-gray-600">{t("dashboard.table.rows_per_page")}</span>
             <select
               value={limit}
               onChange={(e) => {
@@ -229,7 +232,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
-              Page {meta.page} of {meta.totalPage || 1}
+              {t("common.page")} {meta.page} of {meta.totalPage || 1}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -238,7 +241,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t("dashboard.table.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -246,7 +249,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= (meta.totalPage || 1)}
               >
-                Next
+                {t("dashboard.table.next")}
               </Button>
             </div>
           </div>

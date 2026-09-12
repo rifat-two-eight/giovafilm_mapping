@@ -5,14 +5,15 @@ import { useUpdateBusinessMutation } from "@/redux/features/business/businessApi
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
-
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function LocationVerification({
   businessId,
   location,
   isAccuracyVerified,
 }: any) {
+  const { t } = useLanguage();
   // mapLocation.coordinates is [lng, lat] (GeoJSON order)
   const lng = location?.mapLocation?.coordinates?.[0];
   const lat = location?.mapLocation?.coordinates?.[1];
@@ -43,7 +44,7 @@ export default function LocationVerification({
       await updateBusiness({ id: businessId, data: formData }).unwrap();
     } catch (error: any) {
       setVerified(previous);
-      toast.error(error?.data?.message || "Failed to update accuracy status.");
+      toast.error(error?.data?.message || t("admin_review.could_not_update"));
     }
   };
 
@@ -52,7 +53,7 @@ export default function LocationVerification({
       <div className="flex items-center gap-2 mb-6">
         <MapPin size={20} className="text-blue-600" />
         <h2 className="text-lg font-bold text-gray-900">
-          Location Verification
+          {t("location_verification.title")}
         </h2>
       </div>
 
@@ -80,7 +81,7 @@ export default function LocationVerification({
 
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Physical Address
+          {t("location_verification.physical_address")}
         </p>
 
         <p className="text-gray-700 mt-2">
@@ -93,11 +94,11 @@ export default function LocationVerification({
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
         <div>
           <p className="text-sm font-medium text-gray-700">
-            Verify pin accuracy
+            {t("location_verification.verify_pin_accuracy")}
           </p>
           <p className="text-xs text-gray-400 mt-0.5">
             {isLoading
-              ? "Saving..."
+              ? t("admin_review.saving")
               : verified
                 ? "This pin matches the listed address"
                 : "Turn on after confirming the map pin"}

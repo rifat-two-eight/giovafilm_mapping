@@ -8,7 +8,10 @@ import {
 import { ReviewNotificationCard } from "./review-notification-card";
 import { BusinessNotificationCard } from "./business-notification-card";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function BusinessNotification() {
+  const { t } = useLanguage();
   const businessNotifications = [
     {
       icon: Gift,
@@ -44,7 +47,7 @@ export default function BusinessNotification() {
       <div className="mb-6 flex items-center gap-2">
         <Briefcase size={24} className="text-[#3B82F6]" />
         <h1 className="text-xl font-bold text-black font-inter">
-          Business Notifications
+          {t("notifications_page.business_notifications")}
         </h1>
       </div>
       <div className="space-y-4">

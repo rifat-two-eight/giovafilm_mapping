@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { ReviewNotificationCard } from "./review-notification-card";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function NotificationMessage() {
+  const { t } = useLanguage();
   const reviewNotifications = [
     {
       userName: "Alex Thompson",
@@ -39,7 +41,7 @@ export default function NotificationMessage() {
           <Star size={24} className="text-yellow-500" />
           {/* <StarIcon size={24} className="text-yellow-500" /> */}
           <h2 className="text-xl font-bold text-black font-inter">
-            New Reviews
+            {t("notifications_page.new_reviews")}
           </h2>
         </div>
         <Button

@@ -1,11 +1,14 @@
 "use client";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 interface StatItem {
   name: string;
   count: number;
 }
 
 function StatColumn({ title, items }: { title: string; items: StatItem[] }) {
+  const { t } = useLanguage();
   return (
     <div>
       <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
@@ -21,7 +24,7 @@ function StatColumn({ title, items }: { title: string; items: StatItem[] }) {
           ))
         ) : (
           <div className="p-4 text-center text-gray-400 text-xs bg-gray-50 rounded-lg border border-gray-100 border-dashed">
-            No data available
+            {t("reports_admin.no_data")}
           </div>
         )}
       </div>
@@ -44,15 +47,17 @@ export function UsageStatistics({
   timeFilterActive?: boolean;
   placeColumnTitle?: string;
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
       <div className="mb-6">
         <h2 className="text-lg font-bold text-gray-900">
-          Usage of Maps / Places / Offers
+          {t("reports_admin.usage_title")}
         </h2>
         {timeFilterActive && (
           <p className="mt-1 text-xs text-gray-500">
-            Offer redemptions match the selected period. Map views and place opens are all-time totals.
+            {t("reports_admin.usage_desc")}
           </p>
         )}
       </div>

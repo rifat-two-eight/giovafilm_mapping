@@ -19,19 +19,22 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 const PAGE_SIZE = 9;
 
-const TYPE_FILTERS = [
-  { label: "All", value: "all" },
-  { label: "Places", value: "Place", icon: MapPin },
-  { label: "Businesses", value: "Business", icon: Building2 },
-  { label: "Maps", value: "Map", icon: Map },
-];
-
 export default function FavoritePlaces() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [activeType, setActiveType] = useState("all");
   const [page, setPage] = useState(1);
+
+  const TYPE_FILTERS = [
+    { label: t("common.all"), value: "all" },
+    { label: t("nav.places"), value: "Place", icon: MapPin },
+    { label: t("dashboard.sidebar.business"), value: "Business", icon: Building2 },
+    { label: t("nav.map"), value: "Map", icon: Map },
+  ];
 
   const { data: favouritesRes, isLoading } = useGetFavouritesQuery();
   const [addToFavourite, { isLoading: isRemoving }] =
@@ -103,13 +106,13 @@ export default function FavoritePlaces() {
     <section className="max-w-7xl mx-auto px-6 py-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Favourite Places</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("nav.favorite_places")}</h1>
 
         {/* Search */}
         <div className="flex items-center border rounded-lg px-3 py-1 bg-white">
           <Search className="text-gray-400 w-4 h-4 mr-2" />
           <Input
-            placeholder="Search favourites..."
+            placeholder={t("filters.favorites")}
             className="border-none focus-visible:ring-0 w-52"
             value={search}
             onChange={handleSearch}
@@ -139,14 +142,14 @@ export default function FavoritePlaces() {
       {isLoading && (
         <div className="flex flex-col items-center justify-center gap-3 py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-          <p className="text-sm text-gray-500">Loading favourites...</p>
+          <p className="text-sm text-gray-500">{t("common.loading")}</p>
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && paginated.length === 0 && (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No favourites found.
+          {t("filters.favorites")}
         </div>
       )}
 

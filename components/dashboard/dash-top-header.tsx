@@ -24,7 +24,11 @@ import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
 import { persistor } from "@/redux/store";
 import { baseApi } from "@/redux/api/baseApi";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import LanguageSwitcher from "@/components/shared/language-switcher";
+
 export default function DashTopHeader() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const { data: user } = useGetProfileQuery({});
   const router = useRouter();
@@ -51,37 +55,40 @@ export default function DashTopHeader() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="lg:hidden" />
-          <h1 className="text-xl font-bold font-arial">Administrator Panel</h1>
+          <h1 className="text-xl font-bold font-arial">{t("dashboard.admin_panel")}</h1>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger className="outline-none">
-            <Avatar className="w-10 h-10 cursor-pointer">
-              <Image
-                src={getImageUrl(user?.profile)}
-                alt="Profile"
-                width={40}
-                height={40}
-                unoptimized
-                className="object-cover"
-              />
-            </Avatar>
-          </DropdownMenuTrigger>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <DropdownMenu>
+            <DropdownMenuTrigger className="outline-none">
+              <Avatar className="w-10 h-10 cursor-pointer">
+                <Image
+                  src={getImageUrl(user?.profile)}
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  unoptimized
+                  className="object-cover"
+                />
+              </Avatar>
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>{user?.name}</DropdownMenuItem>
-            <DropdownMenuItem>{user?.email}</DropdownMenuItem>
-            <DropdownMenuItem>{user?.role}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit Profile
-            </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem>{user?.name}</DropdownMenuItem>
+              <DropdownMenuItem>{user?.email}</DropdownMenuItem>
+              <DropdownMenuItem>{user?.role}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpen(true)}>
+                {t("dashboard.edit_profile")}
+              </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                {t("dashboard.logout")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <ProfileUpdateModal open={open} onOpenChange={setOpen} data={user} />
     </div>

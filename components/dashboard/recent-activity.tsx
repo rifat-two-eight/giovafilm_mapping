@@ -10,14 +10,18 @@ interface Activity {
   timestamp: string;
 }
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function RecentActivity({
   activities = [],
 }: {
   activities?: Activity[];
 }) {
+  const { t } = useLanguage();
+
   return (
     <Card className="bg-white gap-3 p-6 rounded-xl border-0 shadow-sm h-full">
-      <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
+      <h3 className="text-lg font-bold text-gray-900">{t("dashboard.recent_activity")}</h3>
       <div className="space-y-1">
         {activities.length > 0 ? (
           activities.map((activity) => (
@@ -35,7 +39,7 @@ export function RecentActivity({
           ))
         ) : (
           <div className="py-10 text-center text-gray-400 text-sm">
-            No recent activity found.
+            {t("dashboard.no_recent_activity")}
           </div>
         )}
       </div>

@@ -280,6 +280,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getImageUrl } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface AddCategoryDialogProps {
   open: boolean;
@@ -568,10 +569,12 @@ export function AddCategoryDialog({
     }
   };
 
+  const { t } = useLanguage();
+
   const getDialogTitle = () => {
-    if (isView) return "View Category";
-    if (isEditing) return "Update Category";
-    return "Add New Category";
+    if (isView) return t("common.view_more");
+    if (isEditing) return t("categories_admin.add_category");
+    return t("categories_admin.add_category");
   };
 
   // Renders the active icon (Iconify or custom image)
@@ -628,7 +631,7 @@ export function AddCategoryDialog({
           {/* Category Name */}
           <div>
             <Label className="text-sm font-medium text-gray-700">
-              Category Name
+              {t("categories_admin.category_name")}
             </Label>
             <Input
               placeholder="e.g., Parks & Nature"
@@ -640,7 +643,7 @@ export function AddCategoryDialog({
 
           {/* Color Palette */}
           <div>
-            <Label className="text-sm font-medium text-gray-700">Color</Label>
+            <Label className="text-sm font-medium text-gray-700">{t("categories_admin.color")}</Label>
             <div className="grid grid-cols-12 gap-1 mt-2">
               {colorPalette.map((color) => (
                 <div
@@ -659,7 +662,7 @@ export function AddCategoryDialog({
           {/* Icon Section */}
           <div>
             <Label className="text-sm font-medium text-gray-700 block mb-2">
-              Icon
+              {t("categories_admin.icon")}
             </Label>
 
             {/* Tab switcher */}
@@ -696,7 +699,7 @@ export function AddCategoryDialog({
                 {/* Popular Icons */}
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Iconos populares
+                    {t("categories_admin.popular_icons")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {POPULAR_ICONS.map((icon) => (
@@ -708,7 +711,7 @@ export function AddCategoryDialog({
                 {/* Other Icons */}
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Otros iconos
+                    {t("categories_admin.other_icons")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {OTHER_ICONS.map((icon) => (

@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/table";
 import { useGetMySubscriptionQuery } from "@/redux/features/subscription/subscriptionApi";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 const BillingHistory = () => {
+  const { t } = useLanguage();
   const { data, isLoading } = useGetMySubscriptionQuery();
   
   const subs = Array.isArray(data?.data)
@@ -23,25 +26,25 @@ const BillingHistory = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Billing History</CardTitle>
+        <CardTitle>{t("billing_history.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="flex flex-col items-center justify-center gap-3 p-6">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-            <p className="text-sm text-gray-500">Loading billing history...</p>
+            <p className="text-sm text-gray-500">{t("billing_history.loading")}</p>
           </div>
         ) : subs.length > 0 ? (
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Business</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Billing Period</TableHead>
-                  <TableHead>Next Payment</TableHead>
+                  <TableHead>{t("billing_history.plan")}</TableHead>
+                  <TableHead>{t("billing_history.business")}</TableHead>
+                  <TableHead>{t("billing_history.amount")}</TableHead>
+                  <TableHead>{t("billing_history.status")}</TableHead>
+                  <TableHead>{t("billing_history.billing_period")}</TableHead>
+                  <TableHead>{t("billing_history.next_payment")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -66,25 +69,25 @@ const BillingHistory = () => {
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        {sub.status}
+                        {sub.status === "active" ? t("offers_admin.active") : sub.status}
                       </span>
                     </TableCell>
                     <TableCell className="text-gray-600 text-xs">
                       {sub.currentPeriodStart
-                        ? new Date(sub.currentPeriodStart).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                        ? new Date(sub.currentPeriodStart).toLocaleDateString()
                         : "—"}
                       {" - "}
                       {sub.currentPeriodEnd
-                        ? new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                        ? new Date(sub.currentPeriodEnd).toLocaleDateString()
                         : "—"}
                     </TableCell>
                     <TableCell className="text-gray-600 text-xs">
                       {sub.status === "canceled"
-                        ? "Canceled"
+                        ? t("offers_admin.expired")
                         : sub.cancelAtPeriodEnd
-                        ? "Canceling at period end"
+                        ? t("settings_admin.cancel_notice")
                         : sub.currentPeriodEnd
-                        ? new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                        ? new Date(sub.currentPeriodEnd).toLocaleDateString()
                         : "—"}
                     </TableCell>
                   </TableRow>
@@ -94,7 +97,7 @@ const BillingHistory = () => {
           </div>
         ) : (
           <div className="text-center p-6 text-gray-500 border rounded-lg bg-gray-50">
-            No billing history found.
+            {t("billing_history.no_history")}
           </div>
         )}
       </CardContent>

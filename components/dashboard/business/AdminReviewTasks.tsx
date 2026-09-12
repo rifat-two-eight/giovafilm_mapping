@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useUpdateBusinessMutation } from "@/redux/features/business/businessApi";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type AdminReview = {
   phoneVerified?: boolean;
@@ -15,11 +16,7 @@ type AdminReview = {
 
 type ReviewCheckKey = "phoneVerified" | "websiteFunctional" | "mediaUploaded";
 
-const TASKS: { key: ReviewCheckKey; label: string }[] = [
-  { key: "phoneVerified", label: "Phone number verified" },
-  { key: "websiteFunctional", label: "Website links functional" },
-  { key: "mediaUploaded", label: "Media content uploaded" },
-];
+// TASKS defined inside the component to support i18n
 
 export default function AdminReviewTasks({
   businessId,
@@ -28,7 +25,14 @@ export default function AdminReviewTasks({
   businessId: string;
   review?: AdminReview | null;
 }) {
+  const { t } = useLanguage();
   const [updateBusiness] = useUpdateBusinessMutation();
+
+  const TASKS: { key: ReviewCheckKey; label: string }[] = [
+    { key: "phoneVerified", label: t("admin_review.phone_verified") },
+    { key: "websiteFunctional", label: t("admin_review.website_functional") },
+    { key: "mediaUploaded", label: t("admin_review.media_uploaded") },
+  ];
   const [checks, setChecks] = useState<AdminReview>({
     phoneVerified: !!review?.phoneVerified,
     websiteFunctional: !!review?.websiteFunctional,
@@ -75,7 +79,7 @@ export default function AdminReviewTasks({
         error && typeof error === "object" && "data" in error
           ? (error as { data?: { message?: string } }).data?.message
           : undefined;
-      toast.error(message || "Could not update this task");
+      toast.error(message || t("admin_review.could_not_update"));
     } finally {
       setSavingKey(null);
     }
@@ -98,7 +102,7 @@ export default function AdminReviewTasks({
         error && typeof error === "object" && "data" in error
           ? (error as { data?: { message?: string } }).data?.message
           : undefined;
-      toast.error(message || "Could not save notes");
+      toast.error(message || t("admin_review.could_not_save_notes"));
     }
   };
 
@@ -112,21 +116,21 @@ export default function AdminReviewTasks({
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h2 className="text-lg font-bold text-gray-900 mb-1">
-        Admin Review Tasks
+        {t("admin_review.title")}
       </h2>
       <p className="text-xs text-gray-500 mb-6">
-        Changes save automatically
+        {t("admin_review.changes_save_automatically")}
       </p>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2.5">
-          <span className="text-sm text-gray-700">Location pin verified</span>
+          <span className="text-sm text-gray-700">{t("admin_review.location_pin_verified")}</span>
           <span
             className={`text-xs font-semibold ${
               checks.locationPinVerified ? "text-green-600" : "text-gray-400"
             }`}
           >
-            {checks.locationPinVerified ? "Verified" : "Use the switch above"}
+            {checks.locationPinVerified ? t("admin_review.verified") : t("admin_review.use_switch_above")}
           </span>
         </div>
 
@@ -153,16 +157,16 @@ export default function AdminReviewTasks({
       </div>
 
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-sm font-semibold text-gray-900">Internal notes</p>
+        <p className="text-sm font-semibold text-gray-900">{t("admin_review.internal_notes")}</p>
         <p className="text-xs text-gray-500 mt-0.5 mb-3">
-          Private. The business owner cannot see this.
+          {t("admin_review.private_note")}
         </p>
 
         <div className="rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
           <textarea
             value={notes}
             onChange={(e) => handleNotesChange(e.target.value)}
-            placeholder="Write a note for your team..."
+            placeholder={t("admin_review.note_placeholder")}
             spellCheck={false}
             autoComplete="off"
             data-gramm="false"
@@ -173,13 +177,13 @@ export default function AdminReviewTasks({
           />
           <div className="flex items-center justify-between gap-3 px-3 py-2 bg-gray-50 border-t border-gray-200">
             <span className="text-xs text-gray-500">
-              {notesStatus === "saving" && "Saving..."}
+              {notesStatus === "saving" && t("admin_review.saving")}
               {notesStatus === "saved" && (
                 <span className="inline-flex items-center gap-1 text-green-600">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Saved
+                  <CheckCircle2 className="h-3.5 w-3.5" /> {t("admin_review.saved")}
                 </span>
               )}
-              {notesStatus === "idle" && notesDirty && "Unsaved changes"}
+              {notesStatus === "idle" && notesDirty && t("admin_review.unsaved_changes")}
               {notesStatus === "idle" && !notesDirty && " "}
             </span>
             <button
@@ -188,7 +192,7 @@ export default function AdminReviewTasks({
               onClick={() => void saveNotes(notes)}
               className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Save note
+              {t("admin_review.save_note")}
             </button>
           </div>
         </div>

@@ -25,7 +25,10 @@ import { broadcastLogout } from "../shared/cross-tab-logout-listener";
 import { persistor } from "@/redux/store";
 import { baseApi } from "@/redux/api/baseApi";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function AppSidebar() {
+  const { t } = useLanguage();
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -36,6 +39,23 @@ export function AppSidebar() {
   const menuItems = role === "MAP_EDITOR" ? mapEditorMenuItems : adminMenuItems;
 
   const [logoutApi] = useLogoutMutation();
+
+  const getTranslatedTitle = (title: string) => {
+    const keyMap: Record<string, string> = {
+      Overview: "dashboard.sidebar.overview",
+      Business: "dashboard.sidebar.business",
+      Maps: "dashboard.sidebar.maps",
+      Places: "dashboard.sidebar.places",
+      Offers: "dashboard.sidebar.offers",
+      Categories: "dashboard.sidebar.categories",
+      Subscriptions: "dashboard.sidebar.subscriptions",
+      "Users & Roles": "dashboard.sidebar.users_roles",
+      Reports: "dashboard.sidebar.reports",
+      Settings: "dashboard.sidebar.settings",
+      Notifications: "dashboard.sidebar.notifications",
+    };
+    return keyMap[title] ? t(keyMap[title]) : title;
+  };
 
   const handleLogout = async () => {
     try {
@@ -92,7 +112,7 @@ export function AppSidebar() {
           `}
                       >
                         <item.icon className="size-6!" />
-                        <span>{item.title}</span>
+                        <span>{getTranslatedTitle(item.title)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -113,7 +133,7 @@ export function AppSidebar() {
                 className="relative w-full flex items-center gap-2.5 px-4 py-6! text-lg! rounded-2xl font-medium transition-all text-black hover:bg-primary!"
               >
                 <LogOut className="size-6!" />
-                <span>Logout</span>
+                <span>{t("nav.logout")}</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>

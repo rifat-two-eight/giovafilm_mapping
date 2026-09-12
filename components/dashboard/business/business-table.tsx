@@ -24,20 +24,24 @@ import {
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-const businessTableHeaders = [
-  "",
-  "Business Details",
-  "Category",
-  "Location",
-  "Status",
-  "Submitted",
-  "Actions",
-];
+// businessTableHeaders defined inside component using i18n
 
 export function BusinessTable() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<string[]>([]);
+
+  const businessTableHeaders = [
+    "",
+    t("business_admin.business_name"),
+    t("business_admin.category"),
+    t("business_admin.physical_address"),
+    t("offers_admin.status"),
+    t("common.submit") || "Submitted",
+    t("common.edit"),
+  ];
 
   // Params State
   const [searchTerm, setSearchTerm] = useState("");
@@ -170,13 +174,13 @@ export function BusinessTable() {
               }}
             >
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("offers_admin.status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-                <SelectItem value="Rejected">Rejected</SelectItem>
+                <SelectItem value="all">{t("places_admin.all_status")}</SelectItem>
+                <SelectItem value="Pending">{t("business_admin.pending")}</SelectItem>
+                <SelectItem value="Approved">{t("business_admin.approve")}</SelectItem>
+                <SelectItem value="Rejected">{t("business_admin.reject")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -189,7 +193,7 @@ export function BusinessTable() {
                 }}
                 className="text-blue-600 text-sm font-semibold hover:underline"
               >
-                Clear Filters
+                {t("places_admin.clear_filters")}
               </button>
             )}
           </div>
@@ -320,7 +324,7 @@ export function BusinessTable() {
                             }
                             className="text-green-600 font-medium"
                           >
-                            Approve
+                            {t("business_admin.approve")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
@@ -328,14 +332,14 @@ export function BusinessTable() {
                             }
                             className="text-red-600 font-medium"
                           >
-                            Reject
+                            {t("business_admin.reject")}
                           </DropdownMenuItem>
 
                           <DropdownMenuItem
                             onClick={() => handleDeleteSingle(business._id)}
                             className="text-red-600 font-bold focus:bg-red-50"
                           >
-                            Delete Business
+                            {t("business_admin.delete_business")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -348,7 +352,7 @@ export function BusinessTable() {
                       <div className="flex flex-col items-center gap-2 text-gray-400">
                         <Search size={40} className="text-gray-200" />
                         <p className="font-medium text-gray-500">
-                          No businesses found
+                          {t("business_admin.no_businesses")}
                         </p>
                         <p className="text-xs">
                           Try adjusting your search or filters.

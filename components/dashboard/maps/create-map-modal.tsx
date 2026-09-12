@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { useCreateMapMutation, useUpdateMapMutation } from "@/redux/features/map/mapApi";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type FormValues = {
   name: string;
@@ -35,6 +36,7 @@ export default function CreateMapModal({
   setOpen: (open: boolean) => void;
   initialData?: any;
 }) {
+  const { t } = useLanguage();
   const { register, handleSubmit, reset } = useForm<FormValues>();
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -105,9 +107,8 @@ export default function CreateMapModal({
       reset();
       setPreview(null);
       setOpen(false);
-    } catch (error: any) {
-      toast.error(error?.data?.message || error?.message || `Failed to ${isEditing ? 'update' : 'create'} map`);
-      console.error(`Failed to ${isEditing ? 'update' : 'create'} map:`, error);
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to save map");
     }
   };
 
@@ -118,9 +119,7 @@ export default function CreateMapModal({
 
   const removeImage = () => {
     setPreview(null);
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   return (
@@ -128,14 +127,14 @@ export default function CreateMapModal({
       <DialogContent className="min-w-3xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            {isEditing ? "Update Map" : "Create New Map"}
+            {isEditing ? t("places_admin.update_place") : t("maps_admin.map_name")}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label className="ml-1">Map Name</Label>
+            <Label className="ml-1">{t("maps_admin.map_name")}</Label>
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
               <Input
@@ -148,7 +147,7 @@ export default function CreateMapModal({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label className="ml-1">Description</Label>
+            <Label className="ml-1">{t("maps_admin.description")}</Label>
             <div className="relative">
               <FileText className="absolute left-4 top-4 w-5 h-5 text-[#9E9E9E]" />
               <Textarea
@@ -161,7 +160,7 @@ export default function CreateMapModal({
 
           {/* Price */}
           <div className="space-y-2">
-            <Label className="ml-1">Price</Label>
+            <Label className="ml-1">{t("maps_admin.price")}</Label>
             <div className="relative">
               <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
               <Input
@@ -176,7 +175,7 @@ export default function CreateMapModal({
 
           {/* Features */}
           <div className="space-y-2">
-            <Label className="ml-1">Features</Label>
+            <Label className="ml-1">{t("maps_admin.features")}</Label>
             <Input
               placeholder="Top rated, Hidden gems"
               {...register("features")}
@@ -186,7 +185,7 @@ export default function CreateMapModal({
 
           {/* Tips */}
           <div className="space-y-2">
-            <Label className="ml-1">Tips</Label>
+            <Label className="ml-1">{t("maps_admin.tips")}</Label>
             <Textarea
               placeholder="Write tips for this map..."
               {...register("tips")}
@@ -197,7 +196,7 @@ export default function CreateMapModal({
           {/* Image upload - updated field */}
           <div className="space-y-2">
             <Label className="ml-1">
-              Offer Photo {!isEditing && <span className="text-red-500">*</span>}
+              {t("offers_admin.offer_photo")} {!isEditing && <span className="text-red-500">*</span>}
             </Label>
 
             <div
@@ -214,10 +213,10 @@ export default function CreateMapModal({
                 <>
                   <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="text-sm text-gray-600">
-                    Click to upload or drag and drop
+                    {t("maps_admin.upload_hint")}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    PNG, JPG up to 10MB
+                    {t("maps_admin.upload_format")}
                   </p>
                 </>
               )}
@@ -248,7 +247,7 @@ export default function CreateMapModal({
                 className="flex items-center gap-1"
               >
                 <X size={14} />
-                Remove Image
+                {t("maps_admin.remove_image")}
               </Button>
             )}
           </div>

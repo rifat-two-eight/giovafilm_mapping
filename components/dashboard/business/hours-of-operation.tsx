@@ -9,11 +9,14 @@ type ScheduleItem = {
   closeTime?: string;
 };
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function HoursOfOperation({
   schedule,
 }: {
   schedule?: ScheduleItem[];
 }) {
+  const { t } = useLanguage();
   const items = Array.isArray(schedule) ? schedule.filter((item) => item?.days || item?.day) : [];
 
   return (
@@ -22,13 +25,13 @@ export default function HoursOfOperation({
         <div className="flex items-center gap-2">
           <Clock size={20} className="text-blue-600" />
           <h2 className="text-xl font-bold text-gray-900">
-            Hours of Operation
+            {t("business_admin.hours_of_operation")}
           </h2>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400">No hours set</p>
+        <p className="text-sm text-gray-400">{t("business_admin.no_hours_set")}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {items.map((item, index) => (
