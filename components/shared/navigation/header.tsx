@@ -247,7 +247,7 @@ export default function Header() {
   return (
     <div>
       <header className="border-b border-gray-100 relative">
-        <nav className="flex items-center justify-between px-1 md:px-6 py-4 max-w-360 mx-auto gap-4">
+        <nav className="flex items-center justify-between px-3 sm:px-6 py-3.5 sm:py-4 max-w-360 mx-auto gap-2 sm:gap-4">
           {/* Logo */}
           <div className="shrink-0">
             <Link href={isAuthenticated ? "/maps" : "/"}>
@@ -256,7 +256,7 @@ export default function Header() {
                 alt="Dashboard Logo"
                 height={200}
                 width={200}
-                className="w-48 h-auto"
+                className="w-32 sm:w-40 md:w-48 h-auto"
               />
             </Link>
           </div>
@@ -525,16 +525,15 @@ export default function Header() {
           </div>
 
           {/* Mobile & Tablet Icons */}
-          <div className="flex lg:hidden items-center gap-2">
-            <LanguageSwitcher size="sm" />
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
             {!hideHeaderSearch && (
-            <button
-              onClick={toggleSearch}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Toggle search"
-            >
-              <Search className="size-5 md:hidden" />
-            </button>
+              <button
+                onClick={toggleSearch}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Toggle search"
+              >
+                <Search className="size-5" />
+              </button>
             )}
 
             {/* Profile Icon - Mobile */}

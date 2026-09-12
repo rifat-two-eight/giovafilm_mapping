@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import LanguageSwitcher from "@/components/shared/language-switcher";
 
 export default function TopHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,9 +63,8 @@ export default function TopHeader() {
             </span>
           </div>
 
-          {/* Language Switcher & Profile */}
+          {/* Profile */}
           <div className="flex items-center gap-2">
-            <LanguageSwitcher size="sm" />
             <Link
               href={"/profile/contributions-reviews"}
               className="w-10 h-10 rounded-full border-2 border-[#FFC107] p-0.5 overflow-hidden cursor-pointer flex-shrink-0"
@@ -108,12 +106,6 @@ export default function TopHeader() {
         </div>
 
         <nav className="flex flex-col px-4 mt-4 space-y-2">
-          <div className="pb-3 border-b border-gray-100 flex items-center justify-between px-2">
-            <span className="text-xs font-semibold text-gray-500">
-              {t("common.language")}
-            </span>
-            <LanguageSwitcher />
-          </div>
 
           {navItems.map((item) => (
             <Link
