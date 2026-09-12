@@ -273,7 +273,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
                   onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
                   className="text-xs font-semibold text-amber-600 hover:text-amber-700 mt-1 inline-flex items-center transition-colors cursor-pointer"
                 >
-                  {isDescriptionExpanded ? "Show less" : "Read more"}
+                  {isDescriptionExpanded ? t("place.show_less") : t("place.read_more")}
                 </button>
               )}
             </div>
@@ -287,7 +287,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
           {type !== "business" && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
               <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
-                NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
+                {t("place.notice_disclaimer")}
               </p>
             </div>
           )}

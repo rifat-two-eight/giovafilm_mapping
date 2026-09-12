@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ReviewModal } from "../maps/review-modal";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Review {
   _id: string;
@@ -33,6 +34,7 @@ interface ReviewsSectionProps {
 }
 
 export function ReviewsSection({ reviews }: ReviewsSectionProps) {
+  const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
@@ -41,26 +43,25 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
     setIsModalOpen(true);
   };
 
-  console.log("reviews", reviews);
   return (
     <div className="space-y-6">
       {/* Header with View All Link */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
-          My Reviews ({reviews?.length || 0})
+          {t("reviews.my_reviews")} ({reviews?.length || 0})
         </h2>
         <Link
           href="/profile/contributions-reviews"
           className="text-green-600 font-semibold text-sm hover:text-green-700 transition-colors"
         >
-          View All →
+          {t("reviews.view_all")}
         </Link>
       </div>
 
       {/* Reviews List */}
       {!reviews?.length ? (
         <div className="py-16 text-center text-gray-500 text-sm bg-white rounded-2xl border border-gray-200">
-          No reviews yet. Explore places and share your experience!
+          {t("reviews.no_reviews_yet")}
         </div>
       ) : (
       <div className="space-y-5">
@@ -132,7 +133,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 {/* Review Date */}
                 <div className="flex items-center gap-3 mb-3">
                   <p className="text-xs text-gray-500">
-                    Reviewed on{" "}
+                    {t("reviews.reviewed_on")}{" "}
                     {review.createdAt
                       ? new Date(review.createdAt).toLocaleDateString("en-US", {
                           month: "short",
@@ -164,16 +165,16 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
               <div className="flex gap-3 mt-4">
                 <Button
                   onClick={() => handleEdit(review)}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold text-sm rounded-lg px-6"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold text-sm rounded-lg px-6 cursor-pointer"
                 >
-                  Edit Review
+                  {t("reviews.edit_review")}
                 </Button>
                 <Link href={detailsHref}>
                   <Button
                     variant="outline"
-                    className="text-gray-900 font-semibold text-sm rounded-lg px-6 border-gray-200"
+                    className="text-gray-900 font-semibold text-sm rounded-lg px-6 border-gray-200 cursor-pointer"
                   >
-                    View Details
+                    {t("place.view_details")}
                   </Button>
                 </Link>
               </div>

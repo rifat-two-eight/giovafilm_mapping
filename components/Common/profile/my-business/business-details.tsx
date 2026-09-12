@@ -34,8 +34,10 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BusinessOfferDialog } from "./business-offer-dialog";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function BusinessDetails() {
+  const { t } = useLanguage();
   const { id } = useParams();
   const router = useRouter();
   const { data: response, isLoading } = useGetSingleBusinessQuery(id as string);
@@ -69,8 +71,6 @@ export default function BusinessDetails() {
       toast.error("Failed to initiate checkout session");
     }
   };
-
-  console.log(business, "business");
 
   const getStatusIcon = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -123,18 +123,17 @@ export default function BusinessDetails() {
           <AlertCircle size={40} className="text-slate-300" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900 mb-2">
-          Business Not Found
+          {t("business_details.business_not_found")}
         </h2>
         <p className="text-slate-500 mb-8">
-          The business you are looking for does not exist or you don't have
-          access.
+          {t("business_details.business_not_found_desc")}
         </p>
         <Button
           onClick={() => router.back()}
           variant="outline"
-          className="rounded-xl px-8 font-bold"
+          className="rounded-xl px-8 font-bold cursor-pointer"
         >
-          Go Back
+          {t("business_details.go_back")}
         </Button>
       </div>
     );
@@ -147,12 +146,12 @@ export default function BusinessDetails() {
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-colors group"
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold transition-colors group cursor-pointer"
           >
             <div className="p-2 rounded-xl bg-white border border-slate-200 group-hover:bg-slate-100 transition-all">
               <ArrowLeft size={20} />
             </div>
-            Back to List
+            {t("business_details.back_to_list")}
           </button>
 
           <div className="flex items-center gap-3">
@@ -222,7 +221,7 @@ export default function BusinessDetails() {
               <div className="p-8">
                 <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <Info className="text-primary" size={20} />
-                  About Business
+                  {t("business_details.about_business")}
                 </h3>
                 <p className="text-slate-600 leading-relaxed text-lg font-medium whitespace-pre-wrap">
                   {business.description}
@@ -239,17 +238,17 @@ export default function BusinessDetails() {
               >
                 <Shield className="mx-auto mb-4 text-slate-300" size={36} />
                 <h2 className="text-xl font-black text-slate-900 mb-2">
-                  No offer yet
+                  {t("business_details.no_offer_yet")}
                 </h2>
                 <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                  Add an exclusive offer with a photo so travelers can see the deal on the Offers page.
+                  {t("business_details.no_offer_desc")}
                 </p>
                 <Button
                   onClick={() => setOfferDialogOpen(true)}
-                  className="rounded-xl h-11 px-6 font-bold gap-2"
+                  className="rounded-xl h-11 px-6 font-bold gap-2 cursor-pointer"
                 >
                   <Plus size={18} />
-                  Add Offer
+                  {t("business_details.add_offer")}
                 </Button>
               </motion.div>
             )}
@@ -268,16 +267,16 @@ export default function BusinessDetails() {
                   <div className="flex items-center justify-between gap-3 mb-6">
                     <div className="flex items-center gap-2 text-black/80 font-black tracking-tighter uppercase text-sm">
                       <Shield size={20} strokeWidth={3} className="text-black" />
-                      Exclusive Offer for Members
+                      {t("business_details.exclusive_offer_members")}
                     </div>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setOfferDialogOpen(true)}
-                      className="bg-white/80 hover:bg-white text-black border-black/10 font-bold gap-2 h-10"
+                      className="bg-white/80 hover:bg-white text-black border-black/10 font-bold gap-2 h-10 cursor-pointer"
                     >
                       <Pencil size={16} />
-                      Edit Offer
+                      {t("business_details.edit_offer")}
                     </Button>
                   </div>
 
@@ -305,7 +304,7 @@ export default function BusinessDetails() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
                       <p className="text-[10px] font-black text-black/60 uppercase tracking-widest mb-1">
-                        Benefit
+                        {t("business_details.benefit")}
                       </p>
                       <p className="text-lg font-black text-black">
                         {formatOfferDiscountLabel({
@@ -318,32 +317,32 @@ export default function BusinessDetails() {
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
                       <p className="text-[10px] font-black text-black/60 uppercase tracking-widest mb-1">
-                        Validity
+                        {t("business_details.validity")}
                       </p>
                       <p className="text-lg font-black text-black">
                         {offer.noExpiration
-                          ? "Indefinite"
+                          ? t("business_details.indefinite")
                           : offer.validUntil
                             ? new Date(
                                 offer.validUntil,
                               ).toLocaleDateString()
-                            : "Limited"}
+                            : t("business_details.limited")}
                       </p>
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
                       <p className="text-[10px] font-black text-black/60 uppercase tracking-widest mb-1">
-                        Usage
+                        {t("business_details.usage")}
                       </p>
                       <p className="text-lg font-black text-black">
-                        {offer.maxRedemptions} per user
+                        {offer.maxRedemptions} {t("business_details.per_user")}
                       </p>
                     </div>
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
                       <p className="text-[10px] font-black text-black/60 uppercase tracking-widest mb-1">
-                        Duration
+                        {t("business_details.duration")}
                       </p>
                       <p className="text-lg font-black text-black">
-                        {offer.redemptionDuration} mins
+                        {offer.redemptionDuration} {t("business_details.mins")}
                       </p>
                     </div>
                   </div>
@@ -351,7 +350,7 @@ export default function BusinessDetails() {
                   {offer.redemptionRules?.length > 0 && (
                     <div className="mt-8 pt-8 border-t border-black/10">
                       <h4 className="text-sm font-black text-black uppercase tracking-widest mb-4">
-                        Redemption Rules
+                        {t("business_details.redemption_rules")}
                       </h4>
                       <ul className="space-y-3">
                         {offer.redemptionRules.map(
@@ -377,7 +376,7 @@ export default function BusinessDetails() {
             {/* Photo Gallery */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-slate-900 px-2 flex items-center gap-2">
-                Photo Gallery
+                {t("business_details.photo_gallery")}
               </h3>
               {business.media?.photos?.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -402,7 +401,7 @@ export default function BusinessDetails() {
                 </div>
               ) : (
                 <div className="py-12 text-center text-sm text-slate-400 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
-                  No photos available.
+                  {t("business_details.no_photos")}
                 </div>
               )}
             </div>
@@ -418,25 +417,25 @@ export default function BusinessDetails() {
               >
                 <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
                   <AlertCircle size={18} className="text-amber-600 shrink-0" />
-                  Premium Required
+                  {t("business_details.premium_required")}
                 </div>
                 <p className="text-xs text-amber-700 font-semibold leading-relaxed">
-                  This business is currently hidden from travelers because it lacks an active subscription. Upgrade to a premium plan to publish this listing on the map.
+                  {t("business_details.premium_required_desc")}
                 </p>
                 {business.plan ? (
                   <Button
                     onClick={() => handlePayNow(business.plan)}
                     disabled={isPaymentLoading}
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11"
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11 cursor-pointer"
                   >
-                    {isPaymentLoading ? "Processing..." : "Activate Listing"}
+                    {isPaymentLoading ? t("business_details.processing") : t("business_details.activate_listing")}
                   </Button>
                 ) : (
                   <Button
                     onClick={() => router.push("/pricing")}
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11"
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-11 cursor-pointer"
                   >
-                    Upgrade to Premium
+                    {t("business_details.upgrade_to_premium")}
                   </Button>
                 )}
               </motion.div>
@@ -449,7 +448,7 @@ export default function BusinessDetails() {
               className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm"
             >
               <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest">
-                Analytics
+                {t("business_details.analytics")}
               </h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -457,7 +456,7 @@ export default function BusinessDetails() {
                     <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
                       <Eye size={20} />
                     </div>
-                    Total Views
+                    {t("business_details.total_views")}
                   </div>
                   <span className="text-2xl font-black text-slate-900">
                     {business.viewCount || 0}
@@ -468,7 +467,7 @@ export default function BusinessDetails() {
                     <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
                       <Calendar size={20} />
                     </div>
-                    Joined Date
+                    {t("business_details.joined_date")}
                   </div>
                   <span className="text-lg font-black text-slate-900">
                     {new Date(business.createdAt).toLocaleDateString("en-US", {
@@ -489,7 +488,7 @@ export default function BusinessDetails() {
               className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm"
             >
               <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest">
-                Contact Info
+                {t("business_details.contact_info")}
               </h3>
               <div className="space-y-5">
                 {business.location?.address && (
@@ -499,7 +498,7 @@ export default function BusinessDetails() {
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Address
+                        {t("business_details.address")}
                       </p>
                       <p className="text-sm font-bold text-slate-700">
                         {business.location.address}, {business.location.city}
@@ -514,7 +513,7 @@ export default function BusinessDetails() {
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Phone
+                        {t("business_details.phone")}
                       </p>
                       <p className="text-sm font-bold text-slate-700">
                         {business.contact.phone}
@@ -529,7 +528,7 @@ export default function BusinessDetails() {
                     </div>
                     <div className="overflow-hidden">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Website
+                        {t("business_details.website")}
                       </p>
                       <a
                         href={business.contact.website}
@@ -548,7 +547,7 @@ export default function BusinessDetails() {
                     </div>
                     <div className="overflow-hidden min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Instagram
+                        {t("business_details.instagram")}
                       </p>
                       <p className="text-sm font-bold text-slate-700 truncate max-w-full">
                         @{business.contact.instagram}
@@ -567,7 +566,7 @@ export default function BusinessDetails() {
               className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm"
             >
               <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest">
-                Business Hours
+                {t("business_details.business_hours")}
               </h3>
               <div className="space-y-4">
                 {business.hours?.schedule?.length > 0 ? (
@@ -586,7 +585,7 @@ export default function BusinessDetails() {
                   ))
                 ) : (
                   <p className="text-slate-400 italic text-sm">
-                    No specific hours listed.
+                    {t("business_details.no_hours_listed")}
                   </p>
                 )}
               </div>
@@ -594,11 +593,11 @@ export default function BusinessDetails() {
 
             <Button
               asChild
-              className="w-full h-16 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-lg gap-3 shadow-xl shadow-slate-200"
+              className="w-full h-16 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-lg gap-3 shadow-xl shadow-slate-200 cursor-pointer"
             >
               <Link href={`/places/${business._id}?type=business`}>
                 <ExternalLink size={24} />
-                View Public Page
+                {t("business_details.view_public_page")}
               </Link>
             </Button>
           </div>

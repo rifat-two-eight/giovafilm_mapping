@@ -8,8 +8,10 @@ import Image from "next/image";
 import { ReviewModal } from "../../maps/review-modal";
 import { useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function ReviewCard({ review }: any) {
+  const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const rating = review?.rating || 0;
@@ -90,7 +92,7 @@ export function ReviewCard({ review }: any) {
               ))}
             </div>
             <span className="text-[11px] sm:text-xs text-gray-500">
-              Reviewed on {formatDate(review?.createdAt)}
+              {t("reviews.reviewed_on")} {formatDate(review?.createdAt)}
             </span>
           </div>
 
@@ -102,16 +104,16 @@ export function ReviewCard({ review }: any) {
         <div className="flex gap-2 pt-2 border-t border-gray-100 sm:border-none sm:pt-0">
           <Button
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-none bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs sm:text-sm py-2 sm:py-2.5 px-3 sm:px-5 rounded-lg"
+            className="flex-1 sm:flex-none bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs sm:text-sm py-2 sm:py-2.5 px-3 sm:px-5 rounded-lg cursor-pointer"
           >
-            ✎ Edit Review
+            ✎ {t("reviews.edit_review")}
           </Button>
           <Link href={detailsHref} className="flex-1 sm:flex-none">
             <Button
               variant="outline"
-              className="w-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 font-bold text-xs sm:text-sm py-2 sm:py-2.5 px-3 sm:px-5 rounded-lg"
+              className="w-full border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 font-bold text-xs sm:text-sm py-2 sm:py-2.5 px-3 sm:px-5 rounded-lg cursor-pointer"
             >
-              View Details
+              {t("place.view_details")}
             </Button>
           </Link>
         </div>

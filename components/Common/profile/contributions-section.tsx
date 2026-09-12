@@ -1,16 +1,10 @@
 "use client";
 
-interface ContributionsSection {
-  totalPoints: number;
-  reviews: number;
-  photos: number;
-  progressToNextLevel: number;
-  pointsUntilNextLevel: number;
-}
-
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function ContributionsSection() {
+  const { t } = useLanguage();
   const { data: user, isLoading } = useGetProfileQuery({});
   
   const currentPoints = user?.points || 0;
@@ -18,21 +12,21 @@ export function ContributionsSection() {
 
   // Levels thresholds mapping
   const USER_LEVELS = [
-    { level: 0, name: "Explorador", points: 0, reviews: 0 },
-    { level: 1, name: "Aventurero", points: 100, reviews: 6 },
-    { level: 2, name: "Tlacuilo", points: 200, reviews: 13 },
-    { level: 3, name: "Expedicionario", points: 400, reviews: 26 },
-    { level: 4, name: "Viajero", points: 700, reviews: 46 },
-    { level: 5, name: "Chasqui", points: 1300, reviews: 86 },
-    { level: 6, name: "Cronista", points: 2300, reviews: 153 },
-    { level: 7, name: "Pochteca", points: 4000, reviews: 266 },
-    { level: 8, name: "Navegante", points: 6500, reviews: 433 },
-    { level: 9, name: "Cartógrafo", points: 10000, reviews: 665 },
-    { level: 10, name: "Gran Explorador", points: 15000, reviews: 1000 },
-    { level: 11, name: "Conquistador", points: 22500, reviews: 1500 },
-    { level: 12, name: "Gran Conquistador", points: 33000, reviews: 2200 },
-    { level: 13, name: "Amauta", points: 48000, reviews: 3200 },
-    { level: 14, name: "Leyenda", points: 67500, reviews: 4500 }
+    { level: 0, name: t("levels.explorador") || "Explorador", points: 0, reviews: 0 },
+    { level: 1, name: t("levels.aventurero") || "Aventurero", points: 100, reviews: 6 },
+    { level: 2, name: t("levels.tlacuilo") || "Tlacuilo", points: 200, reviews: 13 },
+    { level: 3, name: t("levels.expedicionario") || "Expedicionario", points: 400, reviews: 26 },
+    { level: 4, name: t("levels.viajero") || "Viajero", points: 700, reviews: 46 },
+    { level: 5, name: t("levels.chasqui") || "Chasqui", points: 1300, reviews: 86 },
+    { level: 6, name: t("levels.cronista") || "Cronista", points: 2300, reviews: 153 },
+    { level: 7, name: t("levels.pochteca") || "Pochteca", points: 4000, reviews: 266 },
+    { level: 8, name: t("levels.navegante") || "Navegante", points: 6500, reviews: 433 },
+    { level: 9, name: t("levels.cartografo") || "Cartógrafo", points: 10000, reviews: 665 },
+    { level: 10, name: t("levels.gran_explorador") || "Gran Explorador", points: 15000, reviews: 1000 },
+    { level: 11, name: t("levels.conquistador") || "Conquistador", points: 22500, reviews: 1500 },
+    { level: 12, name: t("levels.gran_conquistador") || "Gran Conquistador", points: 33000, reviews: 2200 },
+    { level: 13, name: t("levels.amauta") || "Amauta", points: 48000, reviews: 3200 },
+    { level: 14, name: t("levels.leyenda") || "Leyenda", points: 67500, reviews: 4500 }
   ];
 
   const nextLevelIndex = currentLevel < 14 ? currentLevel + 1 : 14;
@@ -47,10 +41,10 @@ export function ContributionsSection() {
       {/* Header */}
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-0.5">
-          Your Contributions
+          {t("contributions.your_contributions")}
         </h2>
         <p className="text-gray-500 text-xs sm:text-sm">
-          Track your impact in the community
+          {t("contributions.track_impact")}
         </p>
       </div>
 
@@ -69,7 +63,7 @@ export function ContributionsSection() {
           {/* Total Points */}
           <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
             <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
-              TOTAL POINTS
+              {t("contributions.total_points")}
             </p>
             <p className="text-lg sm:text-4xl font-extrabold text-amber-500">{currentPoints}</p>
           </div>
@@ -77,7 +71,7 @@ export function ContributionsSection() {
           {/* Reviews */}
           <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
             <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
-              APPROVED REVIEWS
+              {t("contributions.approved_reviews")}
             </p>
             <p className="text-lg sm:text-4xl font-extrabold text-amber-500">{user?.totalReviewsApproved || 0}</p>
           </div>
@@ -85,7 +79,7 @@ export function ContributionsSection() {
           {/* Level */}
           <div className="bg-gray-50 rounded-xl p-2.5 sm:p-6 text-center border border-gray-100 flex flex-col justify-center">
             <p className="text-gray-500 text-[9px] sm:text-xs font-semibold tracking-tight sm:tracking-wide mb-1 leading-tight uppercase">
-              CURRENT LEVEL
+              {t("contributions.current_level")}
             </p>
             <p className="text-lg sm:text-4xl font-extrabold text-amber-500">Lv {currentLevel}</p>
           </div>
@@ -96,10 +90,10 @@ export function ContributionsSection() {
       <div className="space-y-2 pt-3 border-t border-gray-200">
         <div>
           <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">
-            Progress to Level {nextLevelIndex}: <span className="text-amber-600 font-bold">{nextLevel.name}</span>
+            {t("contributions.progress_to_level")} {nextLevelIndex}: <span className="text-amber-600 font-bold">{nextLevel.name}</span>
           </h3>
           <p className="text-[11px] sm:text-xs text-gray-500 mb-2">
-            {pointsUntilNextLevel} pts and {Math.max(0, nextLevel.reviews - (user?.totalReviewsApproved || 0))} reviews until next rank
+            {pointsUntilNextLevel} {t("contributions.pts")} {t("contributions.and")} {Math.max(0, nextLevel.reviews - (user?.totalReviewsApproved || 0))} {t("contributions.reviews_until_next")}
           </p>
         </div>
 
@@ -118,8 +112,7 @@ export function ContributionsSection() {
 
         {/* Help Text */}
         <p className="text-[11px] sm:text-xs text-gray-400 pt-1">
-          💡 Earn points by adding reviews, uploading photos, and exploring new
-          places.
+          {t("contributions.earn_points_help")}
         </p>
       </div>
     </div>

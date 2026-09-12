@@ -73,6 +73,7 @@ import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
 import { useLoginRequired } from "@/components/shared/login-required-modal";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function LightboxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [failed, setFailed] = useState(false);
@@ -98,6 +99,7 @@ function LightboxImage({ src, alt, className }: { src: string; alt: string; clas
 }
 
 export default function MapDetails() {
+  const { t } = useLanguage();
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -261,7 +263,7 @@ export default function MapDetails() {
             } else if (close) {
               return `${days}: ${close}`;
             }
-            return `${days}: Closed`;
+            return `${days}: ${t("place.closed")}`;
           })
           .join(" · ");
       }
@@ -278,29 +280,29 @@ export default function MapDetails() {
   const infoData = [
     {
       icon: Clock,
-      label: "HOURS",
-      value: schedulesValue || "Hours not specified",
+      label: t("place.hours"),
+      value: schedulesValue || t("place.hours_not_specified"),
       empty: !schedulesValue,
     },
     {
       icon: Ticket,
-      label: "ENTRY COST",
-      value: entryCostValue || "Not listed",
+      label: t("place.entry_cost"),
+      value: entryCostValue || t("place.not_listed"),
       empty: !entryCostValue,
     },
     {
       icon: BarChart3,
-      label: "DIFFICULTY",
+      label: t("place.difficulty"),
       value: hasText(placeData?.difficulty)
         ? placeData.difficulty
-        : "Not specified",
+        : t("place.not_specified"),
       empty: !hasText(placeData?.difficulty),
       highlight: hasText(placeData?.difficulty),
     },
     {
       icon: Timer,
-      label: "WALKING TIME",
-      value: hikeTimeValue || "Not specified",
+      label: t("place.walking_time"),
+      value: hikeTimeValue || t("place.not_specified"),
       empty: !hikeTimeValue,
     },
   ];
@@ -308,16 +310,16 @@ export default function MapDetails() {
   const restaurantData = [
     {
       icon: Clock,
-      label: "HOURS",
-      value: schedulesValue || "Hours not specified",
+      label: t("place.hours"),
+      value: schedulesValue || t("place.hours_not_specified"),
       empty: !schedulesValue,
     },
     {
       icon: Ticket,
-      label: "ATMOSPHERE",
+      label: t("place.atmosphere"),
       value: hasText(placeData?.atmosphere)
         ? placeData.atmosphere
-        : "Not specified yet",
+        : t("place.not_specified_yet"),
       empty: !hasText(placeData?.atmosphere),
     },
   ];
@@ -382,13 +384,13 @@ export default function MapDetails() {
   };
 
   const servicesMap: Record<string, any> = {
-    Parking: { icon: Car, label: "PARKING" },
-    Restrooms: { icon: Toilet, label: "RESTROOMS" },
-    "Food Nearby": { icon: Utensils, label: "FOOD NEARBY" },
-    "Guided Tour": { icon: MapPin, label: "GUIDED TOUR" },
-    "Family Friendly": { icon: User2, label: "FAMILY FRIENDLY" },
-    Wifi: { icon: Wifi, label: "WIFI" },
-    "Pet Friendly": { icon: Dog, label: "PET FRIENDLY" },
+    Parking: { icon: Car, label: t("services.parking") },
+    Restrooms: { icon: Toilet, label: t("services.restrooms") },
+    "Food Nearby": { icon: Utensils, label: t("services.food_nearby") },
+    "Guided Tour": { icon: MapPin, label: t("services.guided_tour") },
+    "Family Friendly": { icon: User2, label: t("services.family_friendly") },
+    Wifi: { icon: Wifi, label: t("services.wifi") },
+    "Pet Friendly": { icon: Dog, label: t("services.pet_friendly") },
   };
 
   const handleViewOnMap = () => {
@@ -609,7 +611,7 @@ export default function MapDetails() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500 font-medium">Loading place details...</p>
+          <p className="text-gray-500 font-medium">{t("place.loading_details")}</p>
         </div>
       </div>
     );
@@ -622,21 +624,21 @@ export default function MapDetails() {
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-yellow-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Unlock this Location!</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t("place.unlock_location_title")}</h2>
           <p className="text-gray-600 leading-relaxed">
-            This spot is part of a premium map. Purchase the map to get access to all hidden viewpoints, waterfalls, and locations.
+            {t("place.unlock_location_desc")}
           </p>
           <div className="pt-4">
             <Link href="/catalog">
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl shadow-lg shadow-yellow-200 transition-all text-lg">
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl shadow-lg shadow-yellow-200 transition-all text-lg cursor-pointer">
                 <Ticket className="w-5 h-5 mr-2" />
-                Purchase Map
+                {t("offer.purchase_map")}
               </Button>
             </Link>
           </div>
           <div className="pt-2">
             <Link href="/maps">
-              <Button variant="ghost" className="text-gray-500 w-full">Back to Maps</Button>
+              <Button variant="ghost" className="text-gray-500 w-full cursor-pointer">{t("place.back_to_maps")}</Button>
             </Link>
           </div>
         </div>
@@ -648,9 +650,9 @@ export default function MapDetails() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-4">
-          <p className="text-xl font-bold text-gray-800">Place not found</p>
+          <p className="text-xl font-bold text-gray-800">{t("place.place_not_found")}</p>
           <Link href="/maps">
-            <Button variant="outline">Back to Map</Button>
+            <Button variant="outline" className="cursor-pointer">{t("place.back_to_map")}</Button>
           </Link>
         </div>
       </div>
@@ -711,7 +713,7 @@ export default function MapDetails() {
                                       <path d="M8 5v14l11-7z" />
                                     </svg>
                                   </div>
-                                  <span className="mt-3 text-white/80 text-xs font-medium tracking-widest uppercase bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">Click to play</span>
+                                  <span className="mt-3 text-white/80 text-xs font-medium tracking-widest uppercase bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">{t("place.click_to_play")}</span>
                                 </div>
                               ) : (
                                 <div
@@ -944,7 +946,7 @@ export default function MapDetails() {
                 className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer"
               >
                 <Map size={16} className="shrink-0" />
-                View on Map
+                {t("place.view_on_map")}
               </button>
                 <button
                   type="button"
@@ -952,7 +954,7 @@ export default function MapDetails() {
                   className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 px-2 text-xs sm:text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer"
                 >
                   <Send size={16} className="shrink-0" />
-                  Directions
+                  {t("place.directions")}
                 </button>
               </div>
 
@@ -963,7 +965,7 @@ export default function MapDetails() {
                       <a href={`tel:${placeData.phone}`} className="w-full block">
                         <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
                           <Phone size={16} />
-                          Call
+                          {t("place.call")}
                         </button>
                       </a>
                     ) : (
@@ -974,7 +976,7 @@ export default function MapDetails() {
                         className="w-full inline-flex items-center justify-center gap-2 bg-gray-50 text-gray-400 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed opacity-60"
                       >
                         <Phone size={16} />
-                        No phone
+                        {t("place.no_phone")}
                       </button>
                     )}
                   </div>
@@ -982,7 +984,7 @@ export default function MapDetails() {
                     <Link href={`/offer/${offerId}`} className="block">
                       <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
                         <Ticket size={16} />
-                        Discounts
+                        {t("place.discounts")}
                       </button>
                     </Link>
                   )}
@@ -1006,14 +1008,14 @@ export default function MapDetails() {
               className="border rounded-xl bg-white"
             >
               <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                {isBusiness ? "DESCRIPTION & ACCESS" : "ABOUT THIS PLACE"}
+                {isBusiness ? t("place.description_and_access") : t("place.about_this_place")}
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
                 {descriptionText && (
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                      Description
+                      {t("place.description")}
                     </p>
                     <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
                       {descriptionText}
@@ -1024,7 +1026,7 @@ export default function MapDetails() {
                 {accessText && (
                   <div className={descriptionText ? "pt-3 border-t border-gray-100" : ""}>
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                      Access & getting here
+                      {t("place.access_and_getting_here")}
                     </p>
                     <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
                       {accessText}
@@ -1035,8 +1037,8 @@ export default function MapDetails() {
                 {!descriptionText && !accessText && (
                   <p className="leading-relaxed text-gray-400 italic">
                     {isBusiness
-                      ? "No description or access information provided for this business."
-                      : "No description or access information provided for this place."}
+                      ? t("place.no_desc_business")
+                      : t("place.no_desc_place")}
                   </p>
                 )}
               </AccordionContent>
@@ -1049,7 +1051,7 @@ export default function MapDetails() {
                 className="border rounded-xl bg-white"
               >
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                  RECOMMENDATIONS
+                  {t("place.recommendations")}
                 </AccordionTrigger>
 
                 <AccordionContent className="px-6 pb-6 space-y-5">
@@ -1062,13 +1064,13 @@ export default function MapDetails() {
                   >
                     {placeData?.recommendations?.tips ||
                       placeData?.details?.recommendations ||
-                      "No tips or recommendations have been added yet."}
+                      t("place.no_tips")}
                   </p>
 
                   {placeData?.accessibility?.features?.length > 0 && (
                     <div className="space-y-3">
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        Accessibility Features
+                        {t("place.accessibility_features")}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {placeData.accessibility.features.map(
@@ -1100,7 +1102,7 @@ export default function MapDetails() {
                 className="border rounded-xl bg-white"
               >
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                  SERVICES AVAILABLE
+                  {t("place.services_available")}
                 </AccordionTrigger>
 
                 <AccordionContent className="px-6 pb-8">
@@ -1136,7 +1138,7 @@ export default function MapDetails() {
                 className="border rounded-xl bg-white"
               >
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                  MENU & PRICES
+                  {t("place.menu_and_prices")}
                 </AccordionTrigger>
 
                 <AccordionContent className="px-6 pb-6">
@@ -1158,7 +1160,7 @@ export default function MapDetails() {
                     </div>
                   ) : (
                     <p className="leading-relaxed text-gray-400 italic">
-                      No menu or price list has been uploaded yet.
+                      {t("place.no_menu")}
                     </p>
                   )}
                 </AccordionContent>
@@ -1174,7 +1176,7 @@ export default function MapDetails() {
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline text-blue-600">
                   <div className="flex items-center gap-2">
                     <Ticket size={20} />
-                    OFFERS & DISCOUNTS ({offersList.length})
+                    {t("place.offers_and_discounts")} ({offersList.length})
                   </div>
                 </AccordionTrigger>
 
@@ -1199,7 +1201,7 @@ export default function MapDetails() {
                               </span>
                               {offer.validUntil && (
                                 <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase">
-                                  Valid until:{" "}
+                                  {t("offer.valid_until")}:{" "}
                                   {new Date(
                                     offer.validUntil,
                                   ).toLocaleDateString()}
@@ -1209,7 +1211,7 @@ export default function MapDetails() {
                           </div>
                           <Link href={`/offer/${offer._id}`} className="shrink-0">
                             <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 h-auto rounded-lg">
-                              REDEEM
+                              {t("place.redeem_btn")}
                             </Button>
                           </Link>
                         </div>
@@ -1223,7 +1225,7 @@ export default function MapDetails() {
           {!isBusiness && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-6">
               <p className="text-xs text-amber-800 leading-relaxed font-medium">
-                NOTICE: The information for this place is for informational purposes only. Your visit and activities are at your own risk.
+                {t("place.notice_disclaimer")}
               </p>
             </div>
           )}
@@ -1232,11 +1234,10 @@ export default function MapDetails() {
         {isBusiness && (
           <div className="px-2 mt-10">
             <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
-              Online Presence
+              {t("place.online_presence")}
             </h3>
             <p className="text-sm text-gray-500 mb-6">
-              Links shared by this business. Missing links mean they haven’t been
-              added yet.
+              {t("place.online_presence_desc")}
             </p>
             <div className="grid md:grid-cols-2 gap-4">
               {/* WEBSITE */}
@@ -1248,12 +1249,12 @@ export default function MapDetails() {
                   <div className="bg-blue-50 p-3 rounded-xl shrink-0">🌐</div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      WEBSITE
+                      {t("business_details.website")}
                     </p>
                     <p className="font-bold text-gray-900 truncate">
                       {hasText(placeData?.website)
-                        ? "Official website"
-                        : "Not provided yet"}
+                        ? t("place.official_website")
+                        : t("place.not_provided_yet")}
                     </p>
                   </div>
                 </div>
@@ -1265,13 +1266,13 @@ export default function MapDetails() {
                         : `https://${placeData.website}`;
                       window.open(url, "_blank");
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
                   >
-                    VISIT
+                    {t("place.visit")}
                   </button>
                 ) : (
                   <span className="text-xs text-gray-400 font-medium shrink-0 px-2">
-                    Coming soon
+                    {t("place.coming_soon")}
                   </span>
                 )}
               </div>
@@ -1287,12 +1288,12 @@ export default function MapDetails() {
                   <div className="bg-pink-50 p-3 rounded-xl shrink-0">📸</div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      INSTAGRAM
+                      {t("business_details.instagram")}
                     </p>
                     <p className="font-bold text-gray-900 truncate">
                       {hasText(placeData?.instagram)
                         ? `@${placeData.instagram.replace("@", "")}`
-                        : "Not provided yet"}
+                        : t("place.not_provided_yet")}
                     </p>
                   </div>
                 </div>
@@ -1307,13 +1308,13 @@ export default function MapDetails() {
                         "_blank",
                       );
                     }}
-                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0"
+                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
                   >
-                    VIEW
+                    {t("place.view")}
                   </button>
                 ) : (
                   <span className="text-xs text-gray-400 font-medium shrink-0 px-2">
-                    Coming soon
+                    {t("place.coming_soon")}
                   </span>
                 )}
               </div>
@@ -1327,28 +1328,28 @@ export default function MapDetails() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-black text-xl sm:text-2xl uppercase tracking-tight text-gray-900">
-                  Reviews & Experiences
+                  {t("reviews.reviews_and_experiences")}
                 </h3>
                 <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
                   {approvedReviews.length}
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Real feedback from our community of local explorers
+                {t("reviews.community_feedback_desc")}
               </p>
             </div>
 
             <Button
               onClick={handleOpenReviewModal}
-              className="bg-amber-400 hover:bg-amber-500 text-black font-black px-6 py-3 rounded-2xl text-xs sm:text-sm uppercase tracking-wider shadow-sm hover:shadow-md transition-all active:scale-95 shrink-0 border-none flex items-center gap-2"
+              className="bg-amber-400 hover:bg-amber-500 text-black font-black px-6 py-3 rounded-2xl text-xs sm:text-sm uppercase tracking-wider shadow-sm hover:shadow-md transition-all active:scale-95 shrink-0 border-none flex items-center gap-2 cursor-pointer"
             >
               {myReview ? (
                 <>
-                  <Edit3 size={15} /> Edit Your Review
+                  <Edit3 size={15} /> {t("reviews.edit_your_review")}
                 </>
               ) : (
                 <>
-                  <Star size={15} className="fill-black" /> Write a Review
+                  <Star size={15} className="fill-black" /> {t("reviews.write_review")}
                 </>
               )}
             </Button>
@@ -1377,15 +1378,15 @@ export default function MapDetails() {
                 </div>
                 <p className="text-xs font-medium text-gray-500">
                   {approvedReviews.length > 0
-                    ? `Based on ${approvedReviews.length} verified review${approvedReviews.length > 1 ? "s" : ""}`
-                    : "No verified reviews yet"}
+                    ? `${t("reviews.based_on_reviews")} ${approvedReviews.length} ${t("reviews.verified_reviews")}`
+                    : t("reviews.no_reviews_yet")}
                 </p>
               </div>
             </div>
 
             <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-xs border border-amber-200/60 px-3.5 py-2 rounded-xl text-xs text-amber-900 font-bold">
               <Sparkles size={16} className="text-amber-500" />
-              <span>Earn Explorer Points for every verified review!</span>
+              <span>{t("reviews.earn_points_banner")}</span>
             </div>
           </div>
 
@@ -1410,17 +1411,17 @@ export default function MapDetails() {
                     {myReview.status === "Pending" ? (
                       <>
                         <Clock size={13} className="animate-spin" />
-                        Under Review (Pending Approval)
+                        {t("reviews.under_review")}
                       </>
                     ) : (
                       <>
                         <AlertCircle size={13} />
-                        Needs Revision (Rejected)
+                        {t("reviews.needs_revision")}
                       </>
                     )}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
-                    (Visible only to you)
+                    {t("reviews.visible_only_to_you")}
                   </span>
                 </div>
 
@@ -1428,17 +1429,17 @@ export default function MapDetails() {
                   onClick={handleOpenReviewModal}
                   variant="outline"
                   size="sm"
-                  className="rounded-xl font-bold text-xs border-amber-300 hover:bg-amber-100 text-amber-900 flex items-center gap-1.5 h-8 px-3"
+                  className="rounded-xl font-bold text-xs border-amber-300 hover:bg-amber-100 text-amber-900 flex items-center gap-1.5 h-8 px-3 cursor-pointer"
                 >
                   <Edit3 size={13} />
-                  {myReview.status === "Pending" ? "Edit Review" : "Edit & Resubmit"}
+                  {myReview.status === "Pending" ? t("reviews.edit_review") : t("reviews.edit_and_resubmit")}
                 </Button>
               </div>
 
               <p className="text-xs text-amber-900 font-medium mb-3 leading-relaxed">
                 {myReview.status === "Pending"
-                  ? "Thank you for sharing your experience! Your review is currently being verified by our team. Once approved, it will appear publicly and award you Explorer Points."
-                  : "Your review was not approved by moderation. Please update it with helpful details and resubmit."}
+                  ? t("reviews.thank_you_pending")
+                  : t("reviews.rejected_desc")}
               </p>
 
               {/* Card preview of the user's pending review */}
@@ -1461,7 +1462,7 @@ export default function MapDetails() {
                     </span>
                   </div>
                   <span className="text-[11px] text-gray-400">
-                    Submitted on{" "}
+                    {t("reviews.submitted_on")}{" "}
                     {new Date(myReview.createdAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -1470,7 +1471,7 @@ export default function MapDetails() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 italic">
-                  "{myReview.review || "Star rating only"}"
+                  "{myReview.review || t("reviews.star_only")}"
                 </p>
               </div>
             </div>
@@ -1483,19 +1484,19 @@ export default function MapDetails() {
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-green-100 text-green-900 flex items-center gap-1.5">
                     <CheckCircle2 size={13} className="text-green-600" />
-                    Your Published Review
+                    {t("reviews.your_published_review")}
                   </span>
                   <span className="text-xs font-bold text-green-700">
-                    +{myReview.pointsEarned || 0} Points Earned!
+                    +{myReview.pointsEarned || 0} {t("reviews.points_earned")}
                   </span>
                 </div>
                 <Button
                   onClick={handleOpenReviewModal}
                   variant="outline"
                   size="sm"
-                  className="rounded-xl font-bold text-xs border-green-300 hover:bg-green-100 text-green-900 flex items-center gap-1.5 h-8 px-3"
+                  className="rounded-xl font-bold text-xs border-green-300 hover:bg-green-100 text-green-900 flex items-center gap-1.5 h-8 px-3 cursor-pointer"
                 >
-                  <Edit3 size={13} /> Edit
+                  <Edit3 size={13} /> {t("common.edit")}
                 </Button>
               </div>
 
@@ -1526,7 +1527,7 @@ export default function MapDetails() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-800 leading-relaxed">
-                  {myReview.review || <span className="italic text-gray-400">Rated {myReview.rating} stars (star-only review).</span>}
+                  {myReview.review || <span className="italic text-gray-400">{t("reviews.rated_stars_only").replace("{rating}", String(myReview.rating))}</span>}
                 </p>
               </div>
             </div>
@@ -1536,13 +1537,13 @@ export default function MapDetails() {
           {isReviewsLoading ? (
             <div className="py-12 text-center text-gray-400 space-y-2">
               <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs font-medium">Loading community reviews...</p>
+              <p className="text-xs font-medium">{t("reviews.loading_reviews")}</p>
             </div>
           ) : otherReviews.length === 0 && (!myReview || myReview.status !== "Approved") ? (
             <div className="py-12 text-center text-gray-500 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 space-y-2">
-              <p className="text-base font-bold text-gray-700">No public reviews yet</p>
+              <p className="text-base font-bold text-gray-700">{t("reviews.no_public_reviews")}</p>
               <p className="text-xs text-gray-400 max-w-sm mx-auto">
-                Be the first to share your experience and earn Explorer Points!
+                {t("reviews.first_to_share")}
               </p>
             </div>
           ) : (
@@ -1566,10 +1567,10 @@ export default function MapDetails() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-gray-900 text-sm">
-                            {rev.reviewer?.name || "Explorer"}
+                            {rev.reviewer?.name || t("reviews.explorer")}
                           </span>
                           <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-tight">
-                            Level {rev.reviewer?.level || 0}
+                            {t("reviews.level")} {rev.reviewer?.level || 0}
                           </span>
                         </div>
                         <span className="text-[11px] text-gray-400">
@@ -1593,7 +1594,7 @@ export default function MapDetails() {
                   <p className="text-sm text-gray-700 leading-relaxed">
                     {rev.review || (
                       <span className="italic text-gray-400">
-                        Rated {rev.rating} stars (star-only review).
+                        {t("reviews.rated_stars_only").replace("{rating}", String(rev.rating))}
                       </span>
                     )}
                   </p>
@@ -1659,7 +1660,7 @@ export default function MapDetails() {
           )}
 
           <DialogHeader className="sr-only">
-            <DialogTitle>Photo gallery</DialogTitle>
+            <DialogTitle>{t("place.photo_gallery")}</DialogTitle>
           </DialogHeader>
 
           <div

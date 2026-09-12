@@ -14,6 +14,7 @@ import { formatEntryCost, formatHikeTime, getImageUrl } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import {
   Accessibility,
   Baby,
@@ -55,6 +56,7 @@ export function ViewPlaceModal({
   open,
   onOpenChange,
 }: ViewPlaceModalProps) {
+  const { t } = useLanguage();
   const { data: response, isLoading } = useGetPlaceDetailsQuery(
     placeId as string,
     {
@@ -85,17 +87,17 @@ export function ViewPlaceModal({
     categoryName.toLowerCase().includes("bar");
 
   const dynamicTabs = [
-    { id: "overview", label: "Overview", icon: <Info size={15} /> },
+    { id: "overview", label: t("place.overview") || "Overview", icon: <Info size={15} /> },
     ...(isBusinessOrRestaurant
-      ? [{ id: "menu", label: "Menu & Prices", icon: <Utensils size={15} /> }]
+      ? [{ id: "menu", label: t("place.menu_and_prices") || "Menu & Prices", icon: <Utensils size={15} /> }]
       : []),
     {
       id: "accessibility",
-      label: "Accessibility",
+      label: t("place.accessibility_features") || "Accessibility",
       icon: <Accessibility size={15} />,
     },
-    { id: "services", label: "Services", icon: <ToolCase size={15} /> },
-    { id: "reviews", label: "Reviews", icon: <MessageSquare size={15} /> },
+    { id: "services", label: t("place.services_available") || "Services", icon: <ToolCase size={15} /> },
+    { id: "reviews", label: t("place.reviews") || "Reviews", icon: <MessageSquare size={15} /> },
   ];
 
   useEffect(() => {
@@ -114,6 +116,25 @@ export function ViewPlaceModal({
     "Pet Friendly": <Dog size={16} />,
   };
 
+  const serviceKeyMap: Record<string, string> = {
+    Parking: "parking",
+    Restrooms: "restrooms",
+    "Food Nearby": "food_nearby",
+    "Guided Tour": "guided_tour",
+    "Family Friendly": "family_friendly",
+    Wifi: "wifi",
+    "Pet Friendly": "pet_friendly",
+  };
+
+  const getDifficultyLabel = (diff?: string) => {
+    if (!diff) return "";
+    const lower = diff.toLowerCase();
+    if (lower === "easy") return t("place.easy") || "Easy";
+    if (lower === "medium") return t("place.medium") || "Medium";
+    if (lower === "hard") return t("place.hard") || "Hard";
+    return diff;
+  };
+
   const hasRating = Boolean(place?.rating && Number(place.rating) > 0);
   const ratingValue = hasRating ? Number(place.rating).toFixed(1) : null;
   const reviewCount = place?.totalReview ? Number(place.totalReview) : 0;
@@ -127,7 +148,7 @@ export function ViewPlaceModal({
         {isLoading ? (
           <div className="p-12 space-y-4 flex-1 flex flex-col justify-center items-center bg-gray-50/50">
             <div className="w-10 h-10 rounded-full border-3 border-[#FFC107] border-t-transparent animate-spin" />
-            <p className="text-sm font-semibold text-gray-500">Loading place details...</p>
+            <p className="text-sm font-semibold text-gray-500">{t("place.loading_details")}</p>
           </div>
         ) : place ? (
           <>
@@ -282,7 +303,7 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Info size={14} className="text-amber-600" />
-                          <span>About this place</span>
+                          <span>{t("place.about_this_place")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
                           {place.description}
@@ -295,7 +316,7 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Compass size={14} className="text-amber-600" />
-                          <span>Access & Directions</span>
+                          <span>{t("place.access_and_getting_here")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
                           {place.access}
@@ -308,7 +329,7 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-amber-100 bg-amber-50/30 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Lightbulb size={14} className="text-amber-600" />
-                          <span>Tips & Recommendations</span>
+                          <span>{t("place.tips")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
                           {place.recommendations.tips}
@@ -321,18 +342,18 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-3">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Clock size={14} className="text-amber-600" />
-                          <span>Operating Hours</span>
+                          <span>{t("place.business_hours")}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-                            <span className="text-gray-500 font-medium">Daily Hours</span>
+                            <span className="text-gray-500 font-medium">{t("place.daily_hours")}</span>
                             <span className="font-bold text-gray-900">
                               {place.operatingHours.openTime} - {place.operatingHours.closeTime}
                             </span>
                           </div>
                           {place.operatingHours.offDays && place.operatingHours.offDays.length > 0 && (
                             <div className="flex items-center justify-between p-3 rounded-xl bg-red-50/50 border border-red-100">
-                              <span className="text-red-700 font-medium">Closed Days</span>
+                              <span className="text-red-700 font-medium">{t("place.closed_days")}</span>
                               <span className="font-bold text-red-800">
                                 {place.operatingHours.offDays.join(", ")}
                               </span>
@@ -345,7 +366,7 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                             <Clock size={14} className="text-amber-600" />
-                            <span>Schedules</span>
+                            <span>{t("place.schedules")}</span>
                           </div>
                           <p className="text-gray-700 text-sm leading-relaxed font-normal">
                             {place.schedules}
@@ -360,7 +381,7 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                         <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                           <MapPin size={13} className="text-amber-600" />
-                          <span>Coordinates</span>
+                          <span>{t("place.coordinates")}</span>
                         </div>
                         <p className="text-xs font-mono font-bold text-gray-800 truncate">
                           {place?.location?.coordinates?.[1] !== undefined
@@ -377,10 +398,10 @@ export function ViewPlaceModal({
                       <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                         <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                           <Navigation size={13} className="text-blue-600" />
-                          <span>Connected Map</span>
+                          <span>{t("place.connected_map")}</span>
                         </div>
                         <p className="text-xs font-bold text-gray-900 truncate">
-                          {typeof place.map === "object" ? place.map.name : "General Map"}
+                          {typeof place.map === "object" ? place.map.name : (t("place.general_map") || "General Map")}
                         </p>
                       </div>
 
@@ -389,7 +410,7 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Gauge size={13} className="text-emerald-600" />
-                            <span>Difficulty</span>
+                            <span>{t("place.difficulty")}</span>
                           </div>
                           <span
                             className={`inline-block text-[11px] font-bold uppercase px-2 py-0.5 rounded-md ${
@@ -400,7 +421,7 @@ export function ViewPlaceModal({
                                 : "bg-red-50 text-red-700 border border-red-200/60"
                             }`}
                           >
-                            {place.difficulty}
+                            {getDifficultyLabel(place.difficulty)}
                           </span>
                         </div>
                       )}
@@ -410,7 +431,7 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Clock size={13} className="text-indigo-600" />
-                            <span>Walking Time</span>
+                            <span>{t("place.walking_time")}</span>
                           </div>
                           <p className="text-xs font-bold text-gray-800">
                             {formatHikeTime(place.hikeTime)}
@@ -423,7 +444,7 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Coins size={13} className="text-amber-600" />
-                            <span>Entry Cost</span>
+                            <span>{t("place.entry_cost")}</span>
                           </div>
                           <p className="text-xs font-bold text-gray-800">
                             {formatEntryCost(place.entryCost)}
@@ -436,7 +457,7 @@ export function ViewPlaceModal({
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Sparkles size={13} className="text-rose-500" />
-                            <span>Atmosphere</span>
+                            <span>{t("place.atmosphere")}</span>
                           </div>
                           <p className="text-xs font-bold text-gray-800 truncate">
                             {place.atmosphere}
@@ -449,7 +470,7 @@ export function ViewPlaceModal({
                     {(place.phone || place.website || place.instagram) && (
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-3">
                         <div className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                          Contact & Links
+                          {t("place.contact_and_links")}
                         </div>
                         <div className="flex flex-wrap gap-3 text-xs">
                           {place.phone && (
@@ -470,7 +491,7 @@ export function ViewPlaceModal({
                               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-800 font-semibold border border-gray-200 transition-colors"
                             >
                               <Globe size={13} className="text-blue-600" />
-                              <span>Visit Website</span>
+                              <span>{t("place.visit_website")}</span>
                               <ExternalLink size={11} className="text-gray-400" />
                             </a>
                           )}
@@ -499,11 +520,11 @@ export function ViewPlaceModal({
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                         <Utensils className="text-[#D97706]" size={16} />
-                        <span>Menu & Pricing Photos</span>
+                        <span>{t("place.menu_pricing_photos")}</span>
                       </h3>
                       {place?.menuImages && place.menuImages.length > 0 && (
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-                          {place.menuImages.length} Photos
+                          {place.menuImages.length} {t("place.photos")}
                         </span>
                       )}
                     </div>
@@ -524,7 +545,7 @@ export function ViewPlaceModal({
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <span className="text-xs font-bold text-white bg-black/60 px-3 py-1 rounded-full backdrop-blur-xs flex items-center gap-1">
                                 <ExternalLink size={12} />
-                                View Full
+                                {t("place.view_full")}
                               </span>
                             </div>
                           </div>
@@ -534,7 +555,7 @@ export function ViewPlaceModal({
                       <div className="text-center py-12 bg-white border border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center gap-2">
                         <Utensils size={24} className="text-gray-300" />
                         <p className="text-xs text-gray-500 font-medium">
-                          No menu or price list uploaded yet.
+                          {t("place.no_menu")}
                         </p>
                       </div>
                     )}
@@ -546,7 +567,7 @@ export function ViewPlaceModal({
                   <div className="space-y-4">
                     <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-3">
                       <h3 className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                        Accessibility Features
+                        {t("place.accessibility_features")}
                       </h3>
                       {place.accessibility?.features && place.accessibility.features.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -564,7 +585,7 @@ export function ViewPlaceModal({
                         </div>
                       ) : (
                         <p className="text-xs text-gray-500 italic">
-                          No special accessibility features specified.
+                          {t("place.no_accessibility_features")}
                         </p>
                       )}
                     </div>
@@ -572,7 +593,7 @@ export function ViewPlaceModal({
                     {place.accessibility?.notes && (
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                          Additional Notes
+                          {t("place.additional_notes")}
                         </h4>
                         <p className="text-xs text-gray-700 leading-relaxed">
                           {place.accessibility.notes}
@@ -587,7 +608,7 @@ export function ViewPlaceModal({
                   <div className="space-y-4">
                     <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-4">
                       <h3 className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                        Available Amenities & Services
+                        {t("place.services_available")}
                       </h3>
                       {place.services && place.services.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -600,14 +621,14 @@ export function ViewPlaceModal({
                                 {servicesIcons[service] || <Info size={16} />}
                               </div>
                               <span className="text-xs font-bold text-gray-800">
-                                {service}
+                                {serviceKeyMap[service] ? t(`services.${serviceKeyMap[service]}`) : service}
                               </span>
                             </div>
                           ))}
                         </div>
                       ) : (
                         <p className="text-xs text-gray-500 italic text-center py-6">
-                          No services or amenities listed for this place.
+                          {t("place.no_services_listed")}
                         </p>
                       )}
                     </div>
@@ -635,7 +656,7 @@ export function ViewPlaceModal({
                               ).toFixed(1)}
                             </div>
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                              Average
+                              {t("reviews.average")}
                             </div>
                           </div>
 
@@ -652,7 +673,7 @@ export function ViewPlaceModal({
                                 ))}
                             </div>
                             <p className="text-xs text-gray-500 font-medium">
-                              Based on {reviews.data.length} customer reviews
+                              {(t("reviews.based_on_customer_reviews") || "Based on {count} customer reviews").replace("{count}", String(reviews.data.length))}
                             </p>
                           </div>
                         </div>
@@ -676,7 +697,7 @@ export function ViewPlaceModal({
                                   </Avatar>
                                   <div>
                                     <p className="text-xs font-bold text-gray-900">
-                                      {review?.reviewer?.name || "Anonymous User"}
+                                      {review?.reviewer?.name || t("reviews.anonymous_user")}
                                     </p>
                                     <div className="flex items-center gap-1 text-[10px] text-gray-400">
                                       <Calendar size={10} />
@@ -713,7 +734,7 @@ export function ViewPlaceModal({
                       <div className="text-center py-12 bg-white border border-dashed border-gray-200 rounded-2xl space-y-2">
                         <MessageSquare className="mx-auto h-8 w-8 text-gray-300" />
                         <p className="text-xs text-gray-500 font-medium">
-                          No reviews submitted yet for this place.
+                          {t("reviews.no_reviews_yet_place")}
                         </p>
                       </div>
                     )}
@@ -724,7 +745,7 @@ export function ViewPlaceModal({
           </>
         ) : (
           <div className="p-12 text-center text-gray-400 bg-gray-50 flex-1 flex items-center justify-center">
-            Failed to load place details.
+            {t("place.failed_to_load")}
           </div>
         )}
       </DialogContent>

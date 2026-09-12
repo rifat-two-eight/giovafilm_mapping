@@ -17,8 +17,10 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hook";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
  
 export default function RestaurantDetail() {
+  const { t } = useLanguage();
   const params = useParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -100,26 +102,26 @@ export default function RestaurantDetail() {
  
   const handleRedeem = async () => {
     if (!user) {
-      toast.error("Please login to redeem this offer");
+      toast.error(t("login_required.title"));
       router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
  
     appAlert.fire({
-      title: "Confirm Offer Redemption",
-      text: "Accidental redemption cannot be undone.",
+      title: t("offer.confirm_redemption_title"),
+      text: t("offer.confirm_redemption_text"),
       icon: "warning",
       timer: 3000,
       timerProgressBar: true,
       showCancelButton: true,
-      confirmButtonText: "Proceed Now",
-      cancelButtonText: "Cancel",
+      confirmButtonText: t("offer.proceed_now"),
+      cancelButtonText: t("common.cancel"),
     }).then(async (result) => {
       if (result.isConfirmed || result.dismiss === "timer") {
         try {
           const res = await redeemOffer(offerId).unwrap();
           if (res.data?.expiresAt) {
-            toast.success("Offer redeemed successfully!");
+            toast.success(t("offer.offer_redeemed"));
             setExpiry(res.data.expiresAt);
             localStorage.setItem(STORAGE_KEY, res.data.expiresAt);
           }
@@ -170,20 +172,20 @@ export default function RestaurantDetail() {
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
             <Lock className="w-8 h-8 text-yellow-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Unlock this Offer</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t("offer.unlock_offer_title")}</h2>
           <p className="text-gray-600 leading-relaxed">
             {(offerError as any)?.data?.message ||
-              "Purchase the map to unlock this exclusive offer and its benefits."}
+              t("offer.unlock_offer_desc")}
           </p>
           <Link href={mapId ? `/catalog/${mapId}` : "/catalog"}>
-            <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl">
+            <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-6 rounded-xl cursor-pointer">
               <Ticket className="w-5 h-5 mr-2" />
-              Purchase Map
+              {t("offer.purchase_map")}
             </Button>
           </Link>
           <Link href="/offer">
-            <Button variant="ghost" className="text-gray-500 w-full">
-              Back to Offers
+            <Button variant="ghost" className="text-gray-500 w-full cursor-pointer">
+              {t("offer.back_to_offers")}
             </Button>
           </Link>
         </div>
@@ -194,7 +196,7 @@ export default function RestaurantDetail() {
   if (!offer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl font-bold">Offer not found</p>
+        <p className="text-xl font-bold">{t("offer.offer_not_found")}</p>
       </div>
     );
   }
@@ -217,35 +219,35 @@ export default function RestaurantDetail() {
     const now = new Date();
     if (String(offer.status || "").toLowerCase() !== "active") {
       return {
-        label: "OFFER INACTIVE",
-        message: "This offer is not active right now.",
+        label: t("offer.offer_inactive"),
+        message: t("offer.offer_inactive_msg"),
       };
     }
     if (!offer.noExpiration && offer.validFrom && now < new Date(offer.validFrom)) {
       return {
-        label: "NOT STARTED",
-        message: `This offer starts on ${new Date(offer.validFrom).toLocaleDateString()}.`,
+        label: t("offer.not_started"),
+        message: `${t("offer.not_started_msg")} ${new Date(offer.validFrom).toLocaleDateString()}.`,
       };
     }
     if (!offer.noExpiration && offer.validUntil && now > new Date(offer.validUntil)) {
       return {
-        label: "OFFER EXPIRED",
-        message: "This offer is no longer valid.",
+        label: t("offer.offer_expired_label"),
+        message: t("offer.offer_expired_msg"),
       };
     }
     if (soldOut) {
       return {
-        label: "FULLY CLAIMED",
-        message: "Every redemption for this offer has already been claimed.",
+        label: t("offer.fully_claimed"),
+        message: t("offer.fully_claimed_msg"),
       };
     }
     if (redemptionsLeft === 0) {
       return {
-        label: "ALREADY USED",
+        label: t("offer.already_used"),
         message:
           offer.maxRedemptions === 1
-            ? "You have already redeemed this offer."
-            : `You have used all ${offer.maxRedemptions} of your redemptions for this offer.`,
+            ? t("offer.already_used_msg")
+            : t("offer.all_redemptions_used"),
       };
     }
     return null;
@@ -271,7 +273,7 @@ export default function RestaurantDetail() {
                 href="/offer"
                 className="text-blue-600 hover:underline font-medium"
               >
-                Offers
+                {t("nav.offer")}
               </Link>
               <span className="text-gray-400">/</span>
               <span className="text-gray-700 font-medium line-clamp-1">
@@ -298,12 +300,13 @@ export default function RestaurantDetail() {
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
+
                 {/* Rating Badge */}
                 <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1 shadow-md">
                   <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs sm:text-sm font-semibold text-gray-900">
                     {offer?.place?.rating || 0} (
-                    {offer?.place?.totalReview || 0} reviews)
+                    {offer?.place?.totalReview || 0} {t("place.reviews")})
                   </span>
                 </div>
               </div>
@@ -318,7 +321,7 @@ export default function RestaurantDetail() {
                       </h1>
                       <p className="text-sm sm:text-base text-gray-600 flex items-center gap-2 wrap-break-word">
                         <span>📍</span>{" "}
-                        {offer.place?.address || "Location not specified"}
+                        {offer.place?.address || t("offer.location_not_specified")}
                       </p>
                     </div>
                     <div className="bg-yellow-100 text-gray-900 font-bold px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full text-base sm:text-lg md:text-xl inline-block w-fit">
@@ -339,7 +342,7 @@ export default function RestaurantDetail() {
                       onClick={() => setIsInfoExpanded(!isInfoExpanded)}
                       className="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors font-bold text-gray-900 border-none cursor-pointer outline-none"
                     >
-                      <span>Information</span>
+                      <span>{t("offer.information")}</span>
                       <span
                         className="text-gray-500 transition-transform duration-200"
                         style={{ transform: isInfoExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
@@ -358,14 +361,14 @@ export default function RestaurantDetail() {
                         {/* Validity Period */}
                         <div className="space-y-3 sm:space-y-4">
                           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                            Validity Period
+                            {t("offer.validity_period")}
                           </h3>
                           <div className="space-y-2 sm:space-y-3">
                             <div className="flex items-center gap-2 sm:gap-3">
                               <div className="text-xl sm:text-2xl">📅</div>
                               <div>
                                 <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
-                                  FROM
+                                  {t("offer.from")}
                                 </p>
                                 <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
                                   {formatDate(offer.createdAt)}
@@ -376,11 +379,11 @@ export default function RestaurantDetail() {
                               <div className="text-xl sm:text-2xl">📅</div>
                               <div>
                                 <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
-                                  UNTIL
+                                  {t("offer.until")}
                                 </p>
                                 <p className="text-sm sm:text-base font-semibold text-gray-900 wrap-break-word">
                                   {offer.noExpiration || !offer.validUntil
-                                    ? "No Expiration"
+                                    ? t("offer.no_expiration")
                                     : new Date(offer.validUntil).toLocaleDateString()}
                                 </p>
                               </div>
@@ -390,7 +393,7 @@ export default function RestaurantDetail() {
                         {/* Redemption Rules */}
                         <div className="mt-3 sm:mt-0">
                           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
-                            Redemption Rules
+                            {t("offer.redemption_rules")}
                           </h3>
                           <div className="space-y-2 sm:space-y-3">
                             {redemptionRules.map((rule: string, idx: number) => (
@@ -419,7 +422,7 @@ export default function RestaurantDetail() {
                 {/* Redemption Status Header */}
                 <div>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-5 md:mb-6">
-                    Redemption Status
+                    {t("offer.redemption_status")}
                   </h2>
 
                   {/* Timer Circle */}
@@ -444,11 +447,11 @@ export default function RestaurantDetail() {
                                 ? timeLeft
                                 : (offer?.redemptionDuration ?? 0)}{" "}
                               {!isTimerActive && (
-                                <span className="text-base">Min</span>
+                                <span className="text-base">{t("offer.min")}</span>
                               )}
                             </div>
                             <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
-                              {isTimerActive ? "Time Left" : "Redeem Now"}
+                              {isTimerActive ? t("offer.time_left") : t("offer.redeem_now")}
                             </div>
                           </>
                         )}
@@ -467,11 +470,11 @@ export default function RestaurantDetail() {
                         unavailable.message
                       ) : (
                         <>
-                          Present this screen to the staff member at{" "}
+                          {t("offer.present_instruction_prefix")}{" "}
                           <span className="font-semibold wrap-break-word">
                             {offer.place?.name}
                           </span>{" "}
-                          to validate your redemption.
+                          {t("offer.present_instruction_suffix")}
                         </>
                       )}
                     </p>
@@ -479,8 +482,7 @@ export default function RestaurantDetail() {
 
                   {redemptionsLeft !== null && !unavailable && (
                     <p className="mt-2 text-center text-[10px] sm:text-xs text-gray-500">
-                      {redemptionsLeft} of {offer.maxRedemptions} redemption
-                      {offer.maxRedemptions > 1 ? "s" : ""} left for you
+                      {redemptionsLeft} / {offer.maxRedemptions} {t("offer.redemptions_left")}
                     </p>
                   )}
                 </div>
@@ -489,22 +491,19 @@ export default function RestaurantDetail() {
                 <Button
                   onClick={handleRedeem}
                   disabled={isRedeeming || isTimerActive || Boolean(unavailable)}
-                  className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20 disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none"
+                  className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-6 sm:px-8 md:px-10 h-11 sm:h-12 md:h-14 text-sm sm:text-base shadow-lg shadow-yellow-500/20 disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none cursor-pointer"
                 >
                   {isRedeeming
-                    ? "REDEEMING..."
+                    ? t("offer.redeeming")
                     : isTimerActive
-                      ? "OFFER REDEEMED"
+                      ? t("offer.offer_redeemed")
                       : unavailable
                         ? unavailable.label
-                        : "REDEEM OFFER"}
+                        : t("offer.redeem")}
                 </Button>
 
                 {/* Offer Code */}
                 <div className="flex items-center justify-center gap-2 flex-wrap">
-                  {/* <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
-                    Offer Code:
-                  </p> */}
                   <code className="text-xs sm:text-sm break-all text-center">
                     {offer.offerCode}
                   </code>
@@ -518,11 +517,11 @@ export default function RestaurantDetail() {
                         <div className="flex items-center gap-2">
                           <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                           <span className="text-sm sm:text-base font-medium text-gray-900">
-                            Need help?
+                            {t("offer.need_help")}
                           </span>
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-500 px-6 sm:px-7">
-                          Contact support
+                          {t("offer.contact_support")}
                         </p>
                       </div>
                       <div className="">
@@ -578,7 +577,7 @@ export default function RestaurantDetail() {
                   {offer?.title}
                 </h1>
                 <p className="text-xs text-gray-500 font-medium flex items-center justify-center gap-1">
-                  <span>📍</span> {offer.place?.address || "Location not specified"}
+                  <span>📍</span> {offer.place?.address || t("offer.location_not_specified")}
                 </p>
               </div>
 
@@ -589,7 +588,7 @@ export default function RestaurantDetail() {
                   onClick={() => setIsInfoExpanded(!isInfoExpanded)}
                   className="w-full flex items-center justify-between p-3.5 bg-gray-50/50 hover:bg-gray-50 active:scale-[0.99] transition-all font-bold text-xs text-gray-700 border-none cursor-pointer outline-none uppercase tracking-wider"
                 >
-                  <span>Offer Information</span>
+                  <span>{t("offer.offer_information")}</span>
                   <ChevronRight
                     className="w-4 h-4 text-gray-400 transition-transform duration-200"
                     style={{ transform: isInfoExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
@@ -606,7 +605,7 @@ export default function RestaurantDetail() {
                     {/* Description */}
                     <div className="space-y-1">
                       <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
-                        Description
+                        {t("place.description")}
                       </h4>
                       <p className="text-gray-700 leading-relaxed text-xs">
                         {offer.description}
@@ -616,22 +615,22 @@ export default function RestaurantDetail() {
                     {/* Validity Period */}
                     <div className="space-y-2 border-t pt-3 border-gray-200/60">
                       <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
-                        Validity Period
+                        {t("offer.validity_period")}
                       </h4>
                       <div className="flex justify-between text-xs text-gray-600">
                         <div>
                           <span className="font-semibold block text-[9px] text-gray-400 uppercase tracking-wider">
-                            From
+                            {t("offer.from")}
                           </span>
                           <span className="font-medium">{formatDate(offer.createdAt)}</span>
                         </div>
                         <div className="text-right">
                           <span className="font-semibold block text-[9px] text-gray-400 uppercase tracking-wider">
-                            Until
+                            {t("offer.until")}
                           </span>
                           <span className="font-medium">
                             {offer.noExpiration || !offer.validUntil
-                              ? "No Expiration"
+                              ? t("offer.no_expiration")
                               : new Date(offer.validUntil).toLocaleDateString()}
                           </span>
                         </div>
@@ -641,7 +640,7 @@ export default function RestaurantDetail() {
                     {/* Rules */}
                     <div className="space-y-2 border-t pt-3 border-gray-200/60">
                       <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">
-                        Redemption Rules
+                        {t("offer.redemption_rules")}
                       </h4>
                       <div className="space-y-1.5">
                         {redemptionRules.map((rule: string, idx: number) => (
@@ -676,10 +675,10 @@ export default function RestaurantDetail() {
                       <>
                         <div className="text-xl font-black text-gray-900 leading-none tracking-tight">
                           {isTimerActive ? timeLeft : (offer?.redemptionDuration ?? 0)}
-                          {!isTimerActive && <span className="text-xs font-semibold ml-0.5">Min</span>}
+                          {!isTimerActive && <span className="text-xs font-semibold ml-0.5">{t("offer.min")}</span>}
                         </div>
                         <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                          {isTimerActive ? "Time Left" : "Timer"}
+                          {isTimerActive ? t("offer.time_left") : t("offer.timer")}
                         </div>
                       </>
                     )}
@@ -692,15 +691,15 @@ export default function RestaurantDetail() {
                     unavailable.message
                   ) : (
                     <>
-                      Present this to the staff member at{" "}
-                      <span className="font-bold text-gray-700">{offer.place?.name}</span> to validate your redemption.
+                      {t("offer.present_instruction_prefix")}{" "}
+                      <span className="font-bold text-gray-700">{offer.place?.name}</span> {t("offer.present_instruction_suffix")}
                     </>
                   )}
                 </p>
 
                 {redemptionsLeft !== null && !unavailable && (
                   <p className="text-[10px] font-medium text-gray-400 -mt-2">
-                    {redemptionsLeft} of {offer.maxRedemptions} redemptions left
+                    {redemptionsLeft} / {offer.maxRedemptions} {t("offer.redemptions_left")}
                   </p>
                 )}
 
@@ -708,15 +707,15 @@ export default function RestaurantDetail() {
                 <Button
                   onClick={handleRedeem}
                   disabled={isRedeeming || isTimerActive || Boolean(unavailable)}
-                  className="w-full bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-black font-extrabold rounded-2xl h-13 text-xs uppercase tracking-widest shadow-lg shadow-yellow-400/20 active:scale-[0.98] transition-all duration-150 disabled:bg-gray-200 disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:shadow-none"
+                  className="w-full bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-black font-extrabold rounded-2xl h-13 text-xs uppercase tracking-widest shadow-lg shadow-yellow-400/20 active:scale-[0.98] transition-all duration-150 disabled:bg-gray-200 disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:shadow-none cursor-pointer"
                 >
                   {isRedeeming
-                    ? "REDEEMING..."
+                    ? t("offer.redeeming")
                     : isTimerActive
-                      ? "OFFER REDEEMED"
+                      ? t("offer.offer_redeemed")
                       : unavailable
                         ? unavailable.label
-                        : "REDEEM OFFER"}
+                        : t("offer.redeem")}
                 </Button>
               </div>
             </div>

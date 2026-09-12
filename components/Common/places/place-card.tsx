@@ -22,7 +22,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
       
       appAlert.fire({
         title: t("map.unlock_full_map"),
-        text: "This beautiful location and its details are locked. Purchase the map to unlock directions, photos, and local insights.",
+        text: t("place.locked_alert_desc"),
         icon: "info",
         showCancelButton: true,
         confirmButtonText: t("map.buy_map"),

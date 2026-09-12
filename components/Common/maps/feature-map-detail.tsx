@@ -24,22 +24,10 @@ import { useLoginRequired } from "@/components/shared/login-required-modal";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import SimilarMaps from "./similar-maps";
-
-interface MapDetail {
-  id: number;
-  title: string;
-  collection: string;
-  price: string;
-  rating: number;
-  reviews: number;
-  description: string;
-  mainImage: string;
-  thumbnails: string[];
-  features: Array<{ icon: string; text: string }>;
-}
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function FeatureMapDetailPage() {
+  const { t } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -184,10 +172,10 @@ export default function FeatureMapDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Map not found
+            {t("map.map_not_found")}
           </h2>
           <Button asChild>
-            <Link href="/maps">Back to Maps</Link>
+            <Link href="/maps">{t("place.back_to_maps")}</Link>
           </Button>
         </div>
       </div>
@@ -200,11 +188,11 @@ export default function FeatureMapDetailPage() {
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
           <Link href="/" className="text-blue-600 hover:underline">
-            Home
+            {t("map.home")}
           </Link>
           <span>/</span>
           <Link href="/maps" className="text-blue-600 hover:underline">
-            Regional Maps
+            {t("map.regional_maps")}
           </Link>
           <span>/</span>
           <span className="text-gray-900 font-semibold">{mapData.name}</span>
@@ -223,7 +211,7 @@ export default function FeatureMapDetailPage() {
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="text-gray-400">No Image Available</div>
+                <div className="text-gray-400">{t("map.no_image_available")}</div>
               )}
             </div>
 
@@ -265,7 +253,7 @@ export default function FeatureMapDetailPage() {
             {/* Collection Label */}
             <div>
               <span className="inline-block text-yellow-500 font-bold text-sm tracking-wide mb-2 uppercase">
-                Most Popular Collection
+                {t("map.most_popular_collection")}
               </span>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
                 {mapData.name}
@@ -293,7 +281,7 @@ export default function FeatureMapDetailPage() {
                     </div>
                     <span className="text-sm text-gray-600 ml-2">
                       {mapData.rating} (
-                      {(mapData.totalReview || 0).toLocaleString()} reviews)
+                      {(mapData.totalReview || 0).toLocaleString()} {t("map.reviews_count")})
                     </span>
                   </div>
                 ) : (
@@ -303,7 +291,7 @@ export default function FeatureMapDetailPage() {
                         <Star key={i} size={16} className="text-gray-300" />
                       ))}
                     </div>
-                    <span>(No reviews yet)</span>
+                    <span>{t("map.no_reviews_yet")}</span>
                   </div>
                 )}
               </div>
@@ -315,7 +303,7 @@ export default function FeatureMapDetailPage() {
                 onClick={handleViewMap}
                 className="w-full text-black py-6 px-13.5 text-lg bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none"
               >
-                ALREADY PURCHASED, VIEW MAP
+                {t("map.already_purchased_view")}
               </Button>
             ) : (
               <Button
@@ -324,59 +312,22 @@ export default function FeatureMapDetailPage() {
                 className="w-full text-black py-6 px-13.5 text-lg bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none disabled:opacity-70"
               >
                 {isCheckingOut || isRedeemingFree
-                  ? "PROCESSING..."
+                  ? t("common.loading")
                   : canClaimFreeMap
-                    ? "CLAIM FREE MAP"
-                    : "BUY NOW"}
+                    ? t("map.claim_free_map")
+                    : t("map.buy_now")}
               </Button>
             )}
-
-            {/* Features Icons */}
-            {/* <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <Download size={24} className="mx-auto mb-2 text-yellow-500" />
-                <p className="text-xs font-semibold text-gray-700">
-                  INSTANT DOWNLOAD
-                </p>
-              </div>
-              <div className="text-center">
-                <RotateCcw size={24} className="mx-auto mb-2 text-yellow-500" />
-                <p className="text-xs font-semibold text-gray-700">
-                  FREE UPDATES
-                </p>
-              </div>
-              <div className="text-center">
-                <Shield size={24} className="mx-auto mb-2 text-yellow-500" />
-                <p className="text-xs font-semibold text-gray-700">
-                  VERIFIED DATA
-                </p>
-              </div>
-            </div> */}
 
             {/* Description Section */}
             <div className="space-y-3">
               <h3 className="text-lg font-bold text-gray-900 underline">
-                MAP DESCRIPTION
+                {t("map.map_description")}
               </h3>
               <p className="text-gray-700 leading-relaxed" style={{ whiteSpace: "pre-line" }}>
                 {mapData.description}
               </p>
             </div>
-
-            {/* Key Features */}
-            {/* <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 underline">
-                KEY FEATURES
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {features.map((feature: any, idx: number) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    <span className="text-xl">{feature.icon}</span>
-                    <span className="text-gray-700">{feature.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
           </div>
         </div>
       </div>

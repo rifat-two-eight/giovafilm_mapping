@@ -103,11 +103,11 @@ export function ReviewModal({
   };
 
   const RATING_LABELS: Record<number, string> = {
-    1: "Terrible",
-    2: "Poor",
-    3: "Average",
-    4: "Very Good",
-    5: "Excellent",
+    1: t("reviews.terrible"),
+    2: t("reviews.poor"),
+    3: t("reviews.average"),
+    4: t("reviews.very_good"),
+    5: t("reviews.excellent"),
   };
 
   const currentRating = hover || rating;
@@ -129,10 +129,10 @@ export function ReviewModal({
             <X size={17} />
           </button>
           <DialogTitle className="text-xl sm:text-2xl font-black text-center text-gray-900 uppercase tracking-tight">
-            {initialData ? "Edit Your Review" : t("map.write_review")}
+            {initialData ? t("reviews.edit_your_review") : t("reviews.write_review")}
           </DialogTitle>
           <p className="text-center text-[11px] sm:text-xs text-gray-500 font-medium mt-1 px-4">
-            Share your authentic experience to help other explorers
+            {t("reviews.share_authentic_exp")}
           </p>
         </div>
 
@@ -141,7 +141,7 @@ export function ReviewModal({
           {/* Star Rating Section */}
           <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-amber-50/60 rounded-2xl border border-amber-100/80">
             <p className="font-bold text-gray-700 uppercase text-[11px] sm:text-xs tracking-wider">
-              Rate your experience
+              {t("reviews.rate_experience")}
             </p>
             <div className="flex gap-1 sm:gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -172,8 +172,8 @@ export function ReviewModal({
               }`}
             >
               {currentRating > 0
-                ? `${currentRating} Stars — ${RATING_LABELS[currentRating] || ""}`
-                : "Select your rating"}
+                ? `${currentRating} ${t("reviews.stars")} — ${RATING_LABELS[currentRating] || ""}`
+                : t("reviews.select_rating")}
             </span>
           </div>
 
@@ -181,7 +181,7 @@ export function ReviewModal({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <p className="font-bold text-gray-700 uppercase text-[11px] sm:text-xs tracking-wider">
-                Review details
+                {t("reviews.review_details")}
               </p>
               <span
                 className={`text-[10px] sm:text-xs font-medium ${
@@ -191,12 +191,12 @@ export function ReviewModal({
                 }`}
               >
                 {review.trim().length >= 200
-                  ? "🎉 +10 Bonus points unlocked!"
-                  : `${review.trim().length}/200 chars for +10 bonus pts`}
+                  ? t("reviews.bonus_unlocked")
+                  : `${review.trim().length}/200 ${t("reviews.chars_for_bonus")}`}
               </span>
             </div>
             <Textarea
-              placeholder="Share your experience here..."
+              placeholder={t("reviews.share_experience_placeholder")}
               value={review}
               onChange={(e) => setReview(e.target.value)}
               className="resize-none h-28 sm:h-36 rounded-2xl border-gray-200 bg-gray-50/70 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:bg-white transition-all p-3 sm:p-4 text-xs sm:text-sm leading-relaxed"
@@ -207,9 +207,9 @@ export function ReviewModal({
           <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-2.5 sm:p-3 flex items-start gap-2.5 text-left">
             <span className="text-sm shrink-0 mt-0.5">🛡️</span>
             <div className="text-[11px] sm:text-xs text-blue-900 leading-relaxed">
-              <p className="font-bold">Moderation & Verification Notice</p>
+              <p className="font-bold">{t("reviews.moderation_notice_title")}</p>
               <p className="text-blue-700 mt-0.5">
-                Your review will be verified by our team before going public. Once approved, you will earn explorer points towards your level!
+                {t("reviews.moderation_notice_desc")}
               </p>
             </div>
           </div>
