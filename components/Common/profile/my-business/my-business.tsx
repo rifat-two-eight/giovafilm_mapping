@@ -33,11 +33,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function MyBusinessPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { data: response, isLoading } = useGetMyBusinessesQuery();
   const businesses = response?.data || [];
-  console.log("Approved", businesses);
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
@@ -47,18 +49,18 @@ export default function MyBusinessPage() {
 
   const handleDeleteBusiness = async (id: string, name?: string) => {
     appAlert.fire({
-      title: "Delete this business?",
-      text: `Do you really want to delete${name ? ` “${name}”` : " this business"}? This cannot be undone.`,
+      title: t("business_admin.delete_business") || "Delete this business?",
+      text: t("common.are_you_sure"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await deleteBusiness(id).unwrap();
           if (res?.success === true || res?.data) {
-            toast.success("Business deleted successfully");
+            toast.success(t("business_admin.deleted_successfully") || "Business deleted successfully");
           }
         } catch (error: any) {
           console.error(error);

@@ -69,21 +69,19 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
 
   const handleDelete = (id: string, title?: string) => {
     appAlert.fire({
-      title: "Delete this offer?",
-      text: title
-        ? `Delete “${title}”? You won't be able to revert this.`
-        : "You won't be able to revert this!",
+      title: t("offers_admin.delete_offer") || "Delete this offer?",
+      text: t("common.are_you_sure"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#EF4444",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteOffer(id).unwrap();
           appAlert.fire({
-            title: "Deleted!",
-            text: "The offer has been deleted.",
+            title: t("offers_admin.deleted") || "Deleted!",
+            text: t("offers_admin.deleted_successfully") || "The offer has been deleted.",
             icon: "success",
           });
         } catch (error: any) {

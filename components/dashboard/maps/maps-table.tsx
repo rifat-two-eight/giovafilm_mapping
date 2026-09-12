@@ -67,17 +67,17 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
 
   const handleDelete = async (id: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this map deletion!",
+      title: t("common.are_you_sure"),
+      text: t("maps_admin.delete_confirm") || "You won't be able to revert this map deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteMap(id).unwrap();
-          toast.success("Map deleted successfully");
+          toast.success(t("maps_admin.deleted_successfully") || "Map deleted successfully");
         } catch (error: any) {
           toast.error(
             error?.data?.message || error?.message || "Failed to delete map",

@@ -2,11 +2,15 @@
 
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 interface UserLocationMarkerProps {
   position: { lat: number; lng: number };
 }
 
 export function UserLocationMarker({ position }: UserLocationMarkerProps) {
+  const { t } = useLanguage();
+
   if (!position || !Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
     return null;
   }
@@ -16,7 +20,7 @@ export function UserLocationMarker({ position }: UserLocationMarkerProps) {
       <div
         className="relative flex items-center justify-center pointer-events-none select-none"
         style={{ width: 28, height: 28 }}
-        title="Your Location"
+        title={t("map.use_my_location")}
       >
         {/* Soft animated radar wave */}
         <span className="absolute h-7 w-7 rounded-full bg-blue-500/25 animate-ping" />

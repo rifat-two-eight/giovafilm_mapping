@@ -78,7 +78,15 @@
     "next_slide": "Next slide",
     "toggle_sidebar": "Toggle Sidebar",
     "dashboard_logo": "Dashboard Logo",
-    "profile_alt": "Profile"
+    "profile_alt": "Profile",
+    "are_you_sure": "Are you sure?",
+    "try_again": "Try Again",
+    "return_home": "Return Home",
+    "payment_cancelled": "Payment Cancelled",
+    "payment_failed": "Payment Failed",
+    "go_to_my_businesses": "Go to My Businesses",
+    "invalid_coordinates": "Invalid coordinates provided.",
+    "search_placeholder": "Search..."
   },
   "levels": {
     "level": "Level",
@@ -395,7 +403,10 @@
     "map_description": "MAP DESCRIPTION",
     "no_image_available": "No Image Available",
     "reviews_count": "reviews",
-    "no_reviews_yet": "(No reviews yet)"
+    "no_reviews_yet": "(No reviews yet)",
+    "use_my_location": "Use my location",
+    "location_not_supported": "Geolocation is not supported by your browser.",
+    "unable_to_get_location": "Unable to get location. Please allow location permissions in your browser."
   },
   "profile": {
     "my_profile": "My Profile",
@@ -681,7 +692,14 @@
       "all_countries": "All Countries",
       "all_roles": "All Roles",
       "search_placeholder": "Search..."
-    }
+    },
+    "overview": "Dashboard Overview",
+    "total_maps": "Total Maps",
+    "total_places": "Total Places",
+    "active_offers": "Active Offers",
+    "total_sales": "Total Sales",
+    "this_month_revenue": "This Month Revenue",
+    "taxes_collected": "Taxes Collected"
   },
   "business_admin": {
     "review_tasks": "Admin Review Tasks",
@@ -864,9 +882,18 @@
     "total_sales": "Total Sales",
     "taxes_collected": "Taxes Collected",
     "net_revenue": "Net Revenue",
-    "no_data": "No data available",
+    "no_data": "No data",
     "usage_title": "Usage of Maps / Places / Offers",
-    "usage_desc": "Offer redemptions match the selected period. Map views and place opens are all-time totals."
+    "usage_desc": "Offer redemptions match the selected period. Map views and place opens are all-time totals.",
+    "month": "Month",
+    "most_opened_places": "Most Opened Places",
+    "place_name": "Place Name",
+    "opens": "Opens",
+    "failed_reports": "Failed to load reports data.",
+    "searching": "Searching...",
+    "no_place_or_business": "No place or business found.",
+    "showing_reports_for": "Showing reports for",
+    "map_sales_note": "Map sales are not linked to businesses. Visit and offer stats below are for this business."
   },
   "settings_admin": {
     "general_title": "General Settings",
@@ -948,7 +975,15 @@
     "notification_settings": "Notification Settings",
     "email_notifications": "Email Notifications",
     "push_notifications": "Push Notifications",
-    "customize_alerts": "Customize alerts by category"
+    "customize_alerts": "Customize alerts by category",
+    "new_offer_request": "New Offer Request",
+    "new_offer_desc": "Cafe Mocha wants to publish a 20% discount.",
+    "low_inventory_warning": "Low Inventory Warning",
+    "low_inventory_desc": "Tickets for 'SF Food Tour' are below threshold.",
+    "verification_request": "Verification Request",
+    "verification_desc": "'Wild West Tours' submitted documents.",
+    "payout_completed": "Payout Completed",
+    "payout_desc": "$1,250.00 transferred to Road Trip Co."
   },
   "admin_review": {
     "title": "Admin Review Tasks",
@@ -973,5 +1008,105 @@
     "title": "Location Verification",
     "physical_address": "Physical Address",
     "verify_pin_accuracy": "Verify pin accuracy"
+  },
+  "promos_admin": {
+    "title": "Invitation & Upgrades",
+    "subtitle": "Differentiate and manage unique invitation codes for influencers and customer upgrades.",
+    "export_csv": "Export CSV",
+    "refresh": "Refresh",
+    "total_generated": "Total Generated",
+    "codes_in_system": "invitation codes in system",
+    "customer_upgrades": "Customer Upgrades",
+    "upgrade_links_generated": "upgrade links generated",
+    "influencer_invites": "Influencer Invites",
+    "free_guest_passes": "free guest passes in system",
+    "distinguish_invites": "Distinguish Invites",
+    "distinguish_desc": "Use the Link Type Tabs to separate influencer guest passes from paid customer upgrades.",
+    "bulk_invitation_flow": "Bulk Invitation Flow",
+    "bulk_invitation_desc": "Paste your list of emails into the recipient emails textarea. Click Generate Links to create one unique secure link for each email.",
+    "sending_and_tracking": "Sending and Tracking",
+    "sending_tracking_desc": "Click Send Pending Invites to trigger automatic background emails. In the list, you can see both the sent recipient email and who claimed it.",
+    "generate_invitation": "Generate Invitation",
+    "custom_offer": "Custom Offer",
+    "track_invitations": "Track Invitations",
+    "all_types": "All invitation types",
+    "all_statuses": "All statuses",
+    "type": "Type",
+    "target_map": "Target Map",
+    "price": "Price",
+    "label": "Label",
+    "status": "Status",
+    "invite": "Invite",
+    "loading_details": "Loading details...",
+    "no_records_found": "No matching records found.",
+    "url": "URL",
+    "code": "Code",
+    "influencer": "Influencer",
+    "pending_send": "Pending Send",
+    "email_sent": "Email Sent",
+    "claimed": "Claimed",
+    "expired": "Expired",
+    "active": "Active"
+  },
+  "rewards_admin": {
+    "title": "Rewards Management",
+    "subtitle": "Configure cover photos, files, points, and descriptions for user rewards.",
+    "add_reward": "Add Reward",
+    "cover": "Cover",
+    "reward_name": "Reward Name",
+    "points_target": "Points Target",
+    "actions": "Actions",
+    "loading_configs": "Loading configurations...",
+    "no_rewards": "No reward configurations found.",
+    "none_attached": "None attached",
+    "reward_type": "Reward Type",
+    "pdf_itinerary": "PDF Itinerary",
+    "free_map": "Free Map",
+    "gourmet_guide": "Gourmet Guide",
+    "top_reviewer": "Top Reviewer",
+    "trail_master": "Trail Master",
+    "history_buff": "History Buff",
+    "legendary_explorer": "Legendary Explorer",
+    "exclusive_discount": "Exclusive Discount",
+    "permanent_discount": "Permanent Discount",
+    "reward_title": "Reward Title",
+    "description": "Description",
+    "cover_photo": "Cover Photo",
+    "click_to_upload": "Click to Upload",
+    "downloadable_pdf": "Downloadable PDF",
+    "click_to_upload_pdf": "Click to Upload PDF"
+  },
+  "reviews_admin": {
+    "title": "Reviews Verification",
+    "subtitle": "Verify and approve or reject pending user reviews. Approved reviews will award points to users.",
+    "no_pending_reviews": "No pending reviews to verify"
+  },
+  "claim_promo": {
+    "verifying_invitation": "Verifying invitation...",
+    "please_wait": "Please wait while we confirm your invitation details and map access settings.",
+    "upgrade_successful": "Upgrade Successful!",
+    "payment_verified": "Payment verified. The map access has been successfully added to your account.",
+    "view_my_maps": "View My Purchased Maps",
+    "checkout_canceled": "Checkout Canceled",
+    "retry_checkout": "Retry Checkout",
+    "return_to_catalog": "Return to Catalog",
+    "invitation_expired": "Invitation Expired",
+    "view_public_maps": "View Public Maps",
+    "unlock_ultimate": "Unlock the Ultimate",
+    "road_trip_map": "Interactive Road Trip Map",
+    "welcome_desc": "Welcome to Roadtripeado! Get ready to explore curated routes, offline navigation pins, and expert local guidelines.",
+    "confirm_upgrade": "Confirm Upgrade",
+    "redeem_pass": "Redeem Guest Pass"
+  },
+  "explorer": {
+    "loading_profile": "Loading explorer profile...",
+    "profile_unavailable": "Profile unavailable",
+    "explore_maps": "Explore maps",
+    "back_to_maps": "Back to maps"
+  },
+  "contact_page": {
+    "connect_with_us": "Connect With Us",
+    "get_in_touch": "Get in Touch",
+    "subtitle": "Have questions about our maps or your next adventure? We are here to help you plan the ultimate road trip."
   }
 }

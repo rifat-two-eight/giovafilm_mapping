@@ -99,10 +99,10 @@ export default function CreateMapModal({
     try {
       if (isEditing) {
         await updateMap({ id: initialData._id, data: formData }).unwrap();
-        toast.success("Map updated successfully");
+        toast.success(t("maps_admin.updated_successfully") || "Map updated successfully");
       } else {
         await createMap(formData).unwrap();
-        toast.success("Map created successfully");
+        toast.success(t("maps_admin.created_successfully") || "Map created successfully");
       }
       reset();
       setPreview(null);

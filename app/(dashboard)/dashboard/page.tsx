@@ -16,42 +16,43 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function Page() {
+  const { t } = useLanguage();
   const { data: response, isLoading, isError } = useGetDashboardStatsQuery();
   const { data: profileRes } = useGetProfileQuery({});
-
-  console.log(profileRes);
 
   const stats = response?.data?.stats;
   const recentActivity = response?.data?.recentActivity || [];
 
   const statsData = [
     {
-      label: "Total Maps",
+      label: t("dashboard.total_maps"),
       value: stats?.totalMaps?.toString() || "0",
       icon: <LayoutGrid size={24} />,
       iconBgColor: "bg-blue-500",
     },
     {
-      label: "Total Places",
+      label: t("dashboard.total_places"),
       value: stats?.totalPlaces?.toString() || "0",
       icon: <MapPin size={24} />,
       iconBgColor: "bg-green-500",
     },
     {
-      label: "Active Offers",
+      label: t("dashboard.active_offers"),
       value: stats?.activeOffers?.toString() || "0",
       icon: <Gift size={24} />,
       iconBgColor: "bg-purple-500",
     },
     {
-      label: "Total Sales",
+      label: t("dashboard.total_sales"),
       value: stats?.totalSales ? `$${stats.totalSales.toLocaleString()}` : "$0",
       icon: <DollarSign size={24} />,
       iconBgColor: "bg-yellow-500",
     },
     {
-      label: "This Month Revenue",
+      label: t("dashboard.this_month_revenue"),
       value: stats?.thisMonthRevenue
         ? `$${stats.thisMonthRevenue.toLocaleString()}`
         : "$0",
@@ -59,7 +60,7 @@ export default function Page() {
       iconBgColor: "bg-pink-500",
     },
     {
-      label: "Taxes Collected",
+      label: t("dashboard.taxes_collected"),
       value: stats?.taxesCollected
         ? `$${stats.taxesCollected.toLocaleString()}`
         : "$0",
@@ -70,19 +71,19 @@ export default function Page() {
 
   const mapEditorStats = [
     {
-      label: "Total Maps",
+      label: t("dashboard.total_maps"),
       value: stats?.totalMaps?.toString() || "0",
       icon: <LayoutGrid size={24} />,
       iconBgColor: "bg-blue-500",
     },
     {
-      label: "Total Places",
+      label: t("dashboard.total_places"),
       value: stats?.totalPlaces?.toString() || "0",
       icon: <MapPin size={24} />,
       iconBgColor: "bg-green-500",
     },
     {
-      label: "Active Offers",
+      label: t("dashboard.active_offers"),
       value: stats?.activeOffers?.toString() || "0",
       icon: <Gift size={24} />,
       iconBgColor: "bg-purple-500",
@@ -99,7 +100,7 @@ export default function Page() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold font-arial pb-6">Dashboard Overview</h1>
+      <h1 className="text-3xl font-bold font-arial pb-6">{t("dashboard.overview")}</h1>
 
       {profileRes?.role === "map_editor" ? (
         <StatCard data={mapEditorStats} />

@@ -6,7 +6,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 function PaymentFailedContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason") || searchParams.get("message");
 
@@ -20,7 +23,7 @@ function PaymentFailedContent() {
         </div>
 
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold text-gray-900">Payment Failed</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("common.payment_failed")}</h1>
           <p className="text-gray-600 leading-relaxed">
             {reason
               ? decodeURIComponent(reason)
@@ -32,12 +35,12 @@ function PaymentFailedContent() {
           <Link href="/pricing" className="block w-full">
             <Button className="w-full bg-gray-900 hover:bg-black text-white font-bold h-14 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95">
               <RefreshCcw className="w-5 h-5" />
-              TRY AGAIN
+              {t("common.try_again")}
             </Button>
           </Link>
           <Link href="/" className="block w-full">
             <Button variant="ghost" className="w-full text-gray-500 font-semibold h-12 hover:bg-gray-50">
-              Return Home
+              {t("common.return_home")}
             </Button>
           </Link>
         </div>

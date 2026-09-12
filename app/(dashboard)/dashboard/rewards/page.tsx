@@ -16,8 +16,10 @@ import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText, Trash2 } f
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function RewardsAdminPage() {
+  const { t } = useLanguage();
   const { data: configsRes, isLoading: isLoadingConfigs } = useGetAwardConfigsQuery();
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
   const [updateAwardConfig, { isLoading: isUpdating }] = useUpdateAwardConfigMutation();
@@ -78,17 +80,17 @@ export default function RewardsAdminPage() {
 
   const handleDelete = async (id: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this reward deletion!",
+      title: t("common.are_you_sure"),
+      text: t("rewards_admin.delete_confirm") || "You won't be able to revert this reward deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteAwardConfig(id).unwrap();
-          toast.success("Reward deleted successfully");
+          toast.success(t("rewards_admin.deleted_successfully") || "Reward deleted successfully");
         } catch (error: any) {
           toast.error(
             error?.data?.message || error?.message || "Failed to delete reward",

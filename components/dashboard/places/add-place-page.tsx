@@ -1,5 +1,4 @@
-"use client";
-
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { AddCategoryDialog } from "@/components/dashboard/categories/AddCategoryDialog";
 
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
@@ -147,6 +146,7 @@ function MapPanner({
 }
 
 export default function AddPlacePage() {
+  const { t } = useLanguage();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
@@ -540,17 +540,17 @@ export default function AddPlacePage() {
   const handleDeletePlace = async () => {
     if (!selectedPlace?._id) return;
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: t("common.are_you_sure"),
+      text: t("places_admin.delete_confirm") || "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deletePlace(selectedPlace._id).unwrap();
-          toast.success("Place deleted successfully");
+          toast.success(t("places_admin.deleted_successfully") || "Place deleted successfully");
           setDraggedPositions({});
           setSelectedPlace(null);
         } catch (error: any) {

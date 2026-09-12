@@ -16,6 +16,7 @@ import {
 } from "@/redux/features/subscription/subscriptionApi";
 import { Loader2, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { toast } from "sonner";
 
 interface AddSubscriptionModalProps {
@@ -29,6 +30,7 @@ export function AddSubscriptionModal({
   onClose,
   plan,
 }: AddSubscriptionModalProps) {
+  const { t } = useLanguage();
   const [createSubscriptionPlan, { isLoading: isCreating }] =
     useCreateSubscriptionPlanMutation();
   const [updateSubscriptionPlan, { isLoading: isUpdating }] =
@@ -39,72 +41,60 @@ export function AddSubscriptionModal({
   const defaultFormData = {
     name: "",
     description: "",
-    price: 0,
-    currency: "usd",
-    interval: "month",
-    intervalCount: 1,
-    trialPeriodDays: 0,
+    price: "",
+    interval: "month" as "month" | "year" | "lifetime",
+    features: [""],
+    currency: "USD",
   };
 
   const [formData, setFormData] = useState(defaultFormData);
 
-  const [features, setFeatures] = useState<string[]>([""]);
-
   useEffect(() => {
-    if (plan && isOpen) {
+    if (plan) {
       setFormData({
         name: plan.name || "",
         description: plan.description || "",
-        price: plan.price || 0,
-        currency: plan.currency || "usd",
+        price: plan.price?.toString() || "",
         interval: plan.interval || "month",
-        intervalCount: plan.intervalCount || 1,
-        trialPeriodDays: plan.trialPeriodDays || 0,
+        features:
+          plan.features && plan.features.length > 0 ? plan.features : [""],
+        currency: plan.currency || "USD",
       });
-      setFeatures(plan.features?.length > 0 ? plan.features : [""]);
-    } else if (!isOpen) {
+    } else {
       setFormData(defaultFormData);
-      setFeatures([""]);
     }
   }, [plan, isOpen]);
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleFeatureChange = (index: number, value: string) => {
-    const newFeatures = [...features];
+    const newFeatures = [...formData.features];
     newFeatures[index] = value;
-    setFeatures(newFeatures);
+    setFormData((prev) => ({ ...prev, features: newFeatures }));
   };
 
   const addFeature = () => {
-    setFeatures([...features, ""]);
+    setFormData((prev) => ({ ...prev, features: [...prev.features, ""] }));
   };
 
   const removeFeature = (index: number) => {
-    const newFeatures = features.filter((_, i) => i !== index);
-    setFeatures(newFeatures);
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "price" ||
-        name === "intervalCount" ||
-        name === "trialPeriodDays"
-          ? Number(value)
-          : value,
-    }));
+    if (formData.features.length === 1) return;
+    const newFeatures = formData.features.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, features: newFeatures }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const payload = {
       ...formData,
-      features: features.filter((f) => f.trim() !== ""),
+      price: parseFloat(formData.price),
+      features: formData.features.filter((f) => f.trim() !== ""),
     };
 
     try {
@@ -114,19 +104,20 @@ export function AddSubscriptionModal({
           data: payload,
         }).unwrap();
         if (res.success || res.data) {
-          toast.success("Subscription plan updated successfully!");
+          toast.success(t("subscriptions_admin.updated_successfully") || "Subscription plan updated successfully!");
           onClose();
         }
       } else {
         const res = await createSubscriptionPlan(payload).unwrap();
         if (res.success || res.data) {
-          toast.success("Subscription plan created successfully!");
+          toast.success(t("subscriptions_admin.created_successfully") || "Subscription plan created successfully!");
           onClose();
         }
       }
     } catch (error: any) {
       toast.error(
         error?.data?.message ||
+          t("subscriptions_admin.failed_to_save") ||
           `Failed to ${plan ? "update" : "create"} subscription plan`
       );
     }
@@ -148,7 +139,7 @@ export function AddSubscriptionModal({
               <Input
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="e.g. Pro Plan"
                 className="rounded-xl border-gray-200 h-11"
                 required
@@ -162,7 +153,7 @@ export function AddSubscriptionModal({
                   name="price"
                   type="number"
                   value={formData.price}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   min={0}
                   className="pl-8 rounded-xl border-gray-200 h-11"
                   required
@@ -206,7 +197,7 @@ export function AddSubscriptionModal({
             <Textarea
               name="description"
               value={formData.description}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Basic access to the platform with limited features."
               required
             />
@@ -214,7 +205,7 @@ export function AddSubscriptionModal({
 
           <div className="space-y-4">
             <Label>Features</Label>
-            {features.map((feature, index) => (
+            {formData.features.map((feature, index) => (
               <div key={index} className="flex items-center gap-2">
                 <Input
                   value={feature}
@@ -222,7 +213,7 @@ export function AddSubscriptionModal({
                   placeholder={`Feature ${index + 1}`}
                   required
                 />
-                {features.length > 1 && (
+                {formData.features.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"

@@ -9,7 +9,10 @@ import { useVerifySubscriptionCheckoutMutation } from "@/redux/features/subscrip
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 function SuccessContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -83,10 +86,10 @@ function SuccessContent() {
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-gray-900">
             {waiting
-              ? "Confirming your subscription..."
+              ? t("common.confirming") || "Confirming your subscription..."
               : failed
-                ? "Verification Pending"
-                : "Payment Successful!"}
+                ? t("common.verification_pending") || "Verification Pending"
+                : t("common.payment_successful") || "Payment Successful!"}
           </h1>
           <p className="text-gray-600 leading-relaxed">
             {waiting
@@ -103,12 +106,12 @@ function SuccessContent() {
               disabled={waiting}
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold h-14 rounded-2xl shadow-lg shadow-yellow-100 transition-all active:scale-95"
             >
-              GO TO MY BUSINESSES
+              {t("common.go_to_my_businesses")}
             </Button>
           </Link>
           <Link href="/" className="block w-full">
             <Button variant="ghost" className="w-full text-gray-500 font-semibold h-12 hover:bg-gray-50">
-              Return Home
+              {t("common.return_home")}
             </Button>
           </Link>
         </div>

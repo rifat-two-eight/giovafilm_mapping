@@ -20,6 +20,8 @@ import { toast } from "sonner";
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function ProfileUpdateModal({
   data,
   open,
@@ -29,6 +31,7 @@ export default function ProfileUpdateModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -40,13 +43,11 @@ export default function ProfileUpdateModal({
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   useEffect(() => {
-    if (open && data) {
-      setName(data.name ?? "");
-      setPhone(data.phone ?? "");
-      setWebsite(data.website ?? "");
-      setInstagram((data.instagram ?? "").replace(/^@/, ""));
-      setPreview(null);
-      setImageFile(null);
+    if (data) {
+      setName(data.name || "");
+      setPhone(data.phone || "");
+      setWebsite(data.website || "");
+      setInstagram(data.instagram || "");
     }
   }, [data, open]);
 
@@ -112,7 +113,7 @@ export default function ProfileUpdateModal({
 
     try {
       await updateProfile(formData).unwrap();
-      toast.success("Profile updated successfully!");
+      toast.success(t("profile.update_success") || "Profile updated successfully!");
       onOpenChange(false);
     } catch (err: any) {
       const message =
@@ -134,17 +135,17 @@ export default function ProfileUpdateModal({
 
         <DialogHeader className="relative shrink-0 px-5 pt-3 pb-2 sm:px-6 sm:pt-5 text-left">
           <DialogTitle className="text-lg font-bold pr-10">
-            Edit Profile
+            {t("profile.edit_profile")}
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-500">
-            Tap the photo to change it, then save your details.
+            {t("profile.edit_desc") || "Tap the photo to change it, then save your details."}
           </DialogDescription>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
             className="absolute right-4 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             <X size={18} />
           </button>

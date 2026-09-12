@@ -369,6 +369,7 @@ export function AddCategoryDialog({
   initialData,
   isView = false,
 }: AddCategoryDialogProps) {
+  const { t } = useLanguage();
   const { register, handleSubmit, reset, setValue, watch } = useForm<FormData>({
     defaultValues: {
       color: "#3b82f6",
@@ -554,10 +555,10 @@ export function AddCategoryDialog({
 
       if (isEditing) {
         await updateCategory({ id: initialData._id, data: formData }).unwrap();
-        toast.success("Category updated successfully");
+        toast.success(t("categories_admin.updated_successfully") || "Category updated successfully");
       } else {
         await createCategory(formData).unwrap();
-        toast.success("Category created successfully");
+        toast.success(t("categories_admin.created_successfully") || "Category created successfully");
       }
       onOpenChange(false);
     } catch (error: any) {
@@ -568,8 +569,6 @@ export function AddCategoryDialog({
       );
     }
   };
-
-  const { t } = useLanguage();
 
   const getDialogTitle = () => {
     if (isView) return t("common.view_more");

@@ -18,7 +18,10 @@ type Props = {
   Style?: string;
 };
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function FavouriteButton({ placeId, type, Style }: Props) {
+  const { t } = useLanguage();
   const [addToFavourite, { isLoading }] = useAddToFavouriteMutation();
 
   const { data: favouritesData } = useGetFavouritesQuery();
@@ -51,8 +54,8 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
     }
 
     if (!accessToken) {
-      toast.error("Login Required", {
-        description: "You must be logged in to add items to favorites.",
+      toast.error(t("login_required.title") || "Login Required", {
+        description: t("login_required.description") || "You must be logged in to add items to favorites.",
       });
       router.push(
         `/login?redirect=${encodeURIComponent(window.location.pathname)}`,
@@ -73,7 +76,7 @@ export function FavouriteButton({ placeId, type, Style }: Props) {
       await addToFavourite(payload).unwrap();
 
       toast.success(
-        isFavourite ? "Removed from favourites" : "Added to favourites",
+        isFavourite ? (t("common.removed_from_favourites") || "Removed from favourites") : (t("common.added_to_favourites") || "Added to favourites"),
       );
     } catch (error: unknown) {
       toast.error(getApiErrorMessage(error));

@@ -39,17 +39,17 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
 
   const handleDelete = async (id: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this category deletion!",
+      title: t("common.are_you_sure"),
+      text: t("categories_admin.delete_confirm") || "You won't be able to revert this category deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deleteCategory(id).unwrap();
-          toast.success("Category deleted successfully");
+          toast.success(t("categories_admin.deleted_successfully") || "Category deleted successfully");
         } catch (error: any) {
           toast.error(
             error?.data?.message ||

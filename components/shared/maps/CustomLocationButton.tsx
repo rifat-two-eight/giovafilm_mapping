@@ -2,13 +2,17 @@ import { ControlPosition, MapControl, useMap } from "@vis.gl/react-google-maps";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export const CustomLocationButton = ({
   onLocated,
-  label = "My location",
+  label,
 }: {
   onLocated?: (lat: number, lng: number) => void;
   label?: string;
 } = {}) => {
+  const { t } = useLanguage();
+  const displayLabel = label || t("map.use_my_location");
   const map = useMap();
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +32,7 @@ export const CustomLocationButton = ({
 
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setLoading(false);
-      toast.error("Geolocation is not supported by your browser.");
+      toast.error(t("map.location_not_supported"));
       return;
     }
 
@@ -110,7 +114,7 @@ export const CustomLocationButton = ({
               )
               .catch(() => {
                 setLoading(false);
-                toast.error("Unable to get location. Please allow location permissions in your browser.");
+                toast.error(t("map.unable_to_get_location"));
               });
           },
           { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -119,7 +123,7 @@ export const CustomLocationButton = ({
       // Fast first attempt: low accuracy, very short timeout
       { enableHighAccuracy: false, timeout: 3000, maximumAge: 30000 }
     );
-  }, [map, onLocated, loading]);
+  }, [map, onLocated, loading, t]);
 
   return (
     <MapControl position={ControlPosition.RIGHT_BOTTOM}>
@@ -128,7 +132,7 @@ export const CustomLocationButton = ({
         onClick={handleLocationClick}
         disabled={loading}
         className="m-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 shadow-lg transition hover:bg-gray-50 disabled:opacity-50"
-        title="Use my location"
+        title={displayLabel}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -149,9 +153,9 @@ export const CustomLocationButton = ({
           <line x1="2" y1="12" x2="5" y2="12" />
           <line x1="19" y1="12" x2="22" y2="12" />
         </svg>
-        {label ? (
+        {displayLabel ? (
           <span className="hidden text-xs font-semibold text-gray-700 sm:inline">
-            {label}
+            {displayLabel}
           </span>
         ) : null}
       </button>

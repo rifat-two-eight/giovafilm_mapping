@@ -63,9 +63,9 @@ export function UsageStatistics({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <StatColumn title="Most Viewed Maps" items={data?.mostViewedMaps || []} />
-        <StatColumn title={placeColumnTitle} items={data?.mostOpenedPlaces || []} />
-        <StatColumn title="Most Redeemed Offers" items={data?.mostRedeemedOffers || []} />
+        <StatColumn title={t("reports_admin.most_viewed_maps")} items={data?.mostViewedMaps || []} />
+        <StatColumn title={placeColumnTitle === "Most Opened Places" ? t("reports_admin.most_opened_places") : placeColumnTitle} items={data?.mostOpenedPlaces || []} />
+        <StatColumn title={t("reports_admin.most_redeemed_offers")} items={data?.mostRedeemedOffers || []} />
       </div>
     </div>
   );

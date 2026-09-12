@@ -1,5 +1,4 @@
-"use client";
-
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,6 +34,7 @@ interface Place {
 }
 
 export function PlacesTable() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,17 +79,17 @@ export function PlacesTable() {
 
   const handleDelete = async (id: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this place deletion!",
+      title: t("common.are_you_sure"),
+      text: t("places_admin.delete_confirm") || "You won't be able to revert this place deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await deletePlace(id).unwrap();
-          toast.success("Place deleted successfully");
+          toast.success(t("places_admin.deleted_successfully") || "Place deleted successfully");
         } catch (error: any) {
           toast.error(
             error?.data?.message || error?.message || "Failed to delete place",

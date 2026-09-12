@@ -20,6 +20,7 @@ import { useGetPlacesQuery } from "@/redux/features/place/placeApi";
 import { ChevronDown, Upload, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { toast } from "sonner";
 
 interface CreateOfferDialogProps {
@@ -51,6 +52,7 @@ export function CreateOfferDialog({
   onOpenChange,
   initialData,
 }: CreateOfferDialogProps) {
+  const { t } = useLanguage();
   const isEdit = !!initialData;
   const { register, handleSubmit, reset, watch, control, setValue } =
     useForm<FormData>({
@@ -271,10 +273,10 @@ export function CreateOfferDialog({
           id: initialData._id,
           data: formDataPayload,
         }).unwrap();
-        toast.success("Offer updated successfully!");
+        toast.success(t("offers_admin.updated_successfully") || "Offer updated successfully!");
       } else {
         await createOffer(formDataPayload).unwrap();
-        toast.success("Offer created successfully!");
+        toast.success(t("offers_admin.created_successfully") || "Offer created successfully!");
       }
 
       onOpenChange(false);

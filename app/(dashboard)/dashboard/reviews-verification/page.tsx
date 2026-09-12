@@ -11,7 +11,10 @@ import { getImageUrl } from "@/lib/utils";
 import { Check, X, Star } from "lucide-react";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function ReviewsVerificationPage() {
+  const { t } = useLanguage();
   const { data: reviews, isLoading, refetch } = useGetPendingReviewsQuery({});
   const [approveReview, { isLoading: isApproving }] = useApproveReviewMutation();
   const [rejectReview, { isLoading: isRejecting }] = useRejectReviewMutation();
@@ -19,7 +22,7 @@ export default function ReviewsVerificationPage() {
   const handleApprove = async (id: string) => {
     try {
       await approveReview(id).unwrap();
-      toast.success("Review approved successfully");
+      toast.success(t("reviews_admin.approved_successfully") || "Review approved successfully");
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to approve review");
@@ -29,7 +32,7 @@ export default function ReviewsVerificationPage() {
   const handleReject = async (id: string) => {
     try {
       await rejectReview(id).unwrap();
-      toast.success("Review rejected successfully");
+      toast.success(t("reviews_admin.rejected_successfully") || "Review rejected successfully");
       refetch();
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to reject review");
@@ -41,9 +44,9 @@ export default function ReviewsVerificationPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold">Reviews Verification</h1>
+        <h1 className="text-3xl font-bold">{t("reviews_admin.title")}</h1>
         <p className="text-muted-foreground mt-2">
-          Verify and approve or reject pending user reviews. approved reviews will award points to users.
+          {t("reviews_admin.subtitle")}
         </p>
       </div>
 
@@ -56,7 +59,7 @@ export default function ReviewsVerificationPage() {
       ) : reviewList.length === 0 ? (
         <Card className="rounded-2xl border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg font-medium text-muted-foreground">No pending reviews to verify</p>
+            <p className="text-lg font-medium text-muted-foreground">{t("reviews_admin.no_pending_reviews")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -68,11 +71,11 @@ export default function ReviewsVerificationPage() {
                   <div>
                     <CardTitle className="text-xl font-semibold mb-1 line-clamp-1">
                       {review.businessId
-                        ? `Business: ${review.businessId?.name || "Unknown Business"}`
-                        : `Place: ${review.placeId?.name || "Unknown Place"}`}
+                        ? `${t("business_admin.business") || "Business"}: ${review.businessId?.name || "Unknown Business"}`
+                        : `${t("places_admin.place") || "Place"}: ${review.placeId?.name || "Unknown Place"}`}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      By: <span className="font-medium text-foreground">{review.reviewer?.name || "Anonymous"}</span>
+                      {t("reviews.by") || "By"}: <span className="font-medium text-foreground">{review.reviewer?.name || "Anonymous"}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1 bg-yellow-50 text-yellow-600 px-2.5 py-1 rounded-full text-sm font-semibold">
@@ -106,14 +109,14 @@ export default function ReviewsVerificationPage() {
                     disabled={isApproving || isRejecting}
                     className="flex items-center gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-full"
                   >
-                    <X className="w-4 h-4" /> Reject
+                    <X className="w-4 h-4" /> {t("business_admin.reject") || "Reject"}
                   </Button>
                   <Button
                     onClick={() => handleApprove(review._id)}
                     disabled={isApproving || isRejecting}
                     className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white rounded-full border-none"
                   >
-                    <Check className="w-4 h-4" /> Approve
+                    <Check className="w-4 h-4" /> {t("business_admin.approve") || "Approve"}
                   </Button>
                 </div>
               </CardContent>

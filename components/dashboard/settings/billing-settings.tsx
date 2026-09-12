@@ -32,12 +32,12 @@ export function BillingSettings() {
     if (!subscriptionId || !token) return;
 
     const result = await appAlert.fire({
-      title: "Are you sure?",
-      text: "You will still have access until the end of your billing period.",
+      title: t("common.are_you_sure"),
+      text: t("settings_admin.cancel_notice") || "You will still have access until the end of your billing period.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, cancel it!",
+      confirmButtonText: t("common.yes_cancel_it") || "Yes, cancel it!",
     });
 
     if (!result.isConfirmed) {
@@ -50,7 +50,7 @@ export function BillingSettings() {
         token,
       }).unwrap();
 
-      toast.success("Subscription cancelled successfully");
+      toast.success(t("settings_admin.subscription_cancelled") || "Subscription cancelled successfully");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to cancel subscription");
     }
