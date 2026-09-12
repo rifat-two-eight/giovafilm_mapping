@@ -3,33 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Bookmark, Download, Share2 } from "lucide-react";
 import { motion } from "motion/react";
-
-type Feature = {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-};
-
-const features: Feature[] = [
-  {
-    title: "Wishlist Collection",
-    description:
-      "Save maps you're planning to buy later for your next big adventure.",
-    icon: <Bookmark className="text-yellow-500" size={20} />,
-  },
-  {
-    title: "Offline Access",
-    description:
-      "Download your maps to navigate even without an internet connection.",
-    icon: <Download className="text-yellow-500" size={20} />,
-  },
-  {
-    title: "Collaborative Trips",
-    description:
-      "Invite friends to view your purchased maps and plan together.",
-    icon: <Share2 className="text-yellow-500" size={20} />,
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -46,6 +20,26 @@ const itemVariants = {
 } as const;
 
 export default function PersonalizedExperience() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      title: t("landing.wishlist_title"),
+      description: t("landing.wishlist_desc"),
+      icon: <Bookmark className="text-yellow-500" size={20} />,
+    },
+    {
+      title: t("landing.offline_title"),
+      description: t("landing.offline_desc"),
+      icon: <Download className="text-yellow-500" size={20} />,
+    },
+    {
+      title: t("landing.collab_title"),
+      description: t("landing.collab_desc"),
+      icon: <Share2 className="text-yellow-500" size={20} />,
+    },
+  ];
+
   return (
     <section className="relative py-24 overflow-hidden">
       {/* Background Shape */}
@@ -61,7 +55,7 @@ export default function PersonalizedExperience() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Personalized Experience
+            {t("landing.personalized_title")}
           </motion.h2>
 
           <motion.div
@@ -126,10 +120,10 @@ export default function PersonalizedExperience() {
               </motion.div>
 
               <div>
-                <p className="font-semibold">Welcome back, Explorer!</p>
+                <p className="font-semibold">{t("landing.welcome_back")}</p>
 
                 <p className="text-sm text-muted-foreground">
-                  You have 3 active maps in your collection.
+                  {t("landing.active_maps")}
                 </p>
               </div>
             </div>

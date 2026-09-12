@@ -8,10 +8,12 @@ import { usePathname } from "next/navigation";
 import { AuthLink } from "@/components/shared/auth-link";
 import { useAppSelector } from "@/redux/hook";
 import LanguageSwitcher from "@/components/shared/language-switcher";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Footer() {
   const pathname = usePathname();
   const isAuthenticated = useAppSelector((state) => state.auth.accessToken);
+  const { t } = useLanguage();
 
   if (pathname === "/maps") return null;
 
@@ -36,8 +38,7 @@ export default function Footer() {
             </div>
 
             <p className="mt-4 text-sm leading-relaxed">
-              Curating the world&apos;s most authentic travel experiences through
-              interactive, community-driven digital maps.
+              {t("footer.tagline")}
             </p>
 
             {/* Social Icons */}
@@ -84,53 +85,51 @@ export default function Footer() {
 
           {/* Platform */}
           <div>
-            <h3 className="text-sm font-semibold text-black tracking-wide mb-4">
-              PLATFORM
+            <h3 className="text-sm font-semibold text-black tracking-wide mb-4 uppercase">
+              {t("footer.platform")}
             </h3>
 
             <ul className="space-y-3 text-sm">
               <li className="hover:text-black cursor-pointer">
-                <AuthLink href="/catalog">Map Catalog</AuthLink>
+                <AuthLink href="/catalog">{t("footer.map_catalog")}</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <AuthLink href="/how-it-works">How it Works</AuthLink>
+                <AuthLink href="/how-it-works">{t("footer.how_it_works")}</AuthLink>
               </li>
-
             </ul>
           </div>
 
           {/* Business */}
           <div>
-            <h3 className="text-sm font-semibold text-black tracking-wide mb-4">
-              FOR BUSINESSES
+            <h3 className="text-sm font-semibold text-black tracking-wide mb-4 uppercase">
+              {t("footer.for_businesses")}
             </h3>
 
             <ul className="space-y-3 text-sm">
               <li className="hover:text-black cursor-pointer">
-                <AuthLink href={"/for-business"}>Add Your Business</AuthLink>
+                <AuthLink href={"/for-business"}>{t("footer.add_business")}</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <AuthLink href={"/pricing"}>Pricing Plan</AuthLink>
+                <AuthLink href={"/pricing"}>{t("footer.pricing_plan")}</AuthLink>
               </li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h3 className="text-sm font-semibold text-black tracking-wide mb-4">
-              COMPANY
+            <h3 className="text-sm font-semibold text-black tracking-wide mb-4 uppercase">
+              {t("footer.company")}
             </h3>
 
             <ul className="space-y-3 text-sm">
-
               <li className="hover:text-black cursor-pointer">
-                <AuthLink href={"/contact"}>Contact</AuthLink>
+                <AuthLink href={"/contact"}>{t("footer.contact")}</AuthLink>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <Link href={"/privacy-policy"}>Privacy Policy</Link>
+                <Link href={"/privacy-policy"}>{t("footer.privacy_policy")}</Link>
               </li>
               <li className="hover:text-black cursor-pointer">
-                <Link href={"/terms-of-service"}>Terms of Service</Link>
+                <Link href={"/terms-of-service"}>{t("footer.terms_of_service")}</Link>
               </li>
             </ul>
           </div>
@@ -139,7 +138,7 @@ export default function Footer() {
         {/* Divider */}
         <div className="border-t border-gray-200 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
           <p>
-            © {new Date().getFullYear()} Roadtripeado Inc. All rights reserved.
+            © {new Date().getFullYear()} Roadtripeado Inc. {t("footer.all_rights_reserved")}
           </p>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0">

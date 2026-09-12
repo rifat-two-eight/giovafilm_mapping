@@ -13,6 +13,7 @@ import {
 
 import { useSubmitContactFormMutation } from "@/redux/features/public/publicApi";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface FormData {
   name: string;
@@ -22,6 +23,7 @@ interface FormData {
 }
 
 export function ContactForm() {
+  const { t } = useLanguage();
   const [submitContact, { isLoading }] = useSubmitContactFormMutation();
 
   // State to manage form inputs
@@ -69,7 +71,7 @@ export function ContactForm() {
               htmlFor="name"
               className="block text-sm font-semibold text-gray-900"
             >
-              Name
+              {t("contact_form.name")}
             </label>
             <Input
               id="name"
@@ -88,7 +90,7 @@ export function ContactForm() {
               htmlFor="email"
               className="block text-sm font-semibold text-gray-900"
             >
-              Email Address
+              {t("contact_form.email")}
             </label>
             <Input
               id="email"
@@ -108,7 +110,7 @@ export function ContactForm() {
             htmlFor="subject"
             className="block text-sm font-semibold text-gray-900"
           >
-            Subject
+            {t("contact_form.subject")}
           </label>
           <Select
             value={formData.subject}
@@ -118,11 +120,11 @@ export function ContactForm() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white border border-gray-200 rounded-lg">
-              <SelectItem value="General Inquiry">General Inquiry</SelectItem>
-              <SelectItem value="Trip Planning">Trip Planning</SelectItem>
-              <SelectItem value="Partnership">Partnership</SelectItem>
-              <SelectItem value="Support">Support</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="General Inquiry">{t("contact_form.general_inquiry")}</SelectItem>
+              <SelectItem value="Trip Planning">{t("contact_form.trip_planning")}</SelectItem>
+              <SelectItem value="Partnership">{t("contact_form.partnership")}</SelectItem>
+              <SelectItem value="Support">{t("contact_form.support")}</SelectItem>
+              <SelectItem value="Other">{t("contact_form.other")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -133,11 +135,11 @@ export function ContactForm() {
             htmlFor="message"
             className="block text-sm font-semibold text-gray-900"
           >
-            Message
+            {t("contact_form.message")}
           </label>
           <textarea
             id="message"
-            placeholder="Tell us more about your adventure..."
+            placeholder={t("contact_form.message_placeholder")}
             value={formData.message}
             onChange={(e) => handleInputChange("message", e.target.value)}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none h-32 font-sans"
@@ -151,7 +153,7 @@ export function ContactForm() {
           disabled={isLoading}
           className="px-10 h-14 w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg text-base shadow-lg shadow-yellow-500/20 disabled:opacity-75 cursor-pointer border-none"
         >
-          {isLoading ? "Sending..." : "Send Message →"}
+          {isLoading ? t("contact_form.sending") : t("contact_form.send_message")}
         </Button>
       </form>
     </div>

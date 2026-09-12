@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { normalizePinType } from "@/lib/record-visit";
 import { getUsableMediaUrl } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
@@ -56,6 +57,7 @@ export function MapFilters({
   isLoading = false,
   hideDesktopMapFilter = false,
 }: MapFiltersProps) {
+  const { t } = useLanguage();
   const hasCategories = fetchedCategories.length > 0;
   const showEmpty = !isLoading && fetchedCategories.length === 0;
   const mapLabel = selectedCountry || "this map";
@@ -79,7 +81,7 @@ export function MapFilters({
             onClick={() => setMobileOpen((o) => !o)}
             className="flex-1 max-w-[145px] min-w-0 flex items-center justify-between gap-1 bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2 text-xs font-bold text-gray-900"
           >
-            <span className="truncate">Categories</span>
+            <span className="truncate">{t("common.categories")}</span>
             <ChevronDown
               className={`w-3.5 h-3.5 shrink-0 transition-transform ${mobileOpen ? "rotate-180" : ""}`}
             />
@@ -94,7 +96,7 @@ export function MapFilters({
               value={selectedCountry}
             >
               <SelectTrigger className="w-full h-full border-0 py-2 px-2.5 focus:ring-0 font-bold text-gray-800 bg-white shadow-none text-xs text-left truncate">
-                <SelectValue placeholder="Select Map" />
+                <SelectValue placeholder={t("filters.country")} />
               </SelectTrigger>
               <SelectContent
                 position="popper"
@@ -146,7 +148,7 @@ export function MapFilters({
             {!isMobile && (
               <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gray-50/50 flex justify-between items-center w-full">
                 <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-                  Map Categories
+                  {t("common.categories")}
                 </span>
               </AccordionTrigger>
             )}
@@ -349,11 +351,12 @@ export function SelectedMapFilter({
   availableCountries: string[];
   isMobile?: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div className={`min-w-[200px] max-w-[280px] w-full md:w-max bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex-col gap-0 pointer-events-auto ${isMobile ? "hidden" : "flex"}`}>
       <div className="px-4 py-2.5 bg-gray-50/50">
         <span className="text-sm font-black text-gray-900 uppercase tracking-tighter">
-          Selected Map
+          {t("filters.country")}
         </span>
       </div>
       <Select

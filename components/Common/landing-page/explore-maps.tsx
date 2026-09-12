@@ -3,25 +3,7 @@
 import Image from "next/image";
 import { Filter, Eye, Heart, Navigation } from "lucide-react";
 import { motion } from "motion/react";
-
-const features = [
-  {
-    icon: Filter,
-    text: "Filter by preference, time of day, or popularity.",
-  },
-  {
-    icon: Eye,
-    text: "View immersive details and history for every spot.",
-  },
-  {
-    icon: Heart,
-    text: "Save favorites to your personal itinerary.",
-  },
-  {
-    icon: Navigation,
-    text: "Seamless navigation with your favorite GPS app.",
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const listVariants = {
   hidden: {},
@@ -38,6 +20,27 @@ const itemVariants = {
 } as const;
 
 export default function ExploreMaps() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      icon: Filter,
+      text: t("landing.interactive_f1"),
+    },
+    {
+      icon: Eye,
+      text: t("landing.interactive_f2"),
+    },
+    {
+      icon: Heart,
+      text: t("landing.interactive_f3"),
+    },
+    {
+      icon: Navigation,
+      text: t("landing.interactive_f4"),
+    },
+  ];
+
   return (
     <section className="bg-[#0f0f0f] text-white py-24 overflow-hidden">
       <div className="max-w-360 mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-16 items-center">
@@ -69,13 +72,11 @@ export default function ExploreMaps() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <h2 className="text-4xl font-inter font-bold">
-            Explore With Interactive Maps
+            {t("landing.interactive_title")}
           </h2>
 
           <p className="text-base font-inter text-gray-400 leading-relaxed">
-            Our dynamic platform transforms a static map into a powerful
-            exploration tool. Real-time data and community insights ensure you
-            never miss a beat.
+            {t("landing.interactive_desc")}
           </p>
 
           {/* Features */}

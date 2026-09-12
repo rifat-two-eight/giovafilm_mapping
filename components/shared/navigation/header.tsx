@@ -152,7 +152,7 @@ export default function Header() {
   const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(user?.role || "");
   const visibleMenuItems = isAdminOrEditor
     ? menuItems.filter((item) =>
-        ["Favorites", "Contributions & Reviews", "Awards"].includes(item.label)
+        ["/profile/favorite-places", "/profile/contributions-reviews", "/profile/awards"].includes(item.href)
       )
     : menuItems;
   const [logoutApi] = useLogoutMutation();
@@ -283,7 +283,7 @@ export default function Header() {
                     submitHeaderSearch();
                   }
                 }}
-                placeholder="Search digital maps, cities, landmarks..."
+                placeholder={t("search.placeholder_full")}
                 className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
               />
 
@@ -293,7 +293,7 @@ export default function Header() {
                   {isSearchPending ? (
                     <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                      Searching...
+                      {t("search.searching")}
                     </div>
                   ) : places.length > 0 ? (
                     <div className="max-h-60 overflow-y-auto">
@@ -344,7 +344,7 @@ export default function Header() {
                     </div>
                   ) : (
                     <div className="p-4 text-center text-sm text-gray-500">
-                      No places found
+                      {t("search.no_results")}
                     </div>
                   )}
                 </div>
@@ -429,13 +429,13 @@ export default function Header() {
 
                     <div className="space-y-1 mb-4">
                       <p>
-                        Level <span className="font-bold">{user?.level}</span>
+                        {t("levels.level")} <span className="font-bold">{user?.level}</span>
                       </p>
 
                       <Progress value={progress} className="h-2" />
 
                       <p className="text-sm text-gray-500">
-                        {user?.points || 0} / {maxPoints} points
+                        {user?.points || 0} / {maxPoints} {t("levels.points")}
                       </p>
                     </div>
 
@@ -454,7 +454,7 @@ export default function Header() {
                         className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
                       >
                         <Edit2 size={18} />
-                        Edit Profile
+                        {t("profile.edit_profile")}
                       </Button>
 
                       <Button
@@ -471,7 +471,7 @@ export default function Header() {
                         ) : (
                           <Share2 size={18} />
                         )}
-                        {shareCopied ? "Link Copied!" : "Share Profile"}
+                        {shareCopied ? t("common.copied") : t("profile.share_profile")}
                       </Button>
                     </div>
                   </div>
@@ -480,7 +480,7 @@ export default function Header() {
                       <Link href={"/dashboard"}>
                         <DropdownMenuItem className="px-4 py-3 cursor-pointer">
                           <Grid2x2 className="mr-3 size-5" />
-                          Dashoard
+                          Dashboard
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -508,7 +508,7 @@ export default function Header() {
                     disabled={isLoggingOut}
                     className="w-full bg-[#FFC107] hover:bg-[#FFB300] py-3 font-semibold text-center"
                   >
-                    {isLoggingOut ? "Logging out..." : "Log Out"}
+                    {isLoggingOut ? t("common.loading") : t("nav.logout")}
                   </Button>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -598,7 +598,7 @@ export default function Header() {
                           {user?.name || "Explorer"}
                         </h2>
                         <p className="mt-0.5 text-xs font-semibold text-gray-500">
-                          Level {user?.level ?? 0}
+                          {t("levels.level")} {user?.level ?? 0}
                           {USER_LEVELS[user?.level ?? 0]?.name
                             ? ` · ${USER_LEVELS[user?.level ?? 0].name}`
                             : ""}
@@ -606,7 +606,7 @@ export default function Header() {
                         <div className="mt-2">
                           <Progress value={progress} className="h-1.5" />
                           <p className="mt-1 text-[11px] text-gray-500">
-                            {user?.points || 0} / {maxPoints} pts
+                            {user?.points || 0} / {maxPoints} {t("levels.points")}
                           </p>
                         </div>
                       </div>
@@ -619,7 +619,7 @@ export default function Header() {
                         className="h-10 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-xl"
                       >
                         <Edit2 size={15} />
-                        Edit
+                        {t("profile.edit_profile")}
                       </Button>
                       <Button
                         type="button"
@@ -635,7 +635,7 @@ export default function Header() {
                         ) : (
                           <Share2 size={15} />
                         )}
-                        {shareCopied ? "Copied" : "Share"}
+                        {shareCopied ? t("common.copied") : t("profile.share_profile")}
                       </Button>
                     </div>
                   </div>
@@ -676,7 +676,7 @@ export default function Header() {
                       variant="ghost"
                       className="w-full h-10 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 font-semibold"
                     >
-                      {isLoggingOut ? "Logging out..." : "Log Out"}
+                      {isLoggingOut ? t("common.loading") : t("nav.logout")}
                     </Button>
                   </div>
                 </DropdownMenuContent>
@@ -684,7 +684,7 @@ export default function Header() {
             ) : (
               <Link href="/login">
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl px-4 py-2 text-sm shadow-none">
-                  Log In
+                  {t("nav.login")}
                 </Button>
               </Link>
             )}
@@ -723,7 +723,7 @@ export default function Header() {
         >
           <div className="p-4 sm:p-5 max-w-2xl mx-auto">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Search Map</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("nav.map")}</span>
               <button
                 type="button"
                 onClick={closeMenus}
@@ -752,7 +752,7 @@ export default function Header() {
                     submitHeaderSearch();
                   }
                 }}
-                placeholder="Search municipality, city, landmark..."
+                placeholder={t("search.placeholder_full")}
                 className="w-full bg-[#F5F5F5] border border-gray-200/70 rounded-full py-3 pl-12 pr-10 text-sm focus:bg-white focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner"
                 autoFocus
               />
@@ -782,7 +782,7 @@ export default function Header() {
                   {isSearchPending ? (
                     <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                      Searching...
+                      {t("search.searching")}
                     </div>
                   ) : places.length > 0 ? (
                     <div>
@@ -882,7 +882,7 @@ export default function Header() {
             {isAuthenticated && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="text-sm font-medium text-gray-500 mb-3 px-4">
-                  Account
+                  {t("nav.profile")}
                 </h3>
 
                 <div className="space-y-1">
@@ -893,7 +893,7 @@ export default function Header() {
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-semibold"
                     >
                       <Grid2x2 className="size-5" />
-                      Dashoard
+                      Dashboard
                     </Link>
                   )}
                   <div className="space-y-1">
@@ -920,7 +920,7 @@ export default function Header() {
                     className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4"
                   >
                     <Map className="size-5" />
-                    <span>Log Out</span>
+                    <span>{t("nav.logout")}</span>
                   </button>
                 </div>
               </div>

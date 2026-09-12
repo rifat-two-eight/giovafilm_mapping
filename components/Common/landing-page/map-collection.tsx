@@ -9,8 +9,10 @@ import { getImageUrl } from "@/lib/utils";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function MapCollection() {
+  const { t } = useLanguage();
   const { data: mapsRes, isLoading } = useGetMapsQuery({});
   const mapsData = mapsRes?.data || [];
 
@@ -25,9 +27,9 @@ export default function MapCollection() {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h2 className="text-3xl font-bold">Explore Our Map Collection</h2>
+          <h2 className="text-3xl font-bold">{t("landing.collection_title")}</h2>
           <p className="text-muted-foreground mt-2">
-            Curated by experts and updated daily.
+            {t("landing.collection_subtitle")}
           </p>
         </div>
 
@@ -37,7 +39,7 @@ export default function MapCollection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            View Full Catalog
+            {t("landing.view_full_catalog")}
           </motion.button>
         </Link>
       </motion.div>
@@ -65,7 +67,7 @@ export default function MapCollection() {
             ))
           ) : mapsData.length === 0 ? (
             <div className="w-full text-center py-10 text-muted-foreground">
-              No maps found
+              {t("landing.no_maps")}
             </div>
           ) : (
             mapsData.map((map: any, index: number) => (
@@ -98,9 +100,8 @@ export default function MapCollection() {
                       </h3>
 
                       <p className="text-sm text-white/80 line-clamp-2">
-                        {map.placeCount ?? 0} spots •{" "}
-                        {map.description ||
-                          "Explore the best of the city with this curated guide."}
+                        {map.placeCount ?? 0} {t("landing.spots")} •{" "}
+                        {map.description || t("landing.default_map_desc")}
                       </p>
                     </div>
                   </div>

@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/utils";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
 });
@@ -21,6 +23,7 @@ const forgotPasswordSchema = z.object({
 type FormValues = z.infer<typeof forgotPasswordSchema>;
 
 export const ForgotPasswordForm = () => {
+  const { t } = useLanguage();
   const router = useRouter();
   const {
     register,
@@ -54,7 +57,7 @@ export const ForgotPasswordForm = () => {
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">
-          Forgot Password?
+          {t("auth.forgot_password")}
         </h2>
         <p className="text-sm text-[#757575]">
           Enter your email and we’ll send you a reset link.
@@ -66,7 +69,7 @@ export const ForgotPasswordForm = () => {
         {/* Email */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Email
+            {t("auth.email")}
           </Label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -91,10 +94,10 @@ export const ForgotPasswordForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Sending...
+              {t("common.loading")}
             </>
           ) : (
-            "Send Reset Link"
+            t("auth.send_reset_link")
           )}
         </Button>
       </form>
@@ -106,7 +109,7 @@ export const ForgotPasswordForm = () => {
           href="/login"
           className="text-base font-semibold text-primary font-public-sans hover:underline"
         >
-          Back to Login
+          {t("auth.back_to_login")}
         </Link>
       </div>
     </div>

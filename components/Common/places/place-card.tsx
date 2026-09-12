@@ -7,9 +7,11 @@ import { getUsableMediaUrl } from "@/lib/utils";
 import { MapPin, Star, Lock } from "lucide-react";
 import Link from "next/link";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function PlaceCard({ data }: { data: TPlace }) {
   const coverImage = getUsableMediaUrl(data?.media);
+  const { t } = useLanguage();
 
   const handleClick = (e: React.MouseEvent) => {
     if (data?.isLocked) {
@@ -19,12 +21,12 @@ export function PlaceCard({ data }: { data: TPlace }) {
         : null;
       
       appAlert.fire({
-        title: "Unlock Premium Place",
+        title: t("map.unlock_full_map"),
         text: "This beautiful location and its details are locked. Purchase the map to unlock directions, photos, and local insights.",
         icon: "info",
         showCancelButton: true,
-        confirmButtonText: "Unlock Map",
-        cancelButtonText: "Maybe Later",
+        confirmButtonText: t("map.buy_map"),
+        cancelButtonText: t("common.cancel"),
       }).then((result) => {
         if (result.isConfirmed) {
           if (mapId) {
@@ -63,7 +65,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
           {data?.isLocked && (
             <div className="absolute top-3 left-3 bg-red-500 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg">
               <Lock className="w-3.5 h-3.5" />
-              LOCKED
+              {t("map.unlock_full_map")}
             </div>
           )}
         </div>
@@ -71,20 +73,20 @@ export function PlaceCard({ data }: { data: TPlace }) {
         {/* Content */}
         <div className="p-2.5 md:p-4 font-inter">
           <h3 className="font-semibold text-sm md:text-lg line-clamp-2">
-            {data?.isLocked ? "🔒 Premium Location" : data?.name}
+            {data?.isLocked ? `🔒 ${t("map.unlock_full_map")}` : data?.name}
           </h3>
  
           <div className="flex items-start text-gray-500 text-xs md:text-sm mt-1 gap-1">
             <MapPin size={14} className="shrink-0 mt-0.5" />
             <span className="line-clamp-2">
-              {data?.isLocked ? "Purchase map to unlock address" : data?.address}
+              {data?.isLocked ? t("map.unlock_full_map") : data?.address}
             </span>
           </div>
  
           <p className="text-gray-400 text-xs md:text-sm mt-1 line-clamp-1">
             {data?.isLocked
-              ? "Unlock to view reviews & category"
-              : `${data?.totalReview} Reviews • ${data?.category?.name}`}
+              ? t("map.unlock_full_map")
+              : `${data?.totalReview} ${t("place.reviews")} • ${data?.category?.name}`}
           </p>
         </div>
       </div>

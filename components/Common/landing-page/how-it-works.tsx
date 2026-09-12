@@ -3,33 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, ShoppingBag, Box } from "lucide-react";
 import { motion } from "motion/react";
-
-type Step = {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-};
-
-const steps: Step[] = [
-  {
-    title: "Browse Maps",
-    description:
-      "Find the perfect curated guide for your next destination among hundreds of user-verified cities.",
-    icon: <Search className="w-6 h-6 text-amber-500" />,
-  },
-  {
-    title: "Purchase Your Map",
-    description:
-      "One-time purchase gives you lifetime access to interactive locations and real-time community updates.",
-    icon: <ShoppingBag className="w-6 h-6 text-amber-500" />,
-  },
-  {
-    title: "Explore the City",
-    description:
-      "Navigate like a local with hidden gems at your fingertips and unlock location-specific rewards.",
-    icon: <Box className="w-6 h-6 text-amber-500" />,
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -54,6 +28,26 @@ const itemVariants = {
 } as const;
 
 export default function HowItWorks() {
+  const { t } = useLanguage();
+
+  const steps = [
+    {
+      title: t("landing.step1_title"),
+      description: t("landing.step1_desc"),
+      icon: <Search className="w-6 h-6 text-amber-500" />,
+    },
+    {
+      title: t("landing.step2_title"),
+      description: t("landing.step2_desc"),
+      icon: <ShoppingBag className="w-6 h-6 text-amber-500" />,
+    },
+    {
+      title: t("landing.step3_title"),
+      description: t("landing.step3_desc"),
+      icon: <Box className="w-6 h-6 text-amber-500" />,
+    },
+  ];
+
   return (
     <section className="py-16 bg-white overflow-hidden">
       <div className="max-w-360 mx-auto px-4 md:px-6">
@@ -65,7 +59,7 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          How It Works
+          {t("landing.how_it_works_title")}
         </motion.h2>
 
         {/* Cards */}

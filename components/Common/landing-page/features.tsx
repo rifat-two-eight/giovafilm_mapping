@@ -4,33 +4,7 @@ import React from "react";
 import { MapPin, Camera, Tag, LayoutGrid } from "lucide-react";
 import Image from "next/image";
 import { motion } from "motion/react";
-
-const features = [
-  {
-    title: "Curated Locations",
-    description: "Hand-picked spots from locals.",
-    icon: MapPin,
-    color: "bg-[#FFC107]",
-  },
-  {
-    title: "Photos & Videos",
-    description: "Visual previews of every spot.",
-    icon: Camera,
-    color: "bg-[#FFC107]",
-  },
-  {
-    title: "Exclusive Local Offers",
-    description: "Deals only for our explorers.",
-    icon: Tag,
-    color: "bg-[#FFC107]",
-  },
-  {
-    title: "Smart Categories",
-    description: "Filter by mood or activity.",
-    icon: LayoutGrid,
-    color: "bg-[#FFC107]",
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -66,6 +40,35 @@ const imageVariantsRight = {
 } as const;
 
 export function Features() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      title: t("landing.feat1_title"),
+      description: t("landing.feat1_desc"),
+      icon: MapPin,
+      color: "bg-[#FFC107]",
+    },
+    {
+      title: t("landing.feat2_title"),
+      description: t("landing.feat2_desc"),
+      icon: Camera,
+      color: "bg-[#FFC107]",
+    },
+    {
+      title: t("landing.feat3_title"),
+      description: t("landing.feat3_desc"),
+      icon: Tag,
+      color: "bg-[#FFC107]",
+    },
+    {
+      title: t("landing.feat4_title"),
+      description: t("landing.feat4_desc"),
+      icon: LayoutGrid,
+      color: "bg-[#FFC107]",
+    },
+  ];
+
   return (
     <section className="relative py-16 overflow-hidden">
       {/* Curved Background Shape */}
@@ -83,7 +86,7 @@ export function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            What You Get Inside Every Map
+            {t("landing.features_title")}
           </motion.h2>
           
           <motion.p
@@ -93,8 +96,7 @@ export function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Every digital map is hand-crafted to provide the ultimate urban
-            exploration experience, far beyond what simple GPS apps offer.
+            {t("landing.features_desc")}
           </motion.p>
 
           <motion.div

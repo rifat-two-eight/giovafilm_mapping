@@ -8,8 +8,10 @@ import { motion } from "motion/react";
 import { useLoginRequired } from "@/components/shared/login-required-modal";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function HeroBanner() {
+  const { t } = useLanguage();
   const accessToken = useAppSelector(selectAccessToken);
   const { openLoginRequired } = useLoginRequired();
 
@@ -74,7 +76,7 @@ export default function HeroBanner() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Local Insight, Digital Ease
+            {t("landing.hero_tagline")}
           </motion.p>
           
           <motion.h1
@@ -83,8 +85,8 @@ export default function HeroBanner() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Discover Cities <br className="hidden xl:block" />
-            <span className="text-[#FFC107]">Like a Local</span>
+            {t("landing.hero_title_1")} <br className="hidden xl:block" />
+            <span className="text-[#FFC107]">{t("landing.hero_title_2")}</span>
           </motion.h1>
 
           <motion.p
@@ -93,8 +95,7 @@ export default function HeroBanner() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            Buy curated digital maps packed with local places, hidden gems, and
-            exclusive offers — all in one interactive experience.
+            {t("landing.hero_desc")}
           </motion.p>
 
           <motion.div
@@ -106,7 +107,7 @@ export default function HeroBanner() {
             <Link href={"/places"} onClick={handleExplorePlaces}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 cursor-pointer">
-                  Explore Places
+                  {t("landing.explore_places")}
                 </Button>
               </motion.div>
             </Link>
@@ -116,7 +117,7 @@ export default function HeroBanner() {
                   variant="outline"
                   className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5 cursor-pointer"
                 >
-                  Browse Catalog
+                  {t("landing.browse_catalog")}
                 </Button>
               </motion.div>
             </Link>
@@ -149,9 +150,8 @@ export default function HeroBanner() {
               ))}
             </div>
             <p className="text-sm font-medium text-gray-500">
-              Joined by{" "}
-              <span className="text-black font-bold">10k+ explorers</span> this
-              month
+              {t("landing.joined_by")}{" "}
+              <span className="text-black font-bold">10k+ {t("landing.explorers_this_month")}</span>
             </p>
           </motion.div>
         </motion.div>
@@ -187,9 +187,9 @@ export default function HeroBanner() {
             </div>
             <div>
               <h4 className="font-black text-gray-900 leading-tight">
-                New: Tokyo Guide
+                {t("landing.tokyo_guide")}
               </h4>
-              <p className="text-sm text-[#6B7280]">50+ Hidden Gems added</p>
+              <p className="text-sm text-[#6B7280]">{t("landing.gems_added")}</p>
             </div>
           </motion.div>
         </div>

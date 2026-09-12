@@ -18,34 +18,8 @@ import Link from "next/link";
 import { useState } from "react";
 import ProfileUpdateModal from "./profile-update-modal";
 import { NoImage } from "@/lib/others/others";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
-
-const allProfileLinks = [
-  {
-    href: "/profile/favorite-places",
-    label: "Favorites",
-    icon: Heart,
-    roles: ["all"],
-  },
-  {
-    href: "/profile/purchased-maps",
-    label: "Purchased Maps",
-    icon: Map,
-    roles: ["user"],
-  },
-  {
-    href: "/profile/contributions-reviews",
-    label: "Contributions",
-    icon: Star,
-    roles: ["all"],
-  },
-  {
-    href: "/profile/awards",
-    label: "Awards",
-    icon: Trophy,
-    roles: ["all"],
-  },
-];
 
 interface ProfileSidebar {
   _id?: string;
@@ -68,6 +42,34 @@ export function ProfileSidebar({ data }: ProfileProps) {
   const [open, setOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const { t } = useLanguage();
+
+  const allProfileLinks = [
+    {
+      href: "/profile/favorite-places",
+      label: t("nav.favorite_places"),
+      icon: Heart,
+      roles: ["all"],
+    },
+    {
+      href: "/profile/purchased-maps",
+      label: t("nav.purchased_maps"),
+      icon: Map,
+      roles: ["user"],
+    },
+    {
+      href: "/profile/contributions-reviews",
+      label: t("nav.contributions"),
+      icon: Star,
+      roles: ["all"],
+    },
+    {
+      href: "/profile/awards",
+      label: t("nav.awards"),
+      icon: Trophy,
+      roles: ["all"],
+    },
+  ];
 
   const { data: profile } = useGetProfileQuery({});
   const isAdminOrEditor = ["admin", "super_admin", "map_editor"].includes(profile?.role || "");
@@ -127,24 +129,24 @@ export function ProfileSidebar({ data }: ProfileProps) {
 
           {/* Level Name Badge */}
           {(() => {
-            const USER_LEVELS = [
-              "Explorador",
-              "Aventurero",
-              "Tlacuilo",
-              "Expedicionario",
-              "Viajero",
-              "Chasqui",
-              "Cronista",
-              "Pochteca",
-              "Navegante",
-              "Cartógrafo",
-              "Gran Explorador",
-              "Conquistador",
-              "Gran Conquistador",
-              "Amauta",
-              "Leyenda",
+            const USER_LEVEL_KEYS = [
+              "levels.explorador",
+              "levels.aventurero",
+              "levels.tlacuilo",
+              "levels.expedicionario",
+              "levels.viajero",
+              "levels.chasqui",
+              "levels.cronista",
+              "levels.pochteca",
+              "levels.navegante",
+              "levels.cartografo",
+              "levels.gran_explorador",
+              "levels.conquistador",
+              "levels.gran_conquistador",
+              "levels.amauta",
+              "levels.leyenda",
             ];
-            const levelName = USER_LEVELS[data?.level ?? 0] || "Explorador";
+            const levelName = t(USER_LEVEL_KEYS[data?.level ?? 0] || "levels.explorador");
             return (
               <div className="inline-block bg-yellow-400 text-black px-3.5 py-1 rounded-full mb-3 shadow-xs">
                 <span className="font-bold text-xs uppercase tracking-wider">
@@ -174,7 +176,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded flex items-center justify-center gap-2"
             >
               <Edit2 size={18} />
-              Edit Profile
+              {t("profile.edit_profile")}
             </Button>
 
             <Button
@@ -191,7 +193,7 @@ export function ProfileSidebar({ data }: ProfileProps) {
               ) : (
                 <Share2 size={18} />
               )}
-              {shareCopied ? "Link Copied!" : "Share Profile"}
+              {shareCopied ? t("common.copied") : t("profile.share_profile")}
             </Button>
           </div>
         </div>
@@ -218,23 +220,13 @@ export function ProfileSidebar({ data }: ProfileProps) {
       {/* Milestones Card */}
       <div className="bg-gray-900 rounded-lg p-6 text-white overflow-hidden">
         <h3 className="font-bold text-lg mb-4 tracking-widest text-gray-400">
-          MILESTONES
+          {t("levels.progress").toUpperCase()}
         </h3>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm mb-1">Distance Traveled</p>
-            <p className="text-yellow-400 font-bold">12,450 km</p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <p className="text-sm mb-1">Places Visited</p>
-            <p className="text-yellow-400 font-bold">48</p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <p className="text-sm mb-1">Trips Planned</p>
-            <p className="text-yellow-400 font-bold">12</p>
+            <p className="text-sm mb-1">{t("levels.level")} {data?.level ?? 0}</p>
+            <p className="text-yellow-400 font-bold">{data?.points ?? 0} {t("levels.points")}</p>
           </div>
         </div>
       </div>

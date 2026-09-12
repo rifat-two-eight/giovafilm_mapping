@@ -33,7 +33,10 @@ export default function OfferSection() {
   const favouritesList: any[] = favouritesRes?.data || [];
 
   // Only filters that are actually implemented
-  const filters = ["All", "Favorites"];
+  const filters = [
+    { id: "All", label: t("common.all") },
+    { id: "Favorites", label: t("filters.favorites") },
+  ];
 
   // Derive if an offer is favourited from the server list
   const isOfferFavourited = (offerId: string) =>
@@ -185,16 +188,16 @@ export default function OfferSection() {
         <div className="flex gap-3 mb-8 flex-wrap items-center">
           {filters.map((filter) => (
             <Button
-              key={filter}
-              variant={activeFilter === filter ? "default" : "outline"}
+              key={filter.id}
+              variant={activeFilter === filter.id ? "default" : "outline"}
               className={`rounded-full transition-all ${
-                activeFilter === filter
+                activeFilter === filter.id
                   ? "bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500 shadow-md"
                   : "hover:bg-gray-100"
               }`}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => setActiveFilter(filter.id)}
             >
-              {filter}
+              {filter.label}
             </Button>
           ))}
         </div>
@@ -231,12 +234,12 @@ export default function OfferSection() {
                       : null;
 
                 appAlert.fire({
-                  title: "Unlock Premium Offer",
-                  text: "This exclusive offer and its local benefits are locked. Purchase the curated map to unlock lifetime access to all spots and deals.",
+                  title: t("offer.unlock_title"),
+                  text: t("offer.unlock_text"),
                   icon: "info",
                   showCancelButton: true,
-                  confirmButtonText: "Unlock Map",
-                  cancelButtonText: "Maybe Later",
+                  confirmButtonText: t("offer.unlock_confirm"),
+                  cancelButtonText: t("offer.unlock_cancel"),
                 }).then((result) => {
                   if (result.isConfirmed) {
                     if (mapId) {
@@ -289,7 +292,7 @@ export default function OfferSection() {
                     {offer.isLocked && (
                       <div className="absolute left-3 top-3 bg-red-500 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg">
                         <Lock className="w-3.5 h-3.5" />
-                        LOCKED
+                        {t("common.locked")}
                       </div>
                     )}
 

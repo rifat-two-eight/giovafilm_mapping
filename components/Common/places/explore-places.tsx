@@ -309,17 +309,19 @@ export default function ExplorePlaces() {
             <div className="flex items-center gap-3 text-left">
               <span className="text-2xl">✨</span>
               <div>
-                <p className="font-extrabold text-gray-900 text-sm md:text-base">Unlock 100+ Standard Adventure Locations & Hidden Gems!</p>
+                <p className="font-extrabold text-gray-900 text-sm md:text-base">
+                  {t("place.unlock_banner_title")}
+                </p>
                 <p className="text-xs text-gray-500 font-medium">
                   {profile 
-                    ? "Explore our curated catalog of custom travel maps to unlock full details and hidden spots."
-                    : "Log in or browse the catalog to unlock full travel maps and exclusive local offers."}
+                    ? t("place.unlock_banner_auth_desc")
+                    : t("place.unlock_banner_guest_desc")}
                 </p>
               </div>
             </div>
             <Link href={profile ? "/catalog" : "/login"}>
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all whitespace-nowrap">
-                {profile ? "Browse Maps" : "Log In to Unlock"}
+                {profile ? t("place.browse_maps") : t("place.login_to_unlock")}
               </Button>
             </Link>
           </div>

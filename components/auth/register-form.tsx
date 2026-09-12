@@ -16,6 +16,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { getApiErrorMessage } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const registerSchema = z
   .object({
@@ -35,6 +36,7 @@ const registerSchema = z
 type FormValues = z.infer<typeof registerSchema>;
 
 export const RegisterForm = () => {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
@@ -84,31 +86,19 @@ export const RegisterForm = () => {
       {/* Header Text (same style as login) */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">
-          Create an account
+          {t("auth.register_title")}
         </h2>
         <p className="text-sm text-[#757575]">
-          Welcome to the community! Join us and start your adventure.
+          {t("auth.register_subtitle")}
         </p>
       </div>
-
-      {/* Social Login */}
-      {/* <SocialLogin /> */}
-
-      {/* Divider */}
-      {/* <div className="w-full flex items-center my-8">
-        <div className="flex-1 h-px bg-[#EEEEEE]"></div>
-        <span className="px-4 text-[10px] font-medium text-[#9E9E9E] uppercase tracking-wider">
-          Or continue with
-        </span>
-        <div className="flex-1 h-px bg-[#EEEEEE]"></div>
-      </div> */}
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5">
         {/* Full Name */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Full Name
+            {t("auth.name")}
           </Label>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -126,7 +116,7 @@ export const RegisterForm = () => {
         {/* Email */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Email
+            {t("auth.email")}
           </Label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -145,7 +135,7 @@ export const RegisterForm = () => {
         {/* Password */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Password
+            {t("auth.password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -164,7 +154,7 @@ export const RegisterForm = () => {
         {/* Confirm Password */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Confirm Password
+            {t("auth.confirm_password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -195,14 +185,14 @@ export const RegisterForm = () => {
                 href={"/terms-of-service"}
                 className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"
               >
-                Terms & Service
+                {t("nav.terms_of_service")}
               </Link>{" "}
               and{" "}
               <Link
                 href={"/privacy-policy"}
                 className="font-semibold text-[#1A1A1A] cursor-pointer hover:underline"
               >
-                Privacy Policy
+                {t("nav.privacy_policy")}
               </Link>
             </p>
           </div>
@@ -220,17 +210,17 @@ export const RegisterForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Signing up...
+              {t("common.loading")}
             </>
           ) : (
-            "Sign Up"
+            t("auth.sign_up")
           )}
         </Button>
       </form>
 
       {/* Footer */}
       <div className="text-sm text-center mt-6">
-        <span className="text-[#0A0A0A]">Already have an account? </span>
+        <span className="text-[#0A0A0A]">{t("auth.already_have_account")}{" "}</span>
         <Link
           href={
             `/login?` +
@@ -241,7 +231,7 @@ export const RegisterForm = () => {
           }
           className="text-base font-semibold text-primary font-public-sans hover:underline"
         >
-          LogIn
+          {t("nav.login")}
         </Link>
       </div>
     </div>

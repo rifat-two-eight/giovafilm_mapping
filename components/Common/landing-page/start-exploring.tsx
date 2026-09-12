@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import bgImg from "@/public/exploring-today.jpg";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function StartExploring() {
+  const { t } = useLanguage();
+
   return (
     <section className="w-full flex justify-center px-6 py-16 overflow-hidden">
       <motion.div
@@ -32,7 +35,7 @@ export default function StartExploring() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Start Exploring Today
+            {t("landing.start_title")}
           </motion.h2>
 
           <motion.p
@@ -42,8 +45,7 @@ export default function StartExploring() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            Don’t settle for tourist traps. Get the map that locals use and
-            experience the city like never before.
+            {t("landing.start_desc")}
           </motion.p>
 
           <motion.div
@@ -59,13 +61,13 @@ export default function StartExploring() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-5 rounded-xl cursor-pointer">
-                  Browse Maps
+                  {t("landing.browse_maps")}
                 </Button>
               </motion.div>
             </Link>
 
             <span className="text-sm text-gray-300">
-              No subscription required.
+              {t("landing.no_sub")}
             </span>
           </motion.div>
         </div>

@@ -25,6 +25,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 type LoginRequiredContextValue = {
   openLoginRequired: (redirectTo?: string, featureName?: string) => void;
 };
@@ -90,6 +92,7 @@ export function LoginRequiredProvider({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const accessToken = useAppSelector(selectAccessToken);
   const role = useAppSelector(selectCurrentUser)?.role;
   const [open, setOpen] = useState(false);
@@ -191,12 +194,10 @@ export function LoginRequiredProvider({
               <LogIn size={22} />
             </div>
             <DialogTitle className="text-xl font-bold tracking-tight text-gray-900">
-              Sign in to view {featureName}
+              {t("login_required.title")}
             </DialogTitle>
             <DialogDescription className="text-sm leading-relaxed text-gray-600">
-              To open {featureName}, please sign in. It only takes a moment —
-              log in if you already have an account, or create a free one to get
-              started.
+              {t("login_required.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-2 flex flex-col gap-2">
@@ -204,14 +205,14 @@ export function LoginRequiredProvider({
               className="h-11 w-full rounded-xl bg-[#FFC107] font-bold text-black hover:bg-[#FFB300]"
               onClick={() => goTo("/login")}
             >
-              Log In
+              {t("login_required.login")}
             </Button>
             <Button
               variant="outline"
               className="h-11 w-full rounded-xl font-semibold"
               onClick={() => goTo("/register")}
             >
-              Create a free account
+              {t("login_required.create_account")}
             </Button>
           </div>
         </DialogContent>

@@ -15,6 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,6 +36,7 @@ export function ReviewModal({
   businessId,
   initialData,
 }: ReviewModalProps) {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState("");
@@ -126,7 +129,7 @@ export function ReviewModal({
             <X size={17} />
           </button>
           <DialogTitle className="text-xl sm:text-2xl font-black text-center text-gray-900 uppercase tracking-tight">
-            {initialData ? "Edit Your Review" : "Write a Review"}
+            {initialData ? "Edit Your Review" : t("map.write_review")}
           </DialogTitle>
           <p className="text-center text-[11px] sm:text-xs text-gray-500 font-medium mt-1 px-4">
             Share your authentic experience to help other explorers
@@ -221,7 +224,7 @@ export function ReviewModal({
               onClick={onClose}
               className="flex-1 font-bold text-gray-600 hover:text-gray-900 border-gray-200 rounded-xl h-11 sm:h-12 text-xs sm:text-sm uppercase tracking-wider bg-white"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="button"
@@ -230,10 +233,10 @@ export function ReviewModal({
               className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-black rounded-xl h-11 sm:h-12 text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:translate-y-0.5 disabled:opacity-50 border-none"
             >
               {isLoading
-                ? "Saving..."
+                ? t("profile.saving")
                 : initialData
-                  ? "Update Review"
-                  : "Submit Review"}
+                  ? t("common.save")
+                  : t("common.submit")}
             </Button>
           </div>
         </div>

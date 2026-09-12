@@ -6,17 +6,11 @@ import browseMap from "@/public/how-it-works/browse-maps.png";
 import purchaseYourMap from "@/public/how-it-works/purchase-your-map.png";
 import exploreCity from "@/public/how-it-works/explore-the-city.png";
 import Image from "next/image";
-
-/**
- * How It Works Page
- *
- * This page showcases the three-step process for using Roadtripeado:
- * 1. Browse Maps - Explore curated city maps
- * 2. Purchase Your Map - Unlock premium content
- * 3. Explore the City - Navigate and discover locations
- */
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function HowItWorks() {
+  const { t } = useLanguage();
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Page container with max width and padding */}
@@ -26,19 +20,18 @@ export default function HowItWorks() {
           {/* Yellow badge with uppercase text */}
           <div>
             <span className="inline-block bg-primary/20 text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
-              Your Guide to the World
+              {t("how_it_works_page.badge")}
             </span>
           </div>
 
           {/* Main heading */}
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 text-balance">
-            How It Works
+            {t("how_it_works_page.title")}
           </h1>
 
           {/* Description text */}
           <p className="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Discover how Roadtripeado helps you explore the world's most vibrant
-            cities with curated digital maps designed for modern explorers.
+            {t("how_it_works_page.description")}
           </p>
         </div>
 
@@ -47,16 +40,16 @@ export default function HowItWorks() {
           {/* Step 1: Browse Maps */}
           <StepCard
             stepNumber={1}
-            title="Browse Maps"
-            description="Explore our extensive catalog of curated city maps. From the romantic streets of Paris to the neon-lit alleys of Tokyo, discover the best places to visit, from iconic landmarks to hidden local favorites only insiders know about."
+            title={t("how_it_works_page.step1_title")}
+            description={t("how_it_works_page.step1_desc")}
             features={[
               {
                 icon: <Circle className="w-5 h-5" />,
-                text: "Filter by interests, cuisine, or vibe",
+                text: t("how_it_works_page.step1_f1"),
               },
               {
                 icon: <Circle className="w-5 h-5" />,
-                text: "Preview top-rated locations in each city",
+                text: t("how_it_works_page.step1_f2"),
               },
             ]}
             image={
@@ -73,12 +66,12 @@ export default function HowItWorks() {
           {/* Step 2: Purchase Your Map */}
           <StepCard
             stepNumber={2}
-            title="Purchase Your Map"
-            description="Unlock detailed locations, high-resolution photos, and exclusive offers with a simple one-time purchase. No subscriptions, just permanent access to your travel guides across all your desktop devices."
+            title={t("how_it_works_page.step2_title")}
+            description={t("how_it_works_page.step2_desc")}
             features={[
               {
                 icon: <Shield className="w-5 h-5" />,
-                text: "Exclusive Content - Gain access to specialized itineraries and discount codes for local tours and partner restaurants.",
+                text: t("how_it_works_page.step2_f1"),
               },
             ]}
             image={
@@ -95,24 +88,24 @@ export default function HowItWorks() {
           {/* Step 3: Explore the City */}
           <StepCard
             stepNumber={3}
-            title="Explore the City"
-            description="Use the interactive web map to navigate effortlessly. Filter through restaurants, attractions, and hidden gems. Every location comes with descriptions, opening hours, and why it was chosen for our curated lists."
+            title={t("how_it_works_page.step3_title")}
+            description={t("how_it_works_page.step3_desc")}
             features={[
               {
                 icon: <Map className="w-5 h-5" />,
-                text: "Eat & Drink",
+                text: t("how_it_works_page.eat_drink"),
               },
               {
                 icon: <Map className="w-5 h-5" />,
-                text: "Sightseeing",
+                text: t("how_it_works_page.sightseeing"),
               },
               {
                 icon: <Map className="w-5 h-5" />,
-                text: "Shopping",
+                text: t("how_it_works_page.shopping"),
               },
               {
                 icon: <Map className="w-5 h-5" />,
-                text: "Parks & Nature",
+                text: t("how_it_works_page.nature"),
               },
             ]}
             image={

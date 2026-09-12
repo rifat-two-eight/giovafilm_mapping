@@ -18,6 +18,7 @@ import { Label } from "../ui/label";
 import { decodeJwtPayload, getApiErrorMessage } from "@/lib/utils";
 import { isDashboardRole } from "@/lib/roles";
 import { persistor } from "@/redux/store";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -33,6 +34,7 @@ export const LoginForm = () => {
   const redirect = searchParams.get("redirect");
   const emailParam = searchParams.get("email");
   const dispatch = useDispatch();
+  const { t } = useLanguage();
   const [login, { isLoading }] = useLoginMutation();
 
   const {
@@ -140,9 +142,9 @@ export const LoginForm = () => {
     <div className="flex flex-col justify-center">
       {/* Welcome Text */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Welcome Back</h2>
+        <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">{t("auth.login_title")}</h2>
         <p className="text-sm text-[#757575]">
-          Sign in to access your road trip plans and community.
+          {t("auth.login_subtitle")}
         </p>
       </div>
 
@@ -151,7 +153,7 @@ export const LoginForm = () => {
         {/* Email */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Email
+            {t("auth.email")}
           </Label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -170,7 +172,7 @@ export const LoginForm = () => {
         {/* Password */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold text-[#424242] ml-1">
-            Password
+            {t("auth.password")}
           </Label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
@@ -194,13 +196,13 @@ export const LoginForm = () => {
               {...register("rememberMe")}
               className="w-4 h-4 accent-[#FFC107] rounded"
             />
-            <span className="text-sm text-[#757575]">Remember me</span>
+            <span className="text-sm text-[#757575]">{t("auth.remember_me")}</span>
           </label>
           <Link
             href="/forgot-password"
             className="font-semibold text-primary font-public-sans cursor-pointer hover:underline text-sm"
           >
-            Forgot Password?
+            {t("auth.forgot_password")}
           </Link>
         </div>
 
@@ -213,17 +215,17 @@ export const LoginForm = () => {
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Logging in...
+              {t("common.loading")}
             </>
           ) : (
-            "Login"
+            t("nav.login")
           )}
         </Button>
       </form>
 
       {/* Footer */}
       <div className="text-sm text-center mt-6">
-        <span className="text-[#0A0A0A]">Don't have an account? </span>
+        <span className="text-[#0A0A0A]">{t("auth.don_t_have_account")} </span>
         <Link
           href={
             `/register?` +
@@ -234,7 +236,7 @@ export const LoginForm = () => {
           }
           className="text-base font-semibold text-primary font-public-sans cursor-pointer hover:underline"
         >
-          Create an account
+          {t("auth.sign_up")}
         </Link>
       </div>
     </div>

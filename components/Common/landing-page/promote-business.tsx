@@ -4,26 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "motion/react";
-
-type Feature = {
-  title: string;
-  description: string;
-};
-
-const features: Feature[] = [
-  {
-    title: "High-Quality Traffic",
-    description: "Reach intentional travelers who want what you offer.",
-  },
-  {
-    title: "Brand Storytelling",
-    description: "Share your story through rich media on our platform.",
-  },
-  {
-    title: "Actionable Data",
-    description: "Understand visitor trends and preferences.",
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -40,6 +21,23 @@ const itemVariants = {
 } as const;
 
 export default function PromoteBusiness() {
+  const { t } = useLanguage();
+
+  const features = [
+    {
+      title: t("landing.promote_f1_title"),
+      description: t("landing.promote_f1_desc"),
+    },
+    {
+      title: t("landing.promote_f2_title"),
+      description: t("landing.promote_f2_desc"),
+    },
+    {
+      title: t("landing.promote_f3_title"),
+      description: t("landing.promote_f3_desc"),
+    },
+  ];
+
   return (
     <section className="py-20 bg-gray-100 overflow-hidden">
       <div className="max-w-360 mx-auto px-4 md:px-6">
@@ -59,7 +57,7 @@ export default function PromoteBusiness() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Promote Your Business
+            {t("landing.promote_title")}
           </motion.h2>
 
           <motion.p
@@ -69,8 +67,7 @@ export default function PromoteBusiness() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            Get discovered by travelers looking for authentic local experiences.
-            Join our network of curated partners and grow your reach.
+            {t("landing.promote_desc")}
           </motion.p>
 
           {/* Feature Cards */}
@@ -112,7 +109,7 @@ export default function PromoteBusiness() {
           >
             <Link href={"/for-business"}>
               <Button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 rounded-xl cursor-pointer">
-                Add Your Business
+                {t("landing.add_business")}
               </Button>
             </Link>
           </motion.div>

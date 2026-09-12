@@ -3,35 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, Calendar, Home, Gift } from "lucide-react";
 import { motion } from "motion/react";
-
-type Deal = {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-};
-
-const deals: Deal[] = [
-  {
-    title: "FREE TREAT",
-    description: "Free pastry with any brew at Artisan Bakeries.",
-    icon: <Coffee className="text-yellow-500" size={24} />,
-  },
-  {
-    title: "20% OFF DINNER",
-    description: "Exclusive evening discounts at top-rated local bistros.",
-    icon: <Calendar className="text-yellow-500" size={24} />,
-  },
-  {
-    title: "SKIP THE LINE",
-    description: "Priority entry at boutique galleries and local museums.",
-    icon: <Home className="text-yellow-500" size={24} />,
-  },
-  {
-    title: "LOCAL CURIO",
-    description: "Special gift with purchases at concept stores.",
-    icon: <Gift className="text-yellow-500" size={24} />,
-  },
-];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const containerVariants = {
   hidden: {},
@@ -48,6 +20,31 @@ const itemVariants = {
 } as const;
 
 export default function DealsSection() {
+  const { t } = useLanguage();
+
+  const deals = [
+    {
+      title: t("landing.deal1_title"),
+      description: t("landing.deal1_desc"),
+      icon: <Coffee className="text-yellow-500" size={24} />,
+    },
+    {
+      title: t("landing.deal2_title"),
+      description: t("landing.deal2_desc"),
+      icon: <Calendar className="text-yellow-500" size={24} />,
+    },
+    {
+      title: t("landing.deal3_title"),
+      description: t("landing.deal3_desc"),
+      icon: <Home className="text-yellow-500" size={24} />,
+    },
+    {
+      title: t("landing.deal4_title"),
+      description: t("landing.deal4_desc"),
+      icon: <Gift className="text-yellow-500" size={24} />,
+    },
+  ];
+
   return (
     <section className="py-16 bg-gray-50 overflow-hidden">
       <div className="max-w-360 mx-auto px-4 md:px-6 text-center space-y-10 font-inter">
@@ -59,11 +56,10 @@ export default function DealsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-4xl font-bold">Unlock Exclusive Local Deals</h2>
+          <h2 className="text-4xl font-bold">{t("landing.deals_title")}</h2>
 
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Access perks and discounts at our partner locations that you won't
-            find anywhere else.
+            {t("landing.deals_subtitle")}
           </p>
         </motion.div>
 

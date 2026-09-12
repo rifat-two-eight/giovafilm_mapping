@@ -27,12 +27,15 @@ interface PricingCardProps {
   isFormStep?: boolean;
 }
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function PricingCard({
   plan,
   isSelected,
   onSelect,
   isFormStep = false,
 }: PricingCardProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const token = useAppSelector((state) => state.auth.accessToken);
   const isEnterprise = plan.name.toLowerCase() === "enterprise";
@@ -47,7 +50,7 @@ export function PricingCard({
 
   const handleClick = async () => {
     if (!token) {
-      toast.info("Please login to choose a subscription plan.");
+      toast.info(t("pricing_card.login_prompt"));
       router.push(`/login?redirect=/pricing`);
       return;
     }
@@ -81,7 +84,7 @@ export function PricingCard({
         <div className="absolute -top-4 right-4 z-20">
           <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1 border-2 border-white">
             <Check size={14} strokeWidth={3} />{" "}
-            {isFormStep ? "SELECTED" : "CURRENT PLAN"}
+            {isFormStep ? t("pricing_card.selected") : t("pricing_card.current_plan")}
           </span>
         </div>
       )}
@@ -90,7 +93,7 @@ export function PricingCard({
       {isPro && !isSelected && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
           <span className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
-            MOST POPULAR
+            {t("pricing_card.most_popular")}
           </span>
         </div>
       )}

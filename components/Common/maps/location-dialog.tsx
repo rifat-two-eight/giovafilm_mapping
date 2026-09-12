@@ -9,6 +9,7 @@ import { normalizePinType, trackUsage } from "@/lib/record-visit";
 import { useEffect, useState } from "react";
 import { Star, X, Lock } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type Props = {
   id: { id: string; type: string };
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function LocationDialog({ id, onClose, mapId, initialData }: Props) {
+  const { t } = useLanguage();
   const placeId = id?.id;
   const initialType = normalizePinType(id?.type);
   const [activeType, setActiveType] = useState<"place" | "business">(
@@ -122,9 +124,9 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-gray-900">Locked Location</h2>
+            <h2 className="text-2xl font-black text-gray-900">{t("map.unlock_full_map")}</h2>
             <p className="text-gray-500 text-sm leading-relaxed px-4">
-              This is a premium spot. {message}
+              {message}
             </p>
           </div>
 
@@ -135,14 +137,14 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
               className="w-full"
             >
               <Button className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12">
-                Unlock Map
+                {t("map.buy_map")}
               </Button>
             </Link>
             <button
               onClick={onClose}
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl h-12 transition-colors cursor-pointer text-sm"
             >
-              Maybe Later
+              {t("common.cancel")}
             </button>
           </div>
         </div>
@@ -191,16 +193,13 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
             <X size={20} />
           </button>
           <h2 className="text-xl font-bold text-gray-900 pt-2">
-            Location not found
+            {t("search.no_results")}
           </h2>
-          <p className="text-sm text-gray-500">
-            This location is unavailable or may have been removed.
-          </p>
           <Button
             onClick={onClose}
             className="w-full bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-xl h-12"
           >
-            Close
+            {t("common.close")}
           </Button>
         </div>
       </div>
@@ -254,7 +253,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
             </div>
 
             <span className="text-gray-400 text-xs sm:text-sm truncate">
-              ({location?.totalReview ?? 0} reviews){" "}
+              ({location?.totalReview ?? 0} {t("place.reviews")}){" "}
               {location?.map?.name || location?.location?.country || ""}
             </span>
           </div>
@@ -296,7 +295,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
           <div className="flex gap-3 pt-1">
             <Link href={`/maps/${placeId}?type=${type}`} className="flex-1">
               <Button className="w-full bg-[#FFC107] text-black font-bold rounded-xl h-11 sm:h-12 text-xs sm:text-sm">
-                View Details
+                {t("place.view_details")}
               </Button>
             </Link>
 
