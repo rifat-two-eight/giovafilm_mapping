@@ -3,6 +3,7 @@
 import { Heart } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export const MAP_CARDS = [
   {
@@ -56,6 +57,7 @@ export const MAP_CARDS = [
 ];
 
 export const HomeScreen = () => {
+  const { t } = useLanguage();
   // const { largeView } = useView();
 
   return (
@@ -65,7 +67,7 @@ export const HomeScreen = () => {
         {/* Section Header */}
         <div className="flex justify-between items-center mb-5 mt-2">
           <h2 className="text-xl font-bold text-[#1A1A1A]">Featured Maps</h2>
-          <button className="text-[#FFC107] text-sm font-bold">View All</button>
+          <button className="text-[#FFC107] text-sm font-bold">{t("common.view_all")}</button>
         </div>
 
         {/* Grid */}

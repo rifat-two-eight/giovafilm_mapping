@@ -64,7 +64,7 @@ export default function FavoritePlaces() {
     if (!refId) return;
     try {
       await addToFavourite({ type: fav.type, [key]: refId }).unwrap();
-      toast.success("Removed from favourites");
+      toast.success(t("places.removed_from_favorites"));
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to remove");
     }

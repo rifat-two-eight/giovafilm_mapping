@@ -48,10 +48,10 @@ export default function OtpVerify() {
 
   useEffect(() => {
     if (!email) {
-      toast.error("No email provided");
+      toast.error(t("auth.no_email_provided"));
       router.push("/login");
     }
-  }, [email, router]);
+  }, [email, router, t]);
 
   // Optional prefill if an older email link still includes ?otp=
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function OtpVerify() {
     const otpCode = otp.join("");
 
     if (otpCode.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP");
+      toast.error(t("auth.enter_valid_otp"));
       return;
     }
 

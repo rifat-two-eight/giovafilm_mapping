@@ -63,7 +63,7 @@ export default function BusinessDetailPage() {
     if (result.isConfirmed) {
       try {
         await deleteBusiness(id as string).unwrap();
-        toast.success("Business deleted successfully!");
+        toast.success(t("business.deleted_success"));
         router.push("/dashboard/business");
       } catch (err: any) {
         toast.error(err?.data?.message || "Failed to delete business");

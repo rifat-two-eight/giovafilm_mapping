@@ -109,7 +109,7 @@ export function BusinessTable() {
       const res = await updateStatus({ id, status: newStatus }).unwrap();
       toast.success(`Business ${newStatus} successfully!`);
     } catch (err) {
-      toast.error("Failed to update business status.");
+      toast.error(t("business.update_status_failed"));
       console.error(err);
     }
   };
@@ -127,7 +127,7 @@ export function BusinessTable() {
     if (result.isConfirmed) {
       try {
         await deleteBusiness(id).unwrap();
-        toast.success("Business deleted successfully!");
+        toast.success(t("business.deleted_success"));
       } catch (err: any) {
         toast.error(err?.data?.message || "Failed to delete business");
       }

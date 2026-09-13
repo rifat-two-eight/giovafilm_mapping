@@ -17,8 +17,10 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -67,13 +69,13 @@ export default function HomePage() {
 
   useEffect(() => {
     if (verifyData) {
-      toast.success("Payment verified successfully! Redirecting to your purchased maps...");
+      toast.success(t("payment.verified_redirecting"));
       router.replace("/profile/purchased-maps");
     } else if (verifyError) {
-      toast.error("Payment verification failed.");
+      toast.error(t("payment.failed"));
       router.replace("/maps");
     }
-  }, [verifyData, verifyError, router]);
+  }, [verifyData, verifyError, router, t]);
 
   useEffect(() => {
     // Only auto-redirect to /maps if we are NOT currently verifying a Stripe checkout session
@@ -89,8 +91,8 @@ export default function HomePage() {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-[#0f0f0f] text-white">
         <Loader2 className="h-12 w-12 animate-spin text-yellow-400 mb-4" />
-        <h2 className="text-xl font-bold font-inter">Verifying your purchase...</h2>
-        <p className="text-gray-400 mt-2 text-sm">Please do not close or refresh this page.</p>
+        <h2 className="text-xl font-bold font-inter">{t("common.loading")}</h2>
+        <p className="text-gray-400 mt-2 text-sm">{t("payment.do_not_close")}</p>
       </div>
     );
   }

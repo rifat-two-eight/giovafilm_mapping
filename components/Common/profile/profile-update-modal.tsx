@@ -62,13 +62,13 @@ export default function ProfileUpdateModal({
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast.error("Please upload a JPEG, PNG, or WebP image.");
+      toast.error(t("profile.upload_valid_format"));
       e.target.value = "";
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("Image must be smaller than 5MB.");
+      toast.error(t("profile.image_max_size"));
       e.target.value = "";
       return;
     }
@@ -90,7 +90,7 @@ export default function ProfileUpdateModal({
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error("Name is required.");
+      toast.error(t("profile.name_required"));
       nameInputRef.current?.focus();
       return;
     }
@@ -204,12 +204,12 @@ export default function ProfileUpdateModal({
 
             <div className="space-y-1.5">
               <label htmlFor="profile-name" className="text-sm font-semibold text-gray-700">
-                Name
+                {t("contact_form.name") || "Name"}
               </label>
               <Input
                 id="profile-name"
                 ref={nameInputRef}
-                placeholder="Your display name"
+                placeholder={t("auth.name_placeholder") || "Your display name"}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -220,7 +220,7 @@ export default function ProfileUpdateModal({
 
             <div className="space-y-1.5">
               <label htmlFor="profile-phone" className="text-sm font-semibold text-gray-700">
-                Phone
+                {t("places_admin.phone_number") || "Phone"}
               </label>
               <Input
                 id="profile-phone"
@@ -235,7 +235,7 @@ export default function ProfileUpdateModal({
 
             <div className="space-y-1.5">
               <label htmlFor="profile-website" className="text-sm font-semibold text-gray-700">
-                Website
+                {t("places_admin.website_url") || "Website"}
               </label>
               <Input
                 id="profile-website"
@@ -250,7 +250,7 @@ export default function ProfileUpdateModal({
 
             <div className="space-y-1.5">
               <label htmlFor="profile-instagram" className="text-sm font-semibold text-gray-700">
-                Instagram
+                {t("places_admin.instagram_username") || "Instagram"}
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">
@@ -276,7 +276,7 @@ export default function ProfileUpdateModal({
                 onClick={() => onOpenChange(false)}
                 disabled={isLoading}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -286,10 +286,10 @@ export default function ProfileUpdateModal({
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    {t("common.saving")}
                   </>
                 ) : (
-                  "Save"
+                  t("common.save")
                 )}
               </Button>
             </div>

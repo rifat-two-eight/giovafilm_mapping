@@ -48,7 +48,7 @@ export const ResetPasswordForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     if (!token) {
-      toast.error("Invalid or missing reset token.");
+      toast.error(t("auth.invalid_reset_token"));
       return;
     }
 

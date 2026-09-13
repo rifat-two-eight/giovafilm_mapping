@@ -9,8 +9,10 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function MapContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const lat = parseFloat(searchParams.get("lat") || "0");
   const lng = parseFloat(searchParams.get("lng") || "0");
@@ -20,7 +22,7 @@ function MapContent() {
   if (!lat || !lng) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <p className="text-gray-500">Invalid coordinates provided.</p>
+        <p className="text-gray-500">{t("location.invalid_coordinates")}</p>
       </div>
     );
   }

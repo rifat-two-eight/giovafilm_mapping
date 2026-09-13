@@ -594,7 +594,7 @@ export const PlaceFormContent = ({
 
                       if (Object.keys(newErrors).length > 0) {
                         setErrors(newErrors);
-                        toast.error("Please fill in all required fields first.");
+                        toast.error(t("places.fill_required_first"));
                         return;
                       }
                     }
@@ -1558,7 +1558,7 @@ export const PlaceFormContent = ({
 
                   if (Object.keys(newErrors).length > 0) {
                     setErrors(newErrors);
-                    toast.error("Please fill in all required fields first.");
+                    toast.error(t("places.fill_required_first"));
                     return;
                   }
                 }

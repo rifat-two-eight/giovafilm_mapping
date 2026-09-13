@@ -35,7 +35,10 @@ import {
   LogOut,
 } from "lucide-react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 function ClaimPromoContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -476,7 +479,7 @@ function ClaimPromoContent() {
                   isVipTheme ? "bg-slate-900/60 border-slate-800" : "bg-gray-50 border-gray-100"
                 }`}
               >
-                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Target Map</span>
+                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{t("common.target_map")}</span>
                 <h3 className="text-lg font-black flex items-center gap-1.5 leading-tight">
                   {mapName} {isVipTheme && <Sparkles size={14} className="text-yellow-400" />}
                 </h3>
@@ -709,7 +712,7 @@ function ClaimPromoContent() {
                   dispatch(logout());
                   const targetEmail = promoData?.recipientEmail ? `&email=${encodeURIComponent(promoData.recipientEmail)}` : "";
                   router.push(`/login?redirect=${encodeURIComponent(`/claim-promo?code=${code}`)}${targetEmail}`);
-                  toast.info("Logged out. Please log in with your invited email.");
+                  toast.info(t("auth.logged_out_invite"));
                 }}
                 className="w-full h-12 bg-[#FFC107] hover:bg-[#FFB300] text-black font-extrabold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
               >

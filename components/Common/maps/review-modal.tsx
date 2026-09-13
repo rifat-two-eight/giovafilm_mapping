@@ -58,15 +58,15 @@ export function ReviewModal({
 
   const handleSubmit = async () => {
     if (!placeId && !businessId) {
-      toast.error("Location ID is missing");
+      toast.error(t("maps.missing_location_id"));
       return;
     }
     if (rating === 0) {
-      toast.error("Please select a rating");
+      toast.error(t("maps.select_rating"));
       return;
     }
     if (!review.trim()) {
-      toast.error("Please write a review");
+      toast.error(t("maps.write_review"));
       return;
     }
 

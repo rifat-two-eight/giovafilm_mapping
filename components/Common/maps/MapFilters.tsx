@@ -280,7 +280,7 @@ export function MapFilters({
                               ) : isLoading ? (
                                 <div className="px-10 py-3 text-gray-400 flex items-center gap-2 text-xs">
                                   <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                                  <span>Loading locations...</span>
+                                  <span>{t("maps.loading_locations")}</span>
                                 </div>
                               ) : (
                                 <div className="px-10 py-3 text-gray-400 italic">
@@ -298,7 +298,7 @@ export function MapFilters({
                 <div className="p-4 space-y-3">
                   <div className="flex items-center gap-2 mb-3 text-xs font-medium text-amber-700">
                     <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-                    <span>Loading categories...</span>
+                    <span>{t("maps.loading_categories")}</span>
                   </div>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="flex items-center gap-3 py-1.5 animate-pulse">
@@ -367,7 +367,7 @@ export function SelectedMapFilter({
         value={selectedCountry}
       >
         <SelectTrigger className="w-full !h-auto !min-h-0 rounded-none border-0 border-t border-gray-100 shadow-none py-2.5 px-3 focus:ring-0 font-semibold text-gray-800 bg-white whitespace-normal *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:whitespace-normal *:data-[slot=select-value]:text-left">
-          <SelectValue placeholder="Select map" />
+          <SelectValue placeholder={t("maps.select_map")} />
         </SelectTrigger>
         <SelectContent
           position="popper"

@@ -17,6 +17,7 @@ import {
 import { Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type Props = {
   open: boolean;
@@ -31,6 +32,7 @@ export function BusinessOfferDialog({
   businessId,
   existingOffer,
 }: Props) {
+  const { t } = useLanguage();
   const isEdit = !!existingOffer?._id;
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [title, setTitle] = useState("");
@@ -128,15 +130,15 @@ export function BusinessOfferDialog({
     e.preventDefault();
 
     if (!title.trim() || !description.trim() || !discountType) {
-      toast.error("Please fill in title, description, and discount type.");
+      toast.error(t("offers.fill_required_fields"));
       return;
     }
     if (!photoFile && !isEdit) {
-      toast.error("Please add a photo for this offer.");
+      toast.error(t("offers.add_photo"));
       return;
     }
     if (discountType === "BOGO" && !bogoSecondType) {
-      toast.error("Choose whether the second item is free or has a % discount.");
+      toast.error(t("offers.choose_second_item_type"));
       return;
     }
     if (
@@ -145,30 +147,30 @@ export function BusinessOfferDialog({
         (discountType === "BOGO" && bogoSecondType === "percentage")) &&
       (!discountValue || Number(discountValue) <= 0)
     ) {
-      toast.error("Please enter a valid discount value.");
+      toast.error(t("offers.valid_discount_value"));
       return;
     }
     if (discountType === "BOGO" && bogoSecondType === "percentage") {
       const pct = Number(discountValue);
       if (pct > 100) {
-        toast.error("Second-item discount must be between 1 and 100.");
+        toast.error(t("offers.second_discount_range"));
         return;
       }
     }
     if (!redemptionDuration || Number(redemptionDuration) <= 0) {
-      toast.error("Please enter redemption duration in minutes.");
+      toast.error(t("offers.duration_minutes_req"));
       return;
     }
     if (!maxRedemptions || Number(maxRedemptions) < 0) {
-      toast.error("Please enter how many redemptions each user gets.");
+      toast.error(t("offers.redemptions_user_req"));
       return;
     }
     if (!validFrom) {
-      toast.error("Please select a valid from date.");
+      toast.error(t("offers.valid_from_req"));
       return;
     }
     if (!noExpiration && !validUntil) {
-      toast.error("Select a valid until date, or check No Expiration.");
+      toast.error(t("offers.valid_until_req"));
       return;
     }
 
@@ -210,10 +212,10 @@ export function BusinessOfferDialog({
     try {
       if (isEdit) {
         await updateOffer({ id: existingOffer._id, data: formData }).unwrap();
-        toast.success("Offer updated successfully.");
+        toast.success(t("offers.updated_success"));
       } else {
         await createOffer(formData).unwrap();
-        toast.success("Offer created successfully.");
+        toast.success(t("offers.created_success"));
       }
       onOpenChange(false);
     } catch (error: any) {
@@ -264,7 +266,7 @@ export function BusinessOfferDialog({
                   if (droppedFile.type.startsWith("image/")) {
                     handlePhotoChange(droppedFile);
                   } else {
-                    toast.error("Please upload an image file.");
+                    toast.error(t("offers.upload_image_file"));
                   }
                 }
               }}
@@ -315,7 +317,7 @@ export function BusinessOfferDialog({
           </div>
 
           <div>
-            <Label htmlFor="offer-title">Offer Title</Label>
+            <Label htmlFor="offer-title">{t("offers_admin.title_label") || "Offer Title"}</Label>
             <Input
               id="offer-title"
               value={title}
@@ -326,19 +328,19 @@ export function BusinessOfferDialog({
           </div>
 
           <div>
-            <Label htmlFor="offer-description">Description</Label>
+            <Label htmlFor="offer-description">{t("offers_admin.description_label") || "Description"}</Label>
             <textarea
               id="offer-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the offer..."
+              placeholder={t("offers.describe_offer_placeholder")}
               rows={4}
               className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
           </div>
 
           <div>
-            <Label htmlFor="offer-discount-type">Discount Type</Label>
+            <Label htmlFor="offer-discount-type">{t("offers_admin.discount_type_label") || "Discount Type"}</Label>
             <select
               id="offer-discount-type"
               value={discountType}
@@ -351,11 +353,11 @@ export function BusinessOfferDialog({
               }}
               className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white"
             >
-              <option value="">Select type</option>
+              <option value="">{t("offers_admin.select_type") || "Select type"}</option>
               <option value="Percentage">Percentage</option>
               <option value="Flat">Flat Amount</option>
               <option value="BOGO">Buy One Get One (BOGO)</option>
-              <option value="Free item">Free Item</option>
+              <option value="Free item">{t("offers_admin.free_item") || "Free Item"}</option>
             </select>
           </div>
 
@@ -369,8 +371,8 @@ export function BusinessOfferDialog({
                   onChange={(e) => setBogoSecondType(e.target.value)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white"
                 >
-                  <option value="">Choose how the second item is discounted</option>
-                  <option value="free">Second item is free</option>
+                  <option value="">{t("offers.choose_second_item_type")}</option>
+                  <option value="free">{t("offers.second_item_free")}</option>
                   <option value="percentage">Second item has a % discount</option>
                 </select>
               </div>
@@ -394,7 +396,7 @@ export function BusinessOfferDialog({
 
           {discountType !== "BOGO" && discountType !== "Free item" && discountType && (
             <div>
-              <Label htmlFor="offer-discount-value">Discount Value</Label>
+              <Label htmlFor="offer-discount-value">{t("offers_admin.discount_value_label") || "Discount Value"}</Label>
               <Input
                 id="offer-discount-value"
                 type="number"
@@ -409,7 +411,7 @@ export function BusinessOfferDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="offer-max">Redemptions Per User</Label>
+              <Label htmlFor="offer-max">{t("offers_admin.redemptions_per_user") || "Redemptions Per User"}</Label>
               <Input
                 id="offer-max"
                 type="number"
@@ -440,7 +442,7 @@ export function BusinessOfferDialog({
                 <option value="daily">Daily (Once per 24 hours)</option>
                 <option value="weekly">Weekly (Once per 7 days)</option>
                 <option value="monthly">Monthly (Once per 30 days)</option>
-                <option value="once">One-Time Only</option>
+                <option value="once">{t("offers.one_time_only")}</option>
                 <option value="custom">Custom Duration (Minutes)</option>
               </select>
               <Input

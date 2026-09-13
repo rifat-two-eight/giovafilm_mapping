@@ -11,6 +11,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 const USER_LEVELS = [
   "Explorador",
   "Aventurero",
@@ -30,6 +32,7 @@ const USER_LEVELS = [
 ];
 
 export default function ExplorerProfilePage() {
+  const { t } = useLanguage();
   const params = useParams();
   const userId = String(params?.id || "");
   const { data, isLoading, isError, error } = useGetPublicProfileQuery(userId, {
@@ -51,7 +54,7 @@ export default function ExplorerProfilePage() {
       <main className="min-h-[60vh] bg-gray-50 flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-          <p className="text-sm text-gray-500">Loading explorer profile...</p>
+          <p className="text-sm text-gray-500">{t("explorer.loading_profile")}</p>
         </div>
       </main>
     );
@@ -63,7 +66,7 @@ export default function ExplorerProfilePage() {
     return (
       <main className="min-h-[60vh] bg-gray-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl p-8 text-center space-y-4">
-          <h1 className="text-xl font-bold text-gray-900">Profile unavailable</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t("explorer.profile_unavailable")}</h1>
           <p className="text-sm text-gray-500">{message}</p>
           <Link href="/maps">
             <Button className="bg-yellow-400 text-black hover:bg-yellow-500">

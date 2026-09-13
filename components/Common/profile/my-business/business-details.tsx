@@ -68,7 +68,7 @@ export default function BusinessDetails() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to initiate checkout session");
+      toast.error(t("payment.checkout_session_failed"));
     }
   };
 

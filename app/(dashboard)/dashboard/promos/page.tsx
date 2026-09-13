@@ -203,7 +203,7 @@ export default function PromosPage() {
             }, 2000);
           } catch (emailErr) {
             console.error("Auto email sending failed:", emailErr);
-            toast.error("Links generated, but automatic email invitations failed to queue.");
+            toast.error(t("promos.email_queue_failed"));
             setIsSendingEmails(false);
           }
         }
@@ -254,7 +254,7 @@ export default function PromosPage() {
     const claimUrl = `${origin}/claim-promo?code=${code}`;
     const ok = copyToClipboard(claimUrl);
     if (ok) {
-      toast.success("Promo Claim Link copied to clipboard!");
+      toast.success(t("promos.claim_link_copied"));
     } else {
       toast.error("Copy failed — please copy manually: " + claimUrl);
     }
@@ -264,7 +264,7 @@ export default function PromosPage() {
   const handleCopyCode = (code: string) => {
     const ok = copyToClipboard(code);
     if (ok) {
-      toast.success("Promo Code copied!");
+      toast.success(t("promos.code_copied"));
     } else {
       toast.error("Copy failed — code: " + code);
     }
@@ -274,7 +274,7 @@ export default function PromosPage() {
   const handleSendEmail = async (id: string) => {
     try {
       await sendBulkEmails({ promoIds: [id] }).unwrap();
-      toast.success("Invitation email sent successfully!");
+      toast.success(t("promos.invite_email_sent"));
       refetchPromos();
       refetchStats();
 
@@ -307,7 +307,7 @@ export default function PromosPage() {
     if (result.isConfirmed) {
       try {
         await deletePromoLink(id).unwrap();
-        toast.success("Promo invitation link deleted successfully!");
+        toast.success(t("promos.invite_link_deleted"));
         refetchPromos();
         refetchStats();
       } catch (error: any) {
@@ -325,7 +325,7 @@ export default function PromosPage() {
       .map((promo: any) => promo._id);
 
     if (pendingIds.length === 0) {
-      toast.error("No pending links with unsent recipient emails found.");
+      toast.error(t("promos.no_pending_emails"));
       return;
     }
 
@@ -358,7 +358,7 @@ export default function PromosPage() {
   // Export promo links list as CSV file (Blob + UTF-8 BOM for perfect Excel/Sheets support)
   const handleExportCSV = () => {
     if (promoLinks.length === 0) {
-      toast.error("No links available to export.");
+      toast.error(t("promos.no_links_export"));
       return;
     }
 
@@ -427,7 +427,7 @@ export default function PromosPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Promo links exported to CSV successfully!");
+    toast.success(t("promos.exported_csv_success"));
   };
 
   return (
@@ -495,7 +495,7 @@ export default function PromosPage() {
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.influencer_invites") || "Influencer Invites"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.influencer}</h3>
-              <p className="text-[10px] text-gray-500">free guest passes in system</p>
+              <p className="text-[10px] text-gray-500">{t("promos.guest_passes_in_system")}</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center shrink-0">
               <UserCheck size={24} />

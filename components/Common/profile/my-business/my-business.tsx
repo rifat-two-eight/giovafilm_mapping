@@ -269,7 +269,7 @@ export default function MyBusinessPage() {
                                 `/view-location?lat=${lat}&lng=${lng}`,
                               );
                             } else {
-                              toast.error("Invalid coordinates");
+                              toast.error(t("business.invalid_coords"));
                             }
                           }}
                           className="rounded-lg gap-2 font-medium focus:bg-slate-50 cursor-pointer"

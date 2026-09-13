@@ -337,7 +337,7 @@ export default function ReportsPage() {
   if (isError) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-red-500 font-medium text-center p-6">
-        <p>Failed to load reports data.</p>
+        <p>{t("reports.failed_load")}</p>
         <Link href="/dashboard" className="text-blue-600 hover:underline flex items-center gap-2 font-medium">
           <ArrowLeft size={16} /> Back to dashboard
         </Link>

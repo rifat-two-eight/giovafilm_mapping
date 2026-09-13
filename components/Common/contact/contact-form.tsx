@@ -47,7 +47,7 @@ export function ContactForm() {
     e.preventDefault();
     try {
       await submitContact(formData).unwrap();
-      toast.success("Message sent successfully! We will get back to you soon.");
+      toast.success(t("contact_form.message_sent_success") || "Message sent successfully! We will get back to you soon.");
       // Reset form after submission
       setFormData({
         name: "",
@@ -56,7 +56,7 @@ export function ContactForm() {
         message: "",
       });
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to send message. Please try again.");
+      toast.error(err?.data?.message || t("contact_form.failed_send") || "Failed to send message. Please try again.");
     }
   };
 
@@ -76,7 +76,7 @@ export function ContactForm() {
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder={t("auth.name_placeholder") || "John Doe"}
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
               className="bg-gray-100 w-full px-4 h-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-450"
@@ -95,7 +95,7 @@ export function ContactForm() {
             <Input
               id="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder={t("auth.email_placeholder") || "john@example.com"}
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
               className="bg-gray-100 w-full px-4 h-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-455"

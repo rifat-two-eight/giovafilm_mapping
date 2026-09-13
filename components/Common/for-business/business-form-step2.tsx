@@ -296,7 +296,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
 
     if (!pinCountry) {
       if (insideSelectedMap) return { ok: true, address };
-      toast.error("Could not verify this location. Please try another pin.");
+      toast.error(t("business.verify_location_failed"));
       return { ok: false, address };
     }
 
@@ -339,12 +339,12 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     form.setValue("mapUrl", "");
     setMarkerPosition(null);
     setPreviewPosition(null);
-    toast.success("Location cleared. You can set a new pin.");
+    toast.success(t("business.location_cleared"));
   };
 
   const proposeLocation = async (lat: number, lng: number) => {
     if (!selectedMapName) {
-      toast.error("Please select a Country/Map in Step 1 first.");
+      toast.error(t("business.select_country_first"));
       return false;
     }
 

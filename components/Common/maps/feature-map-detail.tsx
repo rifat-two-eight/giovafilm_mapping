@@ -92,7 +92,7 @@ export default function FeatureMapDetailPage() {
     }
     try {
       await redeemFreeMap({ mapId: String(id) }).unwrap();
-      toast.success("Free map claimed! Opening your map...");
+      toast.success(t("maps.free_map_claimed"));
       if (mapData?.name) {
         localStorage.setItem("selectedCountryFilter", mapData.name);
       }
@@ -116,9 +116,9 @@ export default function FeatureMapDetailPage() {
 
     if (redeemFreeIntent) {
       if (userProfile?.redeemedFreeMap) {
-        toast.error("You have already redeemed your free map.");
+        toast.error(t("maps.already_redeemed_free"));
       } else {
-        toast.error("Unlock the Free Map award first, then claim a map.");
+        toast.error(t("maps.unlock_free_first"));
       }
       return;
     }
@@ -134,7 +134,7 @@ export default function FeatureMapDetailPage() {
       if (res?.data?.url) {
         window.location.href = res.data.url;
       } else {
-        toast.error("Failed to retrieve checkout URL.");
+        toast.error(t("payment.checkout_url_failed"));
       }
     } catch (error: any) {
       toast.error(

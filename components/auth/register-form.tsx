@@ -74,7 +74,7 @@ export const RegisterForm = () => {
             (redirect ? `&redirect=${encodeURIComponent(redirect)}` : ""),
         );
       } else {
-        toast.error("User registration failed. No email returned.");
+        toast.error(t("auth.registration_failed_no_email"));
       }
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err));
@@ -103,7 +103,7 @@ export const RegisterForm = () => {
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
             <Input
-              placeholder="John Doe"
+              placeholder={t("auth.name_placeholder") || "John Doe"}
               {...register("fullName")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />
@@ -122,7 +122,7 @@ export const RegisterForm = () => {
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
             <Input
               type="email"
-              placeholder="example@gmail.com"
+              placeholder={t("auth.email_placeholder") || "example@gmail.com"}
               {...register("email")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />

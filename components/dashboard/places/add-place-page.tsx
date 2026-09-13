@@ -1135,7 +1135,7 @@ export default function AddPlacePage() {
                   position={selectedPlace.position}
                   onClose={() => {
                     if (isCreating || isUpdating) {
-                      toast.warning("Upload in progress. Please wait until saving completes.");
+                      toast.warning(t("places.upload_in_progress"));
                       return;
                     }
                     setDraggedPositions({});

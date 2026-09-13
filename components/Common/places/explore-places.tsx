@@ -266,7 +266,7 @@ export default function ExplorePlaces() {
                       return;
                     }
                     if (!navigator.geolocation) {
-                      toast.error("Geolocation is not supported by your browser");
+                      toast.error(t("places.geolocation_not_supported"));
                       return;
                     }
                     navigator.geolocation.getCurrentPosition(
@@ -279,7 +279,7 @@ export default function ExplorePlaces() {
                         setPage(1);
                       },
                       () => {
-                        toast.error("Allow location access to use Near me");
+                        toast.error(t("places.allow_location_access"));
                       },
                       { enableHighAccuracy: true, timeout: 10000 },
                     );

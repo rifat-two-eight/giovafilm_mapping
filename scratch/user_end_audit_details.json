@@ -642,18 +642,6 @@
     "text": "SUBSCRIPTION"
   },
   {
-    "file": "components\\auth\\forgot-password-form.tsx",
-    "line": 78,
-    "type": "Input Placeholder",
-    "text": "your@email.com"
-  },
-  {
-    "file": "components\\auth\\Login-form.tsx",
-    "line": 162,
-    "type": "Input Placeholder",
-    "text": "your@email.com"
-  },
-  {
     "file": "components\\auth\\Login-form.tsx",
     "line": 181,
     "type": "Input Placeholder",
@@ -688,18 +676,6 @@
     "line": 77,
     "type": "Toast Notification",
     "text": "User registration failed. No email returned."
-  },
-  {
-    "file": "components\\auth\\register-form.tsx",
-    "line": 106,
-    "type": "Input Placeholder",
-    "text": "John Doe"
-  },
-  {
-    "file": "components\\auth\\register-form.tsx",
-    "line": 125,
-    "type": "Input Placeholder",
-    "text": "example@gmail.com"
   },
   {
     "file": "components\\auth\\register-form.tsx",

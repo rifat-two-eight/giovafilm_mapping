@@ -229,7 +229,7 @@ export function InviteUserForm(): React.ReactElement {
                 </div>
 
                 <Input
-                  placeholder="Search maps..."
+                  placeholder={t("common.search_maps")}
                   value={mapSearch}
                   onChange={(e) => setMapSearch(e.target.value)}
                   className="h-9 text-xs"

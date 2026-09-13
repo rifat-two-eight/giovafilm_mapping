@@ -75,7 +75,7 @@ export const ForgotPasswordForm = () => {
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
             <Input
               type="email"
-              placeholder="your@email.com"
+              placeholder={t("auth.email_placeholder") || "your@email.com"}
               {...register("email")}
               className="w-full pl-12 pr-4 py-6 bg-gray-100/80 border border-[#E0E0E0] rounded-lg focus-visible:ring-2 focus-visible:ring-[#FFC107] focus-visible:border-transparent transition-all shadow-none"
             />

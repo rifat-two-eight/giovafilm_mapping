@@ -22,6 +22,7 @@ import unlockImage from "@/public/offers-image/Gourmet Garden.png";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const getAwardIcon = (type: string) => {
   switch (type) {
@@ -49,6 +50,7 @@ const getAwardImage = (type: string) => {
 };
 
 export default function AwardsPage() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const limit = 10;
   const [activeFilter, setActiveFilter] = useState<"all" | "unlocked" | "locked">("all");
@@ -159,7 +161,7 @@ export default function AwardsPage() {
             {/* Cards */}
             <div className="flex gap-1.5 md:gap-3 mt-1 md:mt-3 w-full">
               <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">
-                <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">NEXT LEVEL</p>
+                <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">{t("common.next_level")}</p>
                 <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-xs leading-none">Level {currentLevel + 1}</p>
               </div>
 
