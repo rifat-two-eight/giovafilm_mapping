@@ -716,7 +716,13 @@
       "users_roles": "Usuarios y Roles",
       "reports": "Reportes",
       "settings": "Configuraciones",
-      "notifications": "Notificaciones"
+      "notifications": "Notificaciones",
+      "dashboard": "Panel de Control",
+      "subscription": "Suscripción",
+      "reports_statistics": "Informes y Estadísticas",
+      "rewards": "Recompensas",
+      "reviews_verification": "Verificación de Reseñas",
+      "promos": "Enlaces Promocionales"
     },
     "table": {
       "rows_per_page": "Filas por página:",
@@ -837,7 +843,8 @@
     "updated_successfully": "Mapa actualizado exitosamente",
     "created_successfully": "Mapa creado exitosamente",
     "delete_confirm": "¡No podrás revertir la eliminación de este mapa!",
-    "deleted_successfully": "Mapa eliminado exitosamente"
+    "deleted_successfully": "Mapa eliminado exitosamente",
+    "no_maps_found": "No se encontraron mapas."
   },
   "offers_admin": {
     "offer_description": "Descripción de la oferta",
@@ -1017,7 +1024,8 @@
     "minutes": "Minutos",
     "hours": "Horas",
     "updated_successfully": "¡Lugar actualizado exitosamente!",
-    "failed_update": "Error al actualizar el lugar"
+    "failed_update": "Error al actualizar el lugar",
+    "search_places_placeholder": "Buscar lugares..."
   },
   "reports_admin": {
     "total_sales": "Ventas totales",
@@ -1250,7 +1258,35 @@
     "enter_campaign_label": "Por favor ingresa una etiqueta de campaña.",
     "price_must_be_positive": "El precio debe ser 0 o positivo.",
     "enter_recipient_email": "Por favor ingresa al menos un correo de destinatario.",
-    "no_valid_emails": "No se encontraron correos válidos. Por favor revisa el formato."
+    "no_valid_emails": "No se encontraron correos válidos. Por favor revisa el formato.",
+    "customer_5": "Cliente ($5)",
+    "influencer_0": "Influencer ($0)",
+    "select_road_trip_map": "-- Seleccionar Mapa de Ruta --",
+    "price_locked_5": "Precio fijado en $5.00 para mejoras de clientes estándar.",
+    "price_locked_0": "Precio fijado en $0.00 para invitaciones gratuitas de influencers.",
+    "modify_target_price": "Modifica el precio para paquetes de marketing personalizados.",
+    "campaign_label_placeholder": "ej. Campaña VLOG Sarah, Lote 1 Mejoras",
+    "target_emails": "Correos de Destino",
+    "paste_emails_placeholder": "Pega correos separados por comas o saltos de línea. Ej.\ninfluencer@dominio.com\ncliente@gmail.com",
+    "valid_count": "válidos",
+    "invalid_count": "inválidos",
+    "enter_at_least_one_email": "Ingresa al menos un correo de destinatario para generar enlaces de invitación.",
+    "no_valid_emails_detected": "No se detectaron correos válidos. Verifica el formato: nombre@dominio.com",
+    "invitations_ready": "invitaciones listas para generar.",
+    "will_be_skipped": "se omitirán (formato inválido).",
+    "expiration_date_optional": "Fecha de Expiración (Opcional)",
+    "distinguish_realtime_hint": "Distingue pases de influencers de mejoras de clientes en tiempo real.",
+    "recipient_and_claimant": "Destinatario y Beneficiario",
+    "generic_no_email": "Genérico (Sin correo)",
+    "pending_email_send": "Envío de Correo Pendiente",
+    "resend_email_invite": "Reenviar Invitación por Correo",
+    "send_email_invite": "Enviar Invitación por Correo",
+    "delete_confirm": "¡No podrás revertir la eliminación de esta invitación promocional!",
+    "codes_active_unused": "códigos activos/sin usar",
+    "select_invitation_type_hint": "Selecciona el tipo de invitación para preconfigurar las reglas automáticamente.",
+    "page": "Página",
+    "of": "de",
+    "total": "total"
   },
   "rewards_admin": {
     "pts_placeholder": "ej. 15",

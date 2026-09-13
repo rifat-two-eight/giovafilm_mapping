@@ -42,15 +42,21 @@ export function AppSidebar() {
 
   const getTranslatedTitle = (title: string) => {
     const keyMap: Record<string, string> = {
+      Dashboard: "dashboard.sidebar.dashboard",
       Overview: "dashboard.sidebar.overview",
       Business: "dashboard.sidebar.business",
       Maps: "dashboard.sidebar.maps",
       Places: "dashboard.sidebar.places",
       Offers: "dashboard.sidebar.offers",
       Categories: "dashboard.sidebar.categories",
+      Subscription: "dashboard.sidebar.subscription",
       Subscriptions: "dashboard.sidebar.subscriptions",
       "Users & Roles": "dashboard.sidebar.users_roles",
       Reports: "dashboard.sidebar.reports",
+      "Reports & Statistics": "dashboard.sidebar.reports_statistics",
+      Rewards: "dashboard.sidebar.rewards",
+      "Reviews Verification": "dashboard.sidebar.reviews_verification",
+      "Promo Links": "dashboard.sidebar.promos",
       Settings: "dashboard.sidebar.settings",
       Notifications: "dashboard.sidebar.notifications",
     };

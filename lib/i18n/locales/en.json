@@ -716,7 +716,13 @@
       "users_roles": "Users & Roles",
       "reports": "Reports",
       "settings": "Settings",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "dashboard": "Dashboard",
+      "subscription": "Subscription",
+      "reports_statistics": "Reports & Statistics",
+      "rewards": "Rewards",
+      "reviews_verification": "Reviews Verification",
+      "promos": "Promo Links"
     },
     "table": {
       "rows_per_page": "Rows per page:",
@@ -837,7 +843,8 @@
     "updated_successfully": "Map updated successfully",
     "created_successfully": "Map created successfully",
     "delete_confirm": "You won't be able to revert this map deletion!",
-    "deleted_successfully": "Map deleted successfully"
+    "deleted_successfully": "Map deleted successfully",
+    "no_maps_found": "No maps found."
   },
   "offers_admin": {
     "offer_description": "Offer Description",
@@ -1017,7 +1024,8 @@
     "minutes": "Minutes",
     "hours": "Hours",
     "updated_successfully": "Place updated successfully!",
-    "failed_update": "Failed to update place"
+    "failed_update": "Failed to update place",
+    "search_places_placeholder": "Search places..."
   },
   "reports_admin": {
     "total_sales": "Total Sales",
@@ -1250,7 +1258,35 @@
     "enter_campaign_label": "Please enter a campaign label.",
     "price_must_be_positive": "Price must be 0 or positive.",
     "enter_recipient_email": "Please enter at least one recipient email.",
-    "no_valid_emails": "No valid emails found. Please check the format."
+    "no_valid_emails": "No valid emails found. Please check the format.",
+    "customer_5": "Customer ($5)",
+    "influencer_0": "Influencer ($0)",
+    "select_road_trip_map": "-- Select Road Trip Map --",
+    "price_locked_5": "Price locked to $5.00 for standard customer upgrades.",
+    "price_locked_0": "Price locked to $0.00 for free influencer invites.",
+    "modify_target_price": "Modify target price for custom marketing bundles.",
+    "campaign_label_placeholder": "e.g. Sarah VLOG Campaign, Batch 1 Upgrades",
+    "target_emails": "Target Emails",
+    "paste_emails_placeholder": "Paste emails separated by commas or new lines. E.g.\ninfluencer@domain.com\ncustomer@gmail.com",
+    "valid_count": "valid",
+    "invalid_count": "invalid",
+    "enter_at_least_one_email": "Enter at least one recipient email to generate invitation links.",
+    "no_valid_emails_detected": "No valid emails detected. Check format: name@domain.com",
+    "invitations_ready": "invitations ready to generate.",
+    "will_be_skipped": "will be skipped (invalid format).",
+    "expiration_date_optional": "Expiration Date (Optional)",
+    "distinguish_realtime_hint": "Distinguish influencer passes from customer upgrades in real-time.",
+    "recipient_and_claimant": "Recipient & Claimant",
+    "generic_no_email": "Generic (No email)",
+    "pending_email_send": "Pending Email Send",
+    "resend_email_invite": "Resend Email Invitation",
+    "send_email_invite": "Send Email Invitation",
+    "delete_confirm": "You won't be able to revert this promo invitation deletion!",
+    "codes_active_unused": "codes active/unused",
+    "select_invitation_type_hint": "Select invitation type to automatically pre-configure rules.",
+    "page": "Page",
+    "of": "of",
+    "total": "total"
   },
   "rewards_admin": {
     "pts_placeholder": "e.g. 15",

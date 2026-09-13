@@ -38,10 +38,19 @@ import {
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
+const getSafeString = (val: any, lang: string = "es"): string => {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+};
+
 type PromoType = "upgrade" | "influencer" | "custom";
 
 export default function PromosPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -296,12 +305,13 @@ export default function PromosPage() {
   // Delete invitation code
   const handleDelete = async (id: string) => {
     const result = await appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this promo invitation deletion!",
+      title: t("common.are_you_sure") || "Are you sure?",
+      text: t("promos_admin.delete_confirm") || "You won't be able to revert this promo invitation deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
+      cancelButtonText: t("common.cancel") || "Cancel",
     });
 
     if (result.isConfirmed) {
@@ -403,7 +413,7 @@ export default function PromosPage() {
         escapeCsv(promo.code),
         escapeCsv(`${origin}/claim-promo?code=${promo.code}`),
         escapeCsv(promo.promoType || "upgrade"),
-        escapeCsv(promo.mapId?.name || "N/A"),
+        escapeCsv(getSafeString(promo.mapId?.name, language) || "N/A"),
         escapeCsv(`$${promo.price.toFixed(2)}`),
         escapeCsv(promo.label),
         escapeCsv(promo.recipientEmail || "Generic/None"),
@@ -436,10 +446,10 @@ export default function PromosPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
-            <Ticket className="w-8 h-8 text-primary" /> Promo & Invitation Links
+            <Ticket className="w-8 h-8 text-primary" /> {t("promos_admin.title") || "Promo & Invitation Links"}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Differentiate and manage unique invitation codes for influencers and customer upgrades.
+            {t("promos_admin.subtitle") || "Differentiate and manage unique invitation codes for influencers and customer upgrades."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -448,7 +458,7 @@ export default function PromosPage() {
             variant="outline"
             className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 rounded-xl"
           >
-            <FileSpreadsheet size={16} /> Export CSV
+            <FileSpreadsheet size={16} /> {t("promos_admin.export_csv") || "Export CSV"}
           </Button>
           <Button
             onClick={() => {
@@ -458,7 +468,7 @@ export default function PromosPage() {
             variant="outline"
             className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 rounded-xl"
           >
-            <RefreshCw size={16} className={isFetchingPromos ? "animate-spin" : ""} /> Refresh
+            <RefreshCw size={16} className={isFetchingPromos ? "animate-spin" : ""} /> {t("promos_admin.refresh") || "Refresh"}
           </Button>
         </div>
       </div>
@@ -471,7 +481,7 @@ export default function PromosPage() {
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.total_generated") || "Total Generated"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.total}</h3>
-              <p className="text-[10px] text-gray-500">invitation codes in system</p>
+              <p className="text-[10px] text-gray-500">{t("promos_admin.codes_in_system") || "invitation codes in system"}</p>
             </div>
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
               <Ticket size={24} />
@@ -483,7 +493,7 @@ export default function PromosPage() {
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.customer_upgrades") || "Customer Upgrades"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.upgrade}</h3>
-              <p className="text-[10px] text-gray-500">upgrade links generated</p>
+              <p className="text-[10px] text-gray-500">{t("promos_admin.upgrade_links_generated") || "upgrade links generated"}</p>
             </div>
             <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
               <ArrowUpCircle size={24} />
@@ -495,7 +505,7 @@ export default function PromosPage() {
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.influencer_invites") || "Influencer Invites"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.influencer}</h3>
-              <p className="text-[10px] text-gray-500">{t("promos.guest_passes_in_system")}</p>
+              <p className="text-[10px] text-gray-500">{t("promos.guest_passes_in_system") || "free guest passes in system"}</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center shrink-0">
               <UserCheck size={24} />
@@ -509,7 +519,7 @@ export default function PromosPage() {
               <h3 className="text-2xl font-black text-emerald-600">
                 {statsRes.data.used} <span className="text-xs font-bold text-gray-400">({Math.round((statsRes.data.used / (statsRes.data.total || 1)) * 100)}%)</span>
               </h3>
-              <p className="text-[10px] text-gray-500">{statsRes.data.unused} codes active/unused</p>
+              <p className="text-[10px] text-gray-500">{statsRes.data.unused} {t("promos_admin.codes_active_unused") || "codes active/unused"}</p>
             </div>
             <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
               <TrendingUp size={24} />
@@ -522,26 +532,26 @@ export default function PromosPage() {
       <div className="bg-blue-50/50 rounded-2xl border border-blue-100 p-5 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-blue-900">
         <div className="space-y-1">
           <h4 className="font-bold flex items-center gap-1.5 text-blue-950">
-            <HelpCircle size={14} className="text-blue-600" /> 1. Distinguish Invites
+            <HelpCircle size={14} className="text-blue-600" /> 1. {t("promos_admin.distinguish_invites") || "Distinguish Invites"}
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Use the <strong>{t("promos_admin.link_type_tabs") || "Link Type Tabs"}</strong> to choose between Influencers (locked to $0) and Customers (locked to $5). The campaign label helps you filter them later in the list.
+            {t("promos_admin.distinguish_desc") || "Use the Link Type Tabs to choose between Influencers (locked to $0) and Customers (locked to $5). The campaign label helps you filter them later in the list."}
           </p>
         </div>
         <div className="space-y-1">
           <h4 className="font-bold flex items-center gap-1.5 text-blue-950">
-            <Send size={14} className="text-blue-600" /> 2. Bulk Invitation Flow
+            <Send size={14} className="text-blue-600" /> 2. {t("promos_admin.bulk_invitation_flow") || "Bulk Invitation Flow"}
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Paste your list of emails into the recipient emails textarea. Click <strong>{t("promos_admin.generate_links") || "Generate Links"}</strong> to create one unique secure link for each email.
+            {t("promos_admin.bulk_invitation_desc") || "Paste your list of emails into the recipient emails textarea. Click Generate Links to create one unique secure link for each email."}
           </p>
         </div>
         <div className="space-y-1">
           <h4 className="font-bold flex items-center gap-1.5 text-blue-950">
-            <CheckCircle size={14} className="text-blue-600" /> 3. Sending and Tracking
+            <CheckCircle size={14} className="text-blue-600" /> 3. {t("promos_admin.sending_and_tracking") || "Sending and Tracking"}
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Click <strong>{t("promos_admin.send_pending_invites") || "Send Pending Invites"}</strong> to trigger automatic background emails. In the list, you can see both the sent recipient email and who claimed it.
+            {t("promos_admin.sending_tracking_desc") || "Click Send Pending Invites to trigger automatic background emails. In the list, you can see both the sent recipient email and who claimed it."}
           </p>
         </div>
       </div>
@@ -554,7 +564,7 @@ export default function PromosPage() {
               <Plus size={20} className="text-primary" /> {t("promos_admin.generate_links") || "Generate Invitation"}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              Select invitation type to automatically pre-configure rules.
+              {t("promos_admin.select_invitation_type_hint") || "Select invitation type to automatically pre-configure rules."}
             </p>
           </div>
 
@@ -568,7 +578,7 @@ export default function PromosPage() {
                   : "text-gray-500 hover:text-gray-800"
                 }`}
             >
-              Customer ($5)
+              {t("promos_admin.customer_5") || "Customer ($5)"}
             </button>
             <button
               type="button"
@@ -578,7 +588,7 @@ export default function PromosPage() {
                   : "text-gray-500 hover:text-gray-800"
                 }`}
             >
-              Influencer ($0)
+              {t("promos_admin.influencer_0") || "Influencer ($0)"}
             </button>
             <button
               type="button"
@@ -602,10 +612,10 @@ export default function PromosPage() {
                 onChange={(e) => setSelectedMapId(e.target.value)}
                 className="w-full h-10 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white"
               >
-                <option value="">-- Select Road Trip Map --</option>
+                <option value="">{t("promos_admin.select_road_trip_map") || "-- Select Road Trip Map --"}</option>
                 {maps.map((map: any) => (
                   <option key={map._id} value={map._id}>
-                    {map.name}
+                    {getSafeString(map.name, language)}
                   </option>
                 ))}
               </select>
@@ -630,9 +640,9 @@ export default function PromosPage() {
                 />
               </div>
               <p className="text-[10px] text-gray-400 leading-tight">
-                {promoType === "upgrade" && "Price locked to $5.00 for standard customer upgrades."}
-                {promoType === "influencer" && "Price locked to $0.00 for free influencer invites."}
-                {promoType === "custom" && "Modify target price for custom marketing bundles."}
+                {promoType === "upgrade" && (t("promos_admin.price_locked_5") || "Price locked to $5.00 for standard customer upgrades.")}
+                {promoType === "influencer" && (t("promos_admin.price_locked_0") || "Price locked to $0.00 for free influencer invites.")}
+                {promoType === "custom" && (t("promos_admin.modify_target_price") || "Modify target price for custom marketing bundles.")}
               </p>
             </div>
 
@@ -642,7 +652,7 @@ export default function PromosPage() {
               <Input
                 required
                 type="text"
-                placeholder="e.g. Sarah VLOG Campaign, Batch 1 Upgrades"
+                placeholder={t("promos_admin.campaign_label_placeholder") || "e.g. Sarah VLOG Campaign, Batch 1 Upgrades"}
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 className="h-10 rounded-xl"
@@ -652,7 +662,7 @@ export default function PromosPage() {
             {/* Target Emails Textarea — Live UX */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-gray-700 uppercase">Target Emails *</label>
+                <label className="text-xs font-bold text-gray-700 uppercase">{t("promos_admin.target_emails") || "Target Emails"} *</label>
                 {/* Live email counter badge */}
                 {emailsText.trim() && (() => {
                   const parsed = emailsText
@@ -665,12 +675,12 @@ export default function PromosPage() {
                     <div className="flex items-center gap-1.5">
                       {valid.length > 0 && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                          ✓ {valid.length} valid
+                          ✓ {valid.length} {t("promos_admin.valid_count") || "valid"}
                         </span>
                       )}
                       {invalid > 0 && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-50 text-red-600 border border-red-100">
-                          ✗ {invalid} invalid
+                          ✗ {invalid} {t("promos_admin.invalid_count") || "invalid"}
                         </span>
                       )}
                     </div>
@@ -679,7 +689,7 @@ export default function PromosPage() {
               </div>
               <textarea
                 required
-                placeholder={`Paste emails separated by commas or new lines. E.g.\ninfluencer@domain.com\ncustomer@gmail.com`}
+                placeholder={t("promos_admin.paste_emails_placeholder") || `Paste emails separated by commas or new lines. E.g.\ninfluencer@domain.com\ncustomer@gmail.com`}
                 value={emailsText}
                 onChange={(e) => setEmailsText(e.target.value)}
                 rows={4}
@@ -703,24 +713,22 @@ export default function PromosPage() {
                     })()
               }`}>
                 {!emailsText.trim()
-                  ? "Enter at least one recipient email to generate invitation links."
+                  ? (t("promos_admin.enter_at_least_one_email") || "Enter at least one recipient email to generate invitation links.")
                   : (() => {
                       const parsed = emailsText.split(/[\n,]+/).map(e => e.trim()).filter(e => e.length > 0);
                       const valid = parsed.filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
-                      if (valid.length === 0) return "No valid emails detected. Check format: name@domain.com";
-                      if (valid.length === parsed.length) return `✓ ${valid.length} invitation${valid.length > 1 ? "s" : ""} ready to generate.`;
-                      return `✓ ${valid.length} valid — ${parsed.length - valid.length} will be skipped (invalid format).`;
+                      if (valid.length === 0) return (t("promos_admin.no_valid_emails_detected") || "No valid emails detected. Check format: name@domain.com");
+                      if (valid.length === parsed.length) return `✓ ${valid.length} ${t("promos_admin.invitations_ready") || "invitations ready to generate."}`;
+                      return `✓ ${valid.length} ${t("promos_admin.valid_count") || "valid"} — ${parsed.length - valid.length} ${t("promos_admin.will_be_skipped") || "will be skipped (invalid format)."}`;
                     })()
                 }
               </p>
             </div>
 
-
-
             {/* Expiry Date */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-700 uppercase flex items-center gap-1">
-                <Calendar size={12} /> Expiration Date (Optional)
+                <Calendar size={12} /> {t("promos_admin.expiration_date_optional") || "Expiration Date (Optional)"}
               </label>
               <Input
                 type="date"
@@ -746,7 +754,7 @@ export default function PromosPage() {
             <div>
               <h2 className="text-xl font-bold text-gray-900">{t("promos_admin.track_invitations") || "Track Invitations"}</h2>
               <p className="text-xs text-gray-500 mt-0.5">
-                Distinguish influencer passes from customer upgrades in real-time.
+                {t("promos_admin.distinguish_realtime_hint") || "Distinguish influencer passes from customer upgrades in real-time."}
               </p>
             </div>
             {(() => {
@@ -817,8 +825,8 @@ export default function PromosPage() {
               className="h-10 px-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs bg-white"
             >
               <option value="">{t("promos_admin.all_types") || "All invitation types"}</option>
-              <option value="upgrade">Customer Upgrade ($5)</option>
-              <option value="influencer">Influencer Pass ($0)</option>
+              <option value="upgrade">{t("promos_admin.customer_5") || "Customer ($5)"}</option>
+              <option value="influencer">{t("promos_admin.influencer_0") || "Influencer ($0)"}</option>
               <option value="custom">{t("promos_admin.custom_offer") || "Custom Offer"}</option>
             </select>
 
@@ -847,7 +855,7 @@ export default function PromosPage() {
                   <th className="p-4">{t("promos_admin.target_map") || "Target Map"}</th>
                   <th className="p-4">{t("promos_admin.price") || "Price"}</th>
                   <th className="p-4">{t("promos_admin.label") || "Label"}</th>
-                  <th className="p-4">Recipient & Claimant</th>
+                  <th className="p-4">{t("promos_admin.recipient_and_claimant") || "Recipient & Claimant"}</th>
                   <th className="p-4">{t("promos_admin.status") || "Status"}</th>
                   <th className="p-4 text-right">{t("promos_admin.invite") || "Invite"}</th>
                 </tr>
@@ -856,13 +864,13 @@ export default function PromosPage() {
                 {isLoadingPromos ? (
                   <tr>
                     <td colSpan={8} className="p-8 text-center text-gray-400">
-                      Loading details...
+                      {t("promos_admin.loading_details") || "Loading details..."}
                     </td>
                   </tr>
                 ) : promoLinks.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="p-8 text-center text-gray-400">
-                      No matching records found.
+                      {t("promos_admin.no_records_found") || "No matching records found."}
                     </td>
                   </tr>
                 ) : (
@@ -890,17 +898,17 @@ export default function PromosPage() {
                               <button
                                 onClick={() => handleCopyLink(promo.code)}
                                 className="text-[10px] text-primary hover:underline flex items-center gap-0.5"
-                                title="Copy full claim URL"
+                                title={t("promos_admin.copy_claim_url") || "Copy full claim URL"}
                               >
-                                <Copy size={10} /> URL
+                                <Copy size={10} /> {t("promos_admin.url") || "URL"}
                               </button>
                               <span className="text-gray-300">|</span>
                               <button
                                 onClick={() => handleCopyCode(promo.code)}
                                 className="text-[10px] text-gray-400 hover:text-gray-600 flex items-center gap-0.5"
-                                title="Copy code"
+                                title={t("promos_admin.copy_code") || "Copy code"}
                               >
-                                <Copy size={10} /> Code
+                                <Copy size={10} /> {t("promos_admin.code") || "Code"}
                               </button>
                             </div>
                           </div>
@@ -908,20 +916,20 @@ export default function PromosPage() {
                         <td className="p-4">
                           {promo.promoType === "influencer" ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-xl bg-purple-50 text-purple-700 border border-purple-100">
-                              <UserCheck size={10} /> Influencer
+                              <UserCheck size={10} /> {t("promos_admin.influencer") || "Influencer"}
                             </span>
                           ) : promo.promoType === "upgrade" ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-xl bg-blue-50 text-blue-700 border border-blue-100">
-                              <ArrowUpCircle size={10} /> Customer ($5)
+                              <ArrowUpCircle size={10} /> {t("promos_admin.customer_5") || "Customer ($5)"}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-xl bg-gray-50 text-gray-700 border border-gray-200">
-                              <Settings size={10} /> Custom Offer
+                              <Settings size={10} /> {t("promos_admin.custom_offer") || "Custom Offer"}
                             </span>
                           )}
                         </td>
                         <td className="p-4 font-bold text-gray-900">
-                          {promo.mapId?.name || "N/A"}
+                          {getSafeString(promo.mapId?.name, language) || "N/A"}
                         </td>
                         <td className="p-4 font-bold text-gray-900">
                           ${promo.price.toFixed(2)}
@@ -931,22 +939,22 @@ export default function PromosPage() {
                         </td>
                         <td className="p-4 max-w-[200px] truncate">
                           <div className="flex flex-col gap-1 items-start">
-                            <span className="text-gray-900 font-semibold" title={promo.recipientEmail || "Generic (No email)"}>
-                              {promo.recipientEmail || "Generic (No email)"}
+                            <span className="text-gray-900 font-semibold" title={promo.recipientEmail || (t("promos_admin.generic_no_email") || "Generic (No email)")}>
+                              {promo.recipientEmail || (t("promos_admin.generic_no_email") || "Generic (No email)")}
                             </span>
                             {isPendingEmail && (
                               <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200">
-                                <Send size={9} /> Pending Email Send
+                                <Send size={9} /> {t("promos_admin.pending_email_send") || "Pending Email Send"}
                               </span>
                             )}
                             {isEmailSent && (
                               <span className="inline-flex items-center gap-1 text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                                <CheckCircle size={9} /> Email Sent
+                                <CheckCircle size={9} /> {t("promos_admin.email_sent") || "Email Sent"}
                               </span>
                             )}
                             {promo.isUsed && promo.usedBy?.email && (
                               <span className="text-[10px] text-gray-400 font-medium" title={`Claimed by: ${promo.usedBy.email}`}>
-                                ↳ Claimed: {promo.usedBy.email}
+                                ↳ {t("promos_admin.claimed") || "Claimed"}: {promo.usedBy.email}
                               </span>
                             )}
                           </div>
@@ -954,23 +962,23 @@ export default function PromosPage() {
                         <td className="p-4">
                           {promo.isUsed ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-green-50 text-green-700 border border-green-200">
-                              <CheckCircle size={10} /> Claimed
+                              <CheckCircle size={10} /> {t("promos_admin.claimed") || "Claimed"}
                             </span>
                           ) : isExpired ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-red-50 text-red-700 border border-red-200">
-                              <XCircle size={10} /> Expired
+                              <XCircle size={10} /> {t("promos_admin.expired") || "Expired"}
                             </span>
                           ) : isPendingEmail ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-amber-100/80 text-amber-800 border border-amber-300">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending Send
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> {t("promos_admin.pending_send") || "Pending Send"}
                             </span>
                           ) : isEmailSent ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                              <Send size={10} className="text-blue-600" /> Email Sent
+                              <Send size={10} className="text-blue-600" /> {t("promos_admin.email_sent") || "Email Sent"}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              Active
+                              {t("promos_admin.active") || "Active"}
                             </span>
                           )}
                         </td>
@@ -984,7 +992,7 @@ export default function PromosPage() {
                                     ? "text-amber-600 hover:text-amber-700 hover:bg-amber-100"
                                     : "text-gray-400 hover:text-primary hover:bg-gray-100"
                                 }`}
-                                title={isEmailSent ? "Resend Email Invitation" : "Send Email Invitation"}
+                                title={isEmailSent ? (t("promos_admin.resend_email_invite") || "Resend Email Invitation") : (t("promos_admin.send_email_invite") || "Send Email Invitation")}
                               >
                                 <Send size={14} />
                               </button>
@@ -992,7 +1000,7 @@ export default function PromosPage() {
                             <button
                               onClick={() => handleDelete(promo._id)}
                               className="p-1.5 text-gray-500 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg"
-                              title="Delete Invitation Link"
+                              title={t("promos_admin.delete_link") || "Delete Invitation Link"}
                             >
                               <Trash2 size={14} />
                             </button>
@@ -1010,7 +1018,7 @@ export default function PromosPage() {
           {meta && meta.totalPages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <span className="text-[10px] md:text-xs text-gray-500">
-                Page {page} of {meta.totalPages} ({meta.total} total)
+                {t("promos_admin.page") || "Page"} {page} {t("promos_admin.of") || "of"} {meta.totalPages} ({meta.total} {t("promos_admin.total") || "total"})
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -1020,7 +1028,7 @@ export default function PromosPage() {
                   size="sm"
                   className="rounded-xl border-gray-300 text-xs px-3"
                 >
-                  Previous
+                  {t("common.previous") || "Previous"}
                 </Button>
                 <Button
                   onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
@@ -1029,7 +1037,7 @@ export default function PromosPage() {
                   size="sm"
                   className="rounded-xl border-gray-300 text-xs px-3"
                 >
-                  Next
+                  {t("common.next") || "Next"}
                 </Button>
               </div>
             </div>
