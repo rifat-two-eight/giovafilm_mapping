@@ -253,7 +253,7 @@ export default function AddPlacePage() {
     if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
     dragTimeoutRef.current = setTimeout(() => {
       setDraggableMarkerId(markerId);
-      toast.info("Marker drag enabled. Move it now!");
+      toast.info(t("places_admin.marker_drag_enabled") || "Marker drag enabled. Move it now!");
       dragStartPosRef.current = null;
       wasDraggingRef.current = true; // Block the immediate pointerup click
     }, 500); // 0.5 seconds press & hold
@@ -311,12 +311,12 @@ export default function AddPlacePage() {
   const handleExtractLocation = async () => {
     let url = mapUrl;
     if (!url) {
-      toast.error("Please enter a Google Maps URL first");
+      toast.error(t("places_admin.enter_google_maps_url") || "Please enter a Google Maps URL first");
       return;
     }
 
     if (!selectedMapId) {
-      toast.error("Please select a map first!");
+      toast.error(t("places_admin.select_map_first") || "Please select a map first!");
       return;
     }
 
@@ -343,14 +343,14 @@ export default function AddPlacePage() {
         setFormData({ name: "", description: "" });
         setMapUrl("");
         setIsAddingMarker(false);
-        toast.success("Location extracted successfully!");
+        toast.success(t("places_admin.location_extracted") || "Location extracted successfully!");
       } else {
-        toast.error("Could not extract coordinates from this URL.");
+        toast.error(t("places_admin.could_not_extract") || "Could not extract coordinates from this URL.");
       }
     } catch (error: any) {
       console.error("Failed to extract location:", error);
       toast.error(
-        error?.data?.message || "Could not extract coordinates. Try using the full URL from your browser address bar."
+        error?.data?.message || t("places_admin.could_not_extract") || "Could not extract coordinates. Try using the full URL from your browser address bar."
       );
     } finally {
       setIsExtracting(false);
@@ -360,7 +360,7 @@ export default function AddPlacePage() {
   const handleMapClick = (e: any) => {
     if (!isAddingMarker) return;
     if (!selectedMapId) {
-      toast.error("Please select a map first!");
+      toast.error(t("places_admin.select_map_first") || "Please select a map first!");
       setIsAddingMarker(false);
       return;
     }
@@ -455,7 +455,7 @@ export default function AddPlacePage() {
     if (!saveMarker || !selectedMapId) return;
 
     if (!finalData.category && !selectedCategoryId) {
-      toast.error("Please select a category first!");
+      toast.error(t("places_admin.select_category_first") || "Please select a category first!");
       return;
     }
 

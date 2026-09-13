@@ -63,36 +63,6 @@
         "text": "Promo links exported to CSV successfully!"
       },
       {
-        "lineNum": 472,
-        "category": "JSX Text",
-        "text": "Total Generated"
-      },
-      {
-        "lineNum": 484,
-        "category": "JSX Text",
-        "text": "Customer Upgrades"
-      },
-      {
-        "lineNum": 496,
-        "category": "JSX Text",
-        "text": "Influencer Invites"
-      },
-      {
-        "lineNum": 528,
-        "category": "JSX Text",
-        "text": "Link Type Tabs"
-      },
-      {
-        "lineNum": 536,
-        "category": "JSX Text",
-        "text": "Generate Links"
-      },
-      {
-        "lineNum": 544,
-        "category": "JSX Text",
-        "text": "Send Pending Invites"
-      },
-      {
         "lineNum": 625,
         "category": "Input Placeholder",
         "text": "e.g. 5.00"
@@ -101,76 +71,6 @@
         "lineNum": 645,
         "category": "Input Placeholder",
         "text": "e.g. Sarah VLOG Campaign, Batch 1 Upgrades"
-      },
-      {
-        "lineNum": 747,
-        "category": "JSX Text",
-        "text": "Track Invitations"
-      },
-      {
-        "lineNum": 800,
-        "category": "Input Placeholder",
-        "text": "Search code, email, label..."
-      },
-      {
-        "lineNum": 819,
-        "category": "JSX Text",
-        "text": "All invitation types"
-      },
-      {
-        "lineNum": 822,
-        "category": "JSX Text",
-        "text": "Custom Offer"
-      },
-      {
-        "lineNum": 834,
-        "category": "JSX Text",
-        "text": "All statuses"
-      },
-      {
-        "lineNum": 835,
-        "category": "JSX Text",
-        "text": "Active / Unused"
-      },
-      {
-        "lineNum": 836,
-        "category": "JSX Text",
-        "text": "Used / Claimed"
-      },
-      {
-        "lineNum": 845,
-        "category": "JSX Text",
-        "text": "Link / Code"
-      },
-      {
-        "lineNum": 846,
-        "category": "JSX Text",
-        "text": "Type"
-      },
-      {
-        "lineNum": 847,
-        "category": "JSX Text",
-        "text": "Target Map"
-      },
-      {
-        "lineNum": 848,
-        "category": "JSX Text",
-        "text": "Price"
-      },
-      {
-        "lineNum": 849,
-        "category": "JSX Text",
-        "text": "Label"
-      },
-      {
-        "lineNum": 851,
-        "category": "JSX Text",
-        "text": "Status"
-      },
-      {
-        "lineNum": 852,
-        "category": "JSX Text",
-        "text": "Invite"
       },
       {
         "lineNum": 893,
@@ -318,34 +218,9 @@
     "file": "app\\(dashboard)\\dashboard\\rewards\\page.tsx",
     "items": [
       {
-        "lineNum": 323,
-        "category": "Input Placeholder",
-        "text": "e.g. 15"
-      },
-      {
-        "lineNum": 337,
-        "category": "Input Placeholder",
-        "text": "e.g. PDF Travel Itinerary"
-      },
-      {
-        "lineNum": 349,
-        "category": "Input Placeholder",
-        "text": "Describe what the user gets when unlocking this reward..."
-      },
-      {
         "lineNum": 363,
         "category": "Input Placeholder",
-        "text": "e.g. 500"
-      },
-      {
-        "lineNum": 402,
-        "category": "HTML Attribute",
-        "text": "Preview"
-      },
-      {
-        "lineNum": 438,
-        "category": "HTML Attribute",
-        "text": "Remove PDF"
+        "text": "500"
       }
     ]
   },
@@ -478,16 +353,6 @@
         "text": "preview"
       },
       {
-        "lineNum": 506,
-        "category": "Input Placeholder",
-        "text": "Describe the offer..."
-      },
-      {
-        "lineNum": 528,
-        "category": "Input Placeholder",
-        "text": "e.g., 1"
-      },
-      {
         "lineNum": 640,
         "category": "Input Placeholder",
         "text": "20"
@@ -501,31 +366,6 @@
         "lineNum": 751,
         "category": "HTML Attribute",
         "text": "noExpiration"
-      },
-      {
-        "lineNum": 789,
-        "category": "Input Placeholder",
-        "text": "e.g., One per user per visit"
-      },
-      {
-        "lineNum": 843,
-        "category": "Input Placeholder",
-        "text": "Redeem Offer"
-      },
-      {
-        "lineNum": 863,
-        "category": "JSX Text",
-        "text": "Active"
-      },
-      {
-        "lineNum": 864,
-        "category": "JSX Text",
-        "text": "Expired"
-      },
-      {
-        "lineNum": 865,
-        "category": "JSX Text",
-        "text": "Paused"
       }
     ]
   },
@@ -552,41 +392,6 @@
   {
     "file": "components\\dashboard\\places\\add-place-page.tsx",
     "items": [
-      {
-        "lineNum": 256,
-        "category": "Toast Notification",
-        "text": "Marker drag enabled. Move it now!"
-      },
-      {
-        "lineNum": 314,
-        "category": "Toast Notification",
-        "text": "Please enter a Google Maps URL first"
-      },
-      {
-        "lineNum": 319,
-        "category": "Toast Notification",
-        "text": "Please select a map first!"
-      },
-      {
-        "lineNum": 346,
-        "category": "Toast Notification",
-        "text": "Location extracted successfully!"
-      },
-      {
-        "lineNum": 348,
-        "category": "Toast Notification",
-        "text": "Could not extract coordinates from this URL."
-      },
-      {
-        "lineNum": 363,
-        "category": "Toast Notification",
-        "text": "Please select a map first!"
-      },
-      {
-        "lineNum": 458,
-        "category": "Toast Notification",
-        "text": "Please select a category first!"
-      },
       {
         "lineNum": 584,
         "category": "JSX Text",
@@ -628,11 +433,6 @@
         "text": "Promise"
       },
       {
-        "lineNum": 313,
-        "category": "Toast Notification",
-        "text": "Please upload image or PDF files only for menus."
-      },
-      {
         "lineNum": 375,
         "category": "HTML Attribute",
         "text": "Place name is required"
@@ -641,11 +441,6 @@
         "lineNum": 381,
         "category": "HTML Attribute",
         "text": "Description is required"
-      },
-      {
-        "lineNum": 396,
-        "category": "Toast Notification",
-        "text": "Please fill in all required fields."
       },
       {
         "lineNum": 588,

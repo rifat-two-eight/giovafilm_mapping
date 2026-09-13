@@ -320,7 +320,7 @@ export default function RewardsAdminPage() {
                 <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.discount_percentage")}</Label>
                 <Input
                   type="number"
-                  placeholder="e.g. 15"
+                  placeholder={t("rewards_admin.pts_placeholder") || "e.g. 15"}
                   value={discountPercentage}
                   onChange={(e) => setDiscountPercentage(e.target.value)}
                   min="0"
@@ -334,7 +334,7 @@ export default function RewardsAdminPage() {
             <div className="space-y-1">
               <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.reward_title")}</Label>
               <Input
-                placeholder="e.g. PDF Travel Itinerary"
+                placeholder={t("rewards_admin.title_placeholder") || "e.g. PDF Travel Itinerary"}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -346,7 +346,7 @@ export default function RewardsAdminPage() {
               <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.description")}</Label>
               <textarea
                 rows={3}
-                placeholder="Describe what the user gets when unlocking this reward..."
+                placeholder={t("rewards_admin.reward_desc_placeholder") || "Describe what the user gets when unlocking this reward..."}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full text-sm p-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -360,7 +360,7 @@ export default function RewardsAdminPage() {
                 <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.points_target")}</Label>
                 <Input
                   type="number"
-                  placeholder="e.g. 500"
+                  placeholder="500"
                   value={target}
                   onChange={(e) => setTarget(e.target.value)}
                   required
@@ -399,7 +399,7 @@ export default function RewardsAdminPage() {
                   {coverPreview ? (
                     <img
                       src={coverPreview}
-                      alt="Preview"
+                      alt={t("rewards_admin.pdf_preview") || "Preview"}
                       className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                     />
                   ) : (
@@ -435,7 +435,7 @@ export default function RewardsAdminPage() {
                         if (selectedReward) setSelectedReward({ ...selectedReward, fileUrl: "" });
                       }}
                       className="absolute top-2 right-2 p-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition-colors"
-                      title="Remove PDF"
+                      title={t("rewards_admin.remove_pdf") || "Remove PDF"}
                     >
                       <Trash2 size={14} />
                     </button>

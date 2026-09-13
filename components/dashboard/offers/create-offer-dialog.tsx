@@ -499,11 +499,11 @@ export function CreateOfferDialog({
               htmlFor="description"
               className="text-sm font-medium text-gray-700"
             >
-              Offer Description
+              {t("offers_admin.offer_description") || "Offer Description"}
             </Label>
             <textarea
               id="description"
-              placeholder="Describe the offer..."
+              placeholder={t("offers_admin.offer_description_placeholder") || "Describe the offer..."}
               className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none"
               rows={4}
               {...register("description", {
@@ -519,20 +519,20 @@ export function CreateOfferDialog({
                 htmlFor="maxRedemptions"
                 className="text-sm font-medium text-gray-700"
               >
-                Redemptions Per User
+                {t("offers_admin.redemptions_per_user")}
               </Label>
               <Input
                 id="maxRedemptions"
                 type="number"
                 min={0}
-                placeholder="e.g., 1"
+                placeholder={t("offers_admin.e_g_1") || "e.g., 1"}
                 className="mt-1"
                 {...register("maxRedemptions", {
                   required: "Redemptions per user is required",
                 })}
               />
               <p className="mt-1 text-xs text-gray-500">
-                How many times one customer can use this offer
+                {t("offers_admin.redemptions_per_user_hint") || "How many times one customer can use this offer"}
               </p>
             </div>
 
@@ -541,7 +541,7 @@ export function CreateOfferDialog({
                 htmlFor="redemptionFrequency"
                 className="text-sm font-medium text-gray-700"
               >
-                Redemption Frequency
+                {t("offers_admin.redemption_frequency") || "Redemption Frequency"}
               </Label>
               <select
                 id="redemptionFrequency"
@@ -684,7 +684,7 @@ export function CreateOfferDialog({
                     htmlFor="discountValue"
                     className="text-sm font-medium text-gray-700"
                   >
-                    % off second item
+                    {t("offers_admin.pct_off_second_item") || "% off second item"}
                   </Label>
                   <Input
                     id="discountValue"
@@ -714,7 +714,7 @@ export function CreateOfferDialog({
                 htmlFor="validFrom"
                 className="text-sm font-medium text-gray-700"
               >
-                Valid From
+                {t("offers_admin.valid_from") || "Valid From"}
               </Label>
               <Input
                 id="validFrom"
@@ -733,7 +733,7 @@ export function CreateOfferDialog({
                     htmlFor="validUntil"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Valid Until
+                    {t("offers_admin.valid_until")}
                   </Label>
                   <Input
                     id="validUntil"
@@ -762,7 +762,7 @@ export function CreateOfferDialog({
                   htmlFor="noExpiration"
                   className="text-sm font-medium text-gray-700 cursor-pointer"
                 >
-                  No Expiration
+                  {t("offers_admin.no_expiration") || "No Expiration"}
                 </Label>
               </div>
             </div>
@@ -774,7 +774,7 @@ export function CreateOfferDialog({
               htmlFor="redemptionRules"
               className="text-sm font-medium text-gray-700"
             >
-              Redemption Rules
+              {t("offers_admin.redemption_rules") || "Redemption Rules"}
             </Label>
 
             {/* Input row */}
@@ -786,7 +786,7 @@ export function CreateOfferDialog({
                   setRuleInput(e.target.value);
                   if (e.target.value.trim()) setRuleError("");
                 }}
-                placeholder="e.g., One per user per visit"
+                placeholder={t("offers_admin.redemption_rule_placeholder") || "e.g., One per user per visit"}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 outline-none resize-none"
               />
               <Button
@@ -794,7 +794,7 @@ export function CreateOfferDialog({
                 onClick={handleAddRule}
                 className="self-start bg-primary hover:bg-primary/80 text-white px-4 py-2 h-auto"
               >
-                Add
+                {t("common.add")}
               </Button>
             </div>
 
@@ -836,11 +836,11 @@ export function CreateOfferDialog({
               htmlFor="buttonLabel"
               className="text-sm font-medium text-gray-700"
             >
-              Button Label
+              {t("offers_admin.button_label") || "Button Label"}
             </Label>
             <Input
               id="buttonLabel"
-              placeholder="Redeem Offer"
+              placeholder={t("offers_admin.redeem_offer") || "Redeem Offer"}
               className="mt-1"
               {...register("buttonLabel")}
             />
@@ -853,16 +853,16 @@ export function CreateOfferDialog({
                 htmlFor="status"
                 className="text-sm font-medium text-gray-700"
               >
-                Status
+                {t("offers_admin.status")}
               </Label>
               <select
                 id="status"
                 className="w-full mt-1 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 {...register("status")}
               >
-                <option value="Active">Active</option>
-                <option value="Expired">Expired</option>
-                <option value="Paused">Paused</option>
+                <option value="Active">{t("offers_admin.active")}</option>
+                <option value="Expired">{t("offers_admin.expired")}</option>
+                <option value="Paused">{t("offers_admin.paused")}</option>
               </select>
             </div>
           )}
@@ -875,7 +875,7 @@ export function CreateOfferDialog({
               onClick={() => onOpenChange(false)}
               className="border-gray-300"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
 
             <Button
@@ -886,7 +886,11 @@ export function CreateOfferDialog({
               {isLoading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               )}
-              {isLoading ? "Saving..." : isEdit ? "Update Offer" : "Save Offer"}
+              {isLoading
+                ? t("common.saving")
+                : isEdit
+                ? (t("offers_admin.update_offer") || "Update Offer")
+                : (t("offers_admin.save_offer") || "Save Offer")}
             </Button>
           </div>
         </form>

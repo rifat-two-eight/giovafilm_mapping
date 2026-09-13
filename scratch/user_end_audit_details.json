@@ -1,0 +1,758 @@
+[
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 220,
+    "type": "JSX Text",
+    "text": "Verifying invitation..."
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 238,
+    "type": "JSX Text",
+    "text": "Upgrade Successful!"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 266,
+    "type": "JSX Text",
+    "text": "Checkout Canceled"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 303,
+    "type": "JSX Text",
+    "text": "Invitation Expired"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 479,
+    "type": "JSX Text",
+    "text": "Target Map"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 494,
+    "type": "JSX Text",
+    "text": "Upgrade Cost"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 539,
+    "type": "JSX Text",
+    "text": ". You are logged in as"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 577,
+    "type": "JSX Text",
+    "text": ". Please sign in or create an account with"
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 712,
+    "type": "Toast Notification",
+    "text": "Logged out. Please log in with your invited email."
+  },
+  {
+    "file": "app\\(common)\\claim-promo\\page.tsx",
+    "line": 742,
+    "type": "JSX Text",
+    "text": "Retrieving invitation link..."
+  },
+  {
+    "file": "app\\(common)\\explorer\\[id]\\page.tsx",
+    "line": 54,
+    "type": "JSX Text",
+    "text": "Loading explorer profile..."
+  },
+  {
+    "file": "app\\(common)\\explorer\\[id]\\page.tsx",
+    "line": 66,
+    "type": "JSX Text",
+    "text": "Profile unavailable"
+  },
+  {
+    "file": "app\\(common)\\page.tsx",
+    "line": 70,
+    "type": "Toast Notification",
+    "text": "Payment verified successfully! Redirecting to your purchased maps..."
+  },
+  {
+    "file": "app\\(common)\\page.tsx",
+    "line": 73,
+    "type": "Toast Notification",
+    "text": "Payment verification failed."
+  },
+  {
+    "file": "app\\(common)\\page.tsx",
+    "line": 92,
+    "type": "JSX Text",
+    "text": "Verifying your purchase..."
+  },
+  {
+    "file": "app\\(common)\\page.tsx",
+    "line": 93,
+    "type": "JSX Text",
+    "text": "Please do not close or refresh this page."
+  },
+  {
+    "file": "app\\(common)\\pricing\\page.tsx",
+    "line": 29,
+    "type": "JSX Text",
+    "text": "pricing"
+  },
+  {
+    "file": "app\\(common)\\view-location\\page.tsx",
+    "line": 23,
+    "type": "JSX Text",
+    "text": "Invalid coordinates provided."
+  },
+  {
+    "file": "components\\Common\\contact\\contact-form.tsx",
+    "line": 50,
+    "type": "Toast Notification",
+    "text": "Message sent successfully! We will get back to you soon."
+  },
+  {
+    "file": "components\\Common\\contact\\contact-form.tsx",
+    "line": 79,
+    "type": "Input Placeholder",
+    "text": "John Doe"
+  },
+  {
+    "file": "components\\Common\\contact\\contact-form.tsx",
+    "line": 98,
+    "type": "Input Placeholder",
+    "text": "john@example.com"
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step2.tsx",
+    "line": 52,
+    "type": "JSX Text",
+    "text": "void | Promise"
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step2.tsx",
+    "line": 53,
+    "type": "JSX Text",
+    "text": "void | Promise"
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step2.tsx",
+    "line": 299,
+    "type": "Toast Notification",
+    "text": "Could not verify this location. Please try another pin."
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step2.tsx",
+    "line": 342,
+    "type": "Toast Notification",
+    "text": "Location cleared. You can set a new pin."
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step2.tsx",
+    "line": 347,
+    "type": "Toast Notification",
+    "text": "Please select a Country/Map in Step 1 first."
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step4.tsx",
+    "line": 105,
+    "type": "JSX Text",
+    "text": "EXCLUSIVE OFFER"
+  },
+  {
+    "file": "components\\Common\\for-business\\business-form-step4.tsx",
+    "line": 121,
+    "type": "JSX Text",
+    "text": "Valid until: 30 Mar 2026"
+  },
+  {
+    "file": "components\\Common\\home-screen2.tsx",
+    "line": 67,
+    "type": "JSX Text",
+    "text": "Featured Maps"
+  },
+  {
+    "file": "components\\Common\\home-screen2.tsx",
+    "line": 68,
+    "type": "JSX Text",
+    "text": "View All"
+  },
+  {
+    "file": "components\\Common\\maps\\feature-map-detail.tsx",
+    "line": 95,
+    "type": "Toast Notification",
+    "text": "Free map claimed! Opening your map..."
+  },
+  {
+    "file": "components\\Common\\maps\\feature-map-detail.tsx",
+    "line": 119,
+    "type": "Toast Notification",
+    "text": "You have already redeemed your free map."
+  },
+  {
+    "file": "components\\Common\\maps\\feature-map-detail.tsx",
+    "line": 121,
+    "type": "Toast Notification",
+    "text": "Unlock the Free Map award first, then claim a map."
+  },
+  {
+    "file": "components\\Common\\maps\\feature-map-detail.tsx",
+    "line": 137,
+    "type": "Toast Notification",
+    "text": "Failed to retrieve checkout URL."
+  },
+  {
+    "file": "components\\Common\\maps\\map-details.tsx",
+    "line": 575,
+    "type": "JSX Text",
+    "text": "40 && dt"
+  },
+  {
+    "file": "components\\Common\\maps\\MapFilters.tsx",
+    "line": 283,
+    "type": "JSX Text",
+    "text": "Loading locations..."
+  },
+  {
+    "file": "components\\Common\\maps\\MapFilters.tsx",
+    "line": 301,
+    "type": "JSX Text",
+    "text": "Loading categories..."
+  },
+  {
+    "file": "components\\Common\\maps\\MapFilters.tsx",
+    "line": 370,
+    "type": "Input Placeholder",
+    "text": "Select map"
+  },
+  {
+    "file": "components\\Common\\maps\\review-modal.tsx",
+    "line": 61,
+    "type": "Toast Notification",
+    "text": "Location ID is missing"
+  },
+  {
+    "file": "components\\Common\\maps\\review-modal.tsx",
+    "line": 65,
+    "type": "Toast Notification",
+    "text": "Please select a rating"
+  },
+  {
+    "file": "components\\Common\\maps\\review-modal.tsx",
+    "line": 69,
+    "type": "Toast Notification",
+    "text": "Please write a review"
+  },
+  {
+    "file": "components\\Common\\maps\\review-modal.tsx",
+    "line": 208,
+    "type": "JSX Text",
+    "text": "🛡️"
+  },
+  {
+    "file": "components\\Common\\maps\\similar-maps.tsx",
+    "line": 58,
+    "type": "JSX Text",
+    "text": "SIMILAR MAPS"
+  },
+  {
+    "file": "components\\Common\\places\\explore-places.tsx",
+    "line": 269,
+    "type": "Toast Notification",
+    "text": "Geolocation is not supported by your browser"
+  },
+  {
+    "file": "components\\Common\\places\\explore-places.tsx",
+    "line": 282,
+    "type": "Toast Notification",
+    "text": "Allow location access to use Near me"
+  },
+  {
+    "file": "components\\Common\\places\\explore-places.tsx",
+    "line": 393,
+    "type": "JSX Text",
+    "text": "= current - delta && i"
+  },
+  {
+    "file": "components\\Common\\profile\\awards\\awards-page.tsx",
+    "line": 83,
+    "type": "JSX Text",
+    "text": "Awards & Achievements"
+  },
+  {
+    "file": "components\\Common\\profile\\awards\\awards-page.tsx",
+    "line": 162,
+    "type": "JSX Text",
+    "text": "NEXT LEVEL"
+  },
+  {
+    "file": "components\\Common\\profile\\awards\\awards-page.tsx",
+    "line": 167,
+    "type": "JSX Text",
+    "text": "LEVEL PROGRESS"
+  },
+  {
+    "file": "components\\Common\\profile\\awards\\awards-page.tsx",
+    "line": 177,
+    "type": "JSX Text",
+    "text": "Achievement Vault"
+  },
+  {
+    "file": "components\\Common\\profile\\awards\\unlocked-award-card.tsx",
+    "line": 47,
+    "type": "JSX Text",
+    "text": "UNLOCKED"
+  },
+  {
+    "file": "components\\Common\\profile\\favorite-places\\favorite-places.tsx",
+    "line": 67,
+    "type": "Toast Notification",
+    "text": "Removed from favourites"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-details.tsx",
+    "line": 71,
+    "type": "Toast Notification",
+    "text": "Failed to initiate checkout session"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 131,
+    "type": "Toast Notification",
+    "text": "Please fill in title, description, and discount type."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 135,
+    "type": "Toast Notification",
+    "text": "Please add a photo for this offer."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 139,
+    "type": "Toast Notification",
+    "text": "Choose whether the second item is free or has a % discount."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 148,
+    "type": "Toast Notification",
+    "text": "Please enter a valid discount value."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 154,
+    "type": "Toast Notification",
+    "text": "Second-item discount must be between 1 and 100."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 159,
+    "type": "Toast Notification",
+    "text": "Please enter redemption duration in minutes."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 163,
+    "type": "Toast Notification",
+    "text": "Please enter how many redemptions each user gets."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 167,
+    "type": "Toast Notification",
+    "text": "Please select a valid from date."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 171,
+    "type": "Toast Notification",
+    "text": "Select a valid until date, or check No Expiration."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 213,
+    "type": "Toast Notification",
+    "text": "Offer updated successfully."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 216,
+    "type": "Toast Notification",
+    "text": "Offer created successfully."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 267,
+    "type": "Toast Notification",
+    "text": "Please upload an image file."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 318,
+    "type": "JSX Text",
+    "text": "Offer Title"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 323,
+    "type": "Input Placeholder",
+    "text": "e.g., 20% off Coffee"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 329,
+    "type": "JSX Text",
+    "text": "Description"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 334,
+    "type": "Input Placeholder",
+    "text": "Describe the offer..."
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 341,
+    "type": "JSX Text",
+    "text": "Discount Type"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 354,
+    "type": "JSX Text",
+    "text": "Select type"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 355,
+    "type": "JSX Text",
+    "text": "Percentage"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 356,
+    "type": "JSX Text",
+    "text": "Flat Amount"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 357,
+    "type": "JSX Text",
+    "text": "Buy One Get One (BOGO)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 358,
+    "type": "JSX Text",
+    "text": "Free Item"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 365,
+    "type": "JSX Text",
+    "text": "Second item"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 372,
+    "type": "JSX Text",
+    "text": "Choose how the second item is discounted"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 373,
+    "type": "JSX Text",
+    "text": "Second item is free"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 374,
+    "type": "JSX Text",
+    "text": "Second item has a % discount"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 379,
+    "type": "JSX Text",
+    "text": "% off second item"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 387,
+    "type": "Input Placeholder",
+    "text": "e.g., 50"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 397,
+    "type": "JSX Text",
+    "text": "Discount Value"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 404,
+    "type": "Input Placeholder",
+    "text": "e.g., 10"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 412,
+    "type": "JSX Text",
+    "text": "Redemptions Per User"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 419,
+    "type": "Input Placeholder",
+    "text": "e.g., 1"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 427,
+    "type": "JSX Text",
+    "text": "Redemption Frequency"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 440,
+    "type": "JSX Text",
+    "text": "Daily (Once per 24 hours)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 441,
+    "type": "JSX Text",
+    "text": "Weekly (Once per 7 days)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 442,
+    "type": "JSX Text",
+    "text": "Monthly (Once per 30 days)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 443,
+    "type": "JSX Text",
+    "text": "One-Time Only"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 444,
+    "type": "JSX Text",
+    "text": "Custom Duration (Minutes)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 452,
+    "type": "Input Placeholder",
+    "text": "Duration in minutes (e.g., 1440)"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 460,
+    "type": "JSX Text",
+    "text": "Valid From"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 472,
+    "type": "JSX Text",
+    "text": "Valid Until"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 494,
+    "type": "JSX Text",
+    "text": "Redemption Rules"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\business-offer-dialog.tsx",
+    "line": 499,
+    "type": "Input Placeholder",
+    "text": "One rule per line"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\my-business.tsx",
+    "line": 132,
+    "type": "JSX Text",
+    "text": "Businesses"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\my-business.tsx",
+    "line": 272,
+    "type": "Toast Notification",
+    "text": "Invalid coordinates"
+  },
+  {
+    "file": "components\\Common\\profile\\my-business\\my-business.tsx",
+    "line": 297,
+    "type": "JSX Text",
+    "text": "Subscription:"
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 65,
+    "type": "Toast Notification",
+    "text": "Please upload a JPEG, PNG, or WebP image."
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 71,
+    "type": "Toast Notification",
+    "text": "Image must be smaller than 5MB."
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 93,
+    "type": "Toast Notification",
+    "text": "Name is required."
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 212,
+    "type": "Input Placeholder",
+    "text": "Your display name"
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 227,
+    "type": "Input Placeholder",
+    "text": "+1 555 000 0000"
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 242,
+    "type": "Input Placeholder",
+    "text": "https://yoursite.com"
+  },
+  {
+    "file": "components\\Common\\profile\\profile-update-modal.tsx",
+    "line": 261,
+    "type": "Input Placeholder",
+    "text": "username"
+  },
+  {
+    "file": "components\\Common\\profile\\subscription\\subscription.tsx",
+    "line": 8,
+    "type": "JSX Text",
+    "text": "SUBSCRIPTION"
+  },
+  {
+    "file": "components\\auth\\forgot-password-form.tsx",
+    "line": 78,
+    "type": "Input Placeholder",
+    "text": "your@email.com"
+  },
+  {
+    "file": "components\\auth\\Login-form.tsx",
+    "line": 162,
+    "type": "Input Placeholder",
+    "text": "your@email.com"
+  },
+  {
+    "file": "components\\auth\\Login-form.tsx",
+    "line": 181,
+    "type": "Input Placeholder",
+    "text": "••••••••"
+  },
+  {
+    "file": "components\\auth\\otp-verify-form.tsx",
+    "line": 51,
+    "type": "Toast Notification",
+    "text": "No email provided"
+  },
+  {
+    "file": "components\\auth\\otp-verify-form.tsx",
+    "line": 139,
+    "type": "Toast Notification",
+    "text": "Please enter a valid 6-digit OTP"
+  },
+  {
+    "file": "components\\auth\\otp-verify-form.tsx",
+    "line": 222,
+    "type": "Toast Notification",
+    "text": "Verification succeeded but no next step was returned."
+  },
+  {
+    "file": "components\\auth\\otp-verify-form.tsx",
+    "line": 253,
+    "type": "Toast Notification",
+    "text": "OTP resent successfully!"
+  },
+  {
+    "file": "components\\auth\\register-form.tsx",
+    "line": 77,
+    "type": "Toast Notification",
+    "text": "User registration failed. No email returned."
+  },
+  {
+    "file": "components\\auth\\register-form.tsx",
+    "line": 106,
+    "type": "Input Placeholder",
+    "text": "John Doe"
+  },
+  {
+    "file": "components\\auth\\register-form.tsx",
+    "line": 125,
+    "type": "Input Placeholder",
+    "text": "example@gmail.com"
+  },
+  {
+    "file": "components\\auth\\register-form.tsx",
+    "line": 144,
+    "type": "Input Placeholder",
+    "text": "••••••••"
+  },
+  {
+    "file": "components\\auth\\register-form.tsx",
+    "line": 163,
+    "type": "Input Placeholder",
+    "text": "••••••••"
+  },
+  {
+    "file": "components\\auth\\reset-password-form.tsx",
+    "line": 51,
+    "type": "Toast Notification",
+    "text": "Invalid or missing reset token."
+  },
+  {
+    "file": "components\\auth\\reset-password-form.tsx",
+    "line": 125,
+    "type": "Input Placeholder",
+    "text": "••••••••"
+  },
+  {
+    "file": "components\\auth\\reset-password-form.tsx",
+    "line": 145,
+    "type": "Input Placeholder",
+    "text": "••••••••"
+  },
+  {
+    "file": "components\\shared\\maps\\animated-map-pin.tsx",
+    "line": 31,
+    "type": "JSX Text",
+    "text": "void | Promise"
+  },
+  {
+    "file": "components\\shared\\navigation\\footer.tsx",
+    "line": 149,
+    "type": "JSX Text",
+    "text": "USD"
+  },
+  {
+    "file": "components\\shared\\social-login\\social-login.tsx",
+    "line": 38,
+    "type": "JSX Text",
+    "text": "Google"
+  },
+  {
+    "file": "components\\shared\\social-login\\social-login.tsx",
+    "line": 48,
+    "type": "JSX Text",
+    "text": "Facebook"
+  }
+]

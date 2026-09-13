@@ -310,7 +310,7 @@ export const PlaceFormContent = ({
     );
 
     if (validFiles.length === 0) {
-      toast.error("Please upload image or PDF files only for menus.");
+      toast.error(t("places_admin.upload_menu_pdf_only") || "Please upload image or PDF files only for menus.");
       return;
     }
 
@@ -393,7 +393,7 @@ export const PlaceFormContent = ({
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setActiveTab(0); // Switch to Basic Info tab
-      toast.error("Please fill in all required fields.");
+      toast.error(t("places_admin.fill_required_fields") || "Please fill in all required fields.");
       return;
     }
 
@@ -988,7 +988,7 @@ export const PlaceFormContent = ({
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="text-sm font-medium">Address <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-medium">{t("places_admin.address") || "Address"} <span className="text-red-500">*</span></Label>
                 {initialData?.position && (
                   <div className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-mono font-semibold">
                     GPS: {initialData.position.lat?.toFixed(5) || "—"}, {initialData.position.lng?.toFixed(5) || "—"}
@@ -1002,7 +1002,7 @@ export const PlaceFormContent = ({
                 />
                 <Input
                   placeholder={
-                    isFetchingAddress ? "Fetching address..." : "Full address"
+                    isFetchingAddress ? (t("common.loading") || "Fetching address...") : (t("places_admin.full_address") || "Full address")
                   }
                   value={formData.address}
                   onChange={(e) => {
@@ -1027,7 +1027,7 @@ export const PlaceFormContent = ({
                 {/* Schedules — hidden for Business type (uses Operating Hours instead) */}
                 {formData.type !== "Business" && (
                 <div className="space-y-2 col-span-2">
-                  <Label className="text-sm font-medium">Schedules</Label>
+                  <Label className="text-sm font-medium">{t("place.schedules") || "Schedules"}</Label>
                   <div className="flex items-center gap-2 mb-2">
                     <Checkbox
                       id="always-open"
@@ -1043,7 +1043,7 @@ export const PlaceFormContent = ({
                       htmlFor="always-open"
                       className="text-sm cursor-pointer"
                     >
-                      Always open
+                      {t("place.always_open") || "Always open"}
                     </Label>
                   </div>
                   {formData.schedules !== "Always open" && (
@@ -1058,7 +1058,7 @@ export const PlaceFormContent = ({
                 )}
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Atmosphere</Label>
+                  <Label className="text-sm font-medium">{t("place.atmosphere") || "Atmosphere"}</Label>
                   <Input
                     placeholder='e.g., "Relaxing"'
                     value={formData.atmosphere}
@@ -1076,7 +1076,7 @@ export const PlaceFormContent = ({
                       {/* Entry Cost */}
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Entry Cost</Label>
+                          <Label className="text-sm font-medium">{t("place.entry_cost") || "Entry Cost"}</Label>
                           {formData.entryCost && (
                             <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                               {formData.entryCost}
@@ -1089,7 +1089,7 @@ export const PlaceFormContent = ({
                           </span>
                           <input
                             type="text"
-                            placeholder={entryCostType === "Free" ? "Free" : "10"}
+                            placeholder={entryCostType === "Free" ? (t("places_admin.free_entry") || "Free") : "10"}
                             value={entryCostType === "Free" ? "" : entryCostAmount}
                             disabled={entryCostType === "Free"}
                             onChange={(e) => handleEntryCostAmountChange(e.target.value)}
@@ -1104,7 +1104,7 @@ export const PlaceFormContent = ({
                             <option value="/ vehicle">/ vehicle</option>
                             <option value="/ group">/ group</option>
                             <option value="flat">flat fee</option>
-                            <option value="Free">Free entry</option>
+                            <option value="Free">{t("places_admin.free_entry") || "Free entry"}</option>
                           </select>
                         </div>
                         <p className="text-[10px] text-gray-400">
@@ -1114,7 +1114,7 @@ export const PlaceFormContent = ({
 
                       {/* Difficulty */}
                       <div className="space-y-1.5">
-                        <Label className="text-sm font-medium">Difficulty</Label>
+                        <Label className="text-sm font-medium">{t("place.difficulty") || "Difficulty"}</Label>
                         <Select
                           value={formData.difficulty || undefined}
                           onValueChange={(val) =>
@@ -1122,15 +1122,15 @@ export const PlaceFormContent = ({
                           }
                         >
                           <SelectTrigger className="w-full h-9 bg-white border-gray-200 rounded-lg text-sm italic">
-                            <SelectValue placeholder="Select difficulty" />
+                            <SelectValue placeholder={t("places_admin.select_difficulty") || "Select difficulty"} />
                           </SelectTrigger>
                           <SelectContent
                             position="popper"
                             style={{ zIndex: 99999 }}
                           >
-                            <SelectItem value="Easy">Easy</SelectItem>
-                            <SelectItem value="Moderate">Moderate</SelectItem>
-                            <SelectItem value="Hard">Hard</SelectItem>
+                            <SelectItem value="Easy">{t("place.easy") || "Easy"}</SelectItem>
+                            <SelectItem value="Moderate">{t("place.medium") || "Moderate"}</SelectItem>
+                            <SelectItem value="Hard">{t("place.hard") || "Hard"}</SelectItem>
                           </SelectContent>
                         </Select>
                         <p className="text-[10px] text-gray-400">
@@ -1141,7 +1141,7 @@ export const PlaceFormContent = ({
                       {/* Walking Time */}
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Walking Time</Label>
+                          <Label className="text-sm font-medium">{t("place.walking_time") || "Walking Time"}</Label>
                           {formData.hikeTime && (
                             <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                               {formData.hikeTime}
@@ -1161,8 +1161,8 @@ export const PlaceFormContent = ({
                             onChange={(e) => handleHikeTimeUnitChange(e.target.value as "mins" | "hours")}
                             className="border-l border-gray-200 bg-gray-50 px-2.5 text-xs font-medium text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-100 transition-colors"
                           >
-                            <option value="mins">Minutes</option>
-                            <option value="hours">Hours</option>
+                            <option value="mins">{t("places_admin.minutes") || "Minutes"}</option>
+                            <option value="hours">{t("places_admin.hours") || "Hours"}</option>
                           </select>
                         </div>
                         <p className="text-[10px] text-gray-400">

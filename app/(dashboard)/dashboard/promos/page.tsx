@@ -469,7 +469,7 @@ export default function PromosPage() {
           {/* Card 1: Total Promo Invites */}
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Total Generated</span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.total_generated") || "Total Generated"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.total}</h3>
               <p className="text-[10px] text-gray-500">invitation codes in system</p>
             </div>
@@ -481,7 +481,7 @@ export default function PromosPage() {
           {/* Card 2: Old Customer Upgrades ($5) */}
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Customer Upgrades</span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.customer_upgrades") || "Customer Upgrades"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.upgrade}</h3>
               <p className="text-[10px] text-gray-500">upgrade links generated</p>
             </div>
@@ -493,7 +493,7 @@ export default function PromosPage() {
           {/* Card 3: Influencer Invites ($0) */}
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Influencer Invites</span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.influencer_invites") || "Influencer Invites"}</span>
               <h3 className="text-2xl font-black text-gray-900">{statsRes.data.influencer}</h3>
               <p className="text-[10px] text-gray-500">free guest passes in system</p>
             </div>
@@ -505,7 +505,7 @@ export default function PromosPage() {
           {/* Card 4: Conversion Rate / Claims */}
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">Claimed & Redeemed</span>
+              <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400">{t("promos_admin.used_claimed") || "Claimed & Redeemed"}</span>
               <h3 className="text-2xl font-black text-emerald-600">
                 {statsRes.data.used} <span className="text-xs font-bold text-gray-400">({Math.round((statsRes.data.used / (statsRes.data.total || 1)) * 100)}%)</span>
               </h3>
@@ -525,7 +525,7 @@ export default function PromosPage() {
             <HelpCircle size={14} className="text-blue-600" /> 1. Distinguish Invites
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Use the <strong>Link Type Tabs</strong> to choose between Influencers (locked to $0) and Customers (locked to $5). The campaign label helps you filter them later in the list.
+            Use the <strong>{t("promos_admin.link_type_tabs") || "Link Type Tabs"}</strong> to choose between Influencers (locked to $0) and Customers (locked to $5). The campaign label helps you filter them later in the list.
           </p>
         </div>
         <div className="space-y-1">
@@ -533,7 +533,7 @@ export default function PromosPage() {
             <Send size={14} className="text-blue-600" /> 2. Bulk Invitation Flow
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Paste your list of emails into the recipient emails textarea. Click <strong>Generate Links</strong> to create one unique secure link for each email.
+            Paste your list of emails into the recipient emails textarea. Click <strong>{t("promos_admin.generate_links") || "Generate Links"}</strong> to create one unique secure link for each email.
           </p>
         </div>
         <div className="space-y-1">
@@ -541,7 +541,7 @@ export default function PromosPage() {
             <CheckCircle size={14} className="text-blue-600" /> 3. Sending and Tracking
           </h4>
           <p className="text-blue-800 leading-relaxed">
-            Click <strong>Send Pending Invites</strong> to trigger automatic background emails. In the list, you can see both the sent recipient email and who claimed it.
+            Click <strong>{t("promos_admin.send_pending_invites") || "Send Pending Invites"}</strong> to trigger automatic background emails. In the list, you can see both the sent recipient email and who claimed it.
           </p>
         </div>
       </div>
@@ -551,7 +551,7 @@ export default function PromosPage() {
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 lg:col-span-1 h-fit space-y-6">
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Plus size={20} className="text-primary" /> Generate Invitation
+              <Plus size={20} className="text-primary" /> {t("promos_admin.generate_links") || "Generate Invitation"}
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
               Select invitation type to automatically pre-configure rules.
@@ -588,14 +588,14 @@ export default function PromosPage() {
                   : "text-gray-500 hover:text-gray-800"
                 }`}
             >
-              Custom Offer
+              {t("promos_admin.custom_offer") || "Custom Offer"}
             </button>
           </div>
 
           <form onSubmit={handleGenerate} className="space-y-4 pt-2">
             {/* Target Map Selector */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 uppercase">Target Map *</label>
+              <label className="text-xs font-bold text-gray-700 uppercase">{t("promos_admin.target_map") || "Target Map"} *</label>
               <select
                 required
                 value={selectedMapId}
@@ -613,7 +613,7 @@ export default function PromosPage() {
 
             {/* Price (Enabled only for custom) */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 uppercase">Price (USD) *</label>
+              <label className="text-xs font-bold text-gray-700 uppercase">{t("promos_admin.price") || "Price (USD)"} *</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
                 <Input
@@ -638,7 +638,7 @@ export default function PromosPage() {
 
             {/* Label */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 uppercase">Label / Campaign *</label>
+              <label className="text-xs font-bold text-gray-700 uppercase">{t("promos_admin.label") || "Label / Campaign"} *</label>
               <Input
                 required
                 type="text"
@@ -735,7 +735,7 @@ export default function PromosPage() {
               disabled={isGenerating}
               className="w-full h-10 bg-primary hover:bg-primary/90 text-black font-extrabold rounded-xl transition-all shadow-sm mt-4"
             >
-              {isGenerating ? "Processing..." : "Generate Links"}
+              {isGenerating ? (t("common.loading") || "Processing...") : (t("promos_admin.generate_links") || "Generate Links")}
             </Button>
           </form>
         </div>
@@ -744,7 +744,7 @@ export default function PromosPage() {
         <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 lg:col-span-2 flex flex-col space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Track Invitations</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t("promos_admin.track_invitations") || "Track Invitations"}</h2>
               <p className="text-xs text-gray-500 mt-0.5">
                 Distinguish influencer passes from customer upgrades in real-time.
               </p>
@@ -776,7 +776,7 @@ export default function PromosPage() {
                   }
                 >
                   <Send size={13} className={isSendingEmails ? "animate-spin text-gray-400" : pendingCount > 0 ? "animate-pulse" : ""} />
-                  <span>{isSendingEmails ? "Sending Invites..." : "Send Pending Invites"}</span>
+                  <span>{isSendingEmails ? (t("common.loading") || "Sending Invites...") : (t("promos_admin.send_pending_invites") || "Send Pending Invites")}</span>
                   <span
                     className={`px-2 py-0.5 text-[10px] font-black rounded-full ${
                       !isDisabled
@@ -797,7 +797,7 @@ export default function PromosPage() {
             <div className="relative md:col-span-2">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search code, email, label..."
+                placeholder={t("promos_admin.search_promos_placeholder") || "Search code, email, label..."}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -816,10 +816,10 @@ export default function PromosPage() {
               }}
               className="h-10 px-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs bg-white"
             >
-              <option value="">All invitation types</option>
+              <option value="">{t("promos_admin.all_types") || "All invitation types"}</option>
               <option value="upgrade">Customer Upgrade ($5)</option>
               <option value="influencer">Influencer Pass ($0)</option>
-              <option value="custom">Custom Offer</option>
+              <option value="custom">{t("promos_admin.custom_offer") || "Custom Offer"}</option>
             </select>
 
             {/* Filter by Used status */}
@@ -831,9 +831,9 @@ export default function PromosPage() {
               }}
               className="h-10 px-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs bg-white"
             >
-              <option value="">All statuses</option>
-              <option value="false">Active / Unused</option>
-              <option value="true">Used / Claimed</option>
+              <option value="">{t("promos_admin.all_statuses") || "All statuses"}</option>
+              <option value="false">{t("promos_admin.active_unused") || "Active / Unused"}</option>
+              <option value="true">{t("promos_admin.used_claimed") || "Used / Claimed"}</option>
             </select>
           </div>
 
@@ -842,14 +842,14 @@ export default function PromosPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">
-                  <th className="p-4">Link / Code</th>
-                  <th className="p-4">Type</th>
-                  <th className="p-4">Target Map</th>
-                  <th className="p-4">Price</th>
-                  <th className="p-4">Label</th>
+                  <th className="p-4">{t("promos_admin.link_code") || "Link / Code"}</th>
+                  <th className="p-4">{t("promos_admin.type") || "Type"}</th>
+                  <th className="p-4">{t("promos_admin.target_map") || "Target Map"}</th>
+                  <th className="p-4">{t("promos_admin.price") || "Price"}</th>
+                  <th className="p-4">{t("promos_admin.label") || "Label"}</th>
                   <th className="p-4">Recipient & Claimant</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Invite</th>
+                  <th className="p-4">{t("promos_admin.status") || "Status"}</th>
+                  <th className="p-4 text-right">{t("promos_admin.invite") || "Invite"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-xs text-gray-700">
