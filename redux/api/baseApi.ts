@@ -21,6 +21,14 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
+
+    if (typeof window !== "undefined") {
+      const savedLang = localStorage.getItem("app_language") || "es";
+      headers.set("Accept-Language", savedLang);
+    } else {
+      headers.set("Accept-Language", "es");
+    }
+
     return headers;
   },
 });

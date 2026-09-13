@@ -49,7 +49,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { formatFileSize, optimizeMediaFiles } from "@/lib/image-compress";
-import { asMediaUrls, isPlaceKind, normalizePlaceType } from "./place-payload";
+import { asMediaUrls, isPlaceKind, normalizePlaceType, normalizeDifficulty, normalizeService } from "./place-payload";
 
 interface PlaceFormContentProps {
   categories: any[];
@@ -144,12 +144,12 @@ export const PlaceFormContent = ({
       notes: initialData?.accessibility?.notes || "",
     },
     tips: initialData?.tips || "",
-    services: initialData?.services || ([] as string[]),
+    services: (initialData?.services || []).map(normalizeService),
     schedules: initialData?.schedules || "",
     entryCost: initialData?.entryCost !== undefined && initialData?.entryCost !== null ? String(initialData.entryCost) : "",
     hikeTime: initialData?.hikeTime !== undefined && initialData?.hikeTime !== null ? String(initialData.hikeTime) : "",
     atmosphere: initialData?.atmosphere || "",
-    difficulty: initialData?.difficulty || "",
+    difficulty: normalizeDifficulty(initialData?.difficulty),
     phone: initialData?.phone || "",
     website: initialData?.website || "",
     instagram: initialData?.instagram || "",
@@ -206,9 +206,9 @@ export const PlaceFormContent = ({
             ? prev.hikeTime
             : (initialData.hikeTime !== undefined && initialData.hikeTime !== null ? String(initialData.hikeTime) : ""),
         atmosphere: prev.atmosphere || initialData.atmosphere || "",
-        difficulty: prev.difficulty || initialData.difficulty || "",
+        difficulty: prev.difficulty ? normalizeDifficulty(prev.difficulty) : normalizeDifficulty(initialData.difficulty),
         operatingHours: initialData.operatingHours || prev.operatingHours,
-        services: prev.services && prev.services.length > 0 ? prev.services : (initialData.services || []),
+        services: prev.services && prev.services.length > 0 ? prev.services : (initialData.services || []).map(normalizeService),
         accessibility: resolvedAccessibility,
       };
     });
@@ -465,13 +465,13 @@ export const PlaceFormContent = ({
   };
 
   const servicesList = [
-    { id: "Parking", icon: <Car size={14} /> },
-    { id: "Restrooms", icon: <Users size={14} /> },
-    { id: "Food Nearby", icon: <Utensils size={14} /> },
-    { id: "Guided Tour", icon: <MapPin size={14} /> },
-    { id: "Family Friendly", icon: <Baby size={14} /> },
-    { id: "Wifi", icon: <Wifi size={14} /> },
-    { id: "Pet Friendly", icon: <Dog size={14} /> },
+    { id: "Parking", key: "parking", icon: <Car size={14} /> },
+    { id: "Restrooms", key: "restrooms", icon: <Users size={14} /> },
+    { id: "Food Nearby", key: "food_nearby", icon: <Utensils size={14} /> },
+    { id: "Guided Tour", key: "guided_tour", icon: <MapPin size={14} /> },
+    { id: "Family Friendly", key: "family_friendly", icon: <Baby size={14} /> },
+    { id: "Wifi", key: "wifi", icon: <Wifi size={14} /> },
+    { id: "Pet Friendly", key: "pet_friendly", icon: <Dog size={14} /> },
   ];
 
   const isBasicInfoValid = formData.name.trim() !== "" && formData.category !== "" && formData.description.trim() !== "" && formData.address.trim() !== "";
@@ -1465,7 +1465,7 @@ export const PlaceFormContent = ({
                   />
                   <div className="space-y-1">
                     <div className="">{service.icon}</div>
-                    <p className="text-xs  leading-tight">{service.id}</p>
+                    <p className="text-xs  leading-tight">{t(`services.${service.key}`) || service.id}</p>
                   </div>
                 </div>
               ))}

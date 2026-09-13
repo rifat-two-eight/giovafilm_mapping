@@ -4,6 +4,9 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
 
+import { store } from "@/redux/store";
+import { baseApi } from "@/redux/api/baseApi";
+
 export type Language = "es" | "en";
 
 type TranslationDictionary = typeof en;
@@ -32,6 +35,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (e.key === "app_language" && (e.newValue === "en" || e.newValue === "es")) {
         setLanguageState(e.newValue as Language);
         document.documentElement.lang = e.newValue;
+        try {
+          store.dispatch(baseApi.util.resetApiState());
+        } catch {
+          // Ignore if store not ready
+        }
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -42,6 +50,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang);
     localStorage.setItem("app_language", lang);
     document.documentElement.lang = lang;
+    try {
+      store.dispatch(baseApi.util.resetApiState());
+    } catch {
+      // Ignore if store not ready
+    }
   };
 
   const t = (keyPath: string): string => {

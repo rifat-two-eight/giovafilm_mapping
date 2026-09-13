@@ -251,7 +251,11 @@ export function PlacesTable() {
                         place.status,
                       )}`}
                     >
-                      {place.status}
+                      {place.status === "Published"
+                        ? (t("places_admin.published") || "Published")
+                        : place.status === "Draft"
+                        ? (t("places_admin.draft") || "Draft")
+                        : place.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">

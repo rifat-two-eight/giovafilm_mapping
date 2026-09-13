@@ -36,6 +36,41 @@ export function normalizePlaceType(source: unknown): PlaceKind {
   return "Regular";
 }
 
+export function normalizeDifficulty(val?: unknown): string {
+  if (!val || typeof val !== "string") return "";
+  const lower = val.toLowerCase().trim();
+  if (lower === "easy" || lower === "fácil" || lower === "facil") return "Easy";
+  if (lower === "moderate" || lower === "moderado" || lower === "medium") return "Moderate";
+  if (lower === "hard" || lower === "difícil" || lower === "dificil") return "Hard";
+  return val;
+}
+
+const SERVICE_MAP: Record<string, string> = {
+  parking: "Parking",
+  estacionamiento: "Parking",
+  restrooms: "Restrooms",
+  baños: "Restrooms",
+  banos: "Restrooms",
+  "food nearby": "Food Nearby",
+  "comida cercana": "Food Nearby",
+  "comida cerca": "Food Nearby",
+  "guided tour": "Guided Tour",
+  "visitas guiadas": "Guided Tour",
+  "tour guiado": "Guided Tour",
+  "family friendly": "Family Friendly",
+  familiar: "Family Friendly",
+  wifi: "Wifi",
+  "pet friendly": "Pet Friendly",
+  "se admiten mascotas": "Pet Friendly",
+};
+
+export function normalizeService(service?: unknown): string {
+  if (!service || typeof service !== "string") return "";
+  const lower = service.toLowerCase().trim();
+  return SERVICE_MAP[lower] || service;
+}
+
+
 export function asMediaUrls(items: unknown): string[] {
   if (!Array.isArray(items)) return [];
   return items

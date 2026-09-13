@@ -108,30 +108,65 @@ export function ViewPlaceModal({
 
   const servicesIcons: Record<string, React.ReactNode> = {
     Parking: <Car size={16} />,
+    Estacionamiento: <Car size={16} />,
     Restrooms: <Users size={16} />,
+    "Baños": <Users size={16} />,
+    "Banos": <Users size={16} />,
     "Food Nearby": <Utensils size={16} />,
+    "Comida cercana": <Utensils size={16} />,
+    "Comida cerca": <Utensils size={16} />,
     "Guided Tour": <MapPin size={16} />,
+    "Visitas guiadas": <MapPin size={16} />,
+    "Tour guiado": <MapPin size={16} />,
     "Family Friendly": <Baby size={16} />,
+    Familiar: <Baby size={16} />,
     Wifi: <Wifi size={16} />,
     "Pet Friendly": <Dog size={16} />,
+    "Se admiten mascotas": <Dog size={16} />,
   };
 
   const serviceKeyMap: Record<string, string> = {
     Parking: "parking",
+    Estacionamiento: "parking",
     Restrooms: "restrooms",
+    "Baños": "restrooms",
+    "Banos": "restrooms",
     "Food Nearby": "food_nearby",
+    "Comida cercana": "food_nearby",
+    "Comida cerca": "food_nearby",
     "Guided Tour": "guided_tour",
+    "Visitas guiadas": "guided_tour",
+    "Tour guiado": "guided_tour",
     "Family Friendly": "family_friendly",
+    Familiar: "family_friendly",
     Wifi: "wifi",
     "Pet Friendly": "pet_friendly",
+    "Se admiten mascotas": "pet_friendly",
+  };
+
+  const getServiceIcon = (service: string) => {
+    if (servicesIcons[service]) return servicesIcons[service];
+    const match = Object.keys(servicesIcons).find(
+      (k) => k.toLowerCase() === service.toLowerCase().trim()
+    );
+    return (match && servicesIcons[match]) || <Info size={16} />;
+  };
+
+  const getServiceLabel = (service: string) => {
+    const key =
+      serviceKeyMap[service] ||
+      Object.entries(serviceKeyMap).find(
+        ([k]) => k.toLowerCase() === service.toLowerCase().trim()
+      )?.[1];
+    return key ? (t(`services.${key}`) || service) : service;
   };
 
   const getDifficultyLabel = (diff?: string) => {
     if (!diff) return "";
-    const lower = diff.toLowerCase();
-    if (lower === "easy") return t("place.easy") || "Easy";
-    if (lower === "medium") return t("place.medium") || "Medium";
-    if (lower === "hard") return t("place.hard") || "Hard";
+    const lower = diff.toLowerCase().trim();
+    if (lower === "easy" || lower === "fácil" || lower === "facil") return t("place.easy") || "Easy";
+    if (lower === "medium" || lower === "moderate" || lower === "moderado") return t("place.medium") || "Moderate";
+    if (lower === "hard" || lower === "difícil" || lower === "dificil") return t("place.hard") || "Hard";
     return diff;
   };
 
@@ -414,9 +449,9 @@ export function ViewPlaceModal({
                           </div>
                           <span
                             className={`inline-block text-[11px] font-bold uppercase px-2 py-0.5 rounded-md ${
-                              place.difficulty === "Easy"
+                              ["easy", "fácil", "facil"].includes(place.difficulty.toLowerCase().trim())
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                                : place.difficulty === "Medium"
+                                : ["medium", "moderate", "moderado"].includes(place.difficulty.toLowerCase().trim())
                                 ? "bg-amber-50 text-amber-700 border border-amber-200/60"
                                 : "bg-red-50 text-red-700 border border-red-200/60"
                             }`}
@@ -618,10 +653,10 @@ export function ViewPlaceModal({
                               className="p-4 bg-gray-50 border border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 text-center"
                             >
                               <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center">
-                                {servicesIcons[service] || <Info size={16} />}
+                                {getServiceIcon(service)}
                               </div>
                               <span className="text-xs font-bold text-gray-800">
-                                {serviceKeyMap[service] ? t(`services.${serviceKeyMap[service]}`) : service}
+                                {getServiceLabel(service)}
                               </span>
                             </div>
                           ))}
