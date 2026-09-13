@@ -260,6 +260,7 @@
     "timer": "Timer"
   },
   "reviews": {
+    "by": "By",
     "my_reviews": "My Reviews",
     "write_review": "Write a Review",
     "edit_review": "Edit Review",
@@ -702,6 +703,7 @@
     "taxes_collected": "Taxes Collected"
   },
   "business_admin": {
+    "business": "Business",
     "review_tasks": "Admin Review Tasks",
     "auto_save_note": "Changes save automatically",
     "location_pin_verified": "Location pin verified",
@@ -854,6 +856,7 @@
     "rule_placeholder": "e.g., One per user per visit"
   },
   "places_admin": {
+    "place": "Place",
     "version_title": "Roadtripeado Maps 9.0",
     "active_map": "Active Map",
     "pin_instruction": "Click anywhere on the map to drop a pin, OR use a Google Maps URL:",
@@ -1204,7 +1207,9 @@
   "reviews_admin": {
     "title": "Reviews Verification",
     "subtitle": "Verify and approve or reject pending user reviews. Approved reviews will award points to users.",
-    "no_pending_reviews": "No pending reviews to verify"
+    "no_pending_reviews": "No pending reviews to verify",
+    "approved_successfully": "Review approved successfully",
+    "rejected_successfully": "Review rejected successfully"
   },
   "claim_promo": {
     "verifying_invitation": "Verifying invitation...",

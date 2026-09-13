@@ -19,6 +19,15 @@ import { editorCanAccessMap } from "@/lib/editor-access";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 
+const getSafeString = (val: any, lang: string = "es"): string => {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+};
+
 interface Place {
   _id: string;
   name: string;
@@ -36,7 +45,7 @@ interface Place {
 }
 
 export function PlacesTable() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -159,7 +168,7 @@ export function PlacesTable() {
             <option value="">{t("places_admin.all_categories")}</option>
             {categoriesResponse?.data?.map((cat: any) => (
               <option key={cat._id} value={cat._id}>
-                {cat.name}
+                {getSafeString(cat.name, language)}
               </option>
             ))}
           </select>
@@ -173,11 +182,14 @@ export function PlacesTable() {
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
             <option value="">{t("places_admin.all_countries")}</option>
-            {countries?.map((c: string) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
+            {countries?.map((c: any) => {
+              const label = getSafeString(c, language);
+              return (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
 
           <select
@@ -233,17 +245,17 @@ export function PlacesTable() {
                 >
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <div className="flex flex-col">
-                      <span>{place.name}</span>
+                      <span>{getSafeString(place.name, language)}</span>
                       <span className="text-xs text-gray-400 truncate max-w-[200px]">
                         {place.address}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {place.category?.name || "N/A"}
+                    {getSafeString(place.category?.name, language) || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {place.map?.name || "N/A"}
+                    {getSafeString(place.map?.name, language) || "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span

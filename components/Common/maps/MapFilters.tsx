@@ -24,6 +24,15 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
 
+const getSafeString = (val: any, lang: string = "es"): string => {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+};
+
 interface MapFiltersProps {
   isMobile: boolean;
   fetchedCategories: any[];
@@ -57,10 +66,10 @@ export function MapFilters({
   isLoading = false,
   hideDesktopMapFilter = false,
 }: MapFiltersProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const hasCategories = fetchedCategories.length > 0;
   const showEmpty = !isLoading && fetchedCategories.length === 0;
-  const mapLabel = selectedCountry || "this map";
+  const mapLabel = getSafeString(selectedCountry, language) || "this map";
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const panelWidth = isMobile ? "min(92vw, 320px)" : "350px";
@@ -109,15 +118,18 @@ export function MapFilters({
                     No maps available.
                   </div>
                 ) : (
-                  availableCountries.map((country: string) => (
-                    <SelectItem
-                      key={country}
-                      value={country}
-                      className="font-medium whitespace-normal break-words py-2.5"
-                    >
-                      {country}
-                    </SelectItem>
-                  ))
+                  availableCountries.map((country: any) => {
+                    const countryLabel = getSafeString(country, language);
+                    return (
+                      <SelectItem
+                        key={countryLabel}
+                        value={countryLabel}
+                        className="font-medium whitespace-normal break-words py-2.5"
+                      >
+                        {countryLabel}
+                      </SelectItem>
+                    );
+                  })
                 )}
               </SelectContent>
             </Select>
@@ -211,10 +223,10 @@ export function MapFilters({
                                  );
                                 })()}
                                 <span
-                                  title={cat.name}
+                                  title={getSafeString(cat.name, language)}
                                   className="text-left text-sm font-semibold text-gray-700 capitalize flex-1 min-w-0 truncate"
                                 >
-                                  {cat.name}
+                                  {getSafeString(cat.name, language)}
                                 </span>
                                 {placesInCat.length > 0 && (
                                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 tabular-nums shrink-0 transition-opacity duration-200">
@@ -265,7 +277,7 @@ export function MapFilters({
                                         />
                                         <div className="flex flex-col min-w-0">
                                           <span className="truncate">
-                                            {place.isLocked ? "🔒 Premium Location" : place.name}
+                                            {place.isLocked ? "🔒 Premium Location" : getSafeString(place.name, language)}
                                           </span>
                                         </div>
                                       </button>

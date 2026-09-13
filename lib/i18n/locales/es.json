@@ -260,6 +260,7 @@
     "timer": "Temporizador"
   },
   "reviews": {
+    "by": "Por",
     "my_reviews": "Mis Reseñas",
     "write_review": "Escribir una Reseña",
     "edit_review": "Editar Reseña",
@@ -702,6 +703,7 @@
     "taxes_collected": "Impuestos recaudados"
   },
   "business_admin": {
+    "business": "Negocio",
     "review_tasks": "Tareas de Revisión de Admin",
     "auto_save_note": "Los cambios se guardan automáticamente",
     "location_pin_verified": "Pin de ubicación verificado",
@@ -854,6 +856,7 @@
     "rule_placeholder": "ej., Uno por usuario por visita"
   },
   "places_admin": {
+    "place": "Lugar",
     "version_title": "Roadtripeado Mapas 9.0",
     "active_map": "Mapa Activo",
     "pin_instruction": "Haz clic en cualquier lugar del mapa para colocar un pin, O usa una URL de Google Maps:",
@@ -1204,7 +1207,9 @@
   "reviews_admin": {
     "title": "Verificación de reseñas",
     "subtitle": "Verifique y apruebe o rechace reseñas de usuarios pendientes. Las reseñas aprobadas otorgarán puntos a los usuarios.",
-    "no_pending_reviews": "No hay reseñas pendientes para verificar"
+    "no_pending_reviews": "No hay reseñas pendientes para verificar",
+    "approved_successfully": "Reseña aprobada exitosamente",
+    "rejected_successfully": "Reseña rechazada exitosamente"
   },
   "claim_promo": {
     "verifying_invitation": "Verificando invitación...",

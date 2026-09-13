@@ -103,7 +103,7 @@ export function CategoryMarker({
             zIndex: 100,
           }}
         >
-          {name}
+          {typeof name === "object" ? ((name as any)?.en || (name as any)?.es || "") : name}
           {/* Arrow Triangle pointing down to pin */}
           <div
             style={{

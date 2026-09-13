@@ -13,6 +13,15 @@ import { Star, X, Lock } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
+const getSafeString = (val: any, lang: string = "es"): string => {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+};
+
 type Props = {
   id: { id: string; type: string };
   onClose: () => void;
@@ -21,7 +30,7 @@ type Props = {
 };
 
 export default function LocationDialog({ id, onClose, mapId, initialData }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const placeId = id?.id;
   const initialType = normalizePinType(id?.type);
   const [activeType, setActiveType] = useState<"place" | "business">(
@@ -246,7 +255,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-black mb-1.5 pr-8 leading-tight">{location?.name}</h2>
+          <h2 className="text-xl sm:text-2xl font-black mb-1.5 pr-8 leading-tight">{getSafeString(location?.name, language)}</h2>
 
           <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center text-xs sm:text-sm font-bold">
@@ -256,7 +265,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
 
             <span className="text-gray-400 text-xs sm:text-sm truncate">
               ({location?.totalReview ?? 0} {t("place.reviews")}){" "}
-              {location?.map?.name || location?.location?.country || ""}
+              {getSafeString(location?.map?.name, language) || location?.location?.country || ""}
             </span>
           </div>
 
@@ -267,7 +276,7 @@ export default function LocationDialog({ id, onClose, mapId, initialData }: Prop
                   !isDescriptionExpanded ? "line-clamp-3" : ""
                 }`}
               >
-                {location.description}
+                {getSafeString(location.description, language)}
               </p>
               {location.description.length > 140 && (
                 <button

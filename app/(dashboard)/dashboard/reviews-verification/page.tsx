@@ -13,8 +13,17 @@ import { toast } from "sonner";
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
+const getSafeString = (val: any, lang: string = "es"): string => {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+};
+
 export default function ReviewsVerificationPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: reviews, isLoading, refetch } = useGetPendingReviewsQuery({});
   const [approveReview, { isLoading: isApproving }] = useApproveReviewMutation();
   const [rejectReview, { isLoading: isRejecting }] = useRejectReviewMutation();
@@ -64,64 +73,78 @@ export default function ReviewsVerificationPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {reviewList.map((review: any) => (
-            <Card key={review._id} className="rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between">
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl font-semibold mb-1 line-clamp-1">
-                      {review.businessId
-                        ? `${t("business_admin.business") || "Business"}: ${review.businessId?.name || "Unknown Business"}`
-                        : `${t("places_admin.place") || "Place"}: ${review.placeId?.name || "Unknown Place"}`}
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {t("reviews.by") || "By"}: <span className="font-medium text-foreground">{review.reviewer?.name || "Anonymous"}</span>
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 bg-yellow-50 text-yellow-600 px-2.5 py-1 rounded-full text-sm font-semibold">
-                    <Star className="w-4 h-4 fill-yellow-500 stroke-yellow-500" />
-                    <span>{review.rating}.0</span>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
-                <p className="text-gray-700 italic border-l-4 border-primary pl-3 py-1">
-                  "{review.review || "No review content provided (Star rating only)"}"
-                </p>
+          {reviewList.map((review: any) => {
+            const isBusiness = !!review.businessId;
+            const businessLabel = t("business_admin.business");
+            const placeLabel = t("places_admin.place");
+            const targetType = isBusiness
+              ? (businessLabel && businessLabel !== "business_admin.business" ? businessLabel : (language === "es" ? "Negocio" : "Business"))
+              : (placeLabel && placeLabel !== "places_admin.place" ? placeLabel : (language === "es" ? "Lugar" : "Place"));
+            const rawTargetName = isBusiness ? review.businessId?.name : review.placeId?.name;
+            const targetName = getSafeString(rawTargetName, language) || (isBusiness ? "Unknown Business" : "Unknown Place");
 
-                {review.media && review.media.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto py-2">
-                    {review.media.map((img: string, idx: number) => (
-                      <img
-                        key={idx}
-                        src={getImageUrl(img)}
-                        alt="Review upload"
-                        className="w-16 h-16 object-cover rounded-lg border"
-                      />
-                    ))}
-                  </div>
-                )}
+            const byLabel = t("reviews.by");
+            const safeByLabel = byLabel && byLabel !== "reviews.by" ? byLabel : (language === "es" ? "Por" : "By");
+            const reviewerName = getSafeString(review.reviewer?.name, language) || "Anonymous";
+            const reviewContent = getSafeString(review.review, language);
 
-                <div className="flex justify-end gap-3 pt-4 border-t mt-auto">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleReject(review._id)}
-                    disabled={isApproving || isRejecting}
-                    className="flex items-center gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-full"
-                  >
-                    <X className="w-4 h-4" /> {t("business_admin.reject") || "Reject"}
-                  </Button>
-                  <Button
-                    onClick={() => handleApprove(review._id)}
-                    disabled={isApproving || isRejecting}
-                    className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white rounded-full border-none"
-                  >
-                    <Check className="w-4 h-4" /> {t("business_admin.approve") || "Approve"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+            return (
+              <Card key={review._id} className="rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between">
+                <CardHeader className="pb-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl font-semibold mb-1 line-clamp-1">
+                        {targetType}: {targetName}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {safeByLabel}: <span className="font-medium text-foreground">{reviewerName}</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-yellow-50 text-yellow-600 px-2.5 py-1 rounded-full text-sm font-semibold">
+                      <Star className="w-4 h-4 fill-yellow-500 stroke-yellow-500" />
+                      <span>{review.rating || 0}.0</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+                  <p className="text-gray-700 italic border-l-4 border-primary pl-3 py-1">
+                    "{reviewContent || "No review content provided (Star rating only)"}"
+                  </p>
+
+                  {review.media && review.media.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto py-2">
+                      {review.media.map((img: string, idx: number) => (
+                        <img
+                          key={idx}
+                          src={getImageUrl(img)}
+                          alt="Review upload"
+                          className="w-16 h-16 object-cover rounded-lg border"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4 border-t mt-auto">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleReject(review._id)}
+                      disabled={isApproving || isRejecting}
+                      className="flex items-center gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-full"
+                    >
+                      <X className="w-4 h-4" /> {t("business_admin.reject") || "Reject"}
+                    </Button>
+                    <Button
+                      onClick={() => handleApprove(review._id)}
+                      disabled={isApproving || isRejecting}
+                      className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white rounded-full border-none"
+                    >
+                      <Check className="w-4 h-4" /> {t("business_admin.approve") || "Approve"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
