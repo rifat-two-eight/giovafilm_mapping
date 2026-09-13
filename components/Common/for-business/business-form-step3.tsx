@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Utensils, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface BusinessFormStep2Props {
   businessPhotos?: File[];
@@ -17,6 +18,7 @@ export function BusinessFormStep3({
   onPhotosChange,
   onMenuChange,
 }: BusinessFormStep2Props) {
+  const { t } = useLanguage();
   const photosInputRef = useRef<HTMLInputElement>(null);
   const menuInputRef = useRef<HTMLInputElement>(null);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
@@ -67,10 +69,9 @@ export function BusinessFormStep3({
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold text-gray-900">MEDIA</h2>
+        <h2 className="text-3xl font-bold text-gray-900">{t("for_business.step3.title")}</h2>
         <p className="text-gray-600">
-          Showcase your business with high-quality photos and your menu or price
-          list to attract more customers.
+          {t("for_business.step3.subtitle")}
         </p>
       </div>
 
@@ -104,15 +105,14 @@ export function BusinessFormStep3({
             >
               <div className="text-center">
                 <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">TAP TO PREVIEW</p>
+                <p className="text-sm text-gray-500">{t("for_business.step3.tap_to_preview")}</p>
               </div>
             </div>
           )}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900">Business Photos <span className="text-red-500">*</span></h3>
+            <h3 className="font-semibold text-gray-900">{t("for_business.step3.business_photos")} <span className="text-red-500">*</span></h3>
             <p className="text-sm text-gray-600">
-              Upload high-quality images of your establishment, products, or
-              services. Recommended size: 1200x800px.
+              {t("for_business.step3.business_photos_desc")}
             </p>
             <Button
               type="button"
@@ -120,7 +120,7 @@ export function BusinessFormStep3({
               className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
             >
               <Camera className="w-4 h-4 mr-2" />
-              Upload Photos
+              {t("for_business.step3.upload_photos")}
             </Button>
           </div>
           <input
@@ -171,16 +171,15 @@ export function BusinessFormStep3({
               <div className="bg-gray-100 rounded-lg aspect-square flex items-center justify-center cursor-pointer hover:bg-gray-150 transition-colors">
                 <div className="text-center">
                   <Utensils className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">TAP TO PREVIEW</p>
+                  <p className="text-sm text-gray-500">{t("for_business.step3.tap_to_preview")}</p>
                 </div>
               </div>
             </div>
           )}
           <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900">Menu / Price List <span className="text-red-500">*</span></h3>
+            <h3 className="font-semibold text-gray-900">{t("for_business.step3.menu_price_list")} <span className="text-red-500">*</span></h3>
             <p className="text-sm text-gray-600">
-              Help customers understand your pricing and offerings. PDF or JPG
-              formats accepted.
+              {t("for_business.step3.menu_desc")}
             </p>
             <Button
               type="button"
@@ -188,7 +187,7 @@ export function BusinessFormStep3({
               className="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold"
             >
               <Utensils className="w-4 h-4 mr-2" />
-              Upload Menu
+              {t("for_business.step3.upload_menu")}
             </Button>
           </div>
           <input

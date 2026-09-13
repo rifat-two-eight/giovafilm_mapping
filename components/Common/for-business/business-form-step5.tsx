@@ -4,22 +4,24 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { UseFormReturn } from 'react-hook-form'
 import { Lock } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 interface BusinessFormStep5Props {
   form: UseFormReturn<any>
 }
 
 export function BusinessFormStep5({ form }: BusinessFormStep5Props) {
+  const { t } = useLanguage()
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
         <Lock className="w-12 h-12 text-yellow-400 mx-auto" />
-        <h2 className="text-3xl font-bold text-gray-900">PRIVATE INFORMATION</h2>
-        <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">Only visible to administrators</p>
+        <h2 className="text-3xl font-bold text-gray-900">{t("for_business.step5.title")}</h2>
+        <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">{t("for_business.step5.admin_only")}</p>
         <p className="text-gray-600">
-          We use this information only to contact you about verification, corrections, or billing. It will not appear
-          publicly on the map.
+          {t("for_business.step5.subtitle")}
         </p>
       </div>
 
@@ -30,24 +32,24 @@ export function BusinessFormStep5({ form }: BusinessFormStep5Props) {
           control={form.control}
           name="ownerPhone"
           rules={{ 
-            required: "Owner's Direct Phone is required",
+            required: t("for_business.step5.owner_phone_req"),
             pattern: {
               value: /^[+]?[0-9\s-]{7,15}$/,
-              message: "Please enter a valid phone number (7 to 15 digits, optionally starting with +)",
+              message: t("for_business.step5.owner_phone_invalid"),
             }
           }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-900 font-semibold">Owner's Direct Phone <span className="text-red-500">*</span></FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">{t("for_business.step5.owner_phone")} <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
-                  placeholder="+880 1XXXXXXXXX"
+                  placeholder={t("for_business.step5.owner_phone_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200"
                   type="tel"
                 />
               </FormControl>
-              <p className="text-xs text-gray-500 mt-1">Used only if we need to verify or fix listing details.</p>
+              <p className="text-xs text-gray-500 mt-1">{t("for_business.step5.owner_phone_note")}</p>
               <FormMessage />
             </FormItem>
           )}
@@ -58,25 +60,25 @@ export function BusinessFormStep5({ form }: BusinessFormStep5Props) {
           control={form.control}
           name="invoicingEmail"
           rules={{ 
-            required: "Contact email is required",
+            required: t("for_business.step5.invoicing_email_req"),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address"
+              message: t("for_business.step5.invoicing_email_invalid")
             }
           }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-900 font-semibold">Contact Email for Invoicing <span className="text-red-500">*</span></FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">{t("for_business.step5.invoicing_email")} <span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
-                  placeholder="billing@yourbusiness.com"
+                  placeholder={t("for_business.step5.invoicing_email_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200"
                   type="email"
                 />
               </FormControl>
               <p className="text-xs text-gray-500 mt-1">
-                Receives invoices, subscription receipts, and payment updates.
+                {t("for_business.step5.invoicing_email_note")}
               </p>
               <FormMessage />
             </FormItem>

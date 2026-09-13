@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import { useGetSubscriptionPlansQuery } from "@/redux/features/subscription/subscriptionApi";
 import { Plan, PricingCard } from "../pricing/PricingCard";
@@ -17,9 +18,9 @@ interface BusinessFormStep6Props {
 }
 
 export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
+  const { t } = useLanguage();
   const { data: plansRes, isLoading, error } = useGetSubscriptionPlansQuery();
   const selectedPlan = form.watch("selectedPlan");
-  // console.log("selectedPlan", selectedPlan);
 
   const plans: Plan[] = plansRes?.data || [];
 
@@ -28,7 +29,7 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
         <p className="text-gray-500 font-medium font-public-sans text-xl">
-          Loading subscription plans...
+          {t("for_business.step6.loading_plans")}
         </p>
       </div>
     );
@@ -38,14 +39,14 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
     return (
       <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 space-y-4">
         <p className="text-red-500 font-medium text-lg">
-          Failed to load subscription plans.
+          {t("for_business.step6.failed_load_plans")}
         </p>
         <Button
           onClick={() => window.location.reload()}
           variant="outline"
           className="rounded-xl"
         >
-          Try Again
+          {t("for_business.step6.try_again")}
         </Button>
       </div>
     );
@@ -56,14 +57,13 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
       {/* Header */}
       <div className="text-center space-y-3">
         <p className="text-sm md:text-base text-gray-500/80 uppercase tracking-wider font-bold">
-          CURRENT STEP: SUBSCRIPTION PLAN
+          {t("for_business.step6.current_step")}
         </p>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-          Choose the right plan for your journey
+          {t("for_business.step6.title")}
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Select a plan to unlock powerful tools and reach more travelers. You
-          can change this at any time later.
+          {t("for_business.step6.subtitle")}
         </p>
       </div>
 
@@ -77,10 +77,10 @@ export function BusinessFormStep6({ form }: BusinessFormStep6Props) {
               {plans.length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
                   <p className="text-gray-500 font-medium text-lg">
-                    No subscription plans available.
+                    {t("for_business.step6.no_plans")}
                   </p>
                   <p className="mt-2 text-sm text-gray-400">
-                    Please check back later or contact support.
+                    {t("for_business.step6.check_back_later")}
                   </p>
                 </div>
               ) : (

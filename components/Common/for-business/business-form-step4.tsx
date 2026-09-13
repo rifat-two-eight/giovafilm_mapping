@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera, Shield, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface BusinessFormStep4Props {
   form: UseFormReturn<any>;
@@ -40,6 +41,7 @@ export function BusinessFormStep4({
   offerPhoto = null,
   onOfferPhotoChange,
 }: BusinessFormStep4Props) {
+  const { t } = useLanguage();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const discountType = form.watch("offerDiscountType");
@@ -76,17 +78,13 @@ export function BusinessFormStep4({
       {/* Header */}
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold text-gray-900">
-          Boost your visibility
+          {t("for_business.step4.title")}
         </h2>
         <p className="text-gray-600">
-          Businesses that integrate exclusive offers tend to gain greater
-          visibility, interaction, and conversion within the app, increasing
-          their chances of attracting more customers and generating higher
-          sales.
+          {t("for_business.step4.subtitle")}
         </p>
         <div className="mx-auto max-w-xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          This step is optional. Leave it empty and tap Continue, or add an
-          offer with a photo to boost visibility.
+          {t("for_business.step4.optional_note")}
         </div>
       </div>
 
@@ -97,7 +95,7 @@ export function BusinessFormStep4({
           variant="outline"
           className="text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
         >
-          Reset Offer Details
+          {t("for_business.step4.reset_offer")}
         </Button>
       </div>
       {/* 
@@ -156,7 +154,7 @@ export function BusinessFormStep4({
       <div className="space-y-4 text-left">
         <div className="space-y-3">
           <h3 className="text-base text-gray-900 font-semibold">
-            Offer Photo <span className="text-red-500">*</span>
+            {t("for_business.step4.offer_photo")} <span className="text-red-500">*</span>
           </h3>
           {photoPreview ? (
             <div className="relative w-full max-w-sm">
@@ -184,12 +182,12 @@ export function BusinessFormStep4({
             >
               <div className="text-center">
                 <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500 font-medium">TAP TO ADD OFFER PHOTO</p>
+                <p className="text-sm text-gray-500 font-medium">{t("for_business.step4.tap_add_photo")}</p>
               </div>
             </div>
           )}
           <p className="text-sm text-gray-600">
-            This photo is shown on the Offers page. PNG or JPG, up to 10MB.
+            {t("for_business.step4.photo_note")}
           </p>
           <Button
             type="button"
@@ -197,7 +195,7 @@ export function BusinessFormStep4({
             className="w-full max-w-sm bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
           >
             <Camera className="w-4 h-4 mr-2" />
-            {photoPreview ? "Change Offer Photo" : "Upload Offer Photo"}
+            {photoPreview ? t("for_business.step4.change_photo") : t("for_business.step4.upload_photo")}
           </Button>
           <input
             ref={photoInputRef}
@@ -217,11 +215,11 @@ export function BusinessFormStep4({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base text-gray-900 font-semibold">
-                Offer Title
+                {t("for_business.step4.offer_title")}
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., 10% OFF for Pro members"
+                  placeholder={t("for_business.step4.offer_title_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200"
                 />
@@ -237,11 +235,11 @@ export function BusinessFormStep4({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base text-gray-900 font-semibold">
-                Offer Description
+                {t("for_business.step4.offer_desc")}
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Describe your exclusive offer..."
+                  placeholder={t("for_business.step4.offer_desc_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200 min-h-24"
                 />
@@ -259,13 +257,13 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Redemptions Per User
+                  {t("for_business.step4.redemptions_per_user")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min={0}
-                    placeholder="e.g., 1"
+                    placeholder={t("for_business.step4.redemptions_placeholder")}
                     {...field}
                     className="bg-gray-50 border-gray-200"
                   />
@@ -281,13 +279,13 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Duration (Minutes)
+                  {t("for_business.step4.duration_minutes")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min={0}
-                    placeholder="e.g., 60"
+                    placeholder={t("for_business.step4.duration_placeholder")}
                     {...field}
                     className="bg-gray-50 border-gray-200"
                   />
@@ -306,7 +304,7 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Discount Type
+                  {t("for_business.step4.discount_type")}
                 </FormLabel>
                 <FormControl>
                   <select
@@ -320,11 +318,11 @@ export function BusinessFormStep4({
                     }}
                     className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   >
-                    <option value="">Select type</option>
-                    <option value="Percentage">Percentage</option>
-                    <option value="Flat">Flat Amount</option>
-                    <option value="BOGO">Buy One Get One (BOGO)</option>
-                    <option value="Free item">Free Item</option>
+                    <option value="">{t("for_business.step4.select_type")}</option>
+                    <option value="Percentage">{t("for_business.step4.percentage")}</option>
+                    <option value="Flat">{t("for_business.step4.flat_amount")}</option>
+                    <option value="BOGO">{t("for_business.step4.bogo")}</option>
+                    <option value="Free item">{t("for_business.step4.free_item")}</option>
                   </select>
                 </FormControl>
                 <FormMessage />
@@ -339,13 +337,13 @@ export function BusinessFormStep4({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base text-gray-900 font-semibold">
-                    Discount Value
+                    {t("for_business.step4.discount_value")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={0}
-                      placeholder="e.g., 10"
+                      placeholder={t("for_business.step4.discount_placeholder")}
                       {...field}
                       className="bg-gray-50 border-gray-200"
                     />
@@ -365,20 +363,20 @@ export function BusinessFormStep4({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base text-gray-900 font-semibold">
-                    Second item
+                    {t("for_business.step4.second_item")}
                   </FormLabel>
                   <FormControl>
                     <select
                       {...field}
                       className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                     >
-                      <option value="">Choose how the second item is discounted</option>
-                      <option value="free">Second item is free</option>
-                      <option value="percentage">Second item has a % discount</option>
+                      <option value="">{t("for_business.step4.choose_second_item_discount")}</option>
+                      <option value="free">{t("for_business.step4.second_item_free")}</option>
+                      <option value="percentage">{t("for_business.step4.second_item_percentage")}</option>
                     </select>
                   </FormControl>
                   <p className="text-xs text-gray-500">
-                    Customers will see this clearly, e.g. “Buy 1 Get 1 Free” or “Buy 1 Get 1 · 50% off 2nd”.
+                    {t("for_business.step4.bogo_note")}
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -391,14 +389,14 @@ export function BusinessFormStep4({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base text-gray-900 font-semibold">
-                      % off second item
+                      {t("for_business.step4.pct_off_second")}
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         min={1}
                         max={100}
-                        placeholder="e.g., 50"
+                        placeholder={t("for_business.step4.pct_off_placeholder")}
                         {...field}
                         className="bg-white border-gray-200"
                       />
@@ -419,7 +417,7 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Valid From
+                  {t("for_business.step4.valid_from")}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -439,7 +437,7 @@ export function BusinessFormStep4({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base text-gray-900 font-semibold">
-                  Valid Until
+                  {t("for_business.step4.valid_until")}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -468,10 +466,10 @@ export function BusinessFormStep4({
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="text-sm font-semibold text-gray-900 cursor-pointer">
-                  No Expiration
+                  {t("for_business.step4.no_expiration")}
                 </FormLabel>
                 <p className="text-xs text-gray-500">
-                  Checking this will make the offer valid indefinitely.
+                  {t("for_business.step4.no_expiration_note")}
                 </p>
               </div>
             </FormItem>
@@ -484,11 +482,11 @@ export function BusinessFormStep4({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base text-gray-900 font-semibold">
-                Redemption Rules
+                {t("for_business.step4.redemption_rules")}
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="e.g., One per user per visit, No stacking with other offers..."
+                  placeholder={t("for_business.step4.rules_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200 min-h-20"
                 />

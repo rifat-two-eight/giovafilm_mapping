@@ -219,7 +219,10 @@ async function reverseGeocode(lat: number, lng: number): Promise<AddressInfo | n
   };
 }
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
+  const { t } = useLanguage();
   const selectedMapName = form.watch("country");
   const savedLocation = form.watch("mapLocation");
   const streetAddress = form.watch("streetAddress");
@@ -359,8 +362,8 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     if (isUpdate) {
       const label = formatAddressLabel(address) || "the selected spot";
       const confirmed = await confirmLocationChange(
-        "Update this location?",
-        `Move the pin to ${label}?`,
+        t("for_business.step2.update_location_title"),
+        `${t("for_business.step2.move_pin_to")} ${label}?`,
       );
       if (!confirmed) {
         setPreviewPosition(null);
@@ -375,8 +378,8 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     if (address?.city) form.setValue("city", address.city);
     toast.success(
       isUpdate
-        ? `Location updated inside ${selectedMapName}.`
-        : `Location set inside ${selectedMapName}.`,
+        ? `${t("for_business.step2.location_updated")} ${selectedMapName}.`
+        : `${t("for_business.step2.location_set_inside")} ${selectedMapName}.`,
     );
     return true;
   };
@@ -384,11 +387,11 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
   const handleExtractLocation = async () => {
     let url = (form.getValues("mapUrl") || "").trim();
     if (!url) {
-      toast.error("Please enter a Google Maps URL first");
+      toast.error(t("for_business.step2.enter_url_first"));
       return;
     }
     if (!selectedMapName) {
-      toast.error("Please select a Country/Map in Step 1 first.");
+      toast.error(t("for_business.step2.select_country_first"));
       return;
     }
 
@@ -404,7 +407,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
         const lat = Number(coords?.lat);
         const lng = Number(coords?.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          toast.error("Could not extract coordinates from this URL.");
+          toast.error(t("for_business.step2.cannot_extract_coords"));
           return;
         }
         extractedCoords = { lat, lng };
@@ -414,7 +417,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     } catch (error: any) {
       toast.error(
         error?.data?.message ||
-          "Could not extract coordinates. Try using the full URL from your browser address bar.",
+          t("for_business.step2.cannot_extract_coords_full"),
       );
     } finally {
       setIsExtracting(false);
@@ -438,37 +441,36 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Map Location</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("for_business.step2.title")}</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Drop the pin inside{" "}
+            {t("for_business.step2.subtitle_prefix")}{" "}
             <span className="font-semibold text-gray-800">
-              {selectedMapName || "the selected map"}
+              {selectedMapName || t("for_business.step2.selected_map_fallback")}
             </span>
-            . This business will appear on that map only.
+            {t("for_business.step2.subtitle_suffix")}
           </p>
         </div>
         {markerPosition && (
           <Button type="button" variant="outline" onClick={clearLocation}>
-            Clear location
+            {t("for_business.step2.clear_location")}
           </Button>
         )}
       </div>
 
       {selectedMapName && (
         <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-          Selected map: <strong>{selectedMapName}</strong>. First pin is set
-          instantly. Updating it needs confirm. A pin outside this country will
-          be rejected.
+          {t("for_business.step2.selected_map")} <strong>{selectedMapName}</strong>
+          {t("for_business.step2.map_note")}
         </div>
       )}
 
       <div className="space-y-2">
         <Label className="text-base font-semibold text-gray-500 uppercase tracking-wide">
-          Put Your Google Map Location Url
+          {t("for_business.step2.google_maps_url_label")}
         </Label>
         <div className="flex gap-2">
           <Input
-            placeholder="Paste a Google Maps URL inside the selected country"
+            placeholder={t("for_business.step2.google_maps_url_placeholder")}
             {...form.register("mapUrl")}
             className="bg-gray-50 border-gray-200"
           />
@@ -478,25 +480,24 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
             disabled={isExtracting || isCheckingPin}
             className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-6"
           >
-            {isExtracting ? "..." : markerPosition ? "Update" : "Add"}
+            {isExtracting ? "..." : markerPosition ? t("for_business.step2.update") : t("for_business.step2.add")}
           </Button>
         </div>
       </div>
 
       <p className="text-sm text-yellow-700 font-medium">
-        Search, click the map, or drag the pin. A yellow preview pin shows the
-        new spot until you confirm.
+        {t("for_business.step2.instructions")}
       </p>
 
       {markerPosition && (
         <p className="text-sm text-green-700 font-medium">
-          Location set: {locationLabel || `${markerPosition.lat.toFixed(5)}, ${markerPosition.lng.toFixed(5)}`}
+          {t("for_business.step2.location_set")} {locationLabel || `${markerPosition.lat.toFixed(5)}, ${markerPosition.lng.toFixed(5)}`}
         </p>
       )}
 
       {!apiKey ? (
         <div className="flex h-[320px] items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 text-center text-sm font-medium text-red-700 sm:h-[500px]">
-          Map cannot load. Google Maps API key is missing.
+          {t("for_business.step2.maps_api_missing")}
         </div>
       ) : (
         <APIProvider apiKey={apiKey}>
@@ -512,7 +513,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
               {!mapCenter ? (
                 <div className="flex h-full w-full items-center justify-center bg-gray-100">
                   <p className="text-sm text-gray-500">
-                    Opening {selectedMapName || "map"}...
+                    {t("for_business.step2.opening")} {selectedMapName || t("for_business.step2.map")}...
                   </p>
                 </div>
               ) : (
@@ -532,7 +533,7 @@ export function BusinessFormStep2({ form }: BusinessFormStep2Props) {
               {isCheckingPin && (
                 <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-medium text-gray-700 shadow-lg">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent" />
-                  Checking location...
+                  {t("for_business.step2.checking_location")}
                 </div>
               )}
             </div>

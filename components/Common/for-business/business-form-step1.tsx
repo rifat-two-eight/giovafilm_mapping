@@ -30,12 +30,14 @@ import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { Clock, Earth, Mail, Plus, X, MapPin } from "lucide-react";
 import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface BusinessFormStep1Props {
   form: UseFormReturn<any>;
 }
 
 export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
+  const { t } = useLanguage();
   const { data: categoriesRes, isLoading: isLoadingCats } = useGetCategoriesQuery({ limit: 100 });
   const { data: mapsRes, isLoading: isLoadingMaps } = useGetMapsQuery({ limit: 100 });
   const maps = mapsRes?.data || [];
@@ -54,6 +56,40 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("18:00");
+
+  const renderDayLabel = (dayStr: string) => {
+    if (!dayStr) return "";
+    if (dayStr === "Always Open") {
+      return t("for_business.step1.always_open");
+    }
+    if (dayStr === "Mon - Sun") {
+      const mon = t("for_business.step1.days.Monday").substring(0, 3);
+      const sun = t("for_business.step1.days.Sunday").substring(0, 3);
+      return `${mon} - ${sun}`;
+    }
+    const dayMap: Record<string, string> = {
+      Monday: t("for_business.step1.days.Monday"),
+      Tuesday: t("for_business.step1.days.Tuesday"),
+      Wednesday: t("for_business.step1.days.Wednesday"),
+      Thursday: t("for_business.step1.days.Thursday"),
+      Friday: t("for_business.step1.days.Friday"),
+      Saturday: t("for_business.step1.days.Saturday"),
+      Sunday: t("for_business.step1.days.Sunday"),
+      Mon: t("for_business.step1.days.Monday").substring(0, 3),
+      Tue: t("for_business.step1.days.Tuesday").substring(0, 3),
+      Wed: t("for_business.step1.days.Wednesday").substring(0, 3),
+      Thu: t("for_business.step1.days.Thursday").substring(0, 3),
+      Fri: t("for_business.step1.days.Friday").substring(0, 3),
+      Sat: t("for_business.step1.days.Saturday").substring(0, 3),
+      Sun: t("for_business.step1.days.Sunday").substring(0, 3),
+    };
+
+    let result = dayStr;
+    Object.keys(dayMap).forEach((key) => {
+      result = result.replace(new RegExp(`\\b${key}\\b`, "g"), dayMap[key]);
+    });
+    return result;
+  };
 
   const DAYS = [
     "Monday",
@@ -134,7 +170,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <Earth className="size-4" />
 
           <h3 className="text-base font-semibold text-gray-500 uppercase tracking-wide">
-            PUBLIC INFORMATION
+            {t("for_business.step1.public_info")}
           </h3>
         </div>
 
@@ -142,15 +178,15 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="businessName"
-            rules={{ required: "Business name is required" }}
+            rules={{ required: t("for_business.step1.business_name_req") }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Business Name <span className="text-red-500">*</span>
+                  {t("for_business.step1.business_name")} <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g. Sunset Peak Lodge"
+                    placeholder={t("for_business.step1.business_name_placeholder")}
                     {...field}
                     type="text"
                     className="bg-gray-50 border-gray-200"
@@ -164,11 +200,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="category"
-            rules={{ required: "Category is required" }}
+            rules={{ required: t("for_business.step1.category_req") }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold ">
-                  Category <span className="text-red-500">*</span>
+                  {t("for_business.step1.category")} <span className="text-red-500">*</span>
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -180,8 +216,8 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                       <SelectValue
                         placeholder={
                           isLoadingCats
-                            ? "Loading categories..."
-                            : "Select a category"
+                            ? t("for_business.step1.loading_categories")
+                            : t("for_business.step1.select_category")
                         }
                       />
                     </SelectTrigger>
@@ -189,7 +225,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <SelectContent>
                     {!isLoadingCats && categories.length === 0 ? (
                       <div className="px-3 py-6 text-center text-sm text-gray-500">
-                        No categories found.
+                        {t("for_business.step1.no_categories")}
                       </div>
                     ) : (
                       categories.map((cat: any) => (
@@ -209,15 +245,15 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         <FormField
           control={form.control}
           name="businessDescription"
-          rules={{ required: "Business description is required" }}
+          rules={{ required: t("for_business.step1.business_desc_req") }}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-900 font-semibold">
-                Business Description <span className="text-red-500">*</span>
+                {t("for_business.step1.business_desc")} <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell travelers what makes your spot special..."
+                  placeholder={t("for_business.step1.business_desc_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200 min-h-32"
                 />
@@ -233,7 +269,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         <div className="flex items-center gap-2 mb-4">
           <Mail className="w-5 h-5 text-yellow-400" />
           <h3 className="text-base font-semibold text-gray-500 uppercase tracking-wide">
-            CONTACT & LINKS
+            {t("for_business.step1.contact_links")}
           </h3>
         </div>
 
@@ -242,20 +278,20 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
             control={form.control}
             name="phoneNumber"
             rules={{ 
-              required: "Public phone number is required",
+              required: t("for_business.step1.phone_req"),
               pattern: {
                 value: /^[+]?[0-9\s-]{7,15}$/,
-                message: "Please enter a valid phone number (7 to 15 digits, optionally starting with +)",
+                message: t("for_business.step1.phone_invalid"),
               }
             }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Phone Number <span className="text-red-500">*</span>
+                  {t("for_business.step1.phone")} <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="+1 (555) 000-0000"
+                    placeholder={t("for_business.step1.phone_placeholder")}
                     {...field}
                     type="tel"
                     className="bg-gray-50 border-gray-200"
@@ -272,17 +308,17 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
             rules={{
               pattern: {
                 value: /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/[a-zA-Z0-9-._~:?#[\]@!$&'()*+,;=]*)?$/,
-                message: "Please enter a valid website URL",
+                message: t("for_business.step1.website_invalid"),
               }
             }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Website URL
+                  {t("for_business.step1.website")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="https://yourwebsite.com"
+                    placeholder={t("for_business.step1.website_placeholder")}
                     {...field}
                     type="url"
                     className="bg-gray-50 border-gray-200"
@@ -300,11 +336,11 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-900 font-semibold">
-                Instagram Username
+                {t("for_business.step1.instagram")}
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="@username"
+                  placeholder={t("for_business.step1.instagram_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200"
                 />
@@ -320,22 +356,22 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
         <div className="flex items-center gap-2 mb-4">
           <MapPin className="w-5 h-5 text-yellow-400" />
           <h3 className="text-base font-semibold text-gray-500 uppercase tracking-wide">
-            LOCATION
+            {t("for_business.step1.location_title")}
           </h3>
         </div>
 
         <FormField
           control={form.control}
           name="streetAddress"
-          rules={{ required: "Street address is required" }}
+          rules={{ required: t("for_business.step1.street_req") }}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-900 font-semibold">
-                Street Address <span className="text-red-500">*</span>
+                {t("for_business.step1.street")} <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="123 Adventure Lane"
+                  placeholder={t("for_business.step1.street_placeholder")}
                   {...field}
                   className="bg-gray-50 border-gray-200"
                 />
@@ -349,15 +385,15 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="city"
-            rules={{ required: "City is required" }}
+            rules={{ required: t("for_business.step1.city_req") }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  City <span className="text-red-500">*</span>
+                  {t("for_business.step1.city")} <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="City"
+                    placeholder={t("for_business.step1.city_placeholder")}
                     {...field}
                     className="bg-gray-50 border-gray-200"
                   />
@@ -370,14 +406,14 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <FormField
             control={form.control}
             name="country"
-            rules={{ required: "Country/Map is required" }}
+            rules={{ required: t("for_business.step1.country_map_req") }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-900 font-semibold">
-                  Country/Map <span className="text-red-500">*</span>
+                  {t("for_business.step1.country_map")} <span className="text-red-500">*</span>
                 </FormLabel>
                 <p className="text-xs text-gray-500 -mt-1">
-                  This is the map where your business will appear. The pin in the next step must be inside this country.
+                  {t("for_business.step1.country_map_note")}
                 </p>
                 <Select
                   onValueChange={(value) => {
@@ -395,8 +431,8 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                       <SelectValue
                         placeholder={
                           isLoadingMaps
-                            ? "Loading maps..."
-                            : "Select Country/Map"
+                            ? t("for_business.step1.loading_maps")
+                            : t("for_business.step1.select_country_map")
                         }
                       />
                     </SelectTrigger>
@@ -404,7 +440,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <SelectContent>
                     {!isLoadingMaps && maps.length === 0 ? (
                       <div className="px-3 py-6 text-center text-sm text-gray-500">
-                        No maps found.
+                        {t("for_business.step1.no_maps")}
                       </div>
                     ) : (
                       maps.map((map: any) => (
@@ -428,7 +464,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-yellow-400" />
             <h3 className="text-base font-semibold text-gray-500 uppercase tracking-wide">
-              HOURS
+              {t("for_business.step1.hours_title")}
             </h3>
           </div>
 
@@ -436,12 +472,12 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
             <DialogTrigger asChild>
               <button type="button" className="text-base font-semibold text-yellow-600 hover:text-yellow-700 flex items-center gap-1">
                 <Plus size={14} />
-                Add Custom Hours
+                {t("for_business.step1.add_custom_hours")}
               </button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Add Business Hours</DialogTitle>
+                <DialogTitle>{t("for_business.step1.add_business_hours")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="flex items-center gap-4 border-b border-gray-100 pb-2">
@@ -450,35 +486,35 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "everyday" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
                     onClick={() => setSelectionType("everyday")}
                   >
-                    Everyday
+                    {t("for_business.step1.everyday")}
                   </button>
                   <button
                     type="button"
                     className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "range" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
                     onClick={() => setSelectionType("range")}
                   >
-                    Date Range
+                    {t("for_business.step1.date_range")}
                   </button>
                   <button
                     type="button"
                     className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "individual" ? "border-yellow-400 text-yellow-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
                     onClick={() => setSelectionType("individual")}
                   >
-                    Individual Days
+                    {t("for_business.step1.individual_days")}
                   </button>
                   <button
                     type="button"
                     className={`text-sm font-semibold pb-2 border-b-2 transition-colors ${selectionType === "always-open" ? "border-green-500 text-green-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}
                     onClick={() => setSelectionType("always-open")}
                   >
-                    Always Open
+                    {t("for_business.step1.always_open")}
                   </button>
                 </div>
 
                 {selectionType === "everyday" && (
                   <div className="py-2">
                     <p className="text-sm font-medium text-gray-500">
-                      This schedule will apply to all 7 days of the week.
+                      {t("for_business.step1.everyday_note")}
                     </p>
                   </div>
                 )}
@@ -487,7 +523,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-bold text-gray-700">
-                        Start Day
+                        {t("for_business.step1.start_day")}
                       </Label>
                       <Select value={startDay} onValueChange={setStartDay}>
                         <SelectTrigger className="bg-gray-50 border-gray-200">
@@ -496,7 +532,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                         <SelectContent>
                           {DAYS.map((d) => (
                             <SelectItem key={d} value={d}>
-                              {d}
+                              {t(`for_business.step1.days.${d}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -504,7 +540,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm font-bold text-gray-700">
-                        End Day
+                        {t("for_business.step1.end_day")}
                       </Label>
                       <Select value={endDay} onValueChange={setEndDay}>
                         <SelectTrigger className="bg-gray-50 border-gray-200">
@@ -513,7 +549,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                         <SelectContent>
                           {DAYS.map((d) => (
                             <SelectItem key={d} value={d}>
-                              {d}
+                              {t(`for_business.step1.days.${d}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -526,10 +562,10 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <div className="py-4 flex flex-col items-center gap-2 text-center">
                     <span className="text-3xl">🕐</span>
                     <p className="text-sm font-semibold text-green-700">
-                      This business is open 24 hours, 7 days a week.
+                      {t("for_business.step1.always_open_msg")}
                     </p>
                     <p className="text-xs text-gray-400">
-                      No specific opening or closing times will be set.
+                      {t("for_business.step1.always_open_submsg")}
                     </p>
                   </div>
                 )}
@@ -537,7 +573,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                 {selectionType === "individual" && (
                   <div className="space-y-2">
                     <Label className="text-sm font-bold text-gray-700">
-                      Select Days
+                      {t("for_business.step1.select_days")}
                     </Label>
                     <div className="flex flex-wrap gap-2">
                       {DAYS.map((d) => {
@@ -555,7 +591,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                             }}
                             className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${isSelected ? "bg-yellow-100 border-yellow-400 text-yellow-700" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}
                           >
-                            {d.substring(0, 3)}
+                            {t(`for_business.step1.days.${d}`).substring(0, 3)}
                           </button>
                         );
                       })}
@@ -567,7 +603,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-bold text-gray-700">
-                        Start Time
+                        {t("for_business.step1.start_time")}
                       </Label>
                       <div className="relative">
                         <Input
@@ -581,7 +617,7 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm font-bold text-gray-700">
-                        End Time
+                        {t("for_business.step1.end_time")}
                       </Label>
                       <div className="relative">
                         <Input
@@ -603,14 +639,14 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     className="flex-1 font-bold text-gray-500 hover:text-gray-700 rounded-xl h-11"
                     onClick={() => setIsDialogOpen(false)}
                   >
-                    Cancel
+                    {t("for_business.step1.cancel")}
                   </Button>
                   <Button
                     type="button"
                     className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-black rounded-xl h-11 tracking-widest shadow-lg shadow-yellow-100 transition-all"
                     onClick={handleAddHours}
                   >
-                    ADD
+                    {t("for_business.step1.add")}
                   </Button>
                 </div>
               </div>
@@ -631,13 +667,13 @@ export function BusinessFormStep1({ form }: BusinessFormStep1Props) {
                     className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4"
                   >
                     <span className="text-sm md:text-base font-bold text-gray-800 min-w-[100px]">
-                      {dayHour.day}
+                      {renderDayLabel(dayHour.day)}
                     </span>
 
                     <div className="flex items-center gap-3 w-full md:w-auto">
                       {dayHour.alwaysOpen ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-bold">
-                          🕐 Always Open
+                          🕐 {t("for_business.step1.always_open")}
                         </span>
                       ) : (
                         <>

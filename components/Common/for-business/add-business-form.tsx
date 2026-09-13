@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { BusinessFormStep1 } from "./business-form-step1";
 import { BusinessFormStep2 } from "./business-form-step2";
 import { BusinessFormStep3 } from "./business-form-step3";
@@ -26,12 +27,12 @@ import { BusinessFormStep5 } from "./business-form-step5";
 import { BusinessFormStep6 } from "./business-form-step6";
 
 const STEPS = [
-  { id: 1, label: "Details" },
-  { id: 2, label: "Location" },
-  { id: 3, label: "Media" },
-  { id: 4, label: "Offer" },
-  { id: 5, label: "Private" },
-  { id: 6, label: "Plan" },
+  { id: 1, key: "details", label: "Details" },
+  { id: 2, key: "location", label: "Location" },
+  { id: 3, key: "media", label: "Media" },
+  { id: 4, key: "offer", label: "Offer" },
+  { id: 5, key: "private", label: "Private" },
+  { id: 6, key: "plan", label: "Plan" },
 ] as const;
 
 const defaultValues = {
@@ -76,6 +77,7 @@ const defaultValues = {
 };
 
 export function AddBusinessForm() {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [maxReachedStep, setMaxReachedStep] = useState(1);
   const [businessPhotos, setBusinessPhotos] = useState<File[]>([]);
@@ -203,7 +205,7 @@ export function AddBusinessForm() {
     setMenuFile(null);
     setOfferPhoto(null);
     setDraftRestored(false);
-    toast.success("Draft cleared. You can start again.");
+    toast.success(t("for_business.draft_cleared_toast"));
   };
 
   const step4WatchedValues = form.watch(step4Inputs as any);
@@ -361,12 +363,12 @@ export function AddBusinessForm() {
             }
 
             await createOffer(offerFormDataPayload).unwrap();
-            toast.success("Offer created successfully!");
+            toast.success(t("for_business.alerts.offer_success"));
           } catch (offerErr: any) {
             toast.error(
               offerErr?.data?.message ||
                 offerErr?.message ||
-                "Failed to create offer.",
+                t("for_business.alerts.offer_failed"),
             );
           }
         }
@@ -388,22 +390,22 @@ export function AddBusinessForm() {
             }
           } catch {
             toast.error(
-              "Failed to redirect to payment page. You can pay from your business list.",
+              t("for_business.alerts.payment_redirect_failed"),
             );
           }
         }
 
         await appAlert.fire({
-          title: "Business created!",
-          text: "Your listing is ready. You can view it anytime from My Business.",
+          title: t("for_business.alerts.business_created_title"),
+          text: t("for_business.alerts.business_created_text"),
           icon: "success",
-          confirmButtonText: "View my business",
+          confirmButtonText: t("for_business.alerts.view_my_business"),
         });
         router.push("/profile/my-business");
       }
     } catch (err: any) {
       const message =
-        err?.data?.message || err?.message || "Failed to create business.";
+        err?.data?.message || err?.message || t("for_business.alerts.failed_create_business");
       toast.error(message);
     } finally {
       submittingRef.current = false;
@@ -418,7 +420,7 @@ export function AddBusinessForm() {
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm font-medium text-gray-500">
-            Restoring your progress...
+            {t("for_business.restoring_progress")}
           </p>
         </div>
       </div>
@@ -429,13 +431,13 @@ export function AddBusinessForm() {
     <div className="min-h-screen bg-gray-50 px-4 py-10 pb-16">
       <div ref={formTopRef} className="max-w-5xl mx-auto p-4 md:p-6 bg-white rounded-lg">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-8 text-center md:text-left">
-          Add Your Business
+          {t("for_business.title")}
         </h1>
 
         {draftRestored && (
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <p className="text-sm font-medium text-amber-800">
-              Your previous progress was restored. You can continue from where you left off.
+              {t("for_business.draft_restored")}
             </p>
             <Button
               type="button"
@@ -443,7 +445,7 @@ export function AddBusinessForm() {
               onClick={handleClearDraft}
               className="h-9 text-xs font-semibold border-amber-300 text-amber-800 hover:bg-amber-100"
             >
-              Clear draft
+              {t("for_business.clear_draft")}
             </Button>
           </div>
         )}
@@ -451,10 +453,10 @@ export function AddBusinessForm() {
         <div className="mb-4 md:mb-8 space-y-4 border p-4 md:p-6 rounded-lg border-gray-200/50">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm md:text-base text-gray-500/80 uppercase tracking-wider font-bold">
-              Business Progress
+              {t("for_business.business_progress")}
             </p>
             <p className="text-sm font-semibold text-primary">
-              Step {currentStep} of 6 ({progressPercentage.toFixed(0)}%)
+              {t("for_business.step_progress").replace("{step}", String(currentStep))} ({progressPercentage.toFixed(0)}%)
             </p>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -484,7 +486,7 @@ export function AddBusinessForm() {
                           : "bg-gray-50 text-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  {step.id}. {step.label}
+                  {step.id}. {t(`for_business.steps.${step.key}`)}
                 </button>
               );
             })}
@@ -525,7 +527,7 @@ export function AddBusinessForm() {
                   className="flex-1 py-6 text-base font-semibold"
                   disabled={isLoading}
                 >
-                  Back
+                  {t("for_business.back")}
                 </Button>
               )}
 
@@ -554,19 +556,19 @@ export function AddBusinessForm() {
                       if (currentStep === 2) {
                         const mapLocation = form.getValues("mapLocation");
                         if (!mapLocation) {
-                          toast.error("Please set a map location pointer.");
+                          toast.error(t("for_business.validation.set_map_location"));
                           return;
                         }
                       }
                       if (currentStep === 3) {
                         if (businessPhotos.length === 0) {
                           toast.error(
-                            "Please upload at least one business photo.",
+                            t("for_business.validation.upload_business_photo"),
                           );
                           return;
                         }
                         if (!menuFile) {
-                          toast.error("Please upload a menu or price list.");
+                          toast.error(t("for_business.validation.upload_menu"));
                           return;
                         }
                       }
@@ -591,7 +593,7 @@ export function AddBusinessForm() {
 
                           if (!offerPhoto) {
                             toast.error(
-                              "Please upload a photo for this offer.",
+                              t("for_business.validation.upload_offer_photo"),
                             );
                             hasError = true;
                           }
@@ -601,14 +603,14 @@ export function AddBusinessForm() {
                           ) {
                             form.setError("offerDescription", {
                               type: "custom",
-                              message: "Please enter an offer description.",
+                              message: t("for_business.validation.enter_offer_desc"),
                             });
                             hasError = true;
                           }
                           if (!offerDiscountType) {
                             form.setError("offerDiscountType", {
                               type: "custom",
-                              message: "Please select a discount type.",
+                              message: t("for_business.validation.select_discount_type"),
                             });
                             hasError = true;
                           }
@@ -618,8 +620,7 @@ export function AddBusinessForm() {
                             if (!bogoSecondType) {
                               form.setError("offerBogoSecondType", {
                                 type: "custom",
-                                message:
-                                  "Choose whether the second item is free or has a % discount.",
+                                message: t("for_business.validation.choose_bogo_type"),
                               });
                               hasError = true;
                             } else if (bogoSecondType === "percentage") {
@@ -630,8 +631,7 @@ export function AddBusinessForm() {
                               ) {
                                 form.setError("offerDiscount", {
                                   type: "custom",
-                                  message:
-                                    "Enter 1–100% off the second item.",
+                                  message: t("for_business.validation.enter_bogo_discount"),
                                 });
                                 hasError = true;
                               }
@@ -640,8 +640,7 @@ export function AddBusinessForm() {
                             if (!offerDiscount || Number(offerDiscount) <= 0) {
                               form.setError("offerDiscount", {
                                 type: "custom",
-                                message:
-                                  "Please enter a valid discount value greater than 0.",
+                                message: t("for_business.validation.enter_valid_discount"),
                               });
                               hasError = true;
                             }
@@ -649,8 +648,7 @@ export function AddBusinessForm() {
                           if (!offerDuration || Number(offerDuration) <= 0) {
                             form.setError("offerDuration", {
                               type: "custom",
-                              message:
-                                "Please enter a valid offer duration in minutes.",
+                              message: t("for_business.validation.enter_valid_duration"),
                             });
                             hasError = true;
                           }
@@ -660,23 +658,21 @@ export function AddBusinessForm() {
                           ) {
                             form.setError("offerMaxRedemptions", {
                               type: "custom",
-                              message:
-                                "Please enter a valid max redemptions count.",
+                              message: t("for_business.validation.enter_valid_redemptions"),
                             });
                             hasError = true;
                           }
                           if (!offerValidFrom) {
                             form.setError("offerValidFrom", {
                               type: "custom",
-                              message: "Please select a valid from date.",
+                              message: t("for_business.validation.select_valid_from"),
                             });
                             hasError = true;
                           }
                           if (!offerNoExpiration && !offerValidUntil) {
                             form.setError("offerValidUntil", {
                               type: "custom",
-                              message:
-                                "Please select a valid until date or check 'No Expiration'.",
+                              message: t("for_business.validation.select_valid_until"),
                             });
                             hasError = true;
                           }
@@ -690,7 +686,7 @@ export function AddBusinessForm() {
                   disabled={isLoading}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
-                  Continue
+                  {t("for_business.continue")}
                 </Button>
               )}
 
@@ -701,7 +697,7 @@ export function AddBusinessForm() {
                   disabled={isLoading}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-6 text-base"
                 >
-                  Continue
+                  {t("for_business.continue")}
                 </Button>
               )}
 
@@ -714,10 +710,10 @@ export function AddBusinessForm() {
                   {isLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      <span>Creating Business...</span>
+                      <span>{t("for_business.creating_business")}</span>
                     </div>
                   ) : (
-                    "Save & Finish"
+                    t("for_business.save_and_finish")
                   )}
                 </Button>
               )}
