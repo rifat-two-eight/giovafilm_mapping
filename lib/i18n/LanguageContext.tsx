@@ -16,7 +16,7 @@ const translations: Record<Language, any> = { en, es };
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (keyPath: string) => string;
+  t: (keyPath: string, fallback?: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -57,7 +57,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const t = (keyPath: string): string => {
+  const t = (keyPath: string, fallback?: string): string => {
+    if (!keyPath) return fallback || "";
     const keys = keyPath.split(".");
     let result: any = translations[language];
 
@@ -65,20 +66,38 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (result && typeof result === "object" && key in result) {
         result = result[key];
       } else {
-        // Fallback to English dictionary
-        let fallbackResult: any = translations["en"];
-        for (const fk of keys) {
-          if (fallbackResult && typeof fallbackResult === "object" && fk in fallbackResult) {
-            fallbackResult = fallbackResult[fk];
-          } else {
-            return keyPath;
-          }
-        }
-        return typeof fallbackResult === "string" ? fallbackResult : keyPath;
+        result = undefined;
+        break;
       }
     }
 
-    return typeof result === "string" ? result : keyPath;
+    if (typeof result === "string" && result.trim() !== "") {
+      return result;
+    }
+
+    // Fallback to English dictionary if current language is not English
+    if (language !== "en") {
+      let fallbackResult: any = translations["en"];
+      for (const fk of keys) {
+        if (fallbackResult && typeof fallbackResult === "object" && fk in fallbackResult) {
+          fallbackResult = fallbackResult[fk];
+        } else {
+          fallbackResult = undefined;
+          break;
+        }
+      }
+      if (typeof fallbackResult === "string" && fallbackResult.trim() !== "") {
+        return fallbackResult;
+      }
+    }
+
+    if (fallback !== undefined) {
+      return fallback;
+    }
+
+    // Return empty string instead of raw dot-notation keypath
+    // so that expressions like `t("foo.bar") || "Fallback"` gracefully evaluate to the fallback!
+    return "";
   };
 
   return (

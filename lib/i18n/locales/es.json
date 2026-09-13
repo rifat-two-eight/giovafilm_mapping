@@ -86,7 +86,26 @@
     "payment_failed": "Pago fallido",
     "go_to_my_businesses": "Ir a Mis Negocios",
     "invalid_coordinates": "Coordenadas no válidas proporcionadas.",
-    "search_placeholder": "Buscar..."
+    "search_placeholder": "Buscar...",
+    "target_map": "Mapa de destino",
+    "confirming": "Confirmando tu suscripción...",
+    "verification_pending": "Verificación pendiente",
+    "payment_successful": "¡Pago exitoso!",
+    "refresh": "Actualizar",
+    "clear": "Limpiar selección",
+    "yes_delete_it": "¡Sí, eliminar!",
+    "deleted": "¡Eliminado!",
+    "view_all": "Ver todo",
+    "next_level": "Siguiente nivel",
+    "saving": "Guardando...",
+    "add": "Agregar",
+    "uploading": "Subiendo...",
+    "save_changes": "Guardar cambios",
+    "save_and_publish": "Guardar y publicar",
+    "yes_cancel_it": "¡Sí, cancelar!",
+    "search_maps": "Buscar mapas...",
+    "removed_from_favourites": "Eliminado de favoritos",
+    "added_to_favourites": "Añadido a favoritos"
   },
   "levels": {
     "level": "Nivel",
@@ -191,7 +210,8 @@
     "no_accessibility_features": "No se especificaron características especiales de accesibilidad.",
     "additional_notes": "Notas adicionales",
     "no_services_listed": "No se detallaron servicios o comodidades para este lugar.",
-    "failed_to_load": "Error al cargar los detalles del lugar."
+    "failed_to_load": "Error al cargar los detalles del lugar.",
+    "always_open": "Siempre abierto"
   },
   "services": {
     "parking": "ESTACIONAMIENTO",
@@ -434,7 +454,12 @@
     "remove_new_photo": "Eliminar nueva foto",
     "display_name_placeholder": "Tu nombre para mostrar",
     "close": "Cerrar",
-    "change_profile_photo": "Cambiar foto de perfil"
+    "change_profile_photo": "Cambiar foto de perfil",
+    "upload_valid_format": "Por favor sube una imagen en formato JPG, PNG o WebP.",
+    "image_max_size": "El tamaño de la imagen no debe superar los 5MB.",
+    "name_required": "Tu nombre no puede estar vacío.",
+    "update_success": "¡Perfil actualizado exitosamente!",
+    "edit_desc": "Toca la foto para cambiarla, luego guarda tus datos."
   },
   "auth": {
     "login_title": "Bienvenido de Nuevo",
@@ -495,7 +520,14 @@
     "resetting_password_btn": "Restableciendo...",
     "set_password_btn": "Establecer Contraseña",
     "reset_password_btn": "Restablecer Contraseña",
-    "back_to_login_btn": "Volver al Inicio de Sesión"
+    "back_to_login_btn": "Volver al Inicio de Sesión",
+    "logged_out_invite": "Debes iniciar sesión para canjear esta invitación.",
+    "email_placeholder": "tu@correo.com",
+    "no_email_provided": "No se proporcionó ninguna dirección de correo.",
+    "enter_valid_otp": "Por favor ingresa un código OTP válido de 6 dígitos.",
+    "registration_failed_no_email": "Error en el registro. Falta el correo electrónico.",
+    "name_placeholder": "Tu nombre",
+    "invalid_reset_token": "El token de restablecimiento de contraseña no es válido o ha caducado."
   },
   "landing": {
     "hero_tagline": "Perspectiva Local, Facilidad Digital",
@@ -582,7 +614,9 @@
     "trip_planning": "Planificación de Viaje",
     "partnership": "Asociaciones",
     "support": "Soporte",
-    "other": "Otro"
+    "other": "Otro",
+    "message_sent_success": "¡Mensaje enviado exitosamente! Nos pondremos en contacto pronto.",
+    "failed_send": "Error al enviar el mensaje. Por favor intenta de nuevo."
   },
   "how_it_works_page": {
     "badge": "Tu Guía del Mundo",
@@ -692,7 +726,8 @@
       "all_categories": "Todas las Categorías",
       "all_countries": "Todos los Países",
       "all_roles": "Todos los Roles",
-      "search_placeholder": "Buscar..."
+      "search_placeholder": "Buscar...",
+      "actions": "Acciones"
     },
     "overview": "Resumen del panel",
     "total_maps": "Mapas totales",
@@ -742,7 +777,11 @@
     "approved": "Aprobado",
     "rejected": "Rechazado",
     "submitted": "Enviado",
-    "businesses_selected": "empresas seleccionadas"
+    "businesses_selected": "empresas seleccionadas",
+    "title": "Gestión de Negocios",
+    "deleted_successfully": "Negocio eliminado exitosamente",
+    "needs_changes": "Requiere Cambios",
+    "approved_today": "Aprobados Hoy"
   },
   "categories_admin": {
     "add_category": "Agregar Categoría",
@@ -773,7 +812,11 @@
     "custom": "Personalizado",
     "update_category": "Actualizar Categoría",
     "replace": "Reemplazar",
-    "remove": "Eliminar"
+    "remove": "Eliminar",
+    "updated_successfully": "Categoría actualizada exitosamente",
+    "created_successfully": "Categoría creada exitosamente",
+    "delete_confirm": "¡No podrás revertir la eliminación de esta categoría!",
+    "deleted_successfully": "Categoría eliminada exitosamente"
   },
   "maps_admin": {
     "map_name": "Nombre del Mapa",
@@ -789,7 +832,12 @@
     "no_maps": "No se encontraron mapas.",
     "placeholder_name": "Guía de Comida de Dhaka",
     "edit_map": "Editar mapa",
-    "delete_map": "Eliminar mapa"
+    "delete_map": "Eliminar mapa",
+    "create_new_map": "Crear Nuevo Mapa",
+    "updated_successfully": "Mapa actualizado exitosamente",
+    "created_successfully": "Mapa creado exitosamente",
+    "delete_confirm": "¡No podrás revertir la eliminación de este mapa!",
+    "deleted_successfully": "Mapa eliminado exitosamente"
   },
   "offers_admin": {
     "offer_description": "Descripción de la oferta",
@@ -853,7 +901,20 @@
     "bogo_hint": "Los clientes verán esto claramente, ej. 'Compra 1 Llévate 1 Gratis' o 'Compra 1 Llévate 1 · 50% desc. en el 2º'.",
     "pct_off_second": "% de desc. en el segundo artículo",
     "second_item_pct": "El segundo artículo tiene un % de descuento",
-    "rule_placeholder": "ej., Uno por usuario por visita"
+    "rule_placeholder": "ej., Uno por usuario por visita",
+    "create_offers": "Crear Oferta",
+    "title_label": "Título de la Oferta",
+    "description_label": "Descripción",
+    "discount_type_label": "Tipo de Descuento",
+    "select_type": "Seleccionar tipo",
+    "discount_value_label": "Valor del Descuento",
+    "updated_successfully": "¡Oferta actualizada exitosamente!",
+    "created_successfully": "¡Oferta creada exitosamente!",
+    "title": "Título de la Oferta",
+    "bogo": "Compra Uno y Llévate Otro (BOGO)",
+    "redeem_offer": "Canjear Oferta",
+    "deleted": "¡Eliminado!",
+    "deleted_successfully": "La oferta ha sido eliminada."
   },
   "places_admin": {
     "place": "Lugar",
@@ -939,7 +1000,24 @@
     "description_placeholder": "Escribe la descripción...",
     "features_placeholder": "Los más valorados, Joyas ocultas",
     "tips_placeholder_map": "Escribe consejos para este mapa...",
-    "create_map": "Crear Mapa"
+    "create_map": "Crear Mapa",
+    "add_place": "Agregar Lugar",
+    "delete_confirm": "¡No podrás revertir la eliminación de este lugar!",
+    "enter_google_maps_url": "Por favor ingresa una URL de Google Maps primero",
+    "location_extracted": "¡Ubicación extraída exitosamente!",
+    "could_not_extract": "No se pudieron extraer las coordenadas de esta URL.",
+    "deleted_successfully": "Lugar eliminado exitosamente",
+    "upload_menu_pdf_only": "Por favor sube solo archivos de imagen o PDF para menús.",
+    "tabs": {
+      "basic_info": "Información Básica",
+      "access": "Acceso"
+    },
+    "address": "Dirección",
+    "full_address": "Dirección completa",
+    "minutes": "Minutos",
+    "hours": "Horas",
+    "updated_successfully": "¡Lugar actualizado exitosamente!",
+    "failed_update": "Error al actualizar el lugar"
   },
   "reports_admin": {
     "total_sales": "Ventas totales",
@@ -971,7 +1049,11 @@
     "today": "Hoy",
     "this_week": "Esta semana",
     "this_month": "Este mes",
-    "last_month": "El mes pasado"
+    "last_month": "El mes pasado",
+    "title": "Informes y Estadísticas",
+    "subtitle": "Rendimiento empresarial en tiempo real y estadísticas de uso de la plataforma.",
+    "search_placeholder": "Buscar lugar o negocio...",
+    "no_results": "No se encontró ningún lugar o negocio."
   },
   "settings_admin": {
     "general_title": "Configuración General",
@@ -997,7 +1079,10 @@
     "cancel_notice": "Tu suscripción se cancelará al final del período actual.",
     "no_active_subs": "Sin Suscripciones Activas",
     "no_subs_desc": "No tienes ninguna suscripción de negocio activa. Activa tus listados de negocio desde tu panel.",
-    "go_to_my_businesses": "Ir a Mis Negocios"
+    "go_to_my_businesses": "Ir a Mis Negocios",
+    "subscription_cancelled": "Suscripción cancelada exitosamente",
+    "notifications_updated": "Configuración de notificaciones actualizada exitosamente",
+    "failed_update_settings": "Error al actualizar la configuración"
   },
   "subscriptions_admin": {
     "plan_name": "Nombre del Plan",
@@ -1014,7 +1099,11 @@
     "description_placeholder": "Acceso básico a la plataforma con funciones limitadas.",
     "feature_placeholder": "Característica",
     "add_plan": "Agregar Nuevo Plan de Suscripción",
-    "create_plan": "Crear Plan"
+    "create_plan": "Crear Plan",
+    "add_new_plan": "Agregar Nuevo Plan",
+    "updated_successfully": "¡Plan de suscripción actualizado exitosamente!",
+    "created_successfully": "¡Plan de suscripción creado exitosamente!",
+    "failed_to_save": "Error al guardar el plan de suscripción."
   },
   "users_admin": {
     "invite_user": "Invitar Nuevo Usuario",
@@ -1081,7 +1170,9 @@
     "verification_request": "Solicitud de verificación",
     "verification_desc": "'Wild West Tours' envió documentos.",
     "payout_completed": "Pago completado",
-    "payout_desc": "$1,250.00 transferidos a Road Trip Co."
+    "payout_desc": "$1,250.00 transferidos a Road Trip Co.",
+    "title": "Notificaciones",
+    "mark_all_read": "Marcar todo como leído"
   },
   "admin_review": {
     "title": "Tareas de Revisión de Administrador",
@@ -1202,7 +1293,9 @@
     "attach_map_optional": "Adjuntar Mapa (Opcional)",
     "user_chooses_map": "El usuario elige el mapa",
     "no_map_attached": "Sin mapa adjunto",
-    "attached_map_file": "Mapa / Archivo Adjunto"
+    "attached_map_file": "Mapa / Archivo Adjunto",
+    "delete_confirm": "¡No podrás revertir la eliminación de esta recompensa!",
+    "deleted_successfully": "Recompensa eliminada exitosamente"
   },
   "reviews_admin": {
     "title": "Verificación de reseñas",
@@ -1525,5 +1618,72 @@
   "profile.image_max_size": "La imagen debe ser menor a 5 MB.",
   "profile.name_required": "El nombre es obligatorio.",
   "categories.updated_success": "Categoría actualizada con éxito",
-  "categories.created_success": "Categoría creada con éxito"
+  "categories.created_success": "Categoría creada con éxito",
+  "payment": {
+    "verified_redirecting": "¡Pago verificado! Redirigiendo...",
+    "failed": "No se pudo completar el pago. Por favor intenta de nuevo.",
+    "do_not_close": "Por favor no cierres ni actualices esta página mientras procesamos tu pago.",
+    "checkout_url_failed": "Error al iniciar la sesión de pago. Por favor intenta de nuevo.",
+    "checkout_session_failed": "No se pudieron obtener los detalles de la sesión de pago."
+  },
+  "location": {
+    "invalid_coordinates": "Coordenadas no válidas o ausentes para esta ubicación."
+  },
+  "business": {
+    "deleted_success": "Negocio eliminado exitosamente",
+    "verify_location_failed": "No se pudo verificar el pin de ubicación.",
+    "location_cleared": "Coordenadas de ubicación borradas.",
+    "select_country_first": "Por favor selecciona un país primero.",
+    "invalid_coords": "Por favor proporciona coordenadas válidas de latitud y longitud.",
+    "update_status_failed": "Error al actualizar el estado del negocio."
+  },
+  "promos": {
+    "email_queue_failed": "Error al poner en cola los correos de invitación.",
+    "claim_link_copied": "¡Enlace de invitación copiado al portapapeles!",
+    "code_copied": "¡Código promocional copiado al portapapeles!",
+    "invite_email_sent": "¡Correo de invitación enviado exitosamente!",
+    "invite_link_deleted": "¡Enlace de invitación eliminado exitosamente!",
+    "no_pending_emails": "No hay correos pendientes para enviar.",
+    "no_links_export": "No hay enlaces de invitación disponibles para exportar.",
+    "exported_csv_success": "¡Enlaces de invitación exportados a CSV exitosamente!",
+    "guest_passes_in_system": "Pases de invitado registrados en el sistema"
+  },
+  "reports": {
+    "failed_load": "Error al cargar los datos de informes."
+  },
+  "maps": {
+    "free_map_claimed": "¡Mapa gratuito desbloqueado exitosamente!",
+    "already_redeemed_free": "Ya has canjeado este mapa gratuito.",
+    "unlock_free_first": "Por favor desbloquea este mapa gratuito primero para ver todos los lugares.",
+    "loading_locations": "Cargando ubicaciones...",
+    "loading_categories": "Cargando categorías...",
+    "select_map": "Seleccionar un mapa",
+    "missing_location_id": "Falta el identificador de la ubicación.",
+    "select_rating": "Por favor selecciona una calificación de estrellas.",
+    "write_review": "Por favor escribe un comentario de reseña."
+  },
+  "places": {
+    "geolocation_not_supported": "Tu navegador no soporta la geolocalización.",
+    "allow_location_access": "Por favor permite el acceso a tu ubicación para encontrar lugares cercanos.",
+    "removed_from_favorites": "Eliminado de favoritos",
+    "upload_in_progress": "La subida ya está en curso, por favor espera.",
+    "fill_required_first": "Por favor completa todos los campos obligatorios primero."
+  },
+  "offers": {
+    "fill_required_fields": "Por favor completa todos los campos requeridos de la oferta.",
+    "add_photo": "Por favor añade al menos una foto de la oferta.",
+    "choose_second_item_type": "Elige el tipo de descuento del segundo artículo",
+    "valid_discount_value": "Por favor proporciona un valor de descuento válido.",
+    "second_discount_range": "El descuento del segundo artículo debe estar entre 1% y 100%.",
+    "duration_minutes_req": "La duración de la oferta en minutos es obligatoria.",
+    "redemptions_user_req": "El límite de canjes por usuario es obligatorio.",
+    "valid_from_req": "La fecha de inicio de validez es obligatoria.",
+    "valid_until_req": "La fecha de finalización de validez es obligatoria.",
+    "updated_success": "¡Oferta actualizada exitosamente!",
+    "created_success": "¡Oferta creada exitosamente!",
+    "upload_image_file": "Por favor sube un archivo de imagen (JPG, PNG, WebP).",
+    "describe_offer_placeholder": "Describe lo que incluye esta oferta...",
+    "second_item_free": "2º artículo gratis (100% dto.)",
+    "one_time_only": "Canje único solamente"
+  }
 }
