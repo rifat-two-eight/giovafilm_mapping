@@ -1,19 +1,24 @@
+"use client";
+
 import BusinessNotification from "@/components/dashboard/notification/business-notification";
 import NotificationMessage from "@/components/dashboard/notification/notification-message";
 import { NotificationSettings } from "@/components/dashboard/settings/notifications-settings";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { CheckCheck } from "lucide-react";
 
-export default function page() {
+export default function Page() {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-gray-100 font-inter!">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800"> Notifications</h1>
+        <h1 className="text-2xl font-semibold text-gray-800">{t("notifications_page.title")}</h1>
 
         <Button className="bg-white text-black border border-gray-300 flex items-center gap-2">
           <CheckCheck size={24} />
-          Mark all as read
+          {t("notifications_page.mark_all_read")}
         </Button>
       </div>
 
@@ -29,3 +34,4 @@ export default function page() {
     </div>
   );
 }
+

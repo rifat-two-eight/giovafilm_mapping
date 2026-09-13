@@ -109,12 +109,12 @@ export function PlacesTable() {
   };
 
   const tableHeaders = [
-    "Place Name",
-    "Category",
-    "Map",
-    "Status",
-    "Rating",
-    "Actions",
+    t("places_admin.place_name"),
+    t("common.categories"),
+    t("nav.map"),
+    t("promos_admin.status"),
+    t("place.reviews"),
+    t("rewards_admin.actions"),
   ];
 
   return (
@@ -125,7 +125,7 @@ export function PlacesTable() {
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search places..."
+              placeholder={t("search.search_places")}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -143,9 +143,9 @@ export function PlacesTable() {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">All Status</option>
-            <option value="Published">Published</option>
-            <option value="Draft">Draft</option>
+            <option value="">{t("places_admin.all_status")}</option>
+            <option value="Published">{t("places_admin.published")}</option>
+            <option value="Draft">{t("places_admin.draft")}</option>
           </select>
 
           <select
@@ -156,7 +156,7 @@ export function PlacesTable() {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">All Categories</option>
+            <option value="">{t("places_admin.all_categories")}</option>
             {categoriesResponse?.data?.map((cat: any) => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
@@ -172,7 +172,7 @@ export function PlacesTable() {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">All Countries</option>
+            <option value="">{t("places_admin.all_countries")}</option>
             {countries?.map((c: string) => (
               <option key={c} value={c}>
                 {c}
@@ -188,9 +188,9 @@ export function PlacesTable() {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">All Types</option>
-            <option value="Regular">Regular (Admins)</option>
-            <option value="Business">Business (Users)</option>
+            <option value="">{t("places_admin.all_types")}</option>
+            <option value="Regular">{t("places_admin.regular_admin")}</option>
+            <option value="Business">{t("places_admin.business_user")}</option>
           </select>
         </div>
       </div>
@@ -213,13 +213,13 @@ export function PlacesTable() {
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  Loading places...
+                  {t("places_admin.loading_places")}
                 </td>
               </tr>
             ) : displayedPlaces.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No places found.
+                  {t("places_admin.no_places")}
                 </td>
               </tr>
             ) : (
@@ -336,7 +336,7 @@ export function PlacesTable() {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
-              Page {meta.page} of {meta.totalPage || 1}
+              {t("common.page")} {meta.page} / {meta.totalPage || 1}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -345,7 +345,7 @@ export function PlacesTable() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t("common.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -353,7 +353,7 @@ export function PlacesTable() {
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= (meta.totalPage || 1)}
               >
-                Next
+                {t("common.next")}
               </Button>
             </div>
           </div>

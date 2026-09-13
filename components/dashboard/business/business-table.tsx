@@ -77,8 +77,6 @@ export function BusinessTable() {
   const businesses = response?.data || [];
   const meta = response?.meta || { page: 1, limit: 10, total: 0, totalPage: 1 };
 
-  // console.log("businesses", businesses);
-
   const toggleSelect = (id: string) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
@@ -118,12 +116,12 @@ export function BusinessTable() {
 
   const handleDeleteSingle = async (id: string) => {
     const result = await appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: t("common.are_you_sure"),
+      text: t("places_admin.delete_confirm") || "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
@@ -158,7 +156,7 @@ export function BusinessTable() {
             <Search size={16} className="absolute left-3 top-3 text-gray-400" />
             <input
               type="text"
-              placeholder="Search business name, email..."
+              placeholder={t("search.placeholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full border rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -212,14 +210,14 @@ export function BusinessTable() {
               onClick={() => handleBulkStatusUpdate("Approved")}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
             >
-              Approve
+              {t("business_admin.approve")}
             </button>
             <button
               disabled={isUpdating}
               onClick={() => handleBulkStatusUpdate("Rejected")}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
             >
-              Reject
+              {t("business_admin.reject")}
             </button>
           </div>
           <button
@@ -355,7 +353,7 @@ export function BusinessTable() {
                           {t("business_admin.no_businesses")}
                         </p>
                         <p className="text-xs">
-                          Try adjusting your search or filters.
+                          {t("business_admin.no_businesses_hint")}
                         </p>
                       </div>
                     </td>

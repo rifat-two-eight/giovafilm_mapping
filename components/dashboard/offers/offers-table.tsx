@@ -137,7 +137,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[150px]"
           >
-            <option value="">{t("dashboard.table.all_countries")}</option>
+            <option value="">{t("places_admin.all_countries")}</option>
             {countries?.map((c: string) => (
               <option key={c} value={c}>
                 {c}
@@ -153,7 +153,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
             }}
             className="h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm bg-white min-w-[140px]"
           >
-            <option value="">{t("dashboard.table.all_status")}</option>
+            <option value="">{t("places_admin.all_status")}</option>
             <option value="Active">{t("offers_admin.active")}</option>
             <option value="Paused">{t("offers_admin.paused")}</option>
             <option value="Expired">{t("offers_admin.expired")}</option>
@@ -185,7 +185,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 {t("offers_admin.redemptions_per_user")}
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                Actions
+                {t("rewards_admin.actions")}
               </th>
             </tr>
           </thead>
@@ -210,7 +210,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                   colSpan={7}
                   className="px-6 py-10 text-center text-gray-500"
                 >
-                  No offers found.
+                  {t("offers_admin.no_locations")}
                 </td>
               </tr>
             ) : (
@@ -258,7 +258,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {offer.validUntil
                         ? new Date(offer.validUntil).toLocaleDateString()
-                        : "No Expiration"}
+                        : t("offer.no_expiration")}
                     </td>
 
                     <td className="px-6 py-4 text-sm">
@@ -267,7 +267,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                           offer.status,
                         )}`}
                       >
-                        {offer.status}
+                        {getStatusText(offer.status)}
                       </span>
                     </td>
 
@@ -338,7 +338,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 border-none">
-              Page {meta.page} of {meta.totalPage || 1}
+              {t("common.page")} {meta.page} / {meta.totalPage || 1}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -347,7 +347,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t("common.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -355,7 +355,7 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= (meta.totalPage || 1)}
               >
-                Next
+                {t("common.next")}
               </Button>
             </div>
           </div>

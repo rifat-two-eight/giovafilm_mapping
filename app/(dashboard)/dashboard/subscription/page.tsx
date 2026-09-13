@@ -4,6 +4,7 @@ import { AddSubscriptionModal } from "@/components/dashboard/subscription/add-su
 import { SubscriptionTable } from "@/components/dashboard/subscription/all-subscription-table";
 import { SubscriptionCard } from "@/components/dashboard/subscription/subscription-card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import {
   useCreateCheckoutSessionMutation,
   useDeleteSubscriptionPlanMutation,
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 
 export default function SubscriptionPage() {
+  const { t } = useLanguage();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
 
@@ -34,8 +36,6 @@ export default function SubscriptionPage() {
     useDeleteSubscriptionPlanMutation();
 
   const plans = plansRes?.data || [];
-
-  // console.log(plans);
 
   const subscriptionHistory = [
     {
@@ -61,19 +61,19 @@ export default function SubscriptionPage() {
 
   const handleDeletePlan = async (planId: string) => {
     appAlert.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this plan deletion!",
+      title: t("common.are_you_sure"),
+      text: t("for_business.step6.failed_load_plans") || "You won't be able to revert this plan deletion!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const res = await deleteSubscriptionPlan(planId).unwrap();
           if (res.success || res.data) {
             appAlert.fire({
-              title: "Deleted!",
+              title: t("common.deleted") || "Deleted!",
               text: "Subscription plan has been deleted.",
               icon: "success",
             });
@@ -90,7 +90,7 @@ export default function SubscriptionPage() {
   return (
     <div className="p-6 space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-black uppercase">Subscription Plans</h1>
+        <h1 className="text-3xl font-black uppercase">{t("nav.subscription")}</h1>
         <Button
           onClick={() => {
             setEditingPlan(null);
@@ -98,11 +98,9 @@ export default function SubscriptionPage() {
           }}
           className="bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest py-6 px-6 rounded-xl"
         >
-          + Add New Plan
+          + {t("subscriptions_admin.add_new_plan")}
         </Button>
       </div>
-
-      {/* <PricingCard key={plans?.[0]?._id} plan={plans?.[0]} /> */}
 
       {/* Plans */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -113,10 +111,10 @@ export default function SubscriptionPage() {
         ) : plans.length === 0 ? (
           <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
             <p className="text-gray-500 font-medium text-lg">
-              No subscription plans available.
+              {t("for_business.step6.no_plans")}
             </p>
             <p className="mt-2 text-sm text-gray-400">
-              Click &quot;Add New Plan&quot; to create one.
+              {t("subscriptions_admin.add_new_plan")}
             </p>
           </div>
         ) : (
@@ -131,10 +129,7 @@ export default function SubscriptionPage() {
           ))
         )}
       </div>
-      {/* <div className="space-y-4">
-        <h2 className="text-2xl font-black uppercase">Subscription History</h2>
-        <SubscriptionTable data={subscriptionHistory} />
-      </div> */}
+
       <AddSubscriptionModal
         isOpen={isAddModalOpen}
         onClose={handleCloseModal}
@@ -143,3 +138,4 @@ export default function SubscriptionPage() {
     </div>
   );
 }
+

@@ -164,15 +164,15 @@ export default function RewardsAdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800">Rewards Management</h1>
-          <p className="text-xs text-gray-500">Configure cover photos, files, points, and descriptions for user rewards.</p>
+          <h1 className="text-2xl font-semibold text-gray-800">{t("rewards_admin.title")}</h1>
+          <p className="text-xs text-gray-500">{t("rewards_admin.subtitle")}</p>
         </div>
         <Button
           onClick={handleOpenCreate}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg px-4 py-2"
         >
           <Plus size={16} />
-          Add Reward
+          {t("rewards_admin.add_reward")}
         </Button>
       </div>
 
@@ -182,11 +182,11 @@ export default function RewardsAdminPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50 text-xs uppercase font-bold text-gray-500 tracking-wider">
-                <th className="px-6 py-4 text-left">Cover</th>
-                <th className="px-6 py-4 text-left">Reward Name</th>
-                <th className="px-6 py-4 text-left">Points Target</th>
-                <th className="px-6 py-4 text-left">Attached Map / File</th>
-                <th className="px-6 py-4 text-left">Actions</th>
+                <th className="px-6 py-4 text-left">{t("rewards_admin.cover")}</th>
+                <th className="px-6 py-4 text-left">{t("rewards_admin.reward_name")}</th>
+                <th className="px-6 py-4 text-left">{t("rewards_admin.points_target")}</th>
+                <th className="px-6 py-4 text-left">{t("rewards_admin.attached_map_file")}</th>
+                <th className="px-6 py-4 text-left">{t("rewards_admin.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -195,14 +195,14 @@ export default function RewardsAdminPage() {
                   <td colSpan={5} className="px-6 py-10 text-center text-gray-400">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      Loading configurations...
+                      {t("rewards_admin.loading_configs")}
                     </div>
                   </td>
                 </tr>
               ) : configs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                    No reward configurations found.
+                    {t("rewards_admin.no_rewards")}
                   </td>
                 </tr>
               ) : (
@@ -234,7 +234,7 @@ export default function RewardsAdminPage() {
                       <div>{reward.target?.toLocaleString()} XP</div>
                       {reward.discountPercentage !== undefined && (
                         <div className="text-xs text-green-600 font-semibold mt-1">
-                          Discount: {reward.discountPercentage}%
+                          {t("offers_admin.discount")}: {reward.discountPercentage}%
                         </div>
                       )}
                     </td>
@@ -244,7 +244,7 @@ export default function RewardsAdminPage() {
                       {reward.mapId && (
                         <div className="flex items-center gap-1 text-blue-600 font-semibold">
                           <MapPin size={12} />
-                          <span>Map: {reward.mapId?.title || reward.mapId?.name}</span>
+                          <span>{t("nav.map")}: {reward.mapId?.title || reward.mapId?.name}</span>
                         </div>
                       )}
                       {reward.fileUrl && (
@@ -254,7 +254,7 @@ export default function RewardsAdminPage() {
                         </div>
                       )}
                       {!reward.mapId && !reward.fileUrl && (
-                        <span className="text-gray-400 italic">None attached</span>
+                        <span className="text-gray-400 italic">{t("rewards_admin.none_attached")}</span>
                       )}
                     </td>
 
@@ -265,13 +265,13 @@ export default function RewardsAdminPage() {
                           onClick={() => handleOpenEdit(reward)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
                         >
-                          <Edit size={14} /> Edit
+                          <Edit size={14} /> {t("common.edit")}
                         </button>
                         <button
                           onClick={() => handleDelete(reward._id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
                         >
-                          <Trash2 size={14} /> Delete
+                          <Trash2 size={14} /> {t("common.delete")}
                         </button>
                       </div>
                     </td>
