@@ -96,25 +96,25 @@ export function InviteUserForm(): React.ReactElement {
   const handleSubmit = async () => {
     const email = formData.email.trim().toLowerCase();
     if (!email) {
-      toast.error("Please enter an email address.");
+      toast.error(t("users_admin.enter_email"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error(t("users_admin.invalid_email"));
       return;
     }
     if (!formData.role) {
-      toast.error("Please select a role.");
+      toast.error(t("users_admin.select_role"));
       return;
     }
     if (!allowedRoles.includes(formData.role as AppRole)) {
-      toast.error("You are not allowed to invite this role.");
+      toast.error(t("users_admin.not_allowed_role"));
       return;
     }
 
     if (formData.role === "map_editor") {
       if (selectedMaps.length === 0) {
-        toast.error("Assign at least one map for the Map Editor.");
+        toast.error(t("users_admin.assign_map_editor_error"));
         return;
       }
     }
@@ -136,7 +136,7 @@ export function InviteUserForm(): React.ReactElement {
 
     try {
       await inviteUser(payload).unwrap();
-      toast.success("Invitation sent successfully!", {
+      toast.success(t("users_admin.invitation_sent_success"), {
         description: "They will receive an email with a code to set their password.",
       });
       resetForm();
@@ -283,7 +283,7 @@ export function InviteUserForm(): React.ReactElement {
           className="px-6"
           disabled={isLoading}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -293,10 +293,10 @@ export function InviteUserForm(): React.ReactElement {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
+              {t("contact_form.sending")}
             </>
           ) : (
-            "Send Invitation"
+            t("users_admin.send_invitation")
           )}
         </Button>
       </div>

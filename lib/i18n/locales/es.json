@@ -739,7 +739,8 @@
     "pending": "Pendiente",
     "approved": "Aprobado",
     "rejected": "Rechazado",
-    "submitted": "Enviado"
+    "submitted": "Enviado",
+    "businesses_selected": "empresas seleccionadas"
   },
   "categories_admin": {
     "add_category": "Agregar Categoría",
@@ -758,7 +759,19 @@
     "selected_icon": "Icono seleccionado",
     "edit_category": "Editar categoría",
     "view_category": "Ver categoría",
-    "delete_category": "Eliminar categoría"
+    "delete_category": "Eliminar categoría",
+    "category_name_placeholder": "ej., Parques y Naturaleza",
+    "browse_icons": "Explorar Iconos",
+    "upload_custom": "Subir Personalizado",
+    "more_icons": "Más iconos ▼",
+    "less_icons": "Menos iconos ▲",
+    "search_icons_placeholder": "Buscar iconos... (ej. árbol, hospital, bandera)",
+    "type_to_search_icons": "Escribe para buscar entre más de 200,000 iconos",
+    "custom_icon_format_hint": "SVG, PNG, JPG, WEBP, GIF — máx 5MB",
+    "custom": "Personalizado",
+    "update_category": "Actualizar Categoría",
+    "replace": "Reemplazar",
+    "remove": "Eliminar"
   },
   "maps_admin": {
     "map_name": "Nombre del Mapa",
@@ -814,7 +827,24 @@
     "how_many_uses": "Cuántas veces un cliente puede usar esta oferta",
     "edit_offer": "Editar oferta",
     "resume_offer": "Reanudar oferta",
-    "delete_offer": "Eliminar oferta"
+    "delete_offer": "Eliminar oferta",
+    "select_valid_image": "Por favor selecciona un archivo de imagen válido (PNG, JPG, etc.).",
+    "title_placeholder": "ej., 20% de descuento en Café",
+    "search_by_name": "Buscar por nombre...",
+    "type_name_to_search": "Escribe un nombre para buscar...",
+    "description_placeholder": "Describe la oferta...",
+    "freq_daily": "Diario (Una vez cada 24 horas)",
+    "freq_weekly": "Semanal (Una vez cada 7 días)",
+    "freq_monthly": "Mensual (Una vez cada 30 días)",
+    "freq_once": "Una sola vez (Una vez por usuario)",
+    "freq_custom": "Duración personalizada (Minutos)",
+    "duration_placeholder": "Duración en minutos (ej., 60)",
+    "total_redemption_limit": "Límite Total de Canjes (opcional)",
+    "total_limit_hint": "Detiene la oferta cuando todos los clientes alcancen esta cantidad de canjes",
+    "bogo_hint": "Los clientes verán esto claramente, ej. 'Compra 1 Llévate 1 Gratis' o 'Compra 1 Llévate 1 · 50% desc. en el 2º'.",
+    "pct_off_second": "% de desc. en el segundo artículo",
+    "second_item_pct": "El segundo artículo tiene un % de descuento",
+    "rule_placeholder": "ej., Uno por usuario por visita"
   },
   "places_admin": {
     "version_title": "Roadtripeado Mapas 9.0",
@@ -874,7 +904,32 @@
     "edit_place": "Editar lugar",
     "view_place": "Ver lugar",
     "add_review": "Agregar reseña",
-    "delete_place": "Eliminar lugar"
+    "delete_place": "Eliminar lugar",
+    "marker_drag_enabled": "Arrastre de marcador activado. ¡Muévelo ahora!",
+    "select_map_first": "¡Por favor selecciona un mapa primero!",
+    "location_extracted_success": "¡Ubicación extraída con éxito!",
+    "select_category_first": "¡Por favor selecciona una categoría primero!",
+    "choose_map_placeholder": "Elige un mapa...",
+    "select_map_before_adding": "Por favor selecciona un mapa antes de agregar un lugar.",
+    "cancel_adding_place": "Cancelar Agregar Lugar",
+    "add_place_drop_pin": "Agregar Lugar (Soltar Pin)",
+    "upload_in_progress": "Subida en progreso. Por favor espera a que se complete el guardado.",
+    "menu_file_type_error": "Por favor sube solo archivos de imagen o PDF para los menús.",
+    "fill_required_fields": "Por favor completa todos los campos requeridos.",
+    "fill_required_fields_first": "Por favor completa todos los campos requeridos primero.",
+    "place_name_placeholder": "ej., Parque del Retiro",
+    "choose_business_category": "Elige una categoría de empresa",
+    "choose_category": "Elige una categoría",
+    "short_desc_placeholder": "Breve descripción de este lugar...",
+    "flat_fee": "tarifa plana",
+    "access_desc_placeholder": "ej., Toma la Línea 2 del Metro a la Estación Central. Salida B. Taxi aprox $5 desde el centro.",
+    "notes_optional": "Notas (opcional)",
+    "accessibility_notes_placeholder": "Información adicional de accesibilidad...",
+    "tips_placeholder": "Lista de objetos recomendados para llevar...",
+    "description_placeholder": "Escribe la descripción...",
+    "features_placeholder": "Los más valorados, Joyas ocultas",
+    "tips_placeholder_map": "Escribe consejos para este mapa...",
+    "create_map": "Crear Mapa"
   },
   "reports_admin": {
     "export_csv": "Exportar CSV",
@@ -893,7 +948,12 @@
     "searching": "Buscando...",
     "no_place_or_business": "No se encontró ningún lugar o negocio.",
     "showing_reports_for": "Mostrando informes para",
-    "map_sales_note": "Las ventas de mapas no están vinculadas a negocios. Las estadísticas a continuación son para este negocio."
+    "map_sales_note": "Las ventas de mapas no están vinculadas a negocios. Las estadísticas a continuación son para este negocio.",
+    "all_time": "Todo el tiempo",
+    "today": "Hoy",
+    "this_week": "Esta semana",
+    "this_month": "Este mes",
+    "last_month": "El mes pasado"
   },
   "settings_admin": {
     "general_title": "Configuración General",
@@ -931,7 +991,12 @@
     "add_feature": "Agregar Característica",
     "popular": "Popular",
     "edit_plan": "Editar Plan",
-    "delete_plan": "Eliminar Plan"
+    "delete_plan": "Eliminar Plan",
+    "plan_name_placeholder": "ej. Plan Pro",
+    "description_placeholder": "Acceso básico a la plataforma con funciones limitadas.",
+    "feature_placeholder": "Característica",
+    "add_plan": "Agregar Nuevo Plan de Suscripción",
+    "create_plan": "Crear Plan"
   },
   "users_admin": {
     "invite_user": "Invitar Nuevo Usuario",
@@ -967,7 +1032,22 @@
     "no_users": "No se encontraron usuarios.",
     "failed_to_load": "Error al cargar usuarios.",
     "assign_maps": "Asignar Mapas",
-    "assign_map_editor": "Asignar Acceso de Editor de Mapas"
+    "assign_map_editor": "Asignar Acceso de Editor de Mapas",
+    "enter_email": "Por favor ingresa una dirección de correo electrónico.",
+    "invalid_email": "Por favor ingresa un correo electrónico válido.",
+    "select_role": "Por favor selecciona un rol.",
+    "not_allowed_role": "No tienes permiso para invitar a este rol.",
+    "assign_map_editor_error": "Asigna al menos un mapa para el Editor de Mapas.",
+    "invitation_sent_success": "¡Invitación enviada con éxito!",
+    "send_invitation": "Enviar Invitación",
+    "user_deleted_success": "¡Usuario eliminado con éxito!",
+    "cannot_change_role": "No puedes cambiar el rol de este usuario.",
+    "not_allowed_assign_role": "No tienes permiso para asignar este rol.",
+    "user_role_updated_success": "¡Rol de usuario actualizado con éxito!",
+    "user_role_updated_assignments_success": "¡Rol de usuario actualizado con asignaciones con éxito!",
+    "editor_access_updated_success": "¡Acceso de editor actualizado con éxito!",
+    "search_users_placeholder": "Buscar usuarios...",
+    "selected": "seleccionados"
   },
   "notifications_page": {
     "business_notifications": "Notificaciones de Negocios",
@@ -1046,7 +1126,12 @@
     "email_sent": "Correo enviado",
     "claimed": "Reclamado",
     "expired": "Expirado",
-    "active": "Activo"
+    "active": "Activo",
+    "select_target_map": "Por favor selecciona un mapa de destino.",
+    "enter_campaign_label": "Por favor ingresa una etiqueta de campaña.",
+    "price_must_be_positive": "El precio debe ser 0 o positivo.",
+    "enter_recipient_email": "Por favor ingresa al menos un correo de destinatario.",
+    "no_valid_emails": "No se encontraron correos válidos. Por favor revisa el formato."
   },
   "rewards_admin": {
     "title": "Gestión de recompensas",
@@ -1074,7 +1159,17 @@
     "cover_photo": "Foto de portada",
     "click_to_upload": "Haga clic para subir",
     "downloadable_pdf": "PDF descargable",
-    "click_to_upload_pdf": "Haga clic para subir PDF"
+    "click_to_upload_pdf": "Haga clic para subir PDF",
+    "created_success": "¡Configuración de recompensa creada con éxito!",
+    "updated_success": "¡Configuración de recompensa actualizada con éxito!",
+    "failed_save": "Error al guardar la configuración de recompensa",
+    "add_new_reward": "Agregar Nueva Recompensa",
+    "edit_reward": "Editar Recompensa",
+    "discount_percentage": "Porcentaje de Descuento (%)",
+    "attach_map_optional": "Adjuntar Mapa (Opcional)",
+    "user_chooses_map": "El usuario elige el mapa",
+    "no_map_attached": "Sin mapa adjunto",
+    "attached_map_file": "Mapa / Archivo Adjunto"
   },
   "reviews_admin": {
     "title": "Verificación de reseñas",

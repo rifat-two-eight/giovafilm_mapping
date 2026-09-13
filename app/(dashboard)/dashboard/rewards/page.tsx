@@ -147,15 +147,15 @@ export default function RewardsAdminPage() {
 
       if (isCreateMode) {
         await createAwardConfig(formData).unwrap();
-        toast.success("Reward configuration created successfully!");
+        toast.success(t("rewards_admin.created_success"));
       } else {
         if (!selectedReward) return;
         await updateAwardConfig({ id: selectedReward._id, data: formData }).unwrap();
-        toast.success("Reward configuration updated successfully!");
+        toast.success(t("rewards_admin.updated_success"));
       }
       setOpen(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to save reward configuration");
+      toast.error(error?.data?.message || t("rewards_admin.failed_save"));
       console.error(error);
     }
   };
@@ -288,36 +288,36 @@ export default function RewardsAdminPage() {
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
-              {isCreateMode ? "Add New Reward" : `Edit Reward: ${selectedReward?.type}`}
+              {isCreateMode ? t("rewards_admin.add_new_reward") : `${t("rewards_admin.edit_reward")}: ${selectedReward?.type}`}
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             {/* Reward Type */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Reward Type</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.reward_type")}</Label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 required
               >
-                <option value="PDF Itinerary">PDF Itinerary</option>
-                <option value="Free Map">Free Map</option>
-                <option value="Gourmet Guide">Gourmet Guide</option>
-                <option value="Top Reviewer">Top Reviewer</option>
-                <option value="Trail Master">Trail Master</option>
-                <option value="History Buff">History Buff</option>
-                <option value="Legendary Explorer">Legendary Explorer</option>
-                <option value="Exclusive Discount">Exclusive Discount</option>
-                <option value="Permanent Discount">Permanent Discount</option>
+                <option value="PDF Itinerary">{t("rewards_admin.pdf_itinerary")}</option>
+                <option value="Free Map">{t("rewards_admin.free_map")}</option>
+                <option value="Gourmet Guide">{t("rewards_admin.gourmet_guide")}</option>
+                <option value="Top Reviewer">{t("rewards_admin.top_reviewer")}</option>
+                <option value="Trail Master">{t("rewards_admin.trail_master")}</option>
+                <option value="History Buff">{t("rewards_admin.history_buff")}</option>
+                <option value="Legendary Explorer">{t("rewards_admin.legendary_explorer")}</option>
+                <option value="Exclusive Discount">{t("rewards_admin.exclusive_discount")}</option>
+                <option value="Permanent Discount">{t("rewards_admin.permanent_discount")}</option>
               </select>
             </div>
 
             {/* Discount Percentage field rendered conditionally as the 2nd field */}
             {(type === "Exclusive Discount" || type === "Permanent Discount") && (
               <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Discount Percentage (%)</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.discount_percentage")}</Label>
                 <Input
                   type="number"
                   placeholder="e.g. 15"
@@ -332,7 +332,7 @@ export default function RewardsAdminPage() {
 
             {/* Title */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Reward Title</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.reward_title")}</Label>
               <Input
                 placeholder="e.g. PDF Travel Itinerary"
                 value={title}
@@ -343,7 +343,7 @@ export default function RewardsAdminPage() {
 
             {/* Description */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Description</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.description")}</Label>
               <textarea
                 rows={3}
                 placeholder="Describe what the user gets when unlocking this reward..."
@@ -357,7 +357,7 @@ export default function RewardsAdminPage() {
             <div className="grid grid-cols-2 gap-4">
               {/* Target threshold */}
               <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Target Points (XP)</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.points_target")}</Label>
                 <Input
                   type="number"
                   placeholder="e.g. 500"
@@ -369,14 +369,14 @@ export default function RewardsAdminPage() {
 
               {/* Map reference */}
               <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Attach Map (Optional)</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.attach_map_optional")}</Label>
                 <select
                   value={mapId}
                   onChange={(e) => setMapId(e.target.value)}
                   className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
                   <option value="" className="text-gray-900 bg-white">
-                    {type === "Free Map" ? "User chooses map" : "No map attached"}
+                    {type === "Free Map" ? t("rewards_admin.user_chooses_map") : t("rewards_admin.no_map_attached")}
                   </option>
                   {maps.map((map: any) => (
                     <option key={map._id} value={map._id} className="text-gray-900 bg-white">
@@ -391,7 +391,7 @@ export default function RewardsAdminPage() {
             <div className="grid grid-cols-2 gap-4 pt-2">
               {/* Cover Image Upload */}
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Cover Photo</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.cover_photo")}</Label>
                 <div
                   onClick={() => coverInputRef.current?.click()}
                   className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50"
@@ -405,7 +405,7 @@ export default function RewardsAdminPage() {
                   ) : (
                     <>
                       <ImageIcon size={20} className="text-gray-400" />
-                      <span className="text-[10px] font-bold text-gray-500">Click to Upload</span>
+                      <span className="text-[10px] font-bold text-gray-500">{t("rewards_admin.click_to_upload")}</span>
                     </>
                   )}
                   <input
@@ -420,7 +420,7 @@ export default function RewardsAdminPage() {
 
               {/* PDF Document Upload */}
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Downloadable PDF</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.downloadable_pdf")}</Label>
                 <div
                   onClick={() => pdfInputRef.current?.click()}
                   className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50 h-[102px]"
@@ -450,7 +450,7 @@ export default function RewardsAdminPage() {
                   ) : (
                     <>
                       <Upload size={20} className="text-gray-400" />
-                      <span className="text-[10px] font-bold text-gray-500">Click to Upload PDF</span>
+                      <span className="text-[10px] font-bold text-gray-500">{t("rewards_admin.click_to_upload_pdf")}</span>
                     </>
                   )}
                   <input
@@ -472,14 +472,14 @@ export default function RewardsAdminPage() {
                 onClick={() => setOpen(false)}
                 className="h-10 px-4 text-xs font-bold uppercase tracking-widest rounded-xl"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isCreating || isUpdating}
                 className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl"
               >
-                {isCreating || isUpdating ? "Saving..." : "Save Changes"}
+                {isCreating || isUpdating ? t("profile.saving") : t("profile.save_changes")}
               </Button>
             </div>
           </form>

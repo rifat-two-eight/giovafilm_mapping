@@ -138,7 +138,7 @@ export default function CreateMapModal({
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9E9E9E]" />
               <Input
-                placeholder="Dhaka Food Guide"
+                placeholder={t("maps_admin.placeholder_name")}
                 {...register("name", { required: true })}
                 className="pl-12 py-6 bg-gray-100/80"
               />
@@ -151,7 +151,7 @@ export default function CreateMapModal({
             <div className="relative">
               <FileText className="absolute left-4 top-4 w-5 h-5 text-[#9E9E9E]" />
               <Textarea
-                placeholder="Write description..."
+                placeholder={t("places_admin.description_placeholder")}
                 {...register("description")}
                 className="pl-12 bg-gray-100/80"
               />
@@ -177,7 +177,7 @@ export default function CreateMapModal({
           <div className="space-y-2">
             <Label className="ml-1">{t("maps_admin.features")}</Label>
             <Input
-              placeholder="Top rated, Hidden gems"
+              placeholder={t("places_admin.features_placeholder")}
               {...register("features")}
               className="py-6 bg-gray-100/80"
             />
@@ -187,7 +187,7 @@ export default function CreateMapModal({
           <div className="space-y-2">
             <Label className="ml-1">{t("maps_admin.tips")}</Label>
             <Textarea
-              placeholder="Write tips for this map..."
+              placeholder={t("places_admin.tips_placeholder_map")}
               {...register("tips")}
               className="pl-12 bg-gray-100/80"
             />

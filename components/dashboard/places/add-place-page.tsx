@@ -588,14 +588,14 @@ export default function AddPlacePage() {
               {/* Map Selector */}
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Active Map
+                  {t("places_admin.active_map")}
                 </Label>
                 <Select
                   value={selectedMapId || ""}
                   onValueChange={setSelectedMapId}
                 >
                   <SelectTrigger className="w-full bg-gray-50 border-gray-200">
-                    <SelectValue placeholder="Choose a map..." />
+                    <SelectValue placeholder={t("places_admin.choose_map_placeholder")} />
                   </SelectTrigger>
                   <SelectContent position="popper" style={{ zIndex: 99999 }}>
                     {maps.map((map: any) => (
@@ -616,7 +616,7 @@ export default function AddPlacePage() {
                 <button
                   onClick={() => {
                     if (!selectedMapId) {
-                      toast.error("Please select a map before adding a place.");
+                      toast.error(t("places_admin.select_map_before_adding"));
                       return;
                     }
                     setIsAddingMarker((prev) => !prev);
@@ -628,19 +628,18 @@ export default function AddPlacePage() {
                 >
                   <Plus size={16} />
                   {isAddingMarker
-                    ? "Cancel Adding Place"
-                    : "Add Place (Drop Pin)"}
+                    ? t("places_admin.cancel_adding_place")
+                    : t("places_admin.add_place_drop_pin")}
                 </button>
 
                 {isAddingMarker && (
                   <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 space-y-3 shadow-inner">
                     <p className="text-xs text-blue-600 font-medium">
-                      Click anywhere on the map to drop a pin, OR use a Google
-                      Maps URL:
+                      {t("places_admin.pin_instruction")}
                     </p>
                     <div className="space-y-1.5">
                       <Label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
-                        Put Your Google Map Location Url
+                        {t("places_admin.google_maps_url_placeholder")}
                       </Label>
                       <div className="flex gap-2">
                         <Input
@@ -656,7 +655,7 @@ export default function AddPlacePage() {
                           disabled={isExtracting}
                           className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-3 py-1 h-8 text-xs rounded-md shadow-sm"
                         >
-                          {isExtracting ? "..." : "Add Place"}
+                          {isExtracting ? "..." : t("places_admin.add_place")}
                         </Button>
                       </div>
                     </div>
@@ -667,7 +666,7 @@ export default function AddPlacePage() {
                 onClick={() => setIsDialogOpen(true)}
                 className="w-full flex items-center gap-3 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <Plus size={16} /> Add Category
+                <Plus size={16} /> {t("places_admin.add_category")}
               </button>
             </div>
 

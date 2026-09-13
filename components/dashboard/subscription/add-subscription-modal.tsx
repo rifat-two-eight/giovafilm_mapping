@@ -128,25 +128,25 @@ export function AddSubscriptionModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black uppercase">
-            {plan ? "Edit Subscription Plan" : "Add New Subscription Plan"}
+            {plan ? t("subscriptions_admin.edit_plan") : t("subscriptions_admin.add_plan")}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700">Plan Name</Label>
+              <Label className="text-sm font-semibold text-gray-700">{t("subscriptions_admin.plan_name")}</Label>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="e.g. Pro Plan"
+                placeholder={t("subscriptions_admin.plan_name_placeholder")}
                 className="rounded-xl border-gray-200 h-11"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700">Price ($ USD)</Label>
+              <Label className="text-sm font-semibold text-gray-700">{t("maps_admin.price")} ($ USD)</Label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">$</span>
                 <Input
@@ -162,7 +162,7 @@ export function AddSubscriptionModal({
             </div>
 
             <div className="space-y-2 col-span-2">
-              <Label className="text-sm font-semibold text-gray-700">Billing Cycle</Label>
+              <Label className="text-sm font-semibold text-gray-700">{t("subscriptions_admin.billing_cycle")}</Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -174,7 +174,7 @@ export function AddSubscriptionModal({
                       : "border-gray-200 text-gray-600"
                   }`}
                 >
-                  Monthly Plan
+                  {t("subscriptions_admin.monthly_plan")}
                 </Button>
                 <Button
                   type="button"
@@ -186,31 +186,31 @@ export function AddSubscriptionModal({
                       : "border-gray-200 text-gray-600"
                   }`}
                 >
-                  Yearly Plan
+                  {t("subscriptions_admin.yearly_plan")}
                 </Button>
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label>{t("subscriptions_admin.description")}</Label>
             <Textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              placeholder="Basic access to the platform with limited features."
+              placeholder={t("subscriptions_admin.description_placeholder")}
               required
             />
           </div>
 
           <div className="space-y-4">
-            <Label>Features</Label>
+            <Label>{t("subscriptions_admin.features")}</Label>
             {formData.features.map((feature, index) => (
               <div key={index} className="flex items-center gap-2">
                 <Input
                   value={feature}
                   onChange={(e) => handleFeatureChange(index, e.target.value)}
-                  placeholder={`Feature ${index + 1}`}
+                  placeholder={`${t("subscriptions_admin.feature_placeholder")} ${index + 1}`}
                   required
                 />
                 {formData.features.length > 1 && (
@@ -233,13 +233,13 @@ export function AddSubscriptionModal({
               onClick={addFeature}
               className="mt-2"
             >
-              <Plus className="h-4 w-4 mr-2" /> Add Feature
+              <Plus className="h-4 w-4 mr-2" /> {t("subscriptions_admin.add_feature")}
             </Button>
           </div>
 
           <div className="pt-4 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -249,12 +249,12 @@ export function AddSubscriptionModal({
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {plan ? "Updating..." : "Creating..."}
+                  {plan ? t("common.loading") : t("common.loading")}
                 </>
               ) : plan ? (
-                "Update Plan"
+                t("subscriptions_admin.edit_plan")
               ) : (
-                "Create Plan"
+                t("subscriptions_admin.create_plan")
               )}
             </Button>
           </div>

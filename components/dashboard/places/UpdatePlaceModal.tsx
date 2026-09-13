@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { PlaceFormContent } from "./PlaceFormContent";
 import { asId, asMediaUrls, buildPlaceRequestBody, normalizePlaceType } from "./place-payload";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface UpdatePlaceModalProps {
   placeId: string | null;
@@ -23,6 +24,7 @@ export function UpdatePlaceModal({
   open,
   onOpenChange,
 }: UpdatePlaceModalProps) {
+  const { t } = useLanguage();
   const { data: placeRes, isLoading: isLoadingPlace } = useGetPlaceDetailsQuery(
     placeId as string,
     { skip: !placeId },
@@ -100,10 +102,10 @@ export function UpdatePlaceModal({
       );
 
       await updatePlace({ id: placeId, data: payload }).unwrap();
-      toast.success("Place updated successfully!");
+      toast.success(t("places_admin.updated_successfully") || "Place updated successfully!");
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update place");
+      toast.error(error?.data?.message || t("places_admin.failed_update") || "Failed to update place");
       console.error("Failed to update place error detail:", error);
     }
   };
@@ -124,7 +126,7 @@ export function UpdatePlaceModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="text-2xl font-black uppercase tracking-tight">
-            Update Place
+            {t("places_admin.update_place") || "Update Place"}
           </h2>
           <button
             onClick={() => onOpenChange(false)}

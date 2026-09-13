@@ -36,9 +36,12 @@ import {
   Users,
 } from "lucide-react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 type PromoType = "upgrade" | "influencer" | "custom";
 
 export default function PromosPage() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,17 +132,17 @@ export default function PromosPage() {
     e.preventDefault();
 
     if (!selectedMapId) {
-      toast.error("Please select a target Map.");
+      toast.error(t("promos_admin.select_target_map"));
       return;
     }
 
     if (!label.trim()) {
-      toast.error("Please enter a campaign label.");
+      toast.error(t("promos_admin.enter_campaign_label"));
       return;
     }
 
     if (price < 0) {
-      toast.error("Price must be 0 or positive.");
+      toast.error(t("promos_admin.price_must_be_positive"));
       return;
     }
 
@@ -147,7 +150,7 @@ export default function PromosPage() {
 
     // Parse emails from text input — now required
     if (!emailsText.trim()) {
-      toast.error("Please enter at least one recipient email.");
+      toast.error(t("promos_admin.enter_recipient_email"));
       setIsGenerating(false);
       return;
     }
@@ -158,7 +161,7 @@ export default function PromosPage() {
       .filter((email) => email.length > 0 && email.includes("@"));
 
     if (emailsArray.length === 0) {
-      toast.error("No valid emails found. Please check the format.");
+      toast.error(t("promos_admin.no_valid_emails"));
       setIsGenerating(false);
       return;
     }

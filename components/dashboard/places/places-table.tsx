@@ -290,9 +290,9 @@ export function PlacesTable() {
                           setIsReviewModalOpen(true);
                         }}
                         className="text-yellow-500 hover:text-yellow-700 transition-colors flex items-center gap-2 border rounded-full px-2"
-                        aria-label="Add review"
+                        aria-label={t("place.reviews")}
                       >
-                        Review
+                        {t("place.reviews")}
                         <MessageSquare size={18} />
                       </button>
 
@@ -318,7 +318,7 @@ export function PlacesTable() {
       {!isLoading && meta && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white mt-auto">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Rows per page:</span>
+            <span className="text-sm text-gray-600">{t("dashboard.table.rows_per_page")}</span>
             <select
               value={limit}
               onChange={(e) => {

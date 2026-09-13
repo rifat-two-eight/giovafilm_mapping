@@ -11,6 +11,7 @@ import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
 import { Loader2, ArrowLeft, RefreshCw, Search, MapPin, Store, Map, Ticket, X } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type ReportEntityType = "place" | "business" | "map" | "offer";
 
@@ -32,6 +33,7 @@ const ENTITY_META: Record<
 };
 
 export default function ReportsPage() {
+  const { t } = useLanguage();
   const [timeFilter, setTimeFilter] = useState("");
   const [country, setCountry] = useState("");
   const [category, setCategory] = useState("");
@@ -348,10 +350,10 @@ export default function ReportsPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            Reports & Insights
+            {t("reports_admin.title") || "Reports & Insights"}
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Real-time business performance and platform usage statistics.
+            {t("reports_admin.subtitle") || "Real-time business performance and platform usage statistics."}
           </p>
         </div>
         <button
@@ -360,7 +362,7 @@ export default function ReportsPage() {
           className="self-start md:self-auto flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
         >
           <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-          Refresh
+          {t("common.refresh") || "Refresh"}
         </button>
       </div>
 
@@ -385,7 +387,7 @@ export default function ReportsPage() {
                       type="button"
                       onClick={handleClearEntity}
                       className="ml-auto rounded p-0.5 text-amber-800 hover:bg-amber-100"
-                      aria-label="Clear selected"
+                      aria-label={t("common.clear") || "Clear selected"}
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -406,7 +408,7 @@ export default function ReportsPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Escape") setShowSuggestions(false);
                 }}
-                placeholder="Search place or business..."
+                placeholder={t("reports_admin.search_placeholder") || "Search place or business..."}
                 className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-xs font-semibold text-gray-700 outline-none transition focus:ring-2 focus:ring-blue-400/40"
               />
             </>
@@ -417,11 +419,11 @@ export default function ReportsPage() {
               {isSuggestionPending ? (
                 <div className="flex items-center justify-center gap-2 p-4 text-sm text-gray-500">
                   <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
-                  Searching...
+                  {t("common.loading") || "Searching..."}
                 </div>
               ) : groupedSuggestions.length === 0 ? (
                 <p className="p-4 text-sm text-gray-500">
-                  No place or business found.
+                  {t("reports_admin.no_results") || "No place or business found."}
                 </p>
               ) : (
                 <div className="max-h-72 overflow-y-auto py-1">
@@ -467,11 +469,11 @@ export default function ReportsPage() {
           onChange={(e) => setTimeFilter(e.target.value)}
           className="h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/40 text-xs font-semibold bg-white min-w-[140px] text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
         >
-          <option value="">All Time</option>
-          <option value="today">Today</option>
-          <option value="this_week">This Week</option>
-          <option value="this_month">This Month</option>
-          <option value="last_month">Last Month</option>
+          <option value="">{t("reports_admin.all_time")}</option>
+          <option value="today">{t("reports_admin.today")}</option>
+          <option value="this_week">{t("reports_admin.this_week")}</option>
+          <option value="this_month">{t("reports_admin.this_month")}</option>
+          <option value="last_month">{t("reports_admin.last_month")}</option>
         </select>
 
         {/* Country Filter Dropdown */}
@@ -480,7 +482,7 @@ export default function ReportsPage() {
           onChange={(e) => setCountry(e.target.value)}
           className="h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/40 text-xs font-semibold bg-white min-w-[140px] text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
         >
-          <option value="">All Countries</option>
+          <option value="">{t("filters.all_countries")}</option>
           {countriesResponse?.map((c: string) => (
             <option key={c} value={c}>
               {c}
@@ -494,7 +496,7 @@ export default function ReportsPage() {
           onChange={(e) => setCategory(e.target.value)}
           className="h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400/40 text-xs font-semibold bg-white min-w-[140px] text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
         >
-          <option value="">All Categories</option>
+          <option value="">{t("filters.all_categories")}</option>
           {categoriesResponse?.data?.map((cat: any) => (
             <option key={cat._id} value={cat._id}>
               {cat.name}
@@ -508,7 +510,7 @@ export default function ReportsPage() {
             onClick={handleResetFilters}
             className="text-xs text-red-500 hover:text-red-600 font-bold transition-all px-3 py-2 hover:bg-red-50 rounded-lg cursor-pointer"
           >
-            Clear Filters
+            {t("business_admin.clear_filters")}
           </button>
         )}
       </div>

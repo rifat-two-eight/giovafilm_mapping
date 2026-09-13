@@ -25,10 +25,10 @@ export function NotificationSettings() {
       };
 
       await updateProfile({ settings: updatedSettings }).unwrap();
-      toast.success("Notification settings updated successfully");
+      toast.success(t("settings_admin.notifications_updated") || "Notification settings updated successfully");
     } catch (error: any) {
       toast.error(
-        error?.data?.message || error?.message || "Failed to update settings"
+        error?.data?.message || error?.message || t("settings_admin.failed_update_settings") || "Failed to update settings"
       );
       console.error("Failed to update notification settings:", error);
     }

@@ -202,7 +202,7 @@ export function BusinessTable() {
       {selected.length > 0 && (
         <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200 animate-in slide-in-from-top-2">
           <p className="text-sm font-medium text-gray-700">
-            {selected.length} businesses selected
+            {selected.length} {t("business_admin.businesses_selected")}
           </p>
           <div className="flex gap-2">
             <button

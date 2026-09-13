@@ -93,6 +93,8 @@ const TABS = [
   { label: "Services", icon: Grid },
 ];
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export const PlaceFormContent = ({
   categories,
   onSave,
@@ -102,6 +104,7 @@ export const PlaceFormContent = ({
   onDelete,
   initialData,
 }: PlaceFormContentProps) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
@@ -478,12 +481,12 @@ export const PlaceFormContent = ({
     categories.find((c: any) => c._id === formData.category)?.name?.toLowerCase() === "restaurant";
 
   const dynamicTabs = [
-    { label: "Basic Info", icon: FileText, id: 0 },
-    { label: "Access", icon: Compass, id: 1 },
-    ...(isBusinessOrRestaurant ? [{ label: "Menu & Prices", icon: Utensils, id: 2 }] : []),
-    { label: "Accessibility", icon: Accessibility, id: 3 },
-    { label: "Recommendations", icon: Heart, id: 4 },
-    { label: "Services", icon: Grid, id: 5 },
+    { label: t("places_admin.tabs.basic_info") || "Basic Info", icon: FileText, id: 0 },
+    { label: t("places_admin.tabs.access") || "Access", icon: Compass, id: 1 },
+    ...(isBusinessOrRestaurant ? [{ label: t("place.menu_and_prices") || "Menu & Prices", icon: Utensils, id: 2 }] : []),
+    { label: t("place.accessibility_features") || "Accessibility", icon: Accessibility, id: 3 },
+    { label: t("place.tips") || "Recommendations", icon: Heart, id: 4 },
+    { label: t("place.services_available") || "Services", icon: Grid, id: 5 },
   ];
 
   const currentTabIdx = dynamicTabs.findIndex((t) => t.id === activeTab);
@@ -641,9 +644,9 @@ export const PlaceFormContent = ({
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Place Name <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-medium">{t("places_admin.place_name")} <span className="text-red-500">*</span></Label>
                 <Input
-                  placeholder="e.g., Golden Gate Park"
+                  placeholder={t("places_admin.place_name_placeholder")}
                   value={formData.name}
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value });
@@ -655,9 +658,9 @@ export const PlaceFormContent = ({
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Category <span className="text-red-500">*</span>
+                  {t("business_admin.category")} <span className="text-red-500">*</span>
                   {formData.type === "Business" && (
-                    <span className="ml-2 text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Business</span>
+                    <span className="ml-2 text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">{t("places_admin.business_user")}</span>
                   )}
                 </Label>
                 <Select
@@ -684,7 +687,7 @@ export const PlaceFormContent = ({
                           }
                         />
                       )}
-                      <SelectValue placeholder={formData.type === "Business" ? "Choose a business category" : "Choose a category"} />
+                      <SelectValue placeholder={formData.type === "Business" ? t("places_admin.choose_business_category") : t("places_admin.choose_category")} />
                     </div>
                   </SelectTrigger>
                   <SelectContent position="popper" style={{ zIndex: 99999 }}>
@@ -705,7 +708,7 @@ export const PlaceFormContent = ({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Location Type <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-medium">{t("places_admin.location_type")} <span className="text-red-500">*</span></Label>
                 <Select
                   value={formData.type}
                   onValueChange={(val) => {
@@ -717,11 +720,11 @@ export const PlaceFormContent = ({
                   }}
                 >
                   <SelectTrigger className={`w-full h-10 bg-white rounded-lg text-sm italic ${errors.type ? "border-red-500 focus:ring-red-500" : "border-gray-200"}`}>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t("places_admin.select_type")} />
                   </SelectTrigger>
                   <SelectContent position="popper" style={{ zIndex: 99999 }}>
-                    <SelectItem value="Regular">Regular Location</SelectItem>
-                    <SelectItem value="Business">Business</SelectItem>
+                    <SelectItem value="Regular">{t("places_admin.regular_location")}</SelectItem>
+                    <SelectItem value="Business">{t("places_admin.business_user")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.type && <p className="text-[11px] text-red-500 font-semibold">{errors.type}</p>}
@@ -732,27 +735,27 @@ export const PlaceFormContent = ({
             {formData.type === "Business" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-100 p-4 rounded-xl bg-gray-50/30">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Phone Number</Label>
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("places_admin.phone_number")}</Label>
                   <Input
-                    placeholder="e.g. +1 787-123-4567"
+                    placeholder="+1 (555) 000-0000"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="bg-white border-gray-200 text-xs h-9"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Website URL</Label>
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("places_admin.website_url")}</Label>
                   <Input
-                    placeholder="e.g. https://mybusiness.com"
+                    placeholder="https://example.com"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                     className="bg-white border-gray-200 text-xs h-9"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Instagram username</Label>
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("places_admin.instagram_username")}</Label>
                   <Input
-                    placeholder="e.g. my_business"
+                    placeholder="@username"
                     value={formData.instagram}
                     onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                     className="bg-white border-gray-200 text-xs h-9"
@@ -765,8 +768,8 @@ export const PlaceFormContent = ({
             {formData.type === "Business" && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Label className="text-sm font-medium">Operating Hours</Label>
-                  <span className="text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Business</span>
+                  <Label className="text-sm font-medium">{t("places_admin.operating_hours")}</Label>
+                  <span className="text-[10px] bg-blue-50 text-blue-600 font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">{t("places_admin.business_user")}</span>
                 </div>
                 <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
                   {Object.entries(formData.operatingHours).map(([day, hours]) => (
@@ -781,7 +784,7 @@ export const PlaceFormContent = ({
                           onChange={(e) => updateOperatingHours(day, { closed: e.target.checked })}
                           className="w-3.5 h-3.5 accent-red-500 cursor-pointer"
                         />
-                        <span className="text-[11px] text-gray-500 select-none">Closed</span>
+                        <span className="text-[11px] text-gray-500 select-none">{t("place.closed")}</span>
                       </label>
                       {!hours.closed ? (
                         <div className="flex items-center gap-2 flex-1">
@@ -800,7 +803,7 @@ export const PlaceFormContent = ({
                           />
                         </div>
                       ) : (
-                        <span className="text-[11px] text-red-400 font-semibold italic flex-1">Closed all day</span>
+                        <span className="text-[11px] text-red-400 font-semibold italic flex-1">{t("places_admin.closed_all_day")}</span>
                       )}
                     </div>
                   ))}
@@ -809,9 +812,9 @@ export const PlaceFormContent = ({
             )}
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Short Description <span className="text-red-500">*</span></Label>
+              <Label className="text-sm font-medium">{t("places_admin.short_description")} <span className="text-red-500">*</span></Label>
               <Textarea
-                placeholder="Brief description of this place..."
+                placeholder={t("places_admin.short_desc_placeholder")}
                 value={formData.description}
                 onChange={(e) => {
                   setFormData({ ...formData, description: e.target.value });
@@ -823,7 +826,7 @@ export const PlaceFormContent = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Media <span className="text-red-500">*</span></Label>
+              <Label className="text-sm font-medium">{t("for_business.steps.media")} <span className="text-red-500">*</span></Label>
               <div
                 onClick={() => {
                   if (!isOptimizingMedia && !isSaving) fileInputRef.current?.click();
@@ -1498,7 +1501,7 @@ export const PlaceFormContent = ({
             disabled={isSaving}
             className="px-5 h-10 bg-red-500 hover:bg-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
           >
-            Cancel
+            {t("common.cancel") || "Cancel"}
           </Button>
           {!initialData?.isNew && onDelete && (
             <Button
@@ -1508,7 +1511,7 @@ export const PlaceFormContent = ({
               disabled={isSaving}
               className="px-5 h-10 border-red-200 text-red-500 hover:bg-red-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-50"
             >
-              Delete
+              {t("common.delete") || "Delete"}
             </Button>
           )}
         </div>
@@ -1522,7 +1525,7 @@ export const PlaceFormContent = ({
               onClick={() => setActiveTab(dynamicTabs[currentTabIdx - 1].id)}
               className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
-              <ArrowLeft size={14} /> Back
+              <ArrowLeft size={14} /> {t("common.previous") || "Back"}
             </Button>
           )}
 
@@ -1535,8 +1538,8 @@ export const PlaceFormContent = ({
             >
               {isSaving && <Loader2 size={14} className="animate-spin" />}
               {isSaving
-                ? (mediaFiles.some(f => isVideoFile(f)) ? "Uploading Video..." : "Uploading...")
-                : (initialData?.isNew === false ? "Save Changes" : "Save & Publish")}
+                ? (mediaFiles.some(f => isVideoFile(f)) ? (t("common.uploading") || "Uploading Video...") : (t("common.uploading") || "Uploading..."))
+                : (initialData?.isNew === false ? (t("common.save_changes") || "Save Changes") : (t("common.save_and_publish") || "Save & Publish"))}
             </Button>
           )}
 
@@ -1563,7 +1566,7 @@ export const PlaceFormContent = ({
               }}
               className="px-5 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-1.5"
             >
-              Next <ArrowRight size={14} />
+              {t("common.next") || "Next"} <ArrowRight size={14} />
             </Button>
           )}
         </div>

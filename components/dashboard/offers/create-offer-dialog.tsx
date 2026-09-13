@@ -200,7 +200,7 @@ export function CreateOfferDialog({
   const handleIncomingFile = (file?: File) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file (PNG, JPG, etc.).");
+      toast.error(t("offers_admin.select_valid_image"));
       return;
     }
     setPhotoFile(file);
@@ -362,9 +362,9 @@ export function CreateOfferDialog({
                 <>
                   <Upload className="mx-auto mb-2 text-gray-400" size={32} />
                   <p className="text-sm text-gray-600">
-                    Click to upload or drag and drop
+                    {t("offers_admin.upload_hint")}
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                  <p className="text-xs text-gray-500">{t("offers_admin.upload_format")}</p>
                 </>
               )}
 
@@ -385,13 +385,13 @@ export function CreateOfferDialog({
               htmlFor="title"
               className="text-sm font-medium text-gray-700"
             >
-              Offer Title
+              {t("offers_admin.offer_title")}
             </Label>
             <Input
               id="title"
-              placeholder="e.g., 20% off Coffee"
+              placeholder={t("offers_admin.title_placeholder")}
               className="mt-1"
-              {...register("title", { required: "Title is required" })}
+              {...register("title", { required: t("offers_admin.title") + " is required" })}
             />
           </div>
 
@@ -399,7 +399,7 @@ export function CreateOfferDialog({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium text-gray-700">
-                Choose location
+                {t("offers_admin.choose_location")}
               </Label>
             </div>
 
@@ -407,7 +407,7 @@ export function CreateOfferDialog({
             <input
               type="hidden"
               {...register("business", {
-                required: "Please select a location",
+                required: t("offers_admin.choose_location"),
               })}
             />
 
@@ -421,7 +421,7 @@ export function CreateOfferDialog({
                 <span
                   className={selectedEntity ? "text-gray-900" : "text-gray-400"}
                 >
-                  {selectedEntity ? selectedEntity.name : "Search by name..."}
+                  {selectedEntity ? selectedEntity.name : t("offers_admin.search_by_name")}
                 </span>
                 <ChevronDown
                   size={16}
@@ -439,7 +439,7 @@ export function CreateOfferDialog({
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Type a name to search..."
+                      placeholder={t("offers_admin.type_name_to_search")}
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -456,13 +456,13 @@ export function CreateOfferDialog({
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-gray-50"
                       >
-                        Clear selection
+                        {t("offers_admin.clear_selection")}
                       </button>
                     </li>
 
                     {filteredOptions.length === 0 ? (
                       <li className="px-3 py-3 text-sm text-gray-400 text-center">
-                        No locations found.
+                        {t("offers_admin.no_locations")}
                       </li>
                     ) : (
                       filteredOptions.map((item: any) => (
@@ -555,18 +555,18 @@ export function CreateOfferDialog({
                   else if (val === "once") setValue("redemptionDuration", "525600");
                 }}
               >
-                <option value="daily">Daily (Once per 24 hours)</option>
-                <option value="weekly">Weekly (Once per 7 days)</option>
-                <option value="monthly">Monthly (Once per 30 days)</option>
-                <option value="once">One-Time Only (Once per user)</option>
-                <option value="custom">Custom Duration (Minutes)</option>
+                <option value="daily">{t("offers_admin.freq_daily")}</option>
+                <option value="weekly">{t("offers_admin.freq_weekly")}</option>
+                <option value="monthly">{t("offers_admin.freq_monthly")}</option>
+                <option value="once">{t("offers_admin.freq_once")}</option>
+                <option value="custom">{t("offers_admin.freq_custom")}</option>
               </select>
               <div className="mt-1.5">
                 <Input
                   id="redemptionDuration"
                   type="number"
                   min={0}
-                  placeholder="Duration in minutes (e.g., 60)"
+                  placeholder={t("offers_admin.duration_placeholder")}
                   className="text-xs"
                   {...register("redemptionDuration", {
                     required: "Duration is required",
@@ -581,19 +581,18 @@ export function CreateOfferDialog({
               htmlFor="totalRedemptionLimit"
               className="text-sm font-medium text-gray-700"
             >
-              Total Redemption Limit (optional)
+              {t("offers_admin.total_redemption_limit")}
             </Label>
             <Input
               id="totalRedemptionLimit"
               type="number"
               min={0}
-              placeholder="Leave empty for unlimited"
+              placeholder={t("offers_admin.leave_empty_unlimited")}
               className="mt-1"
               {...register("totalRedemptionLimit")}
             />
             <p className="mt-1 text-xs text-gray-500">
-              Stops the offer once every customer together reaches this many
-              redemptions
+              {t("offers_admin.total_limit_hint")}
             </p>
           </div>
 
@@ -604,7 +603,7 @@ export function CreateOfferDialog({
                 htmlFor="discountType"
                 className="text-sm font-medium text-gray-700"
               >
-                Discount Type
+                {t("offers_admin.discount_type")}
               </Label>
               <select
                 id="discountType"
@@ -618,11 +617,11 @@ export function CreateOfferDialog({
                   }
                 }}
               >
-                <option value="">Select discount type</option>
-                <option value="Percentage">Percentage</option>
-                <option value="Flat">Flat Amount</option>
-                <option value="BOGO">Buy One Get One (BOGO)</option>
-                <option value="Free item">Free Item</option>
+                <option value="">{t("offers_admin.select_discount_type")}</option>
+                <option value="Percentage">{t("offers_admin.percentage")}</option>
+                <option value="Flat">{t("offers_admin.flat_amount")}</option>
+                <option value="BOGO">{t("offers_admin.bogo")}</option>
+                <option value="Free item">{t("offers_admin.free_item")}</option>
               </select>
             </div>
 
@@ -632,7 +631,7 @@ export function CreateOfferDialog({
                   htmlFor="discountValue"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Discount Value
+                  {t("offers_admin.discount_value")}
                 </Label>
                 <Input
                   id="discountValue"
@@ -659,7 +658,7 @@ export function CreateOfferDialog({
                   htmlFor="bogoSecondType"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Second item
+                  {t("offers_admin.second_item")}
                 </Label>
                 <select
                   id="bogoSecondType"
@@ -667,16 +666,16 @@ export function CreateOfferDialog({
                   {...register("bogoSecondType", {
                     required:
                       discountType === "BOGO"
-                        ? "Choose whether the second item is free or has a % discount"
+                        ? t("offers_admin.second_item_discount")
                         : false,
                   })}
                 >
-                  <option value="">Choose how the second item is discounted</option>
-                  <option value="free">Second item is free</option>
-                  <option value="percentage">Second item has a % discount</option>
+                  <option value="">{t("offers_admin.second_item_discount")}</option>
+                  <option value="free">{t("offers_admin.second_item_free")}</option>
+                  <option value="percentage">{t("offers_admin.second_item_pct")}</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Customers will see this clearly, e.g. “Buy 1 Get 1 Free” or “Buy 1 Get 1 · 50% off 2nd”.
+                  {t("offers_admin.bogo_hint")}
                 </p>
               </div>
               {bogoSecondType === "percentage" && (

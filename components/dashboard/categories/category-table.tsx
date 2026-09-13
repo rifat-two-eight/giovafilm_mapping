@@ -73,7 +73,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
     t("categories_admin.category_name"),
     t("categories_admin.color"),
     t("offers_admin.status"),
-    "Actions",
+    t("dashboard.table.actions"),
   ];
 
   return (

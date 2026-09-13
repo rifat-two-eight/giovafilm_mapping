@@ -633,7 +633,7 @@ export function AddCategoryDialog({
               {t("categories_admin.category_name")}
             </Label>
             <Input
-              placeholder="e.g., Parks & Nature"
+              placeholder={t("categories_admin.category_name_placeholder")}
               className="mt-1 disabled:opacity-80 disabled:cursor-not-allowed"
               disabled={isView}
               {...register("categoryName", { required: true })}
@@ -676,7 +676,7 @@ export function AddCategoryDialog({
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  🔍 Browse Icons
+                  🔍 {t("categories_admin.browse_icons")}
                 </button>
                 <button
                   type="button"
@@ -687,7 +687,7 @@ export function AddCategoryDialog({
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  📁 Upload Custom
+                  📁 {t("categories_admin.upload_custom")}
                 </button>
               </div>
             )}
@@ -728,21 +728,21 @@ export function AddCategoryDialog({
                       className="text-sm border-gray-300 text-gray-600"
                       onClick={() => setShowMoreIcons((prev) => !prev)}
                     >
-                      {showMoreIcons ? "Menos iconos ▲" : "Más iconos ▼"}
+                      {showMoreIcons ? t("categories_admin.less_icons") : t("categories_admin.more_icons")}
                     </Button>
 
                     {showMoreIcons && (
                       <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
                         <Input
                           autoFocus
-                          placeholder="Search icons... (e.g. tree, hospital, flag)"
+                          placeholder={t("categories_admin.search_icons_placeholder")}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="text-sm bg-white"
                         />
                         {isSearching && (
                           <p className="text-xs text-gray-400 text-center py-2">
-                            Searching...
+                            {t("categories_admin.searching")}
                           </p>
                         )}
                         {!isSearching && searchResults.length > 0 && (
@@ -756,12 +756,12 @@ export function AddCategoryDialog({
                           searchQuery &&
                           searchResults.length === 0 && (
                             <p className="text-xs text-gray-400 text-center py-2">
-                              No icons found
+                              {t("categories_admin.no_icons_found")}
                             </p>
                           )}
                         {!searchQuery && (
                           <p className="text-xs text-gray-400 text-center py-1">
-                            Type to search from 200,000+ icons
+                            {t("categories_admin.type_to_search_icons")}
                           </p>
                         )}
                       </div>
@@ -790,10 +790,10 @@ export function AddCategoryDialog({
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-medium text-gray-700 group-hover:text-purple-700">
-                        Click to upload custom icon
+                        {t("categories_admin.click_to_upload_icon")}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        SVG, PNG, JPG, WEBP, GIF — max {MAX_FILE_SIZE_MB}MB
+                        {t("categories_admin.custom_icon_format_hint")}
                       </p>
                     </div>
                   </div>
@@ -818,7 +818,7 @@ export function AddCategoryDialog({
                       </p>
                       <p className="text-xs text-green-600 mt-0.5 flex items-center gap-1">
                         <Icon icon="mdi:check-circle" width={12} />
-                        Custom icon ready
+                        {t("categories_admin.custom_icon_ready")}
                       </p>
                     </div>
 
@@ -830,7 +830,7 @@ export function AddCategoryDialog({
                         className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition-all flex items-center gap-1"
                       >
                         <Icon icon="mdi:pencil" width={12} />
-                        Replace
+                        {t("categories_admin.replace")}
                       </button>
                       {/* Remove button */}
                       <button
@@ -839,7 +839,7 @@ export function AddCategoryDialog({
                         className="text-xs px-2 py-1 rounded-md border border-red-200 text-red-500 hover:bg-red-50 transition-all flex items-center gap-1"
                       >
                         <Icon icon="mdi:trash-can-outline" width={12} />
-                        Remove
+                        {t("categories_admin.remove")}
                       </button>
                     </div>
                   </div>
@@ -886,7 +886,7 @@ export function AddCategoryDialog({
               {renderIconPreview(18)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500">Selected icon</p>
+              <p className="text-xs text-gray-500">{t("categories_admin.selected_icon")}</p>
               <p className="text-xs font-mono text-gray-700 truncate">
                 {iconType === "custom"
                   ? customIconName || "custom-icon"
@@ -900,7 +900,7 @@ export function AddCategoryDialog({
                   : "bg-gray-200 text-gray-600"
               }`}
             >
-              {iconType === "custom" ? "Custom" : "Iconify"}
+              {iconType === "custom" ? t("categories_admin.custom") : "Iconify"}
             </span>
           </div>
 
@@ -912,7 +912,7 @@ export function AddCategoryDialog({
               onClick={() => onOpenChange(false)}
               className="border-gray-300"
             >
-              {isView ? "Close" : "Cancel"}
+              {isView ? t("common.close") : t("common.cancel")}
             </Button>
             {!isView && (
               <Button
@@ -921,10 +921,10 @@ export function AddCategoryDialog({
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 {isLoading
-                  ? "Saving..."
+                  ? t("common.loading")
                   : isEditing
-                    ? "Update Category"
-                    : "Add Category"}
+                    ? t("categories_admin.update_category")
+                    : t("categories_admin.add_category")}
               </Button>
             )}
           </div>

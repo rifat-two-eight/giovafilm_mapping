@@ -19,8 +19,10 @@ import { appAlert } from "@/lib/app-alert";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function BusinessDetailPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { id } = useParams();
 
@@ -129,7 +131,7 @@ export default function BusinessDetailPage() {
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-all font-medium"
         >
           <ArrowLeft size={16} />
-          Back to Businesses
+          {t("business_details.back_to_list")}
         </Link>
 
         <div className="flex items-center gap-3">
@@ -150,7 +152,7 @@ export default function BusinessDetailPage() {
               onClick={() => handleStatusUpdate("Rejected")}
               className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 font-semibold text-sm disabled:opacity-50"
             >
-              Reject
+              {t("business_admin.reject")}
             </button>
           )}
           {business.status !== "Approved" && (
@@ -159,13 +161,13 @@ export default function BusinessDetailPage() {
               onClick={() => handleStatusUpdate("Approved")}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm disabled:opacity-50"
             >
-              Approve & Publish
+              {t("business_admin.approve")}
             </button>
           )}
           <button
             onClick={handleDelete}
             className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100"
-            title="Delete business"
+            title={t("business_admin.delete_business")}
           >
             <Trash2 size={20} />
           </button>
@@ -190,7 +192,7 @@ export default function BusinessDetailPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-8 shadow-sm">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-bold text-gray-900">
-                Photos & Media Gallery
+                {t("business_details.photo_gallery")}
               </h2>
             </div>
 
@@ -217,7 +219,7 @@ export default function BusinessDetailPage() {
                 ))
               ) : (
                 <div className="col-span-full py-12 text-center text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                  No photos available.
+                  {t("business_details.no_photos")}
                 </div>
               )}
             </div>

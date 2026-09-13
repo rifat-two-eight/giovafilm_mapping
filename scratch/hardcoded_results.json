@@ -1,0 +1,1222 @@
+[
+  {
+    "file": "app\\(dashboard)\\dashboard\\business\\[id]\\page.tsx",
+    "issues": [
+      {
+        "lineNum": 64,
+        "type": "Toast Error/Msg",
+        "text": "Business deleted successfully!"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\promos\\page.tsx",
+    "issues": [
+      {
+        "lineNum": 132,
+        "type": "Toast Error/Msg",
+        "text": "Please select a target Map."
+      },
+      {
+        "lineNum": 137,
+        "type": "Toast Error/Msg",
+        "text": "Please enter a campaign label."
+      },
+      {
+        "lineNum": 142,
+        "type": "Toast Error/Msg",
+        "text": "Price must be 0 or positive."
+      },
+      {
+        "lineNum": 150,
+        "type": "Toast Error/Msg",
+        "text": "Please enter at least one recipient email."
+      },
+      {
+        "lineNum": 161,
+        "type": "Toast Error/Msg",
+        "text": "No valid emails found. Please check the format."
+      },
+      {
+        "lineNum": 203,
+        "type": "Toast Error/Msg",
+        "text": "Links generated, but automatic email invitations failed to queue."
+      },
+      {
+        "lineNum": 254,
+        "type": "Toast Error/Msg",
+        "text": "Promo Claim Link copied to clipboard!"
+      },
+      {
+        "lineNum": 256,
+        "type": "Toast Error/Msg",
+        "text": "Copy failed — please copy manually:"
+      },
+      {
+        "lineNum": 264,
+        "type": "Toast Error/Msg",
+        "text": "Promo Code copied!"
+      },
+      {
+        "lineNum": 266,
+        "type": "Toast Error/Msg",
+        "text": "Copy failed — code:"
+      },
+      {
+        "lineNum": 274,
+        "type": "Toast Error/Msg",
+        "text": "Invitation email sent successfully!"
+      },
+      {
+        "lineNum": 307,
+        "type": "Toast Error/Msg",
+        "text": "Promo invitation link deleted successfully!"
+      },
+      {
+        "lineNum": 325,
+        "type": "Toast Error/Msg",
+        "text": "No pending links with unsent recipient emails found."
+      },
+      {
+        "lineNum": 358,
+        "type": "Toast Error/Msg",
+        "text": "No links available to export."
+      },
+      {
+        "lineNum": 427,
+        "type": "Toast Error/Msg",
+        "text": "Promo links exported to CSV successfully!"
+      },
+      {
+        "lineNum": 469,
+        "type": "JSX Text",
+        "text": "Total Generated"
+      },
+      {
+        "lineNum": 471,
+        "type": "JSX Text",
+        "text": "invitation codes in system"
+      },
+      {
+        "lineNum": 481,
+        "type": "JSX Text",
+        "text": "Customer Upgrades"
+      },
+      {
+        "lineNum": 483,
+        "type": "JSX Text",
+        "text": "upgrade links generated"
+      },
+      {
+        "lineNum": 493,
+        "type": "JSX Text",
+        "text": "Influencer Invites"
+      },
+      {
+        "lineNum": 495,
+        "type": "JSX Text",
+        "text": "free guest passes in system"
+      },
+      {
+        "lineNum": 525,
+        "type": "JSX Text",
+        "text": "Link Type Tabs"
+      },
+      {
+        "lineNum": 533,
+        "type": "JSX Text",
+        "text": "Generate Links"
+      },
+      {
+        "lineNum": 541,
+        "type": "JSX Text",
+        "text": "Send Pending Invites"
+      },
+      {
+        "lineNum": 622,
+        "type": "Placeholder",
+        "text": "e.g. 5.00"
+      },
+      {
+        "lineNum": 642,
+        "type": "Placeholder",
+        "text": "e.g. Sarah VLOG Campaign, Batch 1 Upgrades"
+      },
+      {
+        "lineNum": 744,
+        "type": "JSX Text",
+        "text": "Track Invitations"
+      },
+      {
+        "lineNum": 797,
+        "type": "Placeholder",
+        "text": "Search code, email, label..."
+      },
+      {
+        "lineNum": 816,
+        "type": "JSX Text",
+        "text": "All invitation types"
+      },
+      {
+        "lineNum": 819,
+        "type": "JSX Text",
+        "text": "Custom Offer"
+      },
+      {
+        "lineNum": 831,
+        "type": "JSX Text",
+        "text": "All statuses"
+      },
+      {
+        "lineNum": 832,
+        "type": "JSX Text",
+        "text": "Active / Unused"
+      },
+      {
+        "lineNum": 833,
+        "type": "JSX Text",
+        "text": "Used / Claimed"
+      },
+      {
+        "lineNum": 842,
+        "type": "JSX Text",
+        "text": "Link / Code"
+      },
+      {
+        "lineNum": 843,
+        "type": "JSX Text",
+        "text": "Type"
+      },
+      {
+        "lineNum": 844,
+        "type": "JSX Text",
+        "text": "Target Map"
+      },
+      {
+        "lineNum": 845,
+        "type": "JSX Text",
+        "text": "Price"
+      },
+      {
+        "lineNum": 846,
+        "type": "JSX Text",
+        "text": "Label"
+      },
+      {
+        "lineNum": 848,
+        "type": "JSX Text",
+        "text": "Status"
+      },
+      {
+        "lineNum": 849,
+        "type": "JSX Text",
+        "text": "Invite"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\reports\\page.tsx",
+    "issues": [
+      {
+        "lineNum": 213,
+        "type": "JSX Text",
+        "text": "Total Sales"
+      },
+      {
+        "lineNum": 217,
+        "type": "JSX Text",
+        "text": "Taxes Collected"
+      },
+      {
+        "lineNum": 221,
+        "type": "JSX Text",
+        "text": "Net Revenue"
+      },
+      {
+        "lineNum": 229,
+        "type": "JSX Text",
+        "text": "Month"
+      },
+      {
+        "lineNum": 230,
+        "type": "JSX Text",
+        "text": "Total Sales"
+      },
+      {
+        "lineNum": 231,
+        "type": "JSX Text",
+        "text": "Taxes"
+      },
+      {
+        "lineNum": 232,
+        "type": "JSX Text",
+        "text": "Net Revenue"
+      },
+      {
+        "lineNum": 243,
+        "type": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 249,
+        "type": "JSX Text",
+        "text": "Platform Usage Statistics"
+      },
+      {
+        "lineNum": 252,
+        "type": "JSX Text",
+        "text": "Most Viewed Maps"
+      },
+      {
+        "lineNum": 256,
+        "type": "JSX Text",
+        "text": "Map Name"
+      },
+      {
+        "lineNum": 257,
+        "type": "JSX Text",
+        "text": "Views"
+      },
+      {
+        "lineNum": 266,
+        "type": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 272,
+        "type": "JSX Text",
+        "text": "Most Opened Places"
+      },
+      {
+        "lineNum": 276,
+        "type": "JSX Text",
+        "text": "Place Name"
+      },
+      {
+        "lineNum": 277,
+        "type": "JSX Text",
+        "text": "Opens"
+      },
+      {
+        "lineNum": 286,
+        "type": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 292,
+        "type": "JSX Text",
+        "text": "Most Redeemed Offers"
+      },
+      {
+        "lineNum": 296,
+        "type": "JSX Text",
+        "text": "Offer Title"
+      },
+      {
+        "lineNum": 297,
+        "type": "JSX Text",
+        "text": "Redemptions"
+      },
+      {
+        "lineNum": 306,
+        "type": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 338,
+        "type": "JSX Text",
+        "text": "Failed to load reports data."
+      },
+      {
+        "lineNum": 409,
+        "type": "Placeholder",
+        "text": "Search place or business..."
+      },
+      {
+        "lineNum": 470,
+        "type": "JSX Text",
+        "text": "All Time"
+      },
+      {
+        "lineNum": 471,
+        "type": "JSX Text",
+        "text": "Today"
+      },
+      {
+        "lineNum": 472,
+        "type": "JSX Text",
+        "text": "This Week"
+      },
+      {
+        "lineNum": 473,
+        "type": "JSX Text",
+        "text": "This Month"
+      },
+      {
+        "lineNum": 474,
+        "type": "JSX Text",
+        "text": "Last Month"
+      },
+      {
+        "lineNum": 483,
+        "type": "JSX Text",
+        "text": "All Countries"
+      },
+      {
+        "lineNum": 497,
+        "type": "JSX Text",
+        "text": "All Categories"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\rewards\\page.tsx",
+    "issues": [
+      {
+        "lineNum": 150,
+        "type": "Toast Error/Msg",
+        "text": "Reward configuration created successfully!"
+      },
+      {
+        "lineNum": 154,
+        "type": "Toast Error/Msg",
+        "text": "Reward configuration updated successfully!"
+      },
+      {
+        "lineNum": 298,
+        "type": "JSX Text",
+        "text": "Reward Type"
+      },
+      {
+        "lineNum": 305,
+        "type": "JSX Text",
+        "text": "PDF Itinerary"
+      },
+      {
+        "lineNum": 306,
+        "type": "JSX Text",
+        "text": "Free Map"
+      },
+      {
+        "lineNum": 307,
+        "type": "JSX Text",
+        "text": "Gourmet Guide"
+      },
+      {
+        "lineNum": 308,
+        "type": "JSX Text",
+        "text": "Top Reviewer"
+      },
+      {
+        "lineNum": 309,
+        "type": "JSX Text",
+        "text": "Trail Master"
+      },
+      {
+        "lineNum": 310,
+        "type": "JSX Text",
+        "text": "History Buff"
+      },
+      {
+        "lineNum": 311,
+        "type": "JSX Text",
+        "text": "Legendary Explorer"
+      },
+      {
+        "lineNum": 312,
+        "type": "JSX Text",
+        "text": "Exclusive Discount"
+      },
+      {
+        "lineNum": 313,
+        "type": "JSX Text",
+        "text": "Permanent Discount"
+      },
+      {
+        "lineNum": 323,
+        "type": "Placeholder",
+        "text": "e.g. 15"
+      },
+      {
+        "lineNum": 335,
+        "type": "JSX Text",
+        "text": "Reward Title"
+      },
+      {
+        "lineNum": 337,
+        "type": "Placeholder",
+        "text": "e.g. PDF Travel Itinerary"
+      },
+      {
+        "lineNum": 346,
+        "type": "JSX Text",
+        "text": "Description"
+      },
+      {
+        "lineNum": 349,
+        "type": "Placeholder",
+        "text": "Describe what the user gets when unlocking this reward..."
+      },
+      {
+        "lineNum": 360,
+        "type": "JSX Text",
+        "text": "Target Points (XP)"
+      },
+      {
+        "lineNum": 363,
+        "type": "Placeholder",
+        "text": "e.g. 500"
+      },
+      {
+        "lineNum": 372,
+        "type": "JSX Text",
+        "text": "Attach Map (Optional)"
+      },
+      {
+        "lineNum": 394,
+        "type": "JSX Text",
+        "text": "Cover Photo"
+      },
+      {
+        "lineNum": 408,
+        "type": "JSX Text",
+        "text": "Click to Upload"
+      },
+      {
+        "lineNum": 423,
+        "type": "JSX Text",
+        "text": "Downloadable PDF"
+      },
+      {
+        "lineNum": 453,
+        "type": "JSX Text",
+        "text": "Click to Upload PDF"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\business-overview.tsx",
+    "issues": [
+      {
+        "lineNum": 64,
+        "type": "JSX Text",
+        "text": "N/A"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\business-table.tsx",
+    "issues": [
+      {
+        "lineNum": 112,
+        "type": "Toast Error/Msg",
+        "text": "Failed to update business status."
+      },
+      {
+        "lineNum": 130,
+        "type": "Toast Error/Msg",
+        "text": "Business deleted successfully!"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\public-contact-links.tsx",
+    "issues": [
+      {
+        "lineNum": 67,
+        "type": "JSX Text",
+        "text": "N/A"
+      },
+      {
+        "lineNum": 85,
+        "type": "JSX Text",
+        "text": "N/A"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\categories\\AddCategoryDialog.tsx",
+    "issues": [
+      {
+        "lineNum": 636,
+        "type": "Placeholder",
+        "text": "e.g., Parks & Nature"
+      },
+      {
+        "lineNum": 738,
+        "type": "Placeholder",
+        "text": "Search icons... (e.g. tree, hospital, flag)"
+      },
+      {
+        "lineNum": 889,
+        "type": "JSX Text",
+        "text": "Selected icon"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\maps\\create-map-modal.tsx",
+    "issues": [
+      {
+        "lineNum": 141,
+        "type": "Placeholder",
+        "text": "Dhaka Food Guide"
+      },
+      {
+        "lineNum": 154,
+        "type": "Placeholder",
+        "text": "Write description..."
+      },
+      {
+        "lineNum": 180,
+        "type": "Placeholder",
+        "text": "Top rated, Hidden gems"
+      },
+      {
+        "lineNum": 190,
+        "type": "Placeholder",
+        "text": "Write tips for this map..."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\offers\\create-offer-dialog.tsx",
+    "issues": [
+      {
+        "lineNum": 203,
+        "type": "Toast Error/Msg",
+        "text": "Please select a valid image file (PNG, JPG, etc.)."
+      },
+      {
+        "lineNum": 367,
+        "type": "JSX Text",
+        "text": "PNG, JPG up to 10MB"
+      },
+      {
+        "lineNum": 392,
+        "type": "Placeholder",
+        "text": "e.g., 20% off Coffee"
+      },
+      {
+        "lineNum": 442,
+        "type": "Placeholder",
+        "text": "Type a name to search..."
+      },
+      {
+        "lineNum": 506,
+        "type": "Placeholder",
+        "text": "Describe the offer..."
+      },
+      {
+        "lineNum": 528,
+        "type": "Placeholder",
+        "text": "e.g., 1"
+      },
+      {
+        "lineNum": 558,
+        "type": "JSX Text",
+        "text": "Daily (Once per 24 hours)"
+      },
+      {
+        "lineNum": 559,
+        "type": "JSX Text",
+        "text": "Weekly (Once per 7 days)"
+      },
+      {
+        "lineNum": 560,
+        "type": "JSX Text",
+        "text": "Monthly (Once per 30 days)"
+      },
+      {
+        "lineNum": 561,
+        "type": "JSX Text",
+        "text": "One-Time Only (Once per user)"
+      },
+      {
+        "lineNum": 562,
+        "type": "JSX Text",
+        "text": "Custom Duration (Minutes)"
+      },
+      {
+        "lineNum": 569,
+        "type": "Placeholder",
+        "text": "Duration in minutes (e.g., 60)"
+      },
+      {
+        "lineNum": 590,
+        "type": "Placeholder",
+        "text": "Leave empty for unlimited"
+      },
+      {
+        "lineNum": 621,
+        "type": "JSX Text",
+        "text": "Select discount type"
+      },
+      {
+        "lineNum": 622,
+        "type": "JSX Text",
+        "text": "Percentage"
+      },
+      {
+        "lineNum": 623,
+        "type": "JSX Text",
+        "text": "Flat Amount"
+      },
+      {
+        "lineNum": 624,
+        "type": "JSX Text",
+        "text": "Buy One Get One (BOGO)"
+      },
+      {
+        "lineNum": 625,
+        "type": "JSX Text",
+        "text": "Free Item"
+      },
+      {
+        "lineNum": 641,
+        "type": "Placeholder",
+        "text": "20"
+      },
+      {
+        "lineNum": 674,
+        "type": "JSX Text",
+        "text": "Choose how the second item is discounted"
+      },
+      {
+        "lineNum": 675,
+        "type": "JSX Text",
+        "text": "Second item is free"
+      },
+      {
+        "lineNum": 695,
+        "type": "Placeholder",
+        "text": "e.g., 50"
+      },
+      {
+        "lineNum": 790,
+        "type": "Placeholder",
+        "text": "e.g., One per user per visit"
+      },
+      {
+        "lineNum": 844,
+        "type": "Placeholder",
+        "text": "Redeem Offer"
+      },
+      {
+        "lineNum": 864,
+        "type": "JSX Text",
+        "text": "Active"
+      },
+      {
+        "lineNum": 865,
+        "type": "JSX Text",
+        "text": "Expired"
+      },
+      {
+        "lineNum": 866,
+        "type": "JSX Text",
+        "text": "Paused"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\offers\\offers-table.tsx",
+    "issues": [
+      {
+        "lineNum": 323,
+        "type": "JSX Text",
+        "text": "Rows per page:"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\add-place-page.tsx",
+    "issues": [
+      {
+        "lineNum": 256,
+        "type": "Toast Error/Msg",
+        "text": "Marker drag enabled. Move it now!"
+      },
+      {
+        "lineNum": 314,
+        "type": "Toast Error/Msg",
+        "text": "Please enter a Google Maps URL first"
+      },
+      {
+        "lineNum": 319,
+        "type": "Toast Error/Msg",
+        "text": "Please select a map first!"
+      },
+      {
+        "lineNum": 346,
+        "type": "Toast Error/Msg",
+        "text": "Location extracted successfully!"
+      },
+      {
+        "lineNum": 348,
+        "type": "Toast Error/Msg",
+        "text": "Could not extract coordinates from this URL."
+      },
+      {
+        "lineNum": 363,
+        "type": "Toast Error/Msg",
+        "text": "Please select a map first!"
+      },
+      {
+        "lineNum": 458,
+        "type": "Toast Error/Msg",
+        "text": "Please select a category first!"
+      },
+      {
+        "lineNum": 584,
+        "type": "JSX Text",
+        "text": "Roadtripeado Maps 9.0"
+      },
+      {
+        "lineNum": 598,
+        "type": "Placeholder",
+        "text": "Choose a map..."
+      },
+      {
+        "lineNum": 619,
+        "type": "Toast Error/Msg",
+        "text": "Please select a map before adding a place."
+      },
+      {
+        "lineNum": 648,
+        "type": "Placeholder",
+        "text": "https://maps.app.goo.gl/..."
+      },
+      {
+        "lineNum": 681,
+        "type": "Placeholder",
+        "text": "Search places..."
+      },
+      {
+        "lineNum": 969,
+        "type": "Toast Error/Msg",
+        "text": "Location updated successfully!"
+      },
+      {
+        "lineNum": 1139,
+        "type": "Toast Error/Msg",
+        "text": "Upload in progress. Please wait until saving completes."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\PlaceFormContent.tsx",
+    "issues": [
+      {
+        "lineNum": 56,
+        "type": "JSX Text",
+        "text": "Promise"
+      },
+      {
+        "lineNum": 310,
+        "type": "Toast Error/Msg",
+        "text": "Please upload image or PDF files only for menus."
+      },
+      {
+        "lineNum": 393,
+        "type": "Toast Error/Msg",
+        "text": "Please fill in all required fields."
+      },
+      {
+        "lineNum": 594,
+        "type": "Toast Error/Msg",
+        "text": "Please fill in all required fields first."
+      },
+      {
+        "lineNum": 644,
+        "type": "JSX Text",
+        "text": "Place Name"
+      },
+      {
+        "lineNum": 646,
+        "type": "Placeholder",
+        "text": "e.g., Golden Gate Park"
+      },
+      {
+        "lineNum": 660,
+        "type": "JSX Text",
+        "text": "Business"
+      },
+      {
+        "lineNum": 708,
+        "type": "JSX Text",
+        "text": "Location Type"
+      },
+      {
+        "lineNum": 720,
+        "type": "Placeholder",
+        "text": "Select type"
+      },
+      {
+        "lineNum": 723,
+        "type": "JSX Text",
+        "text": "Regular Location"
+      },
+      {
+        "lineNum": 724,
+        "type": "JSX Text",
+        "text": "Business"
+      },
+      {
+        "lineNum": 735,
+        "type": "JSX Text",
+        "text": "Phone Number"
+      },
+      {
+        "lineNum": 737,
+        "type": "Placeholder",
+        "text": "e.g. +1 787-123-4567"
+      },
+      {
+        "lineNum": 744,
+        "type": "JSX Text",
+        "text": "Website URL"
+      },
+      {
+        "lineNum": 746,
+        "type": "Placeholder",
+        "text": "e.g. https://mybusiness.com"
+      },
+      {
+        "lineNum": 753,
+        "type": "JSX Text",
+        "text": "Instagram username"
+      },
+      {
+        "lineNum": 755,
+        "type": "Placeholder",
+        "text": "e.g. my_business"
+      },
+      {
+        "lineNum": 768,
+        "type": "JSX Text",
+        "text": "Operating Hours"
+      },
+      {
+        "lineNum": 769,
+        "type": "JSX Text",
+        "text": "Business"
+      },
+      {
+        "lineNum": 784,
+        "type": "JSX Text",
+        "text": "Closed"
+      },
+      {
+        "lineNum": 803,
+        "type": "JSX Text",
+        "text": "Closed all day"
+      },
+      {
+        "lineNum": 812,
+        "type": "JSX Text",
+        "text": "Short Description"
+      },
+      {
+        "lineNum": 814,
+        "type": "Placeholder",
+        "text": "Brief description of this place..."
+      },
+      {
+        "lineNum": 826,
+        "type": "JSX Text",
+        "text": "Media"
+      },
+      {
+        "lineNum": 988,
+        "type": "JSX Text",
+        "text": "Address"
+      },
+      {
+        "lineNum": 1027,
+        "type": "JSX Text",
+        "text": "Schedules"
+      },
+      {
+        "lineNum": 1058,
+        "type": "JSX Text",
+        "text": "Atmosphere"
+      },
+      {
+        "lineNum": 1060,
+        "type": "Placeholder",
+        "text": "e.g.,"
+      },
+      {
+        "lineNum": 1076,
+        "type": "JSX Text",
+        "text": "Entry Cost"
+      },
+      {
+        "lineNum": 1103,
+        "type": "JSX Text",
+        "text": "flat fee"
+      },
+      {
+        "lineNum": 1104,
+        "type": "JSX Text",
+        "text": "Free entry"
+      },
+      {
+        "lineNum": 1114,
+        "type": "JSX Text",
+        "text": "Difficulty"
+      },
+      {
+        "lineNum": 1122,
+        "type": "Placeholder",
+        "text": "Select difficulty"
+      },
+      {
+        "lineNum": 1128,
+        "type": "JSX Text",
+        "text": "Easy"
+      },
+      {
+        "lineNum": 1129,
+        "type": "JSX Text",
+        "text": "Moderate"
+      },
+      {
+        "lineNum": 1130,
+        "type": "JSX Text",
+        "text": "Hard"
+      },
+      {
+        "lineNum": 1141,
+        "type": "JSX Text",
+        "text": "Walking Time"
+      },
+      {
+        "lineNum": 1151,
+        "type": "Placeholder",
+        "text": "e.g. 45"
+      },
+      {
+        "lineNum": 1161,
+        "type": "JSX Text",
+        "text": "Minutes"
+      },
+      {
+        "lineNum": 1162,
+        "type": "JSX Text",
+        "text": "Hours"
+      },
+      {
+        "lineNum": 1189,
+        "type": "Placeholder",
+        "text": "e.g., Take Metro Line 2 to Central Station. Exit B. Taxi cost approx $5 from downtown."
+      },
+      {
+        "lineNum": 1266,
+        "type": "JSX Text",
+        "text": "Existing Menu Photos"
+      },
+      {
+        "lineNum": 1297,
+        "type": "JSX Text",
+        "text": "New Menu Photos"
+      },
+      {
+        "lineNum": 1404,
+        "type": "JSX Text",
+        "text": "Notes (optional)"
+      },
+      {
+        "lineNum": 1406,
+        "type": "Placeholder",
+        "text": "Additional accessibility information..."
+      },
+      {
+        "lineNum": 1428,
+        "type": "Placeholder",
+        "text": "List recommended items to bring..."
+      },
+      {
+        "lineNum": 1558,
+        "type": "Toast Error/Msg",
+        "text": "Please fill in all required fields first."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\PlaceInfoWindow.tsx",
+    "issues": [
+      {
+        "lineNum": 9,
+        "type": "JSX Text",
+        "text": "Promise"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\places-table.tsx",
+    "issues": [
+      {
+        "lineNum": 321,
+        "type": "JSX Text",
+        "text": "Rows per page:"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\UpdatePlaceModal.tsx",
+    "issues": [
+      {
+        "lineNum": 103,
+        "type": "Toast Error/Msg",
+        "text": "Place updated successfully!"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\settings\\notifications-settings.tsx",
+    "issues": [
+      {
+        "lineNum": 28,
+        "type": "Toast Error/Msg",
+        "text": "Notification settings updated successfully"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\subscription\\add-subscription-modal.tsx",
+    "issues": [
+      {
+        "lineNum": 138,
+        "type": "JSX Text",
+        "text": "Plan Name"
+      },
+      {
+        "lineNum": 143,
+        "type": "Placeholder",
+        "text": "e.g. Pro Plan"
+      },
+      {
+        "lineNum": 165,
+        "type": "JSX Text",
+        "text": "Billing Cycle"
+      },
+      {
+        "lineNum": 196,
+        "type": "JSX Text",
+        "text": "Description"
+      },
+      {
+        "lineNum": 201,
+        "type": "Placeholder",
+        "text": "Basic access to the platform with limited features."
+      },
+      {
+        "lineNum": 207,
+        "type": "JSX Text",
+        "text": "Features"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\users-roles\\invite-user-form.tsx",
+    "issues": [
+      {
+        "lineNum": 99,
+        "type": "Toast Error/Msg",
+        "text": "Please enter an email address."
+      },
+      {
+        "lineNum": 103,
+        "type": "Toast Error/Msg",
+        "text": "Please enter a valid email address."
+      },
+      {
+        "lineNum": 107,
+        "type": "Toast Error/Msg",
+        "text": "Please select a role."
+      },
+      {
+        "lineNum": 111,
+        "type": "Toast Error/Msg",
+        "text": "You are not allowed to invite this role."
+      },
+      {
+        "lineNum": 117,
+        "type": "Toast Error/Msg",
+        "text": "Assign at least one map for the Map Editor."
+      },
+      {
+        "lineNum": 139,
+        "type": "Toast Error/Msg",
+        "text": "Invitation sent successfully!"
+      },
+      {
+        "lineNum": 162,
+        "type": "Placeholder",
+        "text": "user@example.com"
+      },
+      {
+        "lineNum": 232,
+        "type": "Placeholder",
+        "text": "Search maps..."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\users-roles\\users-table.tsx",
+    "issues": [
+      {
+        "lineNum": 129,
+        "type": "Toast Error/Msg",
+        "text": "User deleted successfully!"
+      },
+      {
+        "lineNum": 142,
+        "type": "Toast Error/Msg",
+        "text": "You cannot change this user"
+      },
+      {
+        "lineNum": 146,
+        "type": "Toast Error/Msg",
+        "text": "You are not allowed to assign this role."
+      },
+      {
+        "lineNum": 170,
+        "type": "Toast Error/Msg",
+        "text": "User role updated successfully!"
+      },
+      {
+        "lineNum": 200,
+        "type": "Toast Error/Msg",
+        "text": "Assign at least one map for the Map Editor."
+      },
+      {
+        "lineNum": 212,
+        "type": "Toast Error/Msg",
+        "text": "User role updated with assignments successfully!"
+      },
+      {
+        "lineNum": 219,
+        "type": "Toast Error/Msg",
+        "text": "Editor access updated successfully!"
+      },
+      {
+        "lineNum": 245,
+        "type": "Placeholder",
+        "text": "Search users..."
+      },
+      {
+        "lineNum": 513,
+        "type": "Placeholder",
+        "text": "Search maps..."
+      },
+      {
+        "lineNum": 521,
+        "type": "JSX Text",
+        "text": "No maps found."
+      }
+    ]
+  }
+]

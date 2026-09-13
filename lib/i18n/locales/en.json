@@ -739,7 +739,8 @@
     "pending": "Pending",
     "approved": "Approved",
     "rejected": "Rejected",
-    "submitted": "Submitted"
+    "submitted": "Submitted",
+    "businesses_selected": "businesses selected"
   },
   "categories_admin": {
     "add_category": "Add Category",
@@ -758,7 +759,19 @@
     "selected_icon": "Selected icon",
     "edit_category": "Edit category",
     "view_category": "View category",
-    "delete_category": "Delete category"
+    "delete_category": "Delete category",
+    "category_name_placeholder": "e.g., Parks & Nature",
+    "browse_icons": "Browse Icons",
+    "upload_custom": "Upload Custom",
+    "more_icons": "More icons ▼",
+    "less_icons": "Less icons ▲",
+    "search_icons_placeholder": "Search icons... (e.g. tree, hospital, flag)",
+    "type_to_search_icons": "Type to search from 200,000+ icons",
+    "custom_icon_format_hint": "SVG, PNG, JPG, WEBP, GIF — max 5MB",
+    "custom": "Custom",
+    "update_category": "Update Category",
+    "replace": "Replace",
+    "remove": "Remove"
   },
   "maps_admin": {
     "map_name": "Map Name",
@@ -814,7 +827,24 @@
     "how_many_uses": "How many times one customer can use this offer",
     "edit_offer": "Edit offer",
     "resume_offer": "Resume offer",
-    "delete_offer": "Delete offer"
+    "delete_offer": "Delete offer",
+    "select_valid_image": "Please select a valid image file (PNG, JPG, etc.).",
+    "title_placeholder": "e.g., 20% off Coffee",
+    "search_by_name": "Search by name...",
+    "type_name_to_search": "Type a name to search...",
+    "description_placeholder": "Describe the offer...",
+    "freq_daily": "Daily (Once per 24 hours)",
+    "freq_weekly": "Weekly (Once per 7 days)",
+    "freq_monthly": "Monthly (Once per 30 days)",
+    "freq_once": "One-Time Only (Once per user)",
+    "freq_custom": "Custom Duration (Minutes)",
+    "duration_placeholder": "Duration in minutes (e.g., 60)",
+    "total_redemption_limit": "Total Redemption Limit (optional)",
+    "total_limit_hint": "Stops the offer once every customer together reaches this many redemptions",
+    "bogo_hint": "Customers will see this clearly, e.g. \"Buy 1 Get 1 Free\" or \"Buy 1 Get 1 · 50% off 2nd\".",
+    "pct_off_second": "% off second item",
+    "second_item_pct": "Second item has a % discount",
+    "rule_placeholder": "e.g., One per user per visit"
   },
   "places_admin": {
     "version_title": "Roadtripeado Maps 9.0",
@@ -874,7 +904,32 @@
     "edit_place": "Edit place",
     "view_place": "View place",
     "add_review": "Add review",
-    "delete_place": "Delete place"
+    "delete_place": "Delete place",
+    "marker_drag_enabled": "Marker drag enabled. Move it now!",
+    "select_map_first": "Please select a map first!",
+    "location_extracted_success": "Location extracted successfully!",
+    "select_category_first": "Please select a category first!",
+    "choose_map_placeholder": "Choose a map...",
+    "select_map_before_adding": "Please select a map before adding a place.",
+    "cancel_adding_place": "Cancel Adding Place",
+    "add_place_drop_pin": "Add Place (Drop Pin)",
+    "upload_in_progress": "Upload in progress. Please wait until saving completes.",
+    "menu_file_type_error": "Please upload image or PDF files only for menus.",
+    "fill_required_fields": "Please fill in all required fields.",
+    "fill_required_fields_first": "Please fill in all required fields first.",
+    "place_name_placeholder": "e.g., Golden Gate Park",
+    "choose_business_category": "Choose a business category",
+    "choose_category": "Choose a category",
+    "short_desc_placeholder": "Brief description of this place...",
+    "flat_fee": "flat fee",
+    "access_desc_placeholder": "e.g., Take Metro Line 2 to Central Station. Exit B. Taxi cost approx $5 from downtown.",
+    "notes_optional": "Notes (optional)",
+    "accessibility_notes_placeholder": "Additional accessibility information...",
+    "tips_placeholder": "List recommended items to bring...",
+    "description_placeholder": "Write description...",
+    "features_placeholder": "Top rated, Hidden gems",
+    "tips_placeholder_map": "Write tips for this map...",
+    "create_map": "Create Map"
   },
   "reports_admin": {
     "export_csv": "Export CSV",
@@ -893,7 +948,12 @@
     "searching": "Searching...",
     "no_place_or_business": "No place or business found.",
     "showing_reports_for": "Showing reports for",
-    "map_sales_note": "Map sales are not linked to businesses. Visit and offer stats below are for this business."
+    "map_sales_note": "Map sales are not linked to businesses. Visit and offer stats below are for this business.",
+    "all_time": "All Time",
+    "today": "Today",
+    "this_week": "This Week",
+    "this_month": "This Month",
+    "last_month": "Last Month"
   },
   "settings_admin": {
     "general_title": "General Settings",
@@ -931,7 +991,12 @@
     "add_feature": "Add Feature",
     "popular": "Popular",
     "edit_plan": "Edit Plan",
-    "delete_plan": "Delete Plan"
+    "delete_plan": "Delete Plan",
+    "plan_name_placeholder": "e.g. Pro Plan",
+    "description_placeholder": "Basic access to the platform with limited features.",
+    "feature_placeholder": "Feature",
+    "add_plan": "Add New Subscription Plan",
+    "create_plan": "Create Plan"
   },
   "users_admin": {
     "invite_user": "Invite New User",
@@ -967,7 +1032,22 @@
     "no_users": "No users found.",
     "failed_to_load": "Failed to load users.",
     "assign_maps": "Assign Maps",
-    "assign_map_editor": "Assign Map Editor Access"
+    "assign_map_editor": "Assign Map Editor Access",
+    "enter_email": "Please enter an email address.",
+    "invalid_email": "Please enter a valid email address.",
+    "select_role": "Please select a role.",
+    "not_allowed_role": "You are not allowed to invite this role.",
+    "assign_map_editor_error": "Assign at least one map for the Map Editor.",
+    "invitation_sent_success": "Invitation sent successfully!",
+    "send_invitation": "Send Invitation",
+    "user_deleted_success": "User deleted successfully!",
+    "cannot_change_role": "You cannot change this user's role.",
+    "not_allowed_assign_role": "You are not allowed to assign this role.",
+    "user_role_updated_success": "User role updated successfully!",
+    "user_role_updated_assignments_success": "User role updated with assignments successfully!",
+    "editor_access_updated_success": "Editor access updated successfully!",
+    "search_users_placeholder": "Search users...",
+    "selected": "selected"
   },
   "notifications_page": {
     "business_notifications": "Business Notifications",
@@ -1046,7 +1126,12 @@
     "email_sent": "Email Sent",
     "claimed": "Claimed",
     "expired": "Expired",
-    "active": "Active"
+    "active": "Active",
+    "select_target_map": "Please select a target Map.",
+    "enter_campaign_label": "Please enter a campaign label.",
+    "price_must_be_positive": "Price must be 0 or positive.",
+    "enter_recipient_email": "Please enter at least one recipient email.",
+    "no_valid_emails": "No valid emails found. Please check the format."
   },
   "rewards_admin": {
     "title": "Rewards Management",
@@ -1074,7 +1159,17 @@
     "cover_photo": "Cover Photo",
     "click_to_upload": "Click to Upload",
     "downloadable_pdf": "Downloadable PDF",
-    "click_to_upload_pdf": "Click to Upload PDF"
+    "click_to_upload_pdf": "Click to Upload PDF",
+    "created_success": "Reward configuration created successfully!",
+    "updated_success": "Reward configuration updated successfully!",
+    "failed_save": "Failed to save reward configuration",
+    "add_new_reward": "Add New Reward",
+    "edit_reward": "Edit Reward",
+    "discount_percentage": "Discount Percentage (%)",
+    "attach_map_optional": "Attach Map (Optional)",
+    "user_chooses_map": "User chooses map",
+    "no_map_attached": "No map attached",
+    "attached_map_file": "Attached Map / File"
   },
   "reviews_admin": {
     "title": "Reviews Verification",

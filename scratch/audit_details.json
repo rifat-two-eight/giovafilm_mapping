@@ -1,0 +1,897 @@
+[
+  {
+    "file": "app\\(dashboard)\\dashboard\\business\\[id]\\page.tsx",
+    "items": [
+      {
+        "lineNum": 66,
+        "category": "Toast Notification",
+        "text": "Business deleted successfully!"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\promos\\page.tsx",
+    "items": [
+      {
+        "lineNum": 206,
+        "category": "Toast Notification",
+        "text": "Links generated, but automatic email invitations failed to queue."
+      },
+      {
+        "lineNum": 257,
+        "category": "Toast Notification",
+        "text": "Promo Claim Link copied to clipboard!"
+      },
+      {
+        "lineNum": 259,
+        "category": "Toast Notification",
+        "text": "Copy failed — please copy manually: "
+      },
+      {
+        "lineNum": 267,
+        "category": "Toast Notification",
+        "text": "Promo Code copied!"
+      },
+      {
+        "lineNum": 269,
+        "category": "Toast Notification",
+        "text": "Copy failed — code: "
+      },
+      {
+        "lineNum": 277,
+        "category": "Toast Notification",
+        "text": "Invitation email sent successfully!"
+      },
+      {
+        "lineNum": 310,
+        "category": "Toast Notification",
+        "text": "Promo invitation link deleted successfully!"
+      },
+      {
+        "lineNum": 328,
+        "category": "Toast Notification",
+        "text": "No pending links with unsent recipient emails found."
+      },
+      {
+        "lineNum": 361,
+        "category": "Toast Notification",
+        "text": "No links available to export."
+      },
+      {
+        "lineNum": 430,
+        "category": "Toast Notification",
+        "text": "Promo links exported to CSV successfully!"
+      },
+      {
+        "lineNum": 472,
+        "category": "JSX Text",
+        "text": "Total Generated"
+      },
+      {
+        "lineNum": 484,
+        "category": "JSX Text",
+        "text": "Customer Upgrades"
+      },
+      {
+        "lineNum": 496,
+        "category": "JSX Text",
+        "text": "Influencer Invites"
+      },
+      {
+        "lineNum": 528,
+        "category": "JSX Text",
+        "text": "Link Type Tabs"
+      },
+      {
+        "lineNum": 536,
+        "category": "JSX Text",
+        "text": "Generate Links"
+      },
+      {
+        "lineNum": 544,
+        "category": "JSX Text",
+        "text": "Send Pending Invites"
+      },
+      {
+        "lineNum": 625,
+        "category": "Input Placeholder",
+        "text": "e.g. 5.00"
+      },
+      {
+        "lineNum": 645,
+        "category": "Input Placeholder",
+        "text": "e.g. Sarah VLOG Campaign, Batch 1 Upgrades"
+      },
+      {
+        "lineNum": 747,
+        "category": "JSX Text",
+        "text": "Track Invitations"
+      },
+      {
+        "lineNum": 800,
+        "category": "Input Placeholder",
+        "text": "Search code, email, label..."
+      },
+      {
+        "lineNum": 819,
+        "category": "JSX Text",
+        "text": "All invitation types"
+      },
+      {
+        "lineNum": 822,
+        "category": "JSX Text",
+        "text": "Custom Offer"
+      },
+      {
+        "lineNum": 834,
+        "category": "JSX Text",
+        "text": "All statuses"
+      },
+      {
+        "lineNum": 835,
+        "category": "JSX Text",
+        "text": "Active / Unused"
+      },
+      {
+        "lineNum": 836,
+        "category": "JSX Text",
+        "text": "Used / Claimed"
+      },
+      {
+        "lineNum": 845,
+        "category": "JSX Text",
+        "text": "Link / Code"
+      },
+      {
+        "lineNum": 846,
+        "category": "JSX Text",
+        "text": "Type"
+      },
+      {
+        "lineNum": 847,
+        "category": "JSX Text",
+        "text": "Target Map"
+      },
+      {
+        "lineNum": 848,
+        "category": "JSX Text",
+        "text": "Price"
+      },
+      {
+        "lineNum": 849,
+        "category": "JSX Text",
+        "text": "Label"
+      },
+      {
+        "lineNum": 851,
+        "category": "JSX Text",
+        "text": "Status"
+      },
+      {
+        "lineNum": 852,
+        "category": "JSX Text",
+        "text": "Invite"
+      },
+      {
+        "lineNum": 893,
+        "category": "HTML Attribute",
+        "text": "Copy full claim URL"
+      },
+      {
+        "lineNum": 901,
+        "category": "HTML Attribute",
+        "text": "Copy code"
+      },
+      {
+        "lineNum": 995,
+        "category": "HTML Attribute",
+        "text": "Delete Invitation Link"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\reports\\page.tsx",
+    "items": [
+      {
+        "lineNum": 215,
+        "category": "JSX Text",
+        "text": "Total Sales"
+      },
+      {
+        "lineNum": 219,
+        "category": "JSX Text",
+        "text": "Taxes Collected"
+      },
+      {
+        "lineNum": 223,
+        "category": "JSX Text",
+        "text": "Net Revenue"
+      },
+      {
+        "lineNum": 231,
+        "category": "JSX Text",
+        "text": "Month"
+      },
+      {
+        "lineNum": 232,
+        "category": "JSX Text",
+        "text": "Total Sales"
+      },
+      {
+        "lineNum": 233,
+        "category": "JSX Text",
+        "text": "Taxes"
+      },
+      {
+        "lineNum": 234,
+        "category": "JSX Text",
+        "text": "Net Revenue"
+      },
+      {
+        "lineNum": 245,
+        "category": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 251,
+        "category": "JSX Text",
+        "text": "Platform Usage Statistics"
+      },
+      {
+        "lineNum": 254,
+        "category": "JSX Text",
+        "text": "Most Viewed Maps"
+      },
+      {
+        "lineNum": 258,
+        "category": "JSX Text",
+        "text": "Map Name"
+      },
+      {
+        "lineNum": 259,
+        "category": "JSX Text",
+        "text": "Views"
+      },
+      {
+        "lineNum": 268,
+        "category": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 274,
+        "category": "JSX Text",
+        "text": "Most Opened Places"
+      },
+      {
+        "lineNum": 278,
+        "category": "JSX Text",
+        "text": "Place Name"
+      },
+      {
+        "lineNum": 279,
+        "category": "JSX Text",
+        "text": "Opens"
+      },
+      {
+        "lineNum": 288,
+        "category": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 294,
+        "category": "JSX Text",
+        "text": "Most Redeemed Offers"
+      },
+      {
+        "lineNum": 298,
+        "category": "JSX Text",
+        "text": "Offer Title"
+      },
+      {
+        "lineNum": 299,
+        "category": "JSX Text",
+        "text": "Redemptions"
+      },
+      {
+        "lineNum": 308,
+        "category": "JSX Text",
+        "text": "No data"
+      },
+      {
+        "lineNum": 340,
+        "category": "JSX Text",
+        "text": "Failed to load reports data."
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\reviews-verification\\page.tsx",
+    "items": [
+      {
+        "lineNum": 98,
+        "category": "HTML Attribute",
+        "text": "Review upload"
+      }
+    ]
+  },
+  {
+    "file": "app\\(dashboard)\\dashboard\\rewards\\page.tsx",
+    "items": [
+      {
+        "lineNum": 323,
+        "category": "Input Placeholder",
+        "text": "e.g. 15"
+      },
+      {
+        "lineNum": 337,
+        "category": "Input Placeholder",
+        "text": "e.g. PDF Travel Itinerary"
+      },
+      {
+        "lineNum": 349,
+        "category": "Input Placeholder",
+        "text": "Describe what the user gets when unlocking this reward..."
+      },
+      {
+        "lineNum": 363,
+        "category": "Input Placeholder",
+        "text": "e.g. 500"
+      },
+      {
+        "lineNum": 402,
+        "category": "HTML Attribute",
+        "text": "Preview"
+      },
+      {
+        "lineNum": 438,
+        "category": "HTML Attribute",
+        "text": "Remove PDF"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\app-sidebar.tsx",
+    "items": [
+      {
+        "lineNum": 82,
+        "category": "HTML Attribute",
+        "text": "Dashboard Logo"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\business-overview.tsx",
+    "items": [
+      {
+        "lineNum": 64,
+        "category": "JSX Text",
+        "text": "N/A"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\business-table.tsx",
+    "items": [
+      {
+        "lineNum": 112,
+        "category": "Toast Notification",
+        "text": "Failed to update business status."
+      },
+      {
+        "lineNum": 130,
+        "category": "Toast Notification",
+        "text": "Business deleted successfully!"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\business\\public-contact-links.tsx",
+    "items": [
+      {
+        "lineNum": 67,
+        "category": "JSX Text",
+        "text": "N/A"
+      },
+      {
+        "lineNum": 85,
+        "category": "JSX Text",
+        "text": "N/A"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\categories\\AddCategoryDialog.tsx",
+    "items": [
+      {
+        "lineNum": 585,
+        "category": "HTML Attribute",
+        "text": "custom icon"
+      },
+      {
+        "lineNum": 810,
+        "category": "HTML Attribute",
+        "text": "custom"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\categories\\category-table.tsx",
+    "items": [
+      {
+        "lineNum": 184,
+        "category": "HTML Attribute",
+        "text": "Edit category"
+      },
+      {
+        "lineNum": 192,
+        "category": "HTML Attribute",
+        "text": "View category"
+      },
+      {
+        "lineNum": 200,
+        "category": "HTML Attribute",
+        "text": "Delete category"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\dash-top-header.tsx",
+    "items": [
+      {
+        "lineNum": 68,
+        "category": "HTML Attribute",
+        "text": "Profile"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\maps\\create-map-modal.tsx",
+    "items": [
+      {
+        "lineNum": 209,
+        "category": "HTML Attribute",
+        "text": "preview"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\maps\\maps-table.tsx",
+    "items": [
+      {
+        "lineNum": 209,
+        "category": "HTML Attribute",
+        "text": "Edit map"
+      },
+      {
+        "lineNum": 231,
+        "category": "HTML Attribute",
+        "text": "Delete map"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\offers\\create-offer-dialog.tsx",
+    "items": [
+      {
+        "lineNum": 350,
+        "category": "HTML Attribute",
+        "text": "preview"
+      },
+      {
+        "lineNum": 506,
+        "category": "Input Placeholder",
+        "text": "Describe the offer..."
+      },
+      {
+        "lineNum": 528,
+        "category": "Input Placeholder",
+        "text": "e.g., 1"
+      },
+      {
+        "lineNum": 640,
+        "category": "Input Placeholder",
+        "text": "20"
+      },
+      {
+        "lineNum": 694,
+        "category": "Input Placeholder",
+        "text": "e.g., 50"
+      },
+      {
+        "lineNum": 751,
+        "category": "HTML Attribute",
+        "text": "noExpiration"
+      },
+      {
+        "lineNum": 789,
+        "category": "Input Placeholder",
+        "text": "e.g., One per user per visit"
+      },
+      {
+        "lineNum": 843,
+        "category": "Input Placeholder",
+        "text": "Redeem Offer"
+      },
+      {
+        "lineNum": 863,
+        "category": "JSX Text",
+        "text": "Active"
+      },
+      {
+        "lineNum": 864,
+        "category": "JSX Text",
+        "text": "Expired"
+      },
+      {
+        "lineNum": 865,
+        "category": "JSX Text",
+        "text": "Paused"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\offers\\offers-table.tsx",
+    "items": [
+      {
+        "lineNum": 285,
+        "category": "HTML Attribute",
+        "text": "Edit offer"
+      },
+      {
+        "lineNum": 293,
+        "category": "HTML Attribute",
+        "text": "Resume offer"
+      },
+      {
+        "lineNum": 304,
+        "category": "HTML Attribute",
+        "text": "Delete offer"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\add-place-page.tsx",
+    "items": [
+      {
+        "lineNum": 256,
+        "category": "Toast Notification",
+        "text": "Marker drag enabled. Move it now!"
+      },
+      {
+        "lineNum": 314,
+        "category": "Toast Notification",
+        "text": "Please enter a Google Maps URL first"
+      },
+      {
+        "lineNum": 319,
+        "category": "Toast Notification",
+        "text": "Please select a map first!"
+      },
+      {
+        "lineNum": 346,
+        "category": "Toast Notification",
+        "text": "Location extracted successfully!"
+      },
+      {
+        "lineNum": 348,
+        "category": "Toast Notification",
+        "text": "Could not extract coordinates from this URL."
+      },
+      {
+        "lineNum": 363,
+        "category": "Toast Notification",
+        "text": "Please select a map first!"
+      },
+      {
+        "lineNum": 458,
+        "category": "Toast Notification",
+        "text": "Please select a category first!"
+      },
+      {
+        "lineNum": 584,
+        "category": "JSX Text",
+        "text": "Roadtripeado Maps 9.0"
+      },
+      {
+        "lineNum": 646,
+        "category": "HTML Attribute",
+        "text": "mapURL"
+      },
+      {
+        "lineNum": 647,
+        "category": "Input Placeholder",
+        "text": "https://maps.app.goo.gl/..."
+      },
+      {
+        "lineNum": 680,
+        "category": "Input Placeholder",
+        "text": "Search places..."
+      },
+      {
+        "lineNum": 968,
+        "category": "Toast Notification",
+        "text": "Location updated successfully!"
+      },
+      {
+        "lineNum": 1138,
+        "category": "Toast Notification",
+        "text": "Upload in progress. Please wait until saving completes."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\PlaceFormContent.tsx",
+    "items": [
+      {
+        "lineNum": 56,
+        "category": "JSX Text",
+        "text": "Promise"
+      },
+      {
+        "lineNum": 313,
+        "category": "Toast Notification",
+        "text": "Please upload image or PDF files only for menus."
+      },
+      {
+        "lineNum": 375,
+        "category": "HTML Attribute",
+        "text": "Place name is required"
+      },
+      {
+        "lineNum": 381,
+        "category": "HTML Attribute",
+        "text": "Description is required"
+      },
+      {
+        "lineNum": 396,
+        "category": "Toast Notification",
+        "text": "Please fill in all required fields."
+      },
+      {
+        "lineNum": 588,
+        "category": "HTML Attribute",
+        "text": "Place name is required"
+      },
+      {
+        "lineNum": 590,
+        "category": "HTML Attribute",
+        "text": "Description is required"
+      },
+      {
+        "lineNum": 597,
+        "category": "Toast Notification",
+        "text": "Please fill in all required fields first."
+      },
+      {
+        "lineNum": 740,
+        "category": "Input Placeholder",
+        "text": "+1 (555) 000-0000"
+      },
+      {
+        "lineNum": 749,
+        "category": "Input Placeholder",
+        "text": "https://example.com"
+      },
+      {
+        "lineNum": 758,
+        "category": "Input Placeholder",
+        "text": "@username"
+      },
+      {
+        "lineNum": 991,
+        "category": "JSX Text",
+        "text": "Address"
+      },
+      {
+        "lineNum": 1030,
+        "category": "JSX Text",
+        "text": "Schedules"
+      },
+      {
+        "lineNum": 1061,
+        "category": "JSX Text",
+        "text": "Atmosphere"
+      },
+      {
+        "lineNum": 1063,
+        "category": "Input Placeholder",
+        "text": "e.g., "
+      },
+      {
+        "lineNum": 1079,
+        "category": "JSX Text",
+        "text": "Entry Cost"
+      },
+      {
+        "lineNum": 1107,
+        "category": "JSX Text",
+        "text": "Free entry"
+      },
+      {
+        "lineNum": 1117,
+        "category": "JSX Text",
+        "text": "Difficulty"
+      },
+      {
+        "lineNum": 1125,
+        "category": "Input Placeholder",
+        "text": "Select difficulty"
+      },
+      {
+        "lineNum": 1131,
+        "category": "JSX Text",
+        "text": "Easy"
+      },
+      {
+        "lineNum": 1132,
+        "category": "JSX Text",
+        "text": "Moderate"
+      },
+      {
+        "lineNum": 1133,
+        "category": "JSX Text",
+        "text": "Hard"
+      },
+      {
+        "lineNum": 1144,
+        "category": "JSX Text",
+        "text": "Walking Time"
+      },
+      {
+        "lineNum": 1154,
+        "category": "Input Placeholder",
+        "text": "e.g. 45"
+      },
+      {
+        "lineNum": 1164,
+        "category": "JSX Text",
+        "text": "Minutes"
+      },
+      {
+        "lineNum": 1165,
+        "category": "JSX Text",
+        "text": "Hours"
+      },
+      {
+        "lineNum": 1192,
+        "category": "Input Placeholder",
+        "text": "e.g., Take Metro Line 2 to Central Station. Exit B. Taxi cost approx $5 from downtown."
+      },
+      {
+        "lineNum": 1269,
+        "category": "JSX Text",
+        "text": "Existing Menu Photos"
+      },
+      {
+        "lineNum": 1300,
+        "category": "JSX Text",
+        "text": "New Menu Photos"
+      },
+      {
+        "lineNum": 1407,
+        "category": "JSX Text",
+        "text": "Notes (optional)"
+      },
+      {
+        "lineNum": 1409,
+        "category": "Input Placeholder",
+        "text": "Additional accessibility information..."
+      },
+      {
+        "lineNum": 1431,
+        "category": "Input Placeholder",
+        "text": "List recommended items to bring..."
+      },
+      {
+        "lineNum": 1552,
+        "category": "HTML Attribute",
+        "text": "Place name is required"
+      },
+      {
+        "lineNum": 1554,
+        "category": "HTML Attribute",
+        "text": "Description is required"
+      },
+      {
+        "lineNum": 1561,
+        "category": "Toast Notification",
+        "text": "Please fill in all required fields first."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\PlaceInfoWindow.tsx",
+    "items": [
+      {
+        "lineNum": 9,
+        "category": "JSX Text",
+        "text": "Promise"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\places-table.tsx",
+    "items": [
+      {
+        "lineNum": 273,
+        "category": "HTML Attribute",
+        "text": "Edit place"
+      },
+      {
+        "lineNum": 283,
+        "category": "HTML Attribute",
+        "text": "View place"
+      },
+      {
+        "lineNum": 303,
+        "category": "HTML Attribute",
+        "text": "Delete place"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\places\\view-place-modal.tsx",
+    "items": [
+      {
+        "lineNum": 162,
+        "category": "HTML Attribute",
+        "text": "Close dialog"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\subscription\\add-subscription-modal.tsx",
+    "items": [
+      {
+        "lineNum": 140,
+        "category": "HTML Attribute",
+        "text": "name"
+      },
+      {
+        "lineNum": 153,
+        "category": "HTML Attribute",
+        "text": "price"
+      },
+      {
+        "lineNum": 198,
+        "category": "HTML Attribute",
+        "text": "description"
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\users-roles\\invite-user-form.tsx",
+    "items": [
+      {
+        "lineNum": 162,
+        "category": "Input Placeholder",
+        "text": "user@example.com"
+      },
+      {
+        "lineNum": 175,
+        "category": "HTML Attribute",
+        "text": "role"
+      },
+      {
+        "lineNum": 232,
+        "category": "Input Placeholder",
+        "text": "Search maps..."
+      }
+    ]
+  },
+  {
+    "file": "components\\dashboard\\users-roles\\users-table.tsx",
+    "items": [
+      {
+        "lineNum": 513,
+        "category": "Input Placeholder",
+        "text": "Search maps..."
+      },
+      {
+        "lineNum": 521,
+        "category": "JSX Text",
+        "text": "No maps found."
+      }
+    ]
+  }
+]

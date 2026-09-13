@@ -126,7 +126,7 @@ export function UsersTable(): React.ReactElement {
     if (result.isConfirmed) {
       try {
         await deleteUser(userId).unwrap();
-        toast.success("User deleted successfully!");
+        toast.success(t("users_admin.user_deleted_success"));
       } catch (error: any) {
         toast.error(error?.data?.message || "Failed to delete user");
       }
@@ -139,11 +139,11 @@ export function UsersTable(): React.ReactElement {
     const userToUpdate = users.find((u: any) => u._id === userId);
 
     if (!canManageUserRole(currentUser?.role, userToUpdate?.role)) {
-      toast.error("You cannot change this user's role.");
+      toast.error(t("users_admin.cannot_change_role"));
       return;
     }
     if (!allowedRoles.includes(newRole as AppRole)) {
-      toast.error("You are not allowed to assign this role.");
+      toast.error(t("users_admin.not_allowed_assign_role"));
       return;
     }
 
@@ -157,7 +157,7 @@ export function UsersTable(): React.ReactElement {
     }
 
     const result = await appAlert.fire({
-      title: "Are you sure?",
+      title: t("common.are_you_sure"),
       text: `Are you sure you want to change this user's role to ${newRole}?`,
       icon: "warning",
       showCancelButton: true,
@@ -167,7 +167,7 @@ export function UsersTable(): React.ReactElement {
     if (result.isConfirmed) {
       try {
         await updateUserRole({ userId, role: newRole }).unwrap();
-        toast.success("User role updated successfully!");
+        toast.success(t("users_admin.user_role_updated_success"));
       } catch (error: any) {
         toast.error(error?.data?.message || "Failed to update user role");
       }
@@ -197,7 +197,7 @@ export function UsersTable(): React.ReactElement {
     if (!selectedUser) return;
 
     if (selectedMaps.length === 0) {
-      toast.error("Assign at least one map for the Map Editor.");
+      toast.error(t("users_admin.assign_map_editor_error"));
       return;
     }
 
@@ -209,14 +209,14 @@ export function UsersTable(): React.ReactElement {
           assignedMaps: selectedMaps,
           assignedCountries: selectedCountries,
         }).unwrap();
-        toast.success("User role updated with assignments successfully!");
+        toast.success(t("users_admin.user_role_updated_assignments_success"));
       } else {
         await assignEditorAccess({
           userId: selectedUser._id,
           assignedMaps: selectedMaps,
           assignedCountries: selectedCountries,
         }).unwrap();
-        toast.success("Editor access updated successfully!");
+        toast.success(t("users_admin.editor_access_updated_success"));
       }
       setIsAccessModalOpen(false);
       setSelectedUser(null);
@@ -242,7 +242,7 @@ export function UsersTable(): React.ReactElement {
         <div className="relative w-full md:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search users..."
+            placeholder={t("users_admin.search_users_placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"

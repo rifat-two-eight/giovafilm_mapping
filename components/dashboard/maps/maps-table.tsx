@@ -115,7 +115,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
     t("offers_admin.status"),
     t("maps_admin.price"),
     t("common.page"),
-    "Actions",
+    t("dashboard.table.actions"),
   ];
 
   return (
