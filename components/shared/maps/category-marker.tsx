@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { CategoryIcon } from "../categories/category-icon";
 import { Lock } from "lucide-react";
 
@@ -14,7 +14,7 @@ interface CategoryMarkerProps {
   isMobile?: boolean;
 }
 
-export function CategoryMarker({
+export const CategoryMarker = React.memo(function CategoryMarker({
   icon,
   color = "#FA7B17",
   name,
@@ -23,9 +23,7 @@ export function CategoryMarker({
   isLocked = false,
   isMobile = false,
 }: CategoryMarkerProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Proportions for a 100% Uniform Google Maps POI Pin (4px desktop / 3px mobile white border)
+  // Proportions for a 100% Uniform Google Maps POI Pin
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
   const badgeSize = isMobile ? 24 : 29;
@@ -37,29 +35,16 @@ export function CategoryMarker({
     icon?.includes(".");
 
   const iconSize = isCustomImage ? badgeSize : (isMobile ? 16 : 19);
-  const showName = Boolean(name) && (isSelected || (!isMobile && !isLocked && isHovered));
+  const displayName = typeof name === "object" ? ((name as any)?.en || (name as any)?.es || "") : name;
 
   return (
     <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`cat-marker-root group relative select-none flex items-center justify-center ${isSelected ? "is-selected z-50" : "z-10"}`}
       style={{
-        position: "relative",
         width: `${width}px`,
         height: `${height}px`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         cursor: "pointer",
         transformOrigin: "bottom center",
-        transform: isSelected ? "scale(1.22)" : isHovered ? "scale(1.08)" : "scale(1)",
-        filter: isSelected
-          ? "drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55))"
-          : isHovered
-            ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45))"
-            : "drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35))",
-        transition: "transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease",
-        userSelect: "none",
       }}
     >
       {/* ── Selection Beacon / Glowing Halo ── */}
@@ -82,28 +67,27 @@ export function CategoryMarker({
         />
       )}
 
-      {/* ── Name Tooltip for Selected or Hovered Pin ── */}
-      {showName && (
+      {/* ── Name Tooltip (Pure CSS driven: 0 JS re-renders during mouse wheel zoom) ── */}
+      {Boolean(displayName) && !isLocked && (
         <div
+          className={`pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-opacity duration-150 z-[100] ${
+            isSelected
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100"
+          }`}
           style={{
-            position: "absolute",
             bottom: `${height + (isSelected ? 10 : 6)}px`,
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.92)",
+            backgroundColor: isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.94)",
             color: "#FFFFFF",
             padding: "4px 10px",
             borderRadius: "8px",
             fontSize: isSelected ? "12px" : "11px",
             fontWeight: isSelected ? "800" : "700",
-            whiteSpace: "nowrap",
             boxShadow: "0 8px 20px rgba(0, 0, 0, 0.45)",
-            border: isSelected ? "1.5px solid #FFC107" : "1px solid rgba(255, 255, 255, 0.18)",
-            pointerEvents: "none",
-            zIndex: 100,
+            border: isSelected ? "1.5px solid #FFC107" : "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          {typeof name === "object" ? ((name as any)?.en || (name as any)?.es || "") : name}
+          {displayName}
           {/* Arrow Triangle pointing down to pin */}
           <div
             style={{
@@ -115,83 +99,100 @@ export function CategoryMarker({
               height: 0,
               borderLeft: "5px solid transparent",
               borderRight: "5px solid transparent",
-              borderTop: `5px solid ${isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.92)"}`,
+              borderTop: `5px solid ${isSelected ? "#0F172A" : "rgba(15, 23, 42, 0.94)"}`,
             }}
           />
         </div>
       )}
 
-      {/* ── 100% Google Maps Replica SVG (Clean White Pin Body) ── */}
-      <svg
-        width={width}
-        height={height}
-        viewBox="0 0 40 50"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-        }}
-      >
-        {/* White Pin Body */}
-        <path
-          d="M20 0C8.95 0 0 8.95 0 20C0 29 10 39 15 43.5C16.5 44.8 18.2 45.5 20 45.5C21.8 45.5 23.5 44.8 25 43.5C30 39 40 29 40 20C40 8.95 31.05 0 20 0Z"
-          fill="#FFFFFF"
-        />
-      </svg>
-
-      {/* ── Fixed Uniform Inner Badge (Guarantees Equal White Border on ALL Pins) ── */}
+      {/* ── Pin Visual Container with CSS-only hover scale ── */}
       <div
+        className="pin-body w-full h-full relative transition-transform duration-150 ease-out"
         style={{
-          position: "absolute",
-          top: "40%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: `${badgeSize}px`,
-          height: `${badgeSize}px`,
-          borderRadius: "50%",
-          backgroundColor: isCustomImage ? "transparent" : (color || "#FA7B17"),
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-          zIndex: 2,
-          pointerEvents: "none",
+          transform: isSelected ? "scale(1.22)" : undefined,
+          filter: isSelected ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))" : undefined,
         }}
       >
-        <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
-      </div>
+        {/* 100% Google Maps Replica SVG (Clean White Pin Body) */}
+        <svg
+          width={width}
+          height={height}
+          viewBox="0 0 40 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+        >
+          {/* Subtle drop shadow outline inside SVG */}
+          <path
+            d="M20 0C8.95 0 0 8.95 0 20C0 29 10 39 15 43.5C16.5 44.8 18.2 45.5 20 45.5C21.8 45.5 23.5 44.8 25 43.5C30 39 40 29 40 20C40 8.95 31.05 0 20 0Z"
+            fill="#FFFFFF"
+          />
+        </svg>
 
-      {/* ── Lock Badge (if locked) ── */}
-      {isLocked && (
+        {/* Fixed Uniform Inner Badge (Guarantees Equal White Border on ALL Pins) */}
         <div
           style={{
             position: "absolute",
-            top: -2,
-            right: -2,
-            background: "#EF4444",
-            color: "#fff",
+            top: "40%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: `${badgeSize}px`,
+            height: `${badgeSize}px`,
             borderRadius: "50%",
-            width: isMobile ? 15 : 18,
-            height: isMobile ? 15 : 18,
+            backgroundColor: isCustomImage ? "transparent" : (color || "#FA7B17"),
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            border: "1.5px solid white",
-            zIndex: 10,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+            overflow: "hidden",
+            zIndex: 2,
+            pointerEvents: "none",
           }}
         >
-          <Lock size={isMobile ? 8 : 10} style={{ strokeWidth: 3 }} />
+          <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
         </div>
-      )}
+
+        {/* Lock Badge (if locked) */}
+        {isLocked && (
+          <div
+            style={{
+              position: "absolute",
+              top: -2,
+              right: -2,
+              background: "#EF4444",
+              color: "#fff",
+              borderRadius: "50%",
+              width: isMobile ? 15 : 18,
+              height: isMobile ? 15 : 18,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1.5px solid white",
+              zIndex: 10,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+            }}
+          >
+            <Lock size={isMobile ? 8 : 10} style={{ strokeWidth: 3 }} />
+          </div>
+        )}
+      </div>
+
+      {/* Pure CSS hover rules injected once */}
+      <style jsx>{`
+        .cat-marker-root:not(.is-selected):hover .pin-body {
+          transform: scale(1.12);
+          filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+        }
+      `}</style>
     </div>
   );
-}
+});
 
 
 

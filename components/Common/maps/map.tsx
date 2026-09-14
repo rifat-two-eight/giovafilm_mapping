@@ -153,6 +153,16 @@ function ViewportPlaceMarkers({
   );
 }
 
+const COUNTRY_COORDINATES: Record<string, { lat: number; lng: number; zoom: number }> = {
+  "puerto rico": { lat: 18.2208, lng: -66.5901, zoom: 10 },
+  "republica dominicana": { lat: 18.7357, lng: -70.1627, zoom: 8 },
+  "república dominicana": { lat: 18.7357, lng: -70.1627, zoom: 8 },
+  "dominican republic": { lat: 18.7357, lng: -70.1627, zoom: 8 },
+  "estados unidos": { lat: 37.0902, lng: -95.7129, zoom: 5 },
+  "usa": { lat: 37.0902, lng: -95.7129, zoom: 5 },
+  "united states": { lat: 37.0902, lng: -95.7129, zoom: 5 },
+};
+
 function CountryPanner({
   selectedCountry,
   isManualSelection,
@@ -169,12 +179,20 @@ function CountryPanner({
     if (
       disabled ||
       !map ||
-      !geocodingLib ||
       !selectedCountry ||
       !isManualSelection
     )
       return;
 
+    const key = selectedCountry.trim().toLowerCase();
+    const preset = COUNTRY_COORDINATES[key];
+    if (preset) {
+      map.panTo({ lat: preset.lat, lng: preset.lng });
+      map.setZoom(preset.zoom);
+      return;
+    }
+
+    if (!geocodingLib) return;
     const geocoder = new geocodingLib.Geocoder();
     geocoder.geocode(
       { address: selectedCountry },
