@@ -3,6 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
+
 type Props = {
   plan: any;
   onEdit: (plan: any) => void;
@@ -11,6 +14,7 @@ type Props = {
 };
 
 export function SubscriptionCard({ plan, onEdit, onDelete, isLoading }: Props) {
+  const { language } = useLanguage();
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-all p-8 flex flex-col relative overflow-hidden group">
       {plan.isPopular && (
@@ -21,7 +25,7 @@ export function SubscriptionCard({ plan, onEdit, onDelete, isLoading }: Props) {
 
       <div className="mb-8">
         <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">
-          {plan.name}
+          {getLocalized(plan.name, language)}
         </h3>
         <div className="flex items-baseline gap-1">
           <span className="text-4xl font-black text-gray-900">
@@ -34,12 +38,12 @@ export function SubscriptionCard({ plan, onEdit, onDelete, isLoading }: Props) {
       </div>
 
       <div className="space-y-4 mb-10 flex-1">
-        {plan.features?.map((feature: string, idx: number) => (
+        {plan.features?.map((feature: any, idx: number) => (
           <div key={idx} className="flex items-start gap-3">
             <div className="mt-1 bg-green-100 p-0.5 rounded-full">
               <Check className="w-3.5 h-3.5 text-green-600 stroke-[3]" />
             </div>
-            <p className="text-sm text-gray-600 font-medium">{feature}</p>
+            <p className="text-sm text-gray-600 font-medium">{getLocalized(feature, language)}</p>
           </div>
         ))}
       </div>

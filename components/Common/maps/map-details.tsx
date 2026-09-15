@@ -56,7 +56,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl, getLocalized } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
@@ -99,7 +99,7 @@ function LightboxImage({ src, alt, className }: { src: string; alt: string; clas
 }
 
 export default function MapDetails() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1592,7 +1592,7 @@ export default function MapDetails() {
                   </div>
 
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    {rev.review || (
+                    {getLocalized(rev.review, language) || (
                       <span className="italic text-gray-400">
                         {t("reviews.rated_stars_only").replace("{rating}", String(rev.rating))}
                       </span>

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
-import { formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl, getLocalized } from "@/lib/utils";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import { ReviewModal } from "../../maps/review-modal";
@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function ReviewCard({ review }: any) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const rating = review?.rating || 0;
@@ -20,7 +20,7 @@ export function ReviewCard({ review }: any) {
 
   const isBusinessReview = !!review?.businessId;
   const target = isBusinessReview ? review.businessId : review.placeId;
-  const targetName = target?.name || "Unknown";
+  const targetName = getLocalized(target?.name, language) || "Unknown";
   const coverImage = isBusinessReview
     ? target?.media?.photos?.[0]
     : target?.media?.[0];
@@ -97,7 +97,7 @@ export function ReviewCard({ review }: any) {
           </div>
 
           <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-3 line-clamp-3 sm:line-clamp-4">
-            {review?.review}
+            {getLocalized(review?.review, language)}
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export function ReviewCard({ review }: any) {
         initialData={{
           _id: review?._id,
           rating: review?.rating,
-          review: review?.review,
+          review: typeof review?.review === "object" ? (review?.review as any)?.[language] || (review?.review as any)?.en || "" : (review?.review || ""),
         }}
       />
     </div>

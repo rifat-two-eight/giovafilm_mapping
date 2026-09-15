@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized } from "@/lib/utils";
 import { MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,7 +34,7 @@ interface ReviewsSectionProps {
 }
 
 export function ReviewsSection({ reviews }: ReviewsSectionProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
@@ -68,7 +68,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
         {reviews?.map((review) => {
           const isBusinessReview = !!review.businessId;
           const target = isBusinessReview ? review.businessId : review.placeId;
-          const targetName = target?.name || "Unknown";
+          const targetName = getLocalized(target?.name, language) || "Unknown";
           const coverImage = isBusinessReview
             ? review.businessId?.media?.photos?.[0]
             : review.placeId?.media?.[0];
@@ -157,7 +157,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
 
                 {/* Description */}
                 <p className="text-sm text-gray-600 line-clamp-2">
-                  {review.review}
+                  {getLocalized(review.review, language)}
                 </p>
               </div>
 
@@ -195,7 +195,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
             ? {
                 _id: selectedReview._id,
                 rating: selectedReview.rating,
-                review: selectedReview.review,
+                review: typeof selectedReview.review === "object" ? (selectedReview.review as any)?.[language] || (selectedReview.review as any)?.en || "" : (selectedReview.review || ""),
               }
             : undefined
         }

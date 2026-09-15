@@ -3,11 +3,13 @@
 import React from "react";
 import { CategoryIcon } from "../categories/category-icon";
 import { Lock } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 interface CategoryMarkerProps {
   icon: string;
   color?: string;
-  name?: string;
+  name?: string | { en?: string; es?: string };
   isTemp?: boolean;
   isSelected?: boolean;
   isLocked?: boolean;
@@ -23,6 +25,7 @@ export const CategoryMarker = React.memo(function CategoryMarker({
   isLocked = false,
   isMobile = false,
 }: CategoryMarkerProps) {
+  const { language } = useLanguage();
   // Proportions for a 100% Uniform Google Maps POI Pin
   const width = isMobile ? 30 : 37;
   const height = isMobile ? 38 : 46;
@@ -35,7 +38,7 @@ export const CategoryMarker = React.memo(function CategoryMarker({
     icon?.includes(".");
 
   const iconSize = isCustomImage ? badgeSize : (isMobile ? 16 : 19);
-  const displayName = typeof name === "object" ? ((name as any)?.en || (name as any)?.es || "") : name;
+  const displayName = getLocalized(name, language);
 
   return (
     <div

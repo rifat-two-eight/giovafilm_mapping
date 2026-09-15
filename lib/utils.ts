@@ -23,6 +23,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Safely extracts a localized string from an i18n object { en?: string, es?: string } or string.
+ * Supports fallback to current active language or alternate language.
+ */
+export function getLocalized(val: any, lang: string = "es"): string {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  }
+  return String(val);
+}
+
 const FALLBACK_IMAGE = "/exploring-today.jpg";
 
 const extractMediaPath = (item: any): string => {

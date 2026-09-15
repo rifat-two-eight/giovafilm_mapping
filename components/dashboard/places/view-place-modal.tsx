@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatEntryCost, formatHikeTime, getImageUrl } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -56,7 +56,7 @@ export function ViewPlaceModal({
   open,
   onOpenChange,
 }: ViewPlaceModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: response, isLoading } = useGetPlaceDetailsQuery(
     placeId as string,
     {
@@ -73,12 +73,12 @@ export function ViewPlaceModal({
 
   const place = response?.data;
 
-  const categoryName =
+  const categoryName = getLocalized(
     typeof place?.category === "object" && place?.category?.name
       ? place.category.name
-      : typeof place?.category === "string"
-      ? place.category
-      : "";
+      : place?.category,
+    language
+  );
 
   const isBusinessOrRestaurant =
     place?.type === "Business" ||
@@ -285,7 +285,7 @@ export function ViewPlaceModal({
 
                 {/* Place Name */}
                 <DialogTitle className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                  {place.name}
+                  {getLocalized(place.name, language)}
                 </DialogTitle>
 
                 {/* Location Address */}
@@ -341,7 +341,7 @@ export function ViewPlaceModal({
                           <span>{t("place.about_this_place")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                          {place.description}
+                          {getLocalized(place.description, language)}
                         </p>
                       </div>
                     )}
@@ -354,7 +354,7 @@ export function ViewPlaceModal({
                           <span>{t("place.access_and_getting_here")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                          {place.access}
+                          {getLocalized(place.access, language)}
                         </p>
                       </div>
                     )}
@@ -367,7 +367,7 @@ export function ViewPlaceModal({
                           <span>{t("place.tips")}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                          {place.recommendations.tips}
+                          {getLocalized(place.recommendations.tips, language)}
                         </p>
                       </div>
                     )}
@@ -436,7 +436,7 @@ export function ViewPlaceModal({
                           <span>{t("place.connected_map")}</span>
                         </div>
                         <p className="text-xs font-bold text-gray-900 truncate">
-                          {typeof place.map === "object" ? place.map.name : (t("place.general_map") || "General Map")}
+                          {getLocalized(typeof place.map === "object" ? place.map.name : place.map, language) || (t("place.general_map") || "General Map")}
                         </p>
                       </div>
 
@@ -631,7 +631,7 @@ export function ViewPlaceModal({
                           {t("place.additional_notes")}
                         </h4>
                         <p className="text-xs text-gray-700 leading-relaxed">
-                          {place.accessibility.notes}
+                          {getLocalized(place.accessibility.notes, language)}
                         </p>
                       </div>
                     )}
@@ -759,7 +759,7 @@ export function ViewPlaceModal({
                               </div>
 
                               <p className="text-xs sm:text-sm text-gray-700 leading-relaxed bg-gray-50/70 p-3 rounded-xl border border-gray-100">
-                                {review.review}
+                                {getLocalized(review.review, language)}
                               </p>
                             </div>
                           ))}

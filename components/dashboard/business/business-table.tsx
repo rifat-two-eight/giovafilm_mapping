@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getLocalized } from "@/lib/utils";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -30,7 +30,7 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function BusinessTable() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selected, setSelected] = useState<string[]>([]);
 
   const businessTableHeaders = [
@@ -272,15 +272,15 @@ export function BusinessTable() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
-                        {business.name}
+                        {getLocalized(business.name, language)}
                       </p>
                       <p className="text-sm text-gray-500 line-clamp-1 max-w-[200px]">
-                        {business.description}
+                        {getLocalized(business.description, language)}
                       </p>
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium lowercase">
-                        {business.category?.name || "N/A"}
+                        {getLocalized(business.category?.name, language) || "N/A"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">

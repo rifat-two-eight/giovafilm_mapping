@@ -36,9 +36,10 @@ const tableHeaders = [
 ];
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -176,11 +177,11 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                   } hover:bg-gray-50 transition-colors`}
                 >
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {map.name}
+                    {getLocalized(map.name, language)}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">
-                    {map.description || "-"}
+                    {getLocalized(map.description, language) || "-"}
                   </td>
 
                   <td className="px-6 py-4 text-sm">

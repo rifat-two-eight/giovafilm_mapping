@@ -7,7 +7,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized } from "@/lib/utils";
 import { useGetMapByIdQuery } from "@/redux/features/map/mapApi";
 import { trackUsage } from "@/lib/record-visit";
 import { useCreateMapCheckoutSessionMutation } from "@/redux/features/payment/paymentApi";
@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function FeatureMapDetailPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -195,7 +195,7 @@ export default function FeatureMapDetailPage() {
             {t("map.regional_maps")}
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-semibold">{mapData.name}</span>
+          <span className="text-gray-900 font-semibold">{getLocalized(mapData.name, language)}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -206,7 +206,7 @@ export default function FeatureMapDetailPage() {
               {mainImage ? (
                 <img
                   src={mainImage}
-                  alt={mapData.name}
+                  alt={getLocalized(mapData.name, language)}
                   className="w-full h-full object-cover transition-opacity duration-300"
                   referrerPolicy="no-referrer"
                 />
@@ -256,7 +256,7 @@ export default function FeatureMapDetailPage() {
                 {t("map.most_popular_collection")}
               </span>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                {mapData.name}
+                {getLocalized(mapData.name, language)}
               </h1>
 
               {/* Rating */}
@@ -325,7 +325,7 @@ export default function FeatureMapDetailPage() {
                 {t("map.map_description")}
               </h3>
               <p className="text-gray-700 leading-relaxed" style={{ whiteSpace: "pre-line" }}>
-                {mapData.description}
+                {getLocalized(mapData.description, language)}
               </p>
             </div>
           </div>

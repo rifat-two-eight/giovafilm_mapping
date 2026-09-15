@@ -43,9 +43,10 @@ import {
 } from "@/lib/roles";
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function UsersTable(): React.ReactElement {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const ROLE_LABELS: Record<AppRole, string> = {
     user: t("users_admin.user"),
@@ -87,7 +88,7 @@ export function UsersTable(): React.ReactElement {
 
   // Filtered list for Modal
   const filteredModalMaps = maps.filter((map: any) =>
-    map.name?.toLowerCase().includes(modalMapSearch.toLowerCase()) ||
+    getLocalized(map.name, language)?.toLowerCase().includes(modalMapSearch.toLowerCase()) ||
     (map.country && map.country.toLowerCase().includes(modalMapSearch.toLowerCase()))
   );
 
@@ -539,7 +540,7 @@ export function UsersTable(): React.ReactElement {
                           }
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                         />
-                        <span className="truncate">{map.name} {map.country ? `(${map.country})` : ""}</span>
+                        <span className="truncate">{getLocalized(map.name, language)} {map.country ? `(${map.country})` : ""}</span>
                       </label>
                     );
                   })

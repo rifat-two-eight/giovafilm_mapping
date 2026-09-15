@@ -2,7 +2,7 @@
 
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Button } from "@/components/ui/button";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized } from "@/lib/utils";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { motion } from "motion/react";
 import Image from "next/image";
@@ -12,8 +12,10 @@ import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useAppSelector } from "@/redux/hook";
 import { MapLocation } from "@/lib/types/place/map";
 import { Suspense } from "react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function FeaturedMapsInner() {
+  const { language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const accessToken = useAppSelector((state) => state.auth.accessToken);
@@ -94,10 +96,10 @@ function FeaturedMapsInner() {
                     {/* Card Details */}
                     <div className="p-2 sm:p-3 flex flex-col flex-1">
                       <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#1A1A1A] leading-tight mb-1 line-clamp-2">
-                        {map.name}
+                        {getLocalized(map.name, language)}
                       </h3>
                       <p className="text-xs sm:text-sm text-[#9E9E9E] mb-2 line-clamp-2">
-                        {map.description ||
+                        {getLocalized(map.description, language) ||
                           "Explore the best of the city with this curated guide."}
                       </p>
                       <div className="mt-auto">

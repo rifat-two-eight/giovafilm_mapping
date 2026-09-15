@@ -25,9 +25,10 @@ interface CategoryTableProps {
 }
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -149,7 +150,7 @@ export function CategoryTable({ onEdit, onView }: CategoryTableProps) {
 
                   {/* Category Name */}
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {category.name}
+                    {getLocalized(category.name, language)}
                   </td>
 
                   {/* Color */}

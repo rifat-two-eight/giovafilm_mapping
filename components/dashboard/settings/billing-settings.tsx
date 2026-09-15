@@ -13,9 +13,10 @@ import { appAlert } from "@/lib/app-alert";
 import { useAppSelector } from "@/redux/hook";
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function BillingSettings() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data, isLoading } = useGetMySubscriptionQuery();
   const [cancelSubscription, { isLoading: isCanceling }] =
     useCancelSubscriptionMutation();
@@ -77,10 +78,10 @@ export function BillingSettings() {
               <div className="flex justify-between items-center mb-1">
                 <div>
                   <p className="font-bold text-gray-900">
-                    {sub.planId?.name || "Premium Plan"}
+                    {getLocalized(sub.planId?.name, language) || "Premium Plan"}
                   </p>
                   <p className="text-xs text-blue-700 font-bold mt-0.5">
-                    For Business: {sub.businessId?.name || "Unknown Business"}
+                    For Business: {getLocalized(sub.businessId?.name, language) || "Unknown Business"}
                   </p>
                 </div>
                 <span

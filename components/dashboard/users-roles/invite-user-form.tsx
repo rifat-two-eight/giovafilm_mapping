@@ -26,9 +26,10 @@ interface FormData {
 }
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function InviteUserForm(): React.ReactElement {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     role: "user",
@@ -55,7 +56,7 @@ export function InviteUserForm(): React.ReactElement {
 
   const filteredMaps = maps.filter(
     (map: any) =>
-      map.name?.toLowerCase().includes(mapSearch.toLowerCase()) ||
+      getLocalized(map.name, language)?.toLowerCase().includes(mapSearch.toLowerCase()) ||
       (map.country &&
         map.country.toLowerCase().includes(mapSearch.toLowerCase())),
   );
@@ -262,7 +263,7 @@ export function InviteUserForm(): React.ReactElement {
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                           />
                           <span className="truncate">
-                            {map.name}{" "}
+                            {getLocalized(map.name, language)}{" "}
                             {map.country ? `(${map.country})` : ""}
                           </span>
                         </label>

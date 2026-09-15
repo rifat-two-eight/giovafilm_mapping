@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 interface StatItem {
   name: string;
@@ -8,7 +9,7 @@ interface StatItem {
 }
 
 function StatColumn({ title, items }: { title: string; items: StatItem[] }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   return (
     <div>
       <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
@@ -16,7 +17,7 @@ function StatColumn({ title, items }: { title: string; items: StatItem[] }) {
         {items.length > 0 ? (
           items.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-              <span className="text-sm text-gray-700 font-medium truncate pr-2">{item.name}</span>
+              <span className="text-sm text-gray-700 font-medium truncate pr-2">{getLocalized(item.name, language)}</span>
               <span className="text-sm font-bold text-blue-600">
                 {item.count.toLocaleString()}
               </span>

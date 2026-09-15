@@ -22,9 +22,10 @@ import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 
 export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -232,13 +233,13 @@ export function OffersTable({ onEdit }: { onEdit?: (offer: any) => void }) {
                     } hover:bg-gray-50 transition-colors`}
                   >
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {offer.title}
+                      {getLocalized(offer.title, language)}
                     </td>
 
                     <td className="px-6 py-4 text-sm text-gray-600">
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">
-                          {offer.business?.name || offer.place?.name || "N/A"}
+                          {getLocalized(offer.business?.name, language) || getLocalized(offer.place?.name, language) || "N/A"}
                         </span>
                         {locationSubtitle && (
                           <span
