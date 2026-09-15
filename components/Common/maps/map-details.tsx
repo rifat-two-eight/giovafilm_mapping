@@ -1488,7 +1488,7 @@ export default function MapDetails() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 italic">
-                  "{myReview.review || t("reviews.star_only")}"
+                  "{getLocalized(myReview.review, language) || t("reviews.star_only")}"
                 </p>
               </div>
             </div>
@@ -1544,7 +1544,7 @@ export default function MapDetails() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-800 leading-relaxed">
-                  {myReview.review || <span className="italic text-gray-400">{t("reviews.rated_stars_only").replace("{rating}", String(myReview.rating))}</span>}
+                  {getLocalized(myReview.review, language) || <span className="italic text-gray-400">{t("reviews.rated_stars_only").replace("{rating}", String(myReview.rating))}</span>}
                 </p>
               </div>
             </div>
