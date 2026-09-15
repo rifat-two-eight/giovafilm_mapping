@@ -43,6 +43,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  GripVertical,
 } from "lucide-react";
 import { CategoryIcon } from "@/components/shared/categories/category-icon";
 import React, { useEffect, useRef, useState } from "react";
@@ -128,6 +129,38 @@ export const PlaceFormContent = ({
   const [isDraggingMedia, setIsDraggingMedia] = useState(false);
   const [isDraggingMenu, setIsDraggingMenu] = useState(false);
   const [isOptimizingMedia, setIsOptimizingMedia] = useState(false);
+
+  // Drag & drop reordering states
+  const [draggedExistingIdx, setDraggedExistingIdx] = useState<number | null>(null);
+  const [dragOverExistingIdx, setDragOverExistingIdx] = useState<number | null>(null);
+  const [draggedNewIdx, setDraggedNewIdx] = useState<number | null>(null);
+  const [dragOverNewIdx, setDragOverNewIdx] = useState<number | null>(null);
+
+  const moveArrayItem = <T,>(arr: T[], from: number, to: number): T[] => {
+    if (from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) return arr;
+    const copy = [...arr];
+    const [moved] = copy.splice(from, 1);
+    copy.splice(to, 0, moved);
+    return copy;
+  };
+
+  const moveExistingImage = (from: number, to: number) => {
+    setExistingImages((prev) => moveArrayItem(prev, from, to));
+  };
+
+  const moveNewMedia = (from: number, to: number) => {
+    setMediaFiles((prev) => moveArrayItem(prev, from, to));
+    setPreviews((prev) => moveArrayItem(prev, from, to));
+  };
+
+  const moveExistingMenuImage = (from: number, to: number) => {
+    setExistingMenuImages((prev) => moveArrayItem(prev, from, to));
+  };
+
+  const moveNewMenuMedia = (from: number, to: number) => {
+    setMenuFiles((prev) => moveArrayItem(prev, from, to));
+    setMenuPreviews((prev) => moveArrayItem(prev, from, to));
+  };
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -888,91 +921,249 @@ export const PlaceFormContent = ({
 
               {/* Existing Images/Videos (from Server) */}
               {existingImages.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {existingImages.map((url, index) => {
-                    const isVideo = isVideoUrl(url);
-                    return (
-                      <div
-                        key={`existing-${index}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
-                      >
-                        {isVideo ? (
-                          <video
-                            src={`${getImageUrl(url)}#t=0.1`}
-                            className="w-full h-full object-cover"
-                            muted
-                            controls
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <img
-                            src={getImageUrl(url)}
-                            alt={`existing-${index}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        <button
-                          onClick={(e) => {
+                <div className="space-y-1.5 mt-3">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
+                    <span>{t("places_admin.existing_photos") || "Uploaded Photos & Videos"} ({existingImages.length})</span>
+                    <span className="text-[10px] text-gray-400 font-normal italic">Drag or click arrows to reorder • 1st photo is Cover</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {existingImages.map((url, index) => {
+                      const isVideo = isVideoUrl(url);
+                      const isFirst = index === 0;
+                      const isDragging = draggedExistingIdx === index;
+                      const isOver = dragOverExistingIdx === index;
+
+                      return (
+                        <div
+                          key={`existing-${index}`}
+                          draggable
+                          onDragStart={(e) => {
                             e.stopPropagation();
-                            removeExistingImage(index);
+                            setDraggedExistingIdx(index);
                           }}
-                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setDragOverExistingIdx(index);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedExistingIdx(null);
+                            setDragOverExistingIdx(null);
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (draggedExistingIdx !== null && draggedExistingIdx !== index) {
+                              moveExistingImage(draggedExistingIdx, index);
+                            }
+                            setDraggedExistingIdx(null);
+                            setDragOverExistingIdx(null);
+                          }}
+                          className={`relative aspect-square rounded-xl overflow-hidden border transition-all group select-none cursor-grab active:cursor-grabbing ${
+                            isDragging ? "opacity-30 border-blue-500 scale-95" : "border-gray-200 hover:border-blue-400"
+                          } ${isOver && !isDragging ? "ring-2 ring-blue-500 scale-105 z-10" : ""}`}
                         >
-                          <CloseIcon size={10} />
-                        </button>
-                      </div>
-                    );
-                  })}
+                          {isVideo ? (
+                            <video
+                              src={`${getImageUrl(url)}#t=0.1`}
+                              className="w-full h-full object-cover pointer-events-none"
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <img
+                              src={getImageUrl(url)}
+                              alt={`existing-${index}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                            />
+                          )}
+
+                          {/* Cover badge for 1st image */}
+                          {isFirst && (
+                            <span className="absolute top-1 left-1 bg-amber-500 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded shadow-xs z-10">
+                              Cover
+                            </span>
+                          )}
+
+                          {/* Action Overlay Controls */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-1 z-20">
+                            {index > 0 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  moveExistingImage(index, index - 1);
+                                }}
+                                title="Move left"
+                                className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                              >
+                                <ChevronLeft size={13} />
+                              </button>
+                            ) : <div />}
+
+                            <div className="text-white/80 p-0.5">
+                              <GripVertical size={16} />
+                            </div>
+
+                            {index < existingImages.length - 1 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  moveExistingImage(index, index + 1);
+                                }}
+                                title="Move right"
+                                className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                              >
+                                <ChevronRight size={13} />
+                              </button>
+                            ) : <div />}
+                          </div>
+
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeExistingImage(index);
+                            }}
+                            title="Remove photo"
+                            className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-30 cursor-pointer"
+                          >
+                            <CloseIcon size={10} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
               {/* New Upload Previews (Blob URLs) */}
               {previews.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {previews.map((url, index) => {
-                    const file = mediaFiles[index];
-                    const isVideo = file ? isVideoFile(file) : isVideoUrl(url);
-                    return (
-                      <div
-                        key={`new-${index}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group bg-gray-900"
-                      >
-                        {isVideo ? (
-                          <video
-                            src={`${url}#t=0.1`}
-                            className="w-full h-full object-cover"
-                            muted
-                            controls
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <img
-                            src={url}
-                            alt={`preview-${index}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        {file && (
-                          <span className="absolute bottom-1 left-1 bg-black/75 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded font-mono font-medium tracking-tight pointer-events-none z-10">
-                            {isVideo ? "🎬 " : ""}{formatFileSize(file.size)}
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          disabled={isSaving}
-                          onClick={(e) => {
+                <div className="space-y-1.5 mt-3">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
+                    <span>New Uploads ({previews.length})</span>
+                    <span className="text-[10px] text-gray-400 font-normal italic">Drag or click arrows to reorder</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {previews.map((url, index) => {
+                      const file = mediaFiles[index];
+                      const isVideo = file ? isVideoFile(file) : isVideoUrl(url);
+                      const isFirst = existingImages.length === 0 && index === 0;
+                      const isDragging = draggedNewIdx === index;
+                      const isOver = dragOverNewIdx === index;
+
+                      return (
+                        <div
+                          key={`new-${index}`}
+                          draggable
+                          onDragStart={(e) => {
                             e.stopPropagation();
-                            removeMedia(index);
+                            setDraggedNewIdx(index);
                           }}
-                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20 disabled:pointer-events-none"
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setDragOverNewIdx(index);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedNewIdx(null);
+                            setDragOverNewIdx(null);
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (draggedNewIdx !== null && draggedNewIdx !== index) {
+                              moveNewMedia(draggedNewIdx, index);
+                            }
+                            setDraggedNewIdx(null);
+                            setDragOverNewIdx(null);
+                          }}
+                          className={`relative aspect-square rounded-xl overflow-hidden border transition-all group select-none cursor-grab active:cursor-grabbing bg-gray-900 ${
+                            isDragging ? "opacity-30 border-blue-500 scale-95" : "border-gray-200 hover:border-blue-400"
+                          } ${isOver && !isDragging ? "ring-2 ring-blue-500 scale-105 z-10" : ""}`}
                         >
-                          <CloseIcon size={10} />
-                        </button>
-                      </div>
-                    );
-                  })}
+                          {isVideo ? (
+                            <video
+                              src={`${url}#t=0.1`}
+                              className="w-full h-full object-cover pointer-events-none"
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <img
+                              src={url}
+                              alt={`preview-${index}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                            />
+                          )}
+
+                          {isFirst && (
+                            <span className="absolute top-1 left-1 bg-amber-500 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded shadow-xs z-10">
+                              Cover
+                            </span>
+                          )}
+
+                          {file && !isFirst && (
+                            <span className="absolute bottom-1 left-1 bg-black/75 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded font-mono font-medium tracking-tight pointer-events-none z-10">
+                              {isVideo ? "🎬 " : ""}{formatFileSize(file.size)}
+                            </span>
+                          )}
+
+                          {/* Action Overlay Controls */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-1 z-20">
+                            {index > 0 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  moveNewMedia(index, index - 1);
+                                }}
+                                title="Move left"
+                                className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                              >
+                                <ChevronLeft size={13} />
+                              </button>
+                            ) : <div />}
+
+                            <div className="text-white/80 p-0.5">
+                              <GripVertical size={16} />
+                            </div>
+
+                            {index < previews.length - 1 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  moveNewMedia(index, index + 1);
+                                }}
+                                title="Move right"
+                                className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                              >
+                                <ChevronRight size={13} />
+                              </button>
+                            ) : <div />}
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={isSaving}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeMedia(index);
+                            }}
+                            title="Remove photo"
+                            className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-30 cursor-pointer disabled:pointer-events-none"
+                          >
+                            <CloseIcon size={10} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -1265,26 +1456,65 @@ export const PlaceFormContent = ({
 
               {/* Existing Menu Images (from Server) */}
               {existingMenuImages.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold text-gray-500 uppercase">Existing Menu Photos</Label>
-                  <div className="grid grid-cols-4 gap-2">
+                <div className="space-y-1.5 mt-3">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
+                    <span>Existing Menu Photos ({existingMenuImages.length})</span>
+                    <span className="text-[10px] text-gray-400 font-normal italic">Drag or click arrows to reorder</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {existingMenuImages.map((url, index) => (
                       <div
                         key={`existing-menu-${index}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 group select-none transition-all cursor-grab active:cursor-grabbing"
                       >
                         <img
                           src={getImageUrl(url)}
                           alt={`existing-menu-${index}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
+                        {/* Action Overlay Controls */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-1 z-20">
+                          {index > 0 ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveExistingMenuImage(index, index - 1);
+                              }}
+                              title="Move left"
+                              className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                            >
+                              <ChevronLeft size={13} />
+                            </button>
+                          ) : <div />}
+
+                          <div className="text-white/80 p-0.5">
+                            <GripVertical size={16} />
+                          </div>
+
+                          {index < existingMenuImages.length - 1 ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveExistingMenuImage(index, index + 1);
+                              }}
+                              title="Move right"
+                              className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                            >
+                              <ChevronRight size={13} />
+                            </button>
+                          ) : <div />}
+                        </div>
+
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeExistingMenuImage(index);
                           }}
-                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                          title="Remove photo"
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-30 cursor-pointer"
                         >
                           <CloseIcon size={10} />
                         </button>
@@ -1296,26 +1526,65 @@ export const PlaceFormContent = ({
 
               {/* New Upload Previews */}
               {menuPreviews.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold text-gray-500 uppercase">New Menu Photos</Label>
-                  <div className="grid grid-cols-4 gap-2">
+                <div className="space-y-1.5 mt-3">
+                  <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
+                    <span>New Menu Photos ({menuPreviews.length})</span>
+                    <span className="text-[10px] text-gray-400 font-normal italic">Drag or click arrows to reorder</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {menuPreviews.map((url, index) => (
                       <div
                         key={`new-menu-${index}`}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group"
+                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 group select-none transition-all cursor-grab active:cursor-grabbing"
                       >
                         <img
                           src={url}
                           alt={`menu-preview-${index}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover pointer-events-none"
                         />
+                        {/* Action Overlay Controls */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-1 z-20">
+                          {index > 0 ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveNewMenuMedia(index, index - 1);
+                              }}
+                              title="Move left"
+                              className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                            >
+                              <ChevronLeft size={13} />
+                            </button>
+                          ) : <div />}
+
+                          <div className="text-white/80 p-0.5">
+                            <GripVertical size={16} />
+                          </div>
+
+                          {index < menuPreviews.length - 1 ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveNewMenuMedia(index, index + 1);
+                              }}
+                              title="Move right"
+                              className="p-1 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                            >
+                              <ChevronRight size={13} />
+                            </button>
+                          ) : <div />}
+                        </div>
+
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeMenuFile(index);
                           }}
-                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                          title="Remove photo"
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-30 cursor-pointer"
                         >
                           <CloseIcon size={10} />
                         </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
@@ -43,7 +44,6 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 
 interface ViewPlaceModalProps {
   placeId: string | null;
@@ -80,31 +80,63 @@ export function ViewPlaceModal({
     language
   );
 
+  const hasContent = useCallback(
+    (val: any): boolean => {
+      if (val == null) return false;
+      const loc = getLocalized(val, language);
+      if (!loc) return false;
+      const trimmed = String(loc).trim();
+      return (
+        trimmed.length > 0 &&
+        trimmed !== "0" &&
+        trimmed !== "N/A" &&
+        trimmed !== "n/a" &&
+        trimmed !== "undefined" &&
+        trimmed !== "null"
+      );
+    },
+    [language]
+  );
+
   const isBusinessOrRestaurant =
     place?.type === "Business" ||
     categoryName.toLowerCase().includes("restaurant") ||
     categoryName.toLowerCase().includes("cafe") ||
     categoryName.toLowerCase().includes("bar");
 
+  const hasMenu = isBusinessOrRestaurant && place?.menuImages && place.menuImages.length > 0;
+  const hasAccessibility =
+    (place?.accessibility?.features && place.accessibility.features.length > 0) ||
+    hasContent(place?.accessibility?.notes);
+  const hasServices = place?.services && place.services.length > 0;
+
   const dynamicTabs = [
     { id: "overview", label: t("place.overview") || "Overview", icon: <Info size={15} /> },
-    ...(isBusinessOrRestaurant
+    ...(hasMenu
       ? [{ id: "menu", label: t("place.menu_and_prices") || "Menu & Prices", icon: <Utensils size={15} /> }]
       : []),
-    {
-      id: "accessibility",
-      label: t("place.accessibility_features") || "Accessibility",
-      icon: <Accessibility size={15} />,
-    },
-    { id: "services", label: t("place.services_available") || "Services", icon: <ToolCase size={15} /> },
+    ...(hasAccessibility
+      ? [
+          {
+            id: "accessibility",
+            label: t("place.accessibility_features") || "Accessibility",
+            icon: <Accessibility size={15} />,
+          },
+        ]
+      : []),
+    ...(hasServices
+      ? [{ id: "services", label: t("place.services_available") || "Services", icon: <ToolCase size={15} /> }]
+      : []),
     { id: "reviews", label: t("place.reviews") || "Reviews", icon: <MessageSquare size={15} /> },
   ];
 
   useEffect(() => {
-    if (place && !isBusinessOrRestaurant && activeTab === "menu") {
-      setActiveTab("overview");
+    if (place) {
+      if (activeTab === "menu" && !hasMenu) setActiveTab("overview");
+      if (activeTab === "accessibility" && !hasAccessibility) setActiveTab("overview");
+      if (activeTab === "services" && !hasServices) setActiveTab("overview");
     }
-  }, [place, isBusinessOrRestaurant, activeTab]);
+  }, [place, hasMenu, hasAccessibility, hasServices, activeTab]);
 
   const servicesIcons: Record<string, React.ReactNode> = {
     Parking: <Car size={16} />,
@@ -334,7 +366,7 @@ export function ViewPlaceModal({
                 {activeTab === "overview" && (
                   <div className="space-y-4">
                     {/* About This Place */}
-                    {place.description && (
+                    {hasContent(place.description) && (
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Info size={14} className="text-amber-600" />
@@ -347,7 +379,7 @@ export function ViewPlaceModal({
                     )}
 
                     {/* Access & Directions */}
-                    {place.access && (
+                    {hasContent(place.access) && (
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Compass size={14} className="text-amber-600" />
@@ -360,7 +392,7 @@ export function ViewPlaceModal({
                     )}
 
                     {/* Tips & Recommendations */}
-                    {place.recommendations?.tips && (
+                    {hasContent(place.recommendations?.tips) && (
                       <div className="bg-white border border-amber-100 bg-amber-50/30 p-5 rounded-2xl shadow-2xs space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                           <Lightbulb size={14} className="text-amber-600" />
@@ -397,14 +429,14 @@ export function ViewPlaceModal({
                         </div>
                       </div>
                     ) : (
-                      place.schedules && (
+                      hasContent(place.schedules) && (
                         <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-2">
                           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
                             <Clock size={14} className="text-amber-600" />
                             <span>{t("place.schedules")}</span>
                           </div>
                           <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                            {place.schedules}
+                            {getLocalized(place.schedules, language)}
                           </p>
                         </div>
                       )
@@ -441,7 +473,7 @@ export function ViewPlaceModal({
                       </div>
 
                       {/* Difficulty */}
-                      {place.difficulty && (
+                      {hasContent(place.difficulty) && (
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Gauge size={13} className="text-emerald-600" />
@@ -462,7 +494,7 @@ export function ViewPlaceModal({
                       )}
 
                       {/* Walking / Hike Time */}
-                      {place.hikeTime && (
+                      {hasContent(place.hikeTime) && (
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Clock size={13} className="text-indigo-600" />
@@ -475,7 +507,7 @@ export function ViewPlaceModal({
                       )}
 
                       {/* Entry Cost */}
-                      {place.entryCost && (
+                      {hasContent(place.entryCost) && (
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Coins size={13} className="text-amber-600" />
@@ -488,27 +520,27 @@ export function ViewPlaceModal({
                       )}
 
                       {/* Atmosphere */}
-                      {place.atmosphere && (
+                      {hasContent(place.atmosphere) && (
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-2xs space-y-1">
                           <div className="flex items-center gap-1.5 text-gray-400 text-xs font-bold uppercase tracking-wider">
                             <Sparkles size={13} className="text-rose-500" />
                             <span>{t("place.atmosphere")}</span>
                           </div>
                           <p className="text-xs font-bold text-gray-800 truncate">
-                            {place.atmosphere}
+                            {getLocalized(place.atmosphere, language)}
                           </p>
                         </div>
                       )}
                     </div>
 
                     {/* Contact & External Links */}
-                    {(place.phone || place.website || place.instagram) && (
+                    {(hasContent(place.phone) || hasContent(place.website) || hasContent(place.instagram)) && (
                       <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-2xs space-y-3">
                         <div className="text-xs font-bold uppercase tracking-wider text-amber-800">
                           {t("place.contact_and_links")}
                         </div>
                         <div className="flex flex-wrap gap-3 text-xs">
-                          {place.phone && (
+                          {hasContent(place.phone) && (
                             <a
                               href={`tel:${place.phone}`}
                               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-800 font-semibold border border-gray-200 transition-colors"

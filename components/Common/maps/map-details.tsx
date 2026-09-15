@@ -213,8 +213,23 @@ export default function MapDetails() {
     ? isBusinessReviewsLoading
     : isPlaceReviewsLoading;
 
-  const hasText = (v?: unknown) =>
-    typeof v === "string" && v.trim().length > 0;
+  const hasText = useCallback(
+    (v?: unknown) => {
+      if (v == null) return false;
+      const loc = getLocalized(v, language);
+      if (!loc) return false;
+      const trimmed = String(loc).trim();
+      return (
+        trimmed.length > 0 &&
+        trimmed !== "0" &&
+        trimmed !== "N/A" &&
+        trimmed !== "n/a" &&
+        trimmed !== "undefined" &&
+        trimmed !== "null"
+      );
+    },
+    [language]
+  );
 
   const formatHours = () => {
     if (hasText(placeData?.schedules)) {
@@ -318,7 +333,7 @@ export default function MapDetails() {
       icon: Ticket,
       label: t("place.atmosphere"),
       value: hasText(placeData?.atmosphere)
-        ? placeData.atmosphere
+        ? getLocalized(placeData.atmosphere, language)
         : t("place.not_specified_yet"),
       empty: !hasText(placeData?.atmosphere),
     },
@@ -328,11 +343,12 @@ export default function MapDetails() {
   const dataToRender = isBusiness ? restaurantData : infoData;
 
   const descriptionText =
-    (hasText(placeData?.description) && placeData.description.trim()) || "";
+    (hasText(placeData?.description) && getLocalized(placeData.description, language).trim()) ||
+    (hasText(placeData?.about) && getLocalized(placeData.about, language).trim()) ||
+    "";
   const accessText =
-    (hasText(placeData?.access) && placeData.access.trim()) ||
-    (hasText(placeData?.accessDescription) &&
-      placeData.accessDescription.trim()) ||
+    (hasText(placeData?.access) && getLocalized(placeData.access, language).trim()) ||
+    (hasText(placeData?.accessDescription) && getLocalized(placeData.accessDescription, language).trim()) ||
     "";
 
   const reviewData: any[] = reviews?.data || [];
@@ -1002,98 +1018,92 @@ export default function MapDetails() {
             defaultValue="access"
             className="space-y-4"
           >
-            {/* ACCESS */}
-            <AccordionItem
-              value="access"
-              className="border rounded-xl bg-white"
-            >
-              <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                {isBusiness ? t("place.description_and_access") : t("place.about_this_place")}
-              </AccordionTrigger>
-
-              <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
-                {descriptionText && (
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                      {t("place.description")}
-                    </p>
-                    <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
-                      {descriptionText}
-                    </p>
-                  </div>
-                )}
-
-                {accessText && (
-                  <div className={descriptionText ? "pt-3 border-t border-gray-100" : ""}>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-                      {t("place.access_and_getting_here")}
-                    </p>
-                    <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
-                      {accessText}
-                    </p>
-                  </div>
-                )}
-
-                {!descriptionText && !accessText && (
-                  <p className="leading-relaxed text-gray-400 italic">
-                    {isBusiness
-                      ? t("place.no_desc_business")
-                      : t("place.no_desc_place")}
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            {/* RECOMMENDATIONS */}
-            {!isBusiness && (
+            {/* ACCESS / DESCRIPTION */}
+            {(descriptionText || accessText) && (
               <AccordionItem
-                value="recommendations"
+                value="access"
                 className="border rounded-xl bg-white"
               >
                 <AccordionTrigger className="font-semibold px-6 hover:no-underline">
-                  {t("place.recommendations")}
+                  {isBusiness ? t("place.description_and_access") : t("place.about_this_place")}
                 </AccordionTrigger>
 
-                <AccordionContent className="px-6 pb-6 space-y-5">
-                  <p
-                    className={`leading-relaxed ${hasText(placeData?.recommendations?.tips) ||
-                        hasText(placeData?.details?.recommendations)
-                        ? "text-gray-700"
-                        : "text-gray-400 italic"
-                      }`}
-                  >
-                    {placeData?.recommendations?.tips ||
-                      placeData?.details?.recommendations ||
-                      t("place.no_tips")}
-                  </p>
-
-                  {placeData?.accessibility?.features?.length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                        {t("place.accessibility_features")}
+                <AccordionContent className="text-muted-foreground space-y-4 px-6 pb-6">
+                  {descriptionText && (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                        {t("place.description")}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {placeData.accessibility.features.map(
-                          (feature: string) => (
-                            <span
-                              key={feature}
-                              className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 capitalize"
-                            >
-                              {feature}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                      {placeData.accessibility.notes && (
-                        <p className="text-sm italic text-gray-500">
-                          {placeData.accessibility.notes}
-                        </p>
-                      )}
+                      <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
+                        {descriptionText}
+                      </p>
+                    </div>
+                  )}
+
+                  {accessText && (
+                    <div className={descriptionText ? "pt-3 border-t border-gray-100" : ""}>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                        {t("place.access_and_getting_here")}
+                      </p>
+                      <p className="leading-relaxed text-gray-700 whitespace-pre-wrap">
+                        {accessText}
+                      </p>
                     </div>
                   )}
                 </AccordionContent>
               </AccordionItem>
             )}
+
+            {/* RECOMMENDATIONS */}
+            {!isBusiness &&
+              (hasText(placeData?.recommendations?.tips) ||
+                hasText(placeData?.details?.recommendations) ||
+                (placeData?.accessibility?.features && placeData.accessibility.features.length > 0) ||
+                hasText(placeData?.accessibility?.notes)) && (
+                <AccordionItem
+                  value="recommendations"
+                  className="border rounded-xl bg-white"
+                >
+                  <AccordionTrigger className="font-semibold px-6 hover:no-underline">
+                    {t("place.recommendations")}
+                  </AccordionTrigger>
+
+                  <AccordionContent className="px-6 pb-6 space-y-5">
+                    {(hasText(placeData?.recommendations?.tips) || hasText(placeData?.details?.recommendations)) && (
+                      <p className="leading-relaxed text-gray-700">
+                        {getLocalized(placeData?.recommendations?.tips, language) ||
+                          getLocalized(placeData?.details?.recommendations, language)}
+                      </p>
+                    )}
+
+                    {((placeData?.accessibility?.features && placeData.accessibility.features.length > 0) ||
+                      hasText(placeData?.accessibility?.notes)) && (
+                      <div className="space-y-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          {t("place.accessibility_features")}
+                        </p>
+                        {placeData?.accessibility?.features?.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {placeData.accessibility.features.map((feature: string) => (
+                              <span
+                                key={feature}
+                                className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 capitalize"
+                              >
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {hasText(placeData?.accessibility?.notes) && (
+                          <p className="text-sm italic text-gray-500">
+                            {getLocalized(placeData.accessibility.notes, language)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
             {/* SERVICES */}
             {!isBusiness && placeData?.services?.length > 0 && (
@@ -1132,7 +1142,7 @@ export default function MapDetails() {
             )}
 
             {/* MENU & PRICES */}
-            {(isBusiness || (placeData?.menuImages && placeData.menuImages.length > 0)) && (
+            {placeData?.menuImages && placeData.menuImages.length > 0 && (
               <AccordionItem
                 value="menu"
                 className="border rounded-xl bg-white"
@@ -1142,27 +1152,21 @@ export default function MapDetails() {
                 </AccordionTrigger>
 
                 <AccordionContent className="px-6 pb-6">
-                  {placeData?.menuImages && placeData.menuImages.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {placeData.menuImages.map((image: string, index: number) => (
-                        <div
-                          key={index}
-                          className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 cursor-zoom-in group"
-                          onClick={() => window.open(getImageUrl(image), "_blank")}
-                        >
-                          <img
-                            src={getImageUrl(image)}
-                            alt={`Menu ${index + 1}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="leading-relaxed text-gray-400 italic">
-                      {t("place.no_menu")}
-                    </p>
-                  )}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {placeData.menuImages.map((image: string, index: number) => (
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 cursor-zoom-in group"
+                        onClick={() => window.open(getImageUrl(image), "_blank")}
+                      >
+                        <img
+                          src={getImageUrl(image)}
+                          alt={`Menu ${index + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             )}
