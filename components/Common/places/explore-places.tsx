@@ -223,7 +223,7 @@ export default function ExplorePlaces() {
               localStorage.setItem("selectedCountryFilter", val);
               setPage(1);
             }}
-            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
+            className="h-10 px-3 sm:px-4 max-w-[130px] sm:max-w-[180px] truncate border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
             {mapsResponse?.data?.map((map: any) => (
               <option key={map._id} value={map.name}>
@@ -239,7 +239,7 @@ export default function ExplorePlaces() {
               setSelectedCategory(e.target.value);
               setPage(1);
             }}
-            className="h-10 px-4 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
+            className="h-10 px-3 sm:px-4 max-w-[130px] sm:max-w-[180px] truncate border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
             <option value="">{t("filters.all_categories")}</option>
             {categoriesResponse?.data?.map((cat: any) => (

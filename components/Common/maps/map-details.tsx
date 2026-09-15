@@ -217,7 +217,7 @@ export default function MapDetails() {
     (v?: unknown) => {
       if (v == null) return false;
       const loc = getLocalized(v, language);
-      if (!loc) return false;
+      if (!loc || loc === "[object Object]") return false;
       const trimmed = String(loc).trim();
       return (
         trimmed.length > 0 &&
@@ -232,13 +232,32 @@ export default function MapDetails() {
   );
 
   const formatHours = () => {
+    // 1. Check structured operatingHours object
+    if (placeData?.operatingHours && typeof placeData.operatingHours === "object") {
+      const openDays = Object.entries(placeData.operatingHours)
+        .filter(([_, v]: any) => v && !v.closed && v.open && v.close)
+        .map(([day, v]: any) => `${day.slice(0, 3)}: ${v.open} - ${v.close}`);
+      if (openDays.length > 0) {
+        return openDays.join(" · ");
+      }
+    }
+
+    // 2. Check schedules string / i18n
     if (hasText(placeData?.schedules)) {
-      const trimmed = placeData.schedules.trim();
-      if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-" && !trimmed.includes("?: ? - ?")) {
+      const str = getLocalized(placeData.schedules, language);
+      const trimmed = String(str).trim();
+      if (
+        trimmed &&
+        !trimmed.includes("undefined") &&
+        !trimmed.startsWith(":") &&
+        trimmed !== "-" &&
+        !trimmed.includes("?: ? - ?")
+      ) {
         return trimmed;
       }
     }
 
+    // 3. Check hours string
     if (hasText(placeData?.hours) && typeof placeData.hours === "string") {
       const trimmed = placeData.hours.trim();
       if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-") {
@@ -246,13 +265,7 @@ export default function MapDetails() {
       }
     }
 
-    for (const key of ["businessHours", "operatingHours", "scheduleStr"]) {
-      const val = placeData?.[key];
-      if (hasText(val)) {
-        return val.trim();
-      }
-    }
-
+    // 4. Check schedule array
     const schedule =
       placeData?.hours?.schedule ||
       (Array.isArray(placeData?.hours)
@@ -1246,16 +1259,16 @@ export default function MapDetails() {
             <div className="grid md:grid-cols-2 gap-4">
               {/* WEBSITE */}
               <div
-                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.website) ? "hover:shadow-md" : "opacity-90"
+                className={`flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.website) ? "hover:shadow-md" : "opacity-90"
                   }`}
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="bg-blue-50 p-3 rounded-xl shrink-0">🌐</div>
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl shrink-0">🌐</div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("business_details.website")}
                     </p>
-                    <p className="font-bold text-gray-900 truncate">
+                    <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
                       {hasText(placeData?.website)
                         ? t("place.official_website")
                         : t("place.not_provided_yet")}
@@ -1270,12 +1283,12 @@ export default function MapDetails() {
                         : `https://${placeData.website}`;
                       window.open(url, "_blank");
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
                   >
                     {t("place.visit")}
                   </button>
                 ) : (
-                  <span className="text-xs text-gray-400 font-medium shrink-0 px-2">
+                  <span className="text-xs text-gray-400 font-medium shrink-0 px-1 sm:px-2">
                     {t("place.coming_soon")}
                   </span>
                 )}
@@ -1283,18 +1296,18 @@ export default function MapDetails() {
 
               {/* INSTAGRAM */}
               <div
-                className={`flex items-center justify-between p-5 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.instagram)
+                className={`flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.instagram)
                     ? "hover:shadow-md"
                     : "opacity-90"
                   }`}
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="bg-pink-50 p-3 rounded-xl shrink-0">📸</div>
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                  <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0">📸</div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("business_details.instagram")}
                     </p>
-                    <p className="font-bold text-gray-900 truncate">
+                    <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
                       {hasText(placeData?.instagram)
                         ? `@${placeData.instagram.replace("@", "")}`
                         : t("place.not_provided_yet")}
@@ -1312,12 +1325,12 @@ export default function MapDetails() {
                         "_blank",
                       );
                     }}
-                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                    className="bg-pink-600 hover:bg-pink-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
                   >
                     {t("place.view")}
                   </button>
                 ) : (
-                  <span className="text-xs text-gray-400 font-medium shrink-0 px-2">
+                  <span className="text-xs text-gray-400 font-medium shrink-0 px-1 sm:px-2">
                     {t("place.coming_soon")}
                   </span>
                 )}

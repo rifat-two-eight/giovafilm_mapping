@@ -5,15 +5,14 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider className=" bg-[#F5F6FA] h-screen">
-      {/* bg-[#E2E8F0] */}
-      <div className="flex w-full h-screen">
-        <AppSidebar  />
-        <div className="flex-1">
+    <SidebarProvider className="bg-[#F5F6FA] h-[100dvh] w-full overflow-hidden">
+      <div className="flex w-full h-full min-w-0 overflow-hidden">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           <DashTopHeader />
-          <div className="min-h-0  p-8 overflow-auto bg-[#F5F6FA]">
+          <main className="flex-1 min-h-0 p-3 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden bg-[#F5F6FA] w-full">
             <DashboardRoleGuard>{children}</DashboardRoleGuard>
-          </div>
+          </main>
         </div>
       </div>
     </SidebarProvider>
