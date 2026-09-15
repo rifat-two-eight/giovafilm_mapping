@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mapStyles } from "@/lib/utils";
+import { mapStyles, removeAccents } from "@/lib/utils";
 import { editorCanAccessMap } from "@/lib/editor-access";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
@@ -58,41 +58,25 @@ const CATEGORY_COLORS: Record<string, string> = {
   coffee: "#F97316",
   hotel: "#8B5CF6",
   accommodation: "#8B5CF6",
-  lodging: "#8B5CF6",
-  park: "#10B981",
-  nature: "#10B981",
   beach: "#06B6D4",
-  shopping: "#F59E0B",
-  store: "#F59E0B",
-  mall: "#F59E0B",
-  museum: "#6366F1",
-  culture: "#6366F1",
-  art: "#EC4899",
-  hospital: "#EF4444",
-  pharmacy: "#10B981",
-  gas: "#64748B",
-  transport: "#0EA5E9",
-  airport: "#0EA5E9",
-  bar: "#A855F7",
-  nightlife: "#A855F7",
-  sport: "#22C55E",
-  gym: "#22C55E",
-  default: "#3B82F6",
+  nature: "#10B981",
+  park: "#10B981",
+  hiking: "#059669",
+  shopping: "#EC4899",
+  bars: "#F59E0B",
+  nightlife: "#F59E0B",
 };
 
-/**
- * Resolves a pin color from a category object.
- * Tries the category's own `color` field first,
- * then falls back to the CATEGORY_COLORS map keyed on name.
- */
-function resolveCategoryColor(cat: any): string {
-  if (!cat) return CATEGORY_COLORS.default;
-  if (cat.color) return cat.color;
-  const key = (cat.name || "").toLowerCase();
+function resolveCategoryColor(category?: any): string {
+  if (!category) return "#3B82F6";
+  if (category.color) return category.color;
+  const name = typeof category === "object" ? category.name : category;
+  if (!name || typeof name !== "string") return "#3B82F6";
+  const key = name.toLowerCase();
   for (const [k, v] of Object.entries(CATEGORY_COLORS)) {
     if (key.includes(k)) return v;
   }
-  return CATEGORY_COLORS.default;
+  return "#3B82F6";
 }
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
@@ -117,6 +101,20 @@ const getSafeString = (val: any, lang: string = "es"): string => {
     return val[lang] || val.es || val.en || Object.values(val)[0] || "";
   }
   return String(val);
+};
+
+const getSearchableString = (val: any): string => {
+  if (!val) return "";
+  if (typeof val === "string") return removeAccents(val);
+  if (typeof val === "object") {
+    const en = removeAccents(val.en || "");
+    const es = removeAccents(val.es || "");
+    const vals = Object.values(val)
+      .map((v) => removeAccents(typeof v === "string" ? v : ""))
+      .join(" ");
+    return `${en} ${es} ${vals}`;
+  }
+  return removeAccents(String(val));
 };
 
 const COUNTRY_COORDINATES: Record<string, { lat: number; lng: number; zoom: number }> = {
@@ -545,17 +543,22 @@ export default function AddPlacePage() {
   // Map shows places filtered by disabled state, active category, and search query
   const displayPlaces = useMemo(() => {
     if (!selectedMapId) return [];
-    const q = searchQuery.trim().toLowerCase();
+    const q = removeAccents(searchQuery.trim().toLowerCase());
     return fetchedPlaces.filter((place: any) => {
-      const pCatId =
-        typeof place.category === "object" ? place.category?._id : place.category;
+      const pCat = typeof place.category === "object" ? place.category : null;
+      const pCatId = pCat ? pCat._id : place.category;
+
       if (disabledPlaces.has(place._id)) return false;
       if (pCatId && disabledCategories.has(pCatId)) return false;
       if (filterCategoryId && pCatId !== filterCategoryId) return false;
+
       if (q) {
-        const name = (place.name || "").toLowerCase();
-        const addr = (place.address || "").toLowerCase();
-        if (!name.includes(q) && !addr.includes(q)) return false;
+        const nameStr = getSearchableString(place.name);
+        const addrStr = getSearchableString(place.address);
+        const catStr = getSearchableString(pCat?.name);
+        if (!nameStr.includes(q) && !addrStr.includes(q) && !catStr.includes(q)) {
+          return false;
+        }
       }
       return true;
     });
@@ -563,17 +566,20 @@ export default function AddPlacePage() {
 
   // Pre-calculate category counts with search filter
   const categoriesWithPlaces = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = removeAccents(searchQuery.trim().toLowerCase());
     return categories
       .map((cat: any) => {
         const placesInCat = fetchedPlaces.filter((p: any) => {
-          const pCatId =
-            typeof p.category === "object" ? p.category?._id : p.category;
+          const pCat = typeof p.category === "object" ? p.category : null;
+          const pCatId = pCat ? pCat._id : p.category;
           if (pCatId !== cat._id) return false;
           if (q) {
-            const name = (p.name || "").toLowerCase();
-            const addr = (p.address || "").toLowerCase();
-            if (!name.includes(q) && !addr.includes(q)) return false;
+            const nameStr = getSearchableString(p.name);
+            const addrStr = getSearchableString(p.address);
+            const catStr = getSearchableString(cat?.name);
+            if (!nameStr.includes(q) && !addrStr.includes(q) && !catStr.includes(q)) {
+              return false;
+            }
           }
           return true;
         });

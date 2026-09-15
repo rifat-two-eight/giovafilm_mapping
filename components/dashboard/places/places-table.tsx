@@ -8,7 +8,7 @@ import {
   useGetPlacesQuery,
 } from "@/redux/features/place/placeApi";
 import { Edit, Eye, MessageSquare, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { ReviewModal } from "../../Common/maps/review-modal";
@@ -49,10 +49,18 @@ export function PlacesTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [country, setCountry] = useState("");
   const [type, setType] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -66,7 +74,7 @@ export function PlacesTable() {
   const { data: response, isLoading } = useGetPlacesQuery({
     page,
     limit,
-    searchTerm,
+    searchTerm: debouncedSearch,
     status,
     category,
     country,
