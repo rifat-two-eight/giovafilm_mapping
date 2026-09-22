@@ -190,15 +190,15 @@ export default function Header() {
     { level: 3, name: "Expedicionario", points: 400 },
     { level: 4, name: "Viajero", points: 700 },
     { level: 5, name: "Chasqui", points: 1300 },
-    { level: 6, name: "Cronista", points: 2300 },
-    { level: 7, name: "Pochteca", points: 4000 },
-    { level: 8, name: "Navegante", points: 6500 },
-    { level: 9, name: "Cartógrafo", points: 10000 },
-    { level: 10, name: "Gran Explorador", points: 15000 },
-    { level: 11, name: "Conquistador", points: 22500 },
-    { level: 12, name: "Gran Conquistador", points: 33000 },
-    { level: 13, name: "Amauta", points: 48000 },
-    { level: 14, name: "Leyenda", points: 67500 }
+    { level: 6, name: "Cronista", points: 2200 },
+    { level: 7, name: "Baquiano", points: 3500 },
+    { level: 8, name: "Cartógrafo", points: 5500 },
+    { level: 9, name: "Maestro Ruta", points: 8500 },
+    { level: 10, name: "Leyenda", points: 13000 },
+    { level: 11, name: "Gran Leyenda", points: 20000 },
+    { level: 12, name: "Mítico", points: 30000 },
+    { level: 13, name: "Inmortal", points: 45000 },
+    { level: 14, name: "Supremo", points: 65000 }
   ];
   const currentLevelIndex = user?.level || 0;
   const nextLevelIndex = currentLevelIndex < 14 ? currentLevelIndex + 1 : 14;

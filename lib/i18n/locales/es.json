@@ -118,14 +118,14 @@
     "viajero": "Viajero",
     "chasqui": "Chasqui",
     "cronista": "Cronista",
-    "pochteca": "Pochteca",
-    "navegante": "Navegante",
+    "baquiano": "Baquiano",
     "cartografo": "Cartógrafo",
-    "gran_explorador": "Gran Explorador",
-    "conquistador": "Conquistador",
-    "gran_conquistador": "Gran Conquistador",
-    "amauta": "Amauta",
-    "leyenda": "Leyenda"
+    "maestro_ruta": "Maestro Ruta",
+    "leyenda": "Leyenda",
+    "gran_leyenda": "Gran Leyenda",
+    "mitico": "Mítico",
+    "inmortal": "Inmortal",
+    "supremo": "Supremo"
   },
   "place": {
     "title": "Explorar Lugares",

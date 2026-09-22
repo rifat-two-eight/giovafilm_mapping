@@ -12,21 +12,21 @@ export function ContributionsSection() {
 
   // Levels thresholds mapping
   const USER_LEVELS = [
-    { level: 0, name: t("levels.explorador") || "Explorador", points: 0, reviews: 0 },
-    { level: 1, name: t("levels.aventurero") || "Aventurero", points: 100, reviews: 6 },
-    { level: 2, name: t("levels.tlacuilo") || "Tlacuilo", points: 200, reviews: 13 },
-    { level: 3, name: t("levels.expedicionario") || "Expedicionario", points: 400, reviews: 26 },
-    { level: 4, name: t("levels.viajero") || "Viajero", points: 700, reviews: 46 },
-    { level: 5, name: t("levels.chasqui") || "Chasqui", points: 1300, reviews: 86 },
-    { level: 6, name: t("levels.cronista") || "Cronista", points: 2300, reviews: 153 },
-    { level: 7, name: t("levels.pochteca") || "Pochteca", points: 4000, reviews: 266 },
-    { level: 8, name: t("levels.navegante") || "Navegante", points: 6500, reviews: 433 },
-    { level: 9, name: t("levels.cartografo") || "Cartógrafo", points: 10000, reviews: 665 },
-    { level: 10, name: t("levels.gran_explorador") || "Gran Explorador", points: 15000, reviews: 1000 },
-    { level: 11, name: t("levels.conquistador") || "Conquistador", points: 22500, reviews: 1500 },
-    { level: 12, name: t("levels.gran_conquistador") || "Gran Conquistador", points: 33000, reviews: 2200 },
-    { level: 13, name: t("levels.amauta") || "Amauta", points: 48000, reviews: 3200 },
-    { level: 14, name: t("levels.leyenda") || "Leyenda", points: 67500, reviews: 4500 }
+    { level: 0, name: t("levels.explorador") || "Explorador", points: 0, reviews: 0, reward: "10% OFF 1 Map" },
+    { level: 1, name: t("levels.aventurero") || "Aventurero", points: 100, reviews: 6, reward: "Itinerary in PDF" },
+    { level: 2, name: t("levels.tlacuilo") || "Tlacuilo", points: 200, reviews: 13, reward: "Itinerary in PDF" },
+    { level: 3, name: t("levels.expedicionario") || "Expedicionario", points: 400, reviews: 26, reward: "25% OFF 1 Map" },
+    { level: 4, name: t("levels.viajero") || "Viajero", points: 700, reviews: 46, reward: "Itinerary in PDF" },
+    { level: 5, name: t("levels.chasqui") || "Chasqui", points: 1300, reviews: 86, reward: "1 Free Map" },
+    { level: 6, name: t("levels.cronista") || "Cronista", points: 2200, reviews: 146, reward: "50% OFF 1 Map" },
+    { level: 7, name: t("levels.baquiano") || "Baquiano", points: 3500, reviews: 233, reward: "Itinerary in PDF" },
+    { level: 8, name: t("levels.cartografo") || "Cartógrafo", points: 5500, reviews: 366, reward: "75% OFF 1 Map" },
+    { level: 9, name: t("levels.maestro_ruta") || "Maestro Ruta", points: 8500, reviews: 566, reward: "Itinerary in PDF" },
+    { level: 10, name: t("levels.leyenda") || "Leyenda", points: 13000, reviews: 866, reward: "1 Free Map" },
+    { level: 11, name: t("levels.gran_leyenda") || "Gran Leyenda", points: 20000, reviews: 1333, reward: "1 Free Map" },
+    { level: 12, name: t("levels.mitico") || "Mítico", points: 30000, reviews: 2000, reward: "1 Free Map" },
+    { level: 13, name: t("levels.inmortal") || "Inmortal", points: 45000, reviews: 3000, reward: "1 Free Map" },
+    { level: 14, name: t("levels.supremo") || "Supremo", points: 65000, reviews: 4333, reward: "2 Free Maps" }
   ];
 
   const nextLevelIndex = currentLevel < 14 ? currentLevel + 1 : 14;

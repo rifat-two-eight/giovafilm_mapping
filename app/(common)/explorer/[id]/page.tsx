@@ -21,14 +21,14 @@ const USER_LEVELS = [
   "Viajero",
   "Chasqui",
   "Cronista",
-  "Pochteca",
-  "Navegante",
+  "Baquiano",
   "Cartógrafo",
-  "Gran Explorador",
-  "Conquistador",
-  "Gran Conquistador",
-  "Amauta",
+  "Maestro Ruta",
   "Leyenda",
+  "Gran Leyenda",
+  "Mítico",
+  "Inmortal",
+  "Supremo",
 ];
 
 export default function ExplorerProfilePage() {
