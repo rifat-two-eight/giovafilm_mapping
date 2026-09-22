@@ -16,6 +16,7 @@ import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { MenuLightbox } from "@/components/Common/maps/MenuLightbox";
 import {
   Accessibility,
   Baby,
@@ -70,6 +71,8 @@ export function ViewPlaceModal({
 
   const [activeTab, setActiveTab] = useState("overview");
   const [imageErrorIndex, setImageErrorIndex] = useState<Record<number, boolean>>({});
+  const [menuLightboxOpen, setMenuLightboxOpen] = useState(false);
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
 
   const place = response?.data;
 
@@ -602,7 +605,10 @@ export function ViewPlaceModal({
                           <div
                             key={index}
                             className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-200 cursor-pointer group shadow-2xs hover:shadow-md transition-all"
-                            onClick={() => window.open(getImageUrl(image), "_blank")}
+                            onClick={() => {
+                              setSelectedMenuIndex(index);
+                              setMenuLightboxOpen(true);
+                            }}
                           >
                             <img
                               src={getImageUrl(image)}
@@ -816,6 +822,14 @@ export function ViewPlaceModal({
           </div>
         )}
       </DialogContent>
+
+      <MenuLightbox
+        isOpen={menuLightboxOpen}
+        onClose={() => setMenuLightboxOpen(false)}
+        images={place?.menuImages || []}
+        initialIndex={selectedMenuIndex}
+        title={t("place.menu_pricing_photos") || "Menu"}
+      />
     </Dialog>
   );
 }

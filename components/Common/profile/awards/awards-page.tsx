@@ -49,6 +49,24 @@ const getAwardImage = (type: string) => {
   return unlockImage;
 };
 
+const USER_LEVELS = [
+  { level: 0, name: "Explorador", points: 0, reviews: 0 },
+  { level: 1, name: "Aventurero", points: 100, reviews: 6 },
+  { level: 2, name: "Tlacuilo", points: 200, reviews: 13 },
+  { level: 3, name: "Expedicionario", points: 400, reviews: 26 },
+  { level: 4, name: "Viajero", points: 700, reviews: 46 },
+  { level: 5, name: "Chasqui", points: 1300, reviews: 86 },
+  { level: 6, name: "Cronista", points: 2200, reviews: 146 },
+  { level: 7, name: "Baquiano", points: 3500, reviews: 233 },
+  { level: 8, name: "Cartógrafo", points: 5500, reviews: 366 },
+  { level: 9, name: "Maestro Ruta", points: 8500, reviews: 566 },
+  { level: 10, name: "Leyenda", points: 13000, reviews: 866 },
+  { level: 11, name: "Gran Leyenda", points: 20000, reviews: 1333 },
+  { level: 12, name: "Mítico", points: 30000, reviews: 2000 },
+  { level: 13, name: "Inmortal", points: 45000, reviews: 3000 },
+  { level: 14, name: "Supremo", points: 65000, reviews: 4333 },
+];
+
 export default function AwardsPage() {
   const { t } = useLanguage();
   const [page, setPage] = useState(1);
@@ -68,14 +86,21 @@ export default function AwardsPage() {
 
   const hasRedeemed = !!user?.redeemedFreeMap;
 
-  // Dynamic Level progress circle math
+  // Accurate Level progression math based on spec
   const points = user?.points || 0;
-  const currentLevel = Math.floor(points / 1000) + 1;
-  const currentLevelMinPoints = (currentLevel - 1) * 1000;
-  const nextLevelMinPoints = currentLevel * 1000;
-  const levelProgressPoints = points - currentLevelMinPoints;
-  const pointsNeededForNext = nextLevelMinPoints - points;
-  const percent = Math.min((levelProgressPoints / 1000) * 100, 100);
+  const currentLevel = user?.level ?? 0;
+  const currentLevelData = USER_LEVELS[currentLevel] || USER_LEVELS[0];
+  const nextLevelIndex = currentLevel < 14 ? currentLevel + 1 : 14;
+  const nextLevelData = USER_LEVELS[nextLevelIndex];
+
+  const currentLevelMinPoints = currentLevelData.points;
+  const nextLevelMinPoints = nextLevelData.points;
+  const pointsNeededForNext = Math.max(0, nextLevelMinPoints - points);
+  const pointsSpan = Math.max(1, nextLevelMinPoints - currentLevelMinPoints);
+  const percent =
+    currentLevel >= 14
+      ? 100
+      : Math.min(100, Math.max(0, ((points - currentLevelMinPoints) / pointsSpan) * 100));
   const strokeDashoffset = 440 - (440 * percent) / 100;
 
   return (
@@ -137,7 +162,7 @@ export default function AwardsPage() {
             <span className="inline-block bg-amber-500/20 text-amber-800 px-2 py-0.5 md:px-4 md:py-1 rounded-full text-[8px] md:text-xs font-bold mb-0.5 md:mb-2 uppercase tracking-wider">
               {isProfileLoading
                 ? "Loading..."
-                : `🏆 Level ${currentLevel} Explorer`}
+                : `🏆 Level ${currentLevel} · ${currentLevelData.name}`}
             </span>
 
             {/* Name */}
@@ -162,7 +187,9 @@ export default function AwardsPage() {
             <div className="flex gap-1.5 md:gap-3 mt-1 md:mt-3 w-full">
               <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">
                 <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">{t("common.next_level")}</p>
-                <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-xs leading-none">Level {currentLevel + 1}</p>
+                <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-xs leading-none">
+                  {currentLevel >= 14 ? "Max Level" : `Level ${nextLevelData.level} · ${nextLevelData.name}`}
+                </p>
               </div>
 
               <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">

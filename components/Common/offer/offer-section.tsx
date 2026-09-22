@@ -25,7 +25,7 @@ export default function OfferSection() {
 
 
 
-  const { data: offersRes, isLoading } = useGetOffersQuery({});
+  const { data: offersRes, isLoading } = useGetOffersQuery({ limit: 45 });
   const offersData = offersRes?.data || [];
 
   // Fetch the user's full favourites list — persists across reloads

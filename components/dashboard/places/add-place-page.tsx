@@ -503,11 +503,6 @@ export default function AddPlacePage() {
         : [];
   const selectedMap = maps.find((m: any) => m._id === selectedMapId);
 
-  useEffect(() => {
-    if (!selectedMapId && maps && maps.length > 0) {
-      setSelectedMapId(maps[0]._id);
-    }
-  }, [maps, selectedMapId]);
 
   // Track which place IDs are manually disabled (hidden from map)
   const [disabledPlaces, setDisabledPlaces] = useState<Set<string>>(new Set());

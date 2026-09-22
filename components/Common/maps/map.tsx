@@ -1,6 +1,7 @@
 "use client";
 
 import { CustomLocationButton } from "@/components/shared/maps/CustomLocationButton";
+import { SatelliteToggleButton } from "@/components/shared/maps/SatelliteToggleButton";
 import { CategoryMarker } from "@/components/shared/maps/category-marker";
 import { GeolocationOnLoad } from "@/components/shared/maps/geolocation-on-load";
 import { UserLocationMarker } from "@/components/shared/maps/user-location-marker";
@@ -913,6 +914,9 @@ export default function MapPage() {
               }
               isMobile={isMobile}
             />
+            {isMobile && (
+              <SatelliteToggleButton position={ControlPosition.RIGHT_BOTTOM} />
+            )}
             <CustomLocationButton
               onLocated={(lat, lng) => {
                 setMarkerPos({ lat, lng });

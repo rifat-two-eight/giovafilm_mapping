@@ -118,7 +118,7 @@ export const PlaceFormContent = ({
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [menuFiles, setMenuFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(
-    asMediaUrls(initialData?.images),
+    asMediaUrls(initialData?.images || (initialData as any)?.media),
   );
   const [existingMenuImages, setExistingMenuImages] = useState<string[]>(
     asMediaUrls(initialData?.menuImages),
@@ -245,8 +245,9 @@ export const PlaceFormContent = ({
         accessibility: resolvedAccessibility,
       };
     });
-    if (!existingImages.length && initialData.images?.length) {
-      setExistingImages(asMediaUrls(initialData.images));
+    const initImgs = initialData.images || (initialData as any).media;
+    if (!existingImages.length && initImgs?.length) {
+      setExistingImages(asMediaUrls(initImgs));
     }
     if (!existingMenuImages.length && initialData.menuImages?.length) {
       setExistingMenuImages(asMediaUrls(initialData.menuImages));
@@ -935,7 +936,7 @@ export const PlaceFormContent = ({
 
                       return (
                         <div
-                          key={`existing-${index}`}
+                          key={`existing-${url}`}
                           draggable
                           onDragStart={(e) => {
                             e.stopPropagation();
@@ -965,6 +966,7 @@ export const PlaceFormContent = ({
                         >
                           {isVideo ? (
                             <video
+                              key={`video-${url}`}
                               src={`${getImageUrl(url)}#t=0.1`}
                               className="w-full h-full object-cover pointer-events-none"
                               muted
@@ -973,9 +975,16 @@ export const PlaceFormContent = ({
                             />
                           ) : (
                             <img
+                              key={`img-${url}`}
                               src={getImageUrl(url)}
                               alt={`existing-${index}`}
+                              draggable={false}
                               className="w-full h-full object-cover pointer-events-none"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                target.onerror = null;
+                                target.src = "/exploring-today.jpg";
+                              }}
                             />
                           )}
 
@@ -1057,7 +1066,7 @@ export const PlaceFormContent = ({
 
                       return (
                         <div
-                          key={`new-${index}`}
+                          key={`new-${url}`}
                           draggable
                           onDragStart={(e) => {
                             e.stopPropagation();
@@ -1087,6 +1096,7 @@ export const PlaceFormContent = ({
                         >
                           {isVideo ? (
                             <video
+                              key={`new-video-${url}`}
                               src={`${url}#t=0.1`}
                               className="w-full h-full object-cover pointer-events-none"
                               muted
@@ -1095,8 +1105,10 @@ export const PlaceFormContent = ({
                             />
                           ) : (
                             <img
+                              key={`new-img-${url}`}
                               src={url}
                               alt={`preview-${index}`}
+                              draggable={false}
                               className="w-full h-full object-cover pointer-events-none"
                             />
                           )}
@@ -1464,13 +1476,20 @@ export const PlaceFormContent = ({
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {existingMenuImages.map((url, index) => (
                       <div
-                        key={`existing-menu-${index}`}
+                        key={`existing-menu-${url}`}
                         className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 group select-none transition-all cursor-grab active:cursor-grabbing"
                       >
                         <img
+                          key={`img-menu-${url}`}
                           src={getImageUrl(url)}
                           alt={`existing-menu-${index}`}
+                          draggable={false}
                           className="w-full h-full object-cover pointer-events-none"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = "/exploring-today.jpg";
+                          }}
                         />
                         {/* Action Overlay Controls */}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-1 z-20">
@@ -1534,12 +1553,14 @@ export const PlaceFormContent = ({
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {menuPreviews.map((url, index) => (
                       <div
-                        key={`new-menu-${index}`}
+                        key={`new-menu-${url}`}
                         className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 group select-none transition-all cursor-grab active:cursor-grabbing"
                       >
                         <img
+                          key={`new-menu-img-${url}`}
                           src={url}
                           alt={`menu-preview-${index}`}
+                          draggable={false}
                           className="w-full h-full object-cover pointer-events-none"
                         />
                         {/* Action Overlay Controls */}

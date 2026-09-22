@@ -1,7 +1,7 @@
 type InfoProps = {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: React.ReactNode;
   highlight?: boolean;
   empty?: boolean;
 };
@@ -22,7 +22,7 @@ export default function InfoCard({
         </p>
       </div>
 
-      <p
+      <div
         className={`font-public-sans mt-0.5 text-sm leading-snug ${
           empty
             ? "text-gray-400 font-medium italic"
@@ -32,7 +32,7 @@ export default function InfoCard({
         }`}
       >
         {value}
-      </p>
+      </div>
     </div>
   );
 }

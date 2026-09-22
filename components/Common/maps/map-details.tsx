@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   Edit3,
   Sparkles,
+  Instagram,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
@@ -68,6 +69,7 @@ import {
 } from "@/redux/features/review/reviewApi";
 import Link from "next/link";
 import InfoCard from "./info-card";
+import { MenuLightbox } from "./MenuLightbox";
 import { ReviewModal } from "./review-modal";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useAppSelector } from "@/redux/hook";
@@ -245,6 +247,9 @@ export default function MapDetails() {
     [language]
   );
 
+  const [menuLightboxOpen, setMenuLightboxOpen] = useState(false);
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+
   const hoursObj = useMemo(() => {
     const raw =
       placeData?.operatingHours ||
@@ -256,23 +261,71 @@ export default function MapDetails() {
     return null;
   }, [placeData]);
 
-  const formatHours = () => {
+  const formatHours = (): { text: string; node?: React.ReactNode; empty?: boolean } => {
     // 1. Check structured operatingHours object
     if (hoursObj) {
-      const entries = Object.entries(hoursObj);
-      const openDays = entries
-        .filter(([_, v]: any) => v && !v.closed && v.open && v.close)
-        .map(([day, v]: any) => `${day.slice(0, 3)}: ${v.open} - ${v.close}`);
-      if (openDays.length > 0) {
-        if (openDays.length === 7) {
-          const first = entries[0][1];
-          const allSame = entries.every(([_, v]: any) => !v.closed && v.open === first.open && v.close === first.close);
-          if (allSame) {
-            return `Mon – Sun: ${first.open} – ${first.close}`;
-          }
+      const dayKeys = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const shortDays: Record<string, string> = language === "es"
+        ? { Monday: "Lun", Tuesday: "Mar", Wednesday: "Mié", Thursday: "Jue", Friday: "Vie", Saturday: "Sáb", Sunday: "Dom" }
+        : { Monday: "Mon", Tuesday: "Tue", Wednesday: "Wed", Thursday: "Thu", Friday: "Fri", Saturday: "Sat", Sunday: "Sun" };
+
+      const schedules = dayKeys.map((day) => {
+        const item = hoursObj[day];
+        if (!item || item.closed || !item.open || !item.close) {
+          return { day, shortDay: shortDays[day] || day.slice(0, 3), closed: true, timeStr: language === "es" ? "Cerrado" : "Closed" };
         }
-        return openDays.join(" · ");
+        return { day, shortDay: shortDays[day] || day.slice(0, 3), closed: false, timeStr: `${item.open} – ${item.close}` };
+      });
+
+      const hasAnyOpen = schedules.some((s) => !s.closed);
+      if (!hasAnyOpen) {
+        return { text: language === "es" ? "Cerrado temporalmente" : "Temporarily Closed", empty: true };
       }
+
+      interface DayGroup {
+        startDay: string;
+        endDay: string;
+        closed: boolean;
+        timeStr: string;
+      }
+      const groups: DayGroup[] = [];
+      let currentGroup: DayGroup | null = null;
+
+      for (const s of schedules) {
+        if (!currentGroup) {
+          currentGroup = { startDay: s.shortDay, endDay: s.shortDay, closed: s.closed, timeStr: s.timeStr };
+        } else if (currentGroup.timeStr === s.timeStr) {
+          currentGroup.endDay = s.shortDay;
+        } else {
+          groups.push(currentGroup);
+          currentGroup = { startDay: s.shortDay, endDay: s.shortDay, closed: s.closed, timeStr: s.timeStr };
+        }
+      }
+      if (currentGroup) groups.push(currentGroup);
+
+      // Prefer showing open schedules to keep the card compact and uncluttered
+      const openGroups = groups.filter((g) => !g.closed);
+      const activeGroups = openGroups.length > 0 ? openGroups : groups;
+
+      const groupLines = activeGroups.map((g) => {
+        const dayRange = g.startDay === g.endDay ? g.startDay : `${g.startDay} – ${g.endDay}`;
+        return `${dayRange}: ${g.timeStr}`;
+      });
+
+      if (groupLines.length === 1) {
+        return { text: groupLines[0] };
+      }
+
+      return {
+        text: groupLines.join(" · "),
+        node: (
+          <div className="flex flex-col gap-0.5 text-xs font-semibold leading-tight">
+            {groupLines.map((line, idx) => (
+              <span key={idx} className="truncate">{line}</span>
+            ))}
+          </div>
+        ),
+      };
     }
 
     // 2. Check schedules string / i18n
@@ -286,7 +339,7 @@ export default function MapDetails() {
         trimmed !== "-" &&
         !trimmed.includes("?: ? - ?")
       ) {
-        return trimmed;
+        return { text: trimmed };
       }
     }
 
@@ -294,7 +347,7 @@ export default function MapDetails() {
     if (hasText(placeData?.hours) && typeof placeData.hours === "string") {
       const trimmed = placeData.hours.trim();
       if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-") {
-        return trimmed;
+        return { text: trimmed };
       }
     }
 
@@ -312,27 +365,34 @@ export default function MapDetails() {
         (s: any) => (s.days || s.day) && (s.openTime || s.closeTime),
       );
       if (validItems.length > 0) {
-        return validItems
-          .map((s: any) => {
-            const days = s.days || s.day;
-            const open = s.openTime;
-            const close = s.closeTime;
-            if (open && close) {
-              return `${days}: ${open} – ${close}`;
-            } else if (open) {
-              return `${days}: ${open}`;
-            } else if (close) {
-              return `${days}: ${close}`;
-            }
-            return `${days}: ${t("place.closed")}`;
-          })
-          .join(" · ");
+        const lines = validItems.map((s: any) => {
+          const days = s.days || s.day;
+          const open = s.openTime;
+          const close = s.closeTime;
+          if (open && close) return `${days}: ${open} – ${close}`;
+          if (open) return `${days}: ${open}`;
+          if (close) return `${days}: ${close}`;
+          return `${days}: ${t("place.closed")}`;
+        });
+        return {
+          text: lines.join(" · "),
+          node: (
+            <div className="flex flex-col gap-0.5 text-xs font-semibold leading-tight">
+              {lines.map((line: string, idx: number) => (
+                <span key={idx} className="truncate">{line}</span>
+              ))}
+            </div>
+          ),
+        };
       }
     }
-    return "";
+    return { text: "", empty: true };
   };
 
-  const schedulesValue = formatHours();
+  const formattedHours = formatHours();
+  const schedulesValue = formattedHours.node || formattedHours.text;
+  const isHoursEmpty = !!formattedHours.empty || !formattedHours.text;
+
   const entryCostRaw = placeData?.entryCost;
   const entryCostValue = formatEntryCost(entryCostRaw);
   const hikeTimeRaw = placeData?.hikeTime;
@@ -342,8 +402,8 @@ export default function MapDetails() {
     {
       icon: Clock,
       label: t("place.hours"),
-      value: schedulesValue || t("place.hours_not_specified"),
-      empty: !schedulesValue,
+      value: isHoursEmpty ? t("place.hours_not_specified") : schedulesValue,
+      empty: isHoursEmpty,
     },
     {
       icon: Ticket,
@@ -372,8 +432,8 @@ export default function MapDetails() {
     {
       icon: Clock,
       label: t("place.hours"),
-      value: schedulesValue || t("place.hours_not_specified"),
-      empty: !schedulesValue,
+      value: isHoursEmpty ? t("place.hours_not_specified") : schedulesValue,
+      empty: isHoursEmpty,
     },
     {
       icon: Ticket,
@@ -1203,7 +1263,10 @@ export default function MapDetails() {
                       <div
                         key={index}
                         className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 cursor-zoom-in group"
-                        onClick={() => window.open(getImageUrl(image), "_blank")}
+                        onClick={() => {
+                          setSelectedMenuIndex(index);
+                          setMenuLightboxOpen(true);
+                        }}
                       >
                         <img
                           src={getImageUrl(image)}
@@ -1375,7 +1438,9 @@ export default function MapDetails() {
                   }`}
               >
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                  <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0">📸</div>
+                  <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0 text-pink-600 flex items-center justify-center">
+                    <Instagram size={22} className="text-pink-600" />
+                  </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("business_details.instagram")}
@@ -1975,6 +2040,14 @@ export default function MapDetails() {
           )}
         </DialogContent>
       </Dialog>
+
+      <MenuLightbox
+        isOpen={menuLightboxOpen}
+        onClose={() => setMenuLightboxOpen(false)}
+        images={placeData?.menuImages || []}
+        initialIndex={selectedMenuIndex}
+        title={t("place.menu_and_prices") || "Menu"}
+      />
     </section>
   );
 }

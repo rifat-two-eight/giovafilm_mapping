@@ -75,11 +75,20 @@ export function asMediaUrls(items: unknown): string[] {
   if (!Array.isArray(items)) return [];
   return items
     .map((item) => {
-      if (typeof item === "string") return item;
-      if (!item || typeof item !== "object") return "";
-      const rec = item as Record<string, unknown>;
-      const url = rec.url || rec.path || rec.src;
-      return typeof url === "string" ? url : "";
+      let urlStr = "";
+      if (typeof item === "string") {
+        urlStr = item;
+      } else if (item && typeof item === "object") {
+        const rec = item as Record<string, unknown>;
+        const url = rec.url || rec.path || rec.src;
+        if (typeof url === "string") urlStr = url;
+      }
+      if (!urlStr) return "";
+      const idx = urlStr.indexOf("/uploads/");
+      if (idx !== -1) {
+        return urlStr.substring(idx);
+      }
+      return urlStr;
     })
     .filter(Boolean);
 }
