@@ -617,11 +617,12 @@ export function CreateOfferDialog({
                   }
                 }}
               >
-                <option value="">{t("offers_admin.select_discount_type")}</option>
-                <option value="Percentage">{t("offers_admin.percentage")}</option>
-                <option value="Flat">{t("offers_admin.flat_amount")}</option>
-                <option value="BOGO">{t("offers_admin.bogo")}</option>
-                <option value="Free item">{t("offers_admin.free_item")}</option>
+                <option value="">Select discount type</option>
+                <option value="Percentage">Percentage (%)</option>
+                <option value="Flat">Flat Amount ($)</option>
+                <option value="Fixed Price">Fixed Price (bundle total $)</option>
+                <option value="BOGO">BOGO (Buy 1 Get 1)</option>
+                <option value="Free item">Free Item</option>
               </select>
             </div>
 
@@ -631,22 +632,31 @@ export function CreateOfferDialog({
                   htmlFor="discountValue"
                   className="text-sm font-medium text-gray-700"
                 >
-                  {t("offers_admin.discount_value")}
+                  {discountType === "Fixed Price"
+                    ? "Total Bundle Price ($)"
+                    : discountType === "Flat"
+                    ? "Flat Amount ($)"
+                    : "Discount Value"}
                 </Label>
                 <Input
                   id="discountValue"
                   type="number"
                   min={0}
-                  placeholder="20"
+                  placeholder={discountType === "Fixed Price" ? "e.g. 25" : "20"}
                   className="mt-1"
                   {...register("discountValue", {
                     required:
                       discountType !== "BOGO" && discountType !== "Free item"
                         ? "Discount value is required"
                         : false,
-                    min: { value: 0, message: "Discount cannot be negative" },
+                    min: { value: 0, message: "Value cannot be negative" },
                   })}
                 />
+                {discountType === "Fixed Price" && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter the total fixed price for the bundle offer (e.g. 2 pizzas + 1 donut for $25).
+                  </p>
+                )}
               </div>
             )}
           </div>
