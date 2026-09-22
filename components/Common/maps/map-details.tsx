@@ -862,7 +862,7 @@ export default function MapDetails() {
                               alt={`${placeData?.name} photo ${index + 1}`}
                               fill
                               unoptimized
-                              className="object-cover"
+                              className="object-cover object-[center_25%]"
                               sizes="(max-width: 1024px) 100vw, 66vw"
                             />
                           )}

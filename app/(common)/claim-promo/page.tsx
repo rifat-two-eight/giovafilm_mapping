@@ -48,6 +48,7 @@ function ClaimPromoContent() {
 
   const accessToken = useAppSelector(selectAccessToken);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isClaimedSuccess, setIsClaimedSuccess] = useState(false);
   const [showMismatchModal, setShowMismatchModal] = useState(false);
   const [mismatchMessage, setMismatchMessage] = useState("");
 
@@ -119,6 +120,7 @@ function ClaimPromoContent() {
     setIsProcessing(true);
     try {
       const res = await claimFreePromo({ code }).unwrap();
+      setIsClaimedSuccess(true);
       toast.success(res?.message || "Invitation claimed successfully!");
       setTimeout(() => {
         handleGoToMap();
@@ -291,11 +293,47 @@ function ClaimPromoContent() {
     );
   }
 
-  // Case C: Invalid Code / Error State
-  if (isErrorVerify || !code) {
+  // Case C1: Free Promo Claimed Successfully
+  if (isClaimedSuccess) {
+    return (
+      <section className="relative min-h-[75vh] py-16 flex items-center justify-center overflow-hidden font-inter bg-[#F9FAFB] text-gray-900">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-100 shadow-xl p-8 text-center space-y-6 relative z-10">
+          <div className="mx-auto w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center">
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">Invitation Claimed!</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Your free map access has been activated. Redirecting you to your map now...
+            </p>
+          </div>
+          <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 text-xs font-bold text-emerald-800 uppercase tracking-wider">
+            Status: Lifetime Access Granted ✅
+          </div>
+          <Button
+            onClick={handleGoToMap}
+            className="w-full h-14 bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg transition-all shadow-lg shadow-yellow-500/20 text-base"
+          >
+            Open Map <ArrowRight size={18} className="ml-1 inline" />
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  // Case C2: Invalid Code / Error State
+  if (!isClaimedSuccess && (isErrorVerify || !code)) {
     const errorMsg =
       (verifyError as any)?.data?.message ||
       "Invalid promo link or invitation code.";
+    const isAlreadyUsed = typeof errorMsg === "string" && /already been used/i.test(errorMsg);
+    const isExpiredMsg = typeof errorMsg === "string" && /expired/i.test(errorMsg);
+    const errorHeading = isAlreadyUsed
+      ? "Invitation Already Used"
+      : isExpiredMsg
+        ? "Invitation Expired"
+        : "Invalid Invitation";
+
     return (
       <section className="relative min-h-[75vh] py-16 flex items-center justify-center overflow-hidden font-inter bg-[#F9FAFB] text-gray-900">
         <div className="max-w-md w-full bg-white rounded-2xl border border-gray-100 shadow-xl p-8 text-center space-y-6 relative z-10">
@@ -303,7 +341,7 @@ function ClaimPromoContent() {
             <AlertCircle className="w-10 h-10 text-red-500" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">Invitation Expired</h2>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">{errorHeading}</h2>
             <p className="text-sm text-red-500 font-bold leading-relaxed">{errorMsg}</p>
           </div>
           <Button

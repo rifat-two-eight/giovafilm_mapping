@@ -33,7 +33,7 @@ const promoApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Promo", "Map"], // invalidates maps to refresh list of purchased maps
+      invalidatesTags: ["Map", "User"], // invalidates maps and user profile to refresh list of purchased maps
     }),
 
     createPromoCheckoutSession: builder.mutation<any, { code: string; mapId?: string }>({

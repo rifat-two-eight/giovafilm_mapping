@@ -4,8 +4,9 @@ import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import {
   selectAccessToken,
   selectCurrentUser,
+  updateUserRole,
 } from "@/redux/features/auth/authSlice";
-import { useAppSelector } from "@/redux/hook";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import {
   isAdminOnlyDashboardPath,
   isDashboardRole,
@@ -28,6 +29,7 @@ export function DashboardRoleGuard({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const accessToken = useAppSelector(selectAccessToken);
   const authUser = useAppSelector(selectCurrentUser);
   const { data: profile, isLoading, isError } = useGetProfileQuery(
@@ -43,11 +45,17 @@ export function DashboardRoleGuard({
       return;
     }
 
-    if (isLoading && !authUser) return;
+    // Always wait for the fresh database profile to complete loading
+    if (isLoading) return;
 
     if (isError && !authUser) {
       router.replace("/login");
       return;
+    }
+
+    // Sync freshly loaded role to Redux and cookies
+    if (profile?.role && profile.role !== authUser?.role) {
+      dispatch(updateUserRole(profile.role));
     }
 
     if (role && !isDashboardRole(role)) {
@@ -61,9 +69,9 @@ export function DashboardRoleGuard({
     ) {
       router.replace("/dashboard");
     }
-  }, [accessToken, authUser, role, isLoading, isError, pathname, router]);
+  }, [accessToken, authUser, profile?.role, role, isLoading, isError, pathname, router, dispatch]);
 
-  if (!accessToken || (isLoading && !authUser)) {
+  if (!accessToken || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh] gap-2 text-gray-500">
         <Loader2 className="h-5 w-5 animate-spin" />

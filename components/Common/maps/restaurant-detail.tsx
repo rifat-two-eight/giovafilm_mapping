@@ -297,7 +297,7 @@ export default function RestaurantDetail() {
                   width={500}
                   height={500}
                   unoptimized
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-[center_25%]"
                   referrerPolicy="no-referrer"
                 />
 
@@ -468,7 +468,7 @@ export default function RestaurantDetail() {
                     <p className="text-xs sm:text-sm text-gray-600">
                       {unavailable ? (
                         unavailable.message
-                      ) : (
+                      ) : offer.place?.name ? (
                         <>
                           {t("offer.present_instruction_prefix")}{" "}
                           <span className="font-semibold wrap-break-word">
@@ -476,6 +476,8 @@ export default function RestaurantDetail() {
                           </span>{" "}
                           {t("offer.present_instruction_suffix")}
                         </>
+                      ) : (
+                        t("offer.present_instruction")
                       )}
                     </p>
                   </div>
@@ -552,7 +554,7 @@ export default function RestaurantDetail() {
                   width={400}
                   height={300}
                   unoptimized
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-[center_25%]"
                   referrerPolicy="no-referrer"
                 />
                 {/* Bottom gradient overlay to make text/badges pop */}
@@ -689,11 +691,13 @@ export default function RestaurantDetail() {
                 <p className="text-xs text-gray-500 text-center px-2 leading-relaxed">
                   {unavailable ? (
                     unavailable.message
-                  ) : (
+                  ) : offer.place?.name ? (
                     <>
                       {t("offer.present_instruction_prefix")}{" "}
                       <span className="font-bold text-gray-700">{offer.place?.name}</span> {t("offer.present_instruction_suffix")}
                     </>
+                  ) : (
+                    t("offer.present_instruction")
                   )}
                 </p>
 

@@ -95,17 +95,26 @@ export function middleware(request: NextRequest) {
   );
 
   if (isDashboardRoute && isLoggedIn) {
-    const role = (userRole || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
-    const isDashboardRole =
-      role === "admin" ||
-      role === "map_editor" ||
-      role === "superadmin" ||
-      role === "super_admin";
+    let role = (userRole || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
 
-    if (!isDashboardRole) {
-      return NextResponse.redirect(new URL("/maps", request.url));
+    // Fallback: If userRole cookie is missing or still "user", check JWT accessToken payload
+    if ((!role || role === "user") && accessToken) {
+      try {
+        const parts = accessToken.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(
+            Buffer.from(parts[1], "base64url").toString("utf-8"),
+          );
+          if (payload?.role) {
+            role = String(payload.role).trim().toLowerCase().replace(/[\s-]+/g, "_");
+          }
+        }
+      } catch {
+        // ignore decode errors
+      }
     }
 
+    // If map_editor is trying to access an admin-only dashboard path, redirect to main /dashboard
     if (role === "map_editor" && isAdminOnlyDashboardPath(pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }

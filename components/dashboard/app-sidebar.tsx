@@ -35,8 +35,8 @@ export function AppSidebar() {
 
   const { data: userProfile } = useGetProfileQuery({});
 
-  const role = userProfile?.data?.role;
-  const menuItems = role === "MAP_EDITOR" ? mapEditorMenuItems : adminMenuItems;
+  const role = (userProfile?.role || userProfile?.data?.role || "").toLowerCase().replace(/[\s-]+/g, "_");
+  const menuItems = role === "map_editor" ? mapEditorMenuItems : adminMenuItems;
 
   const [logoutApi] = useLogoutMutation();
 

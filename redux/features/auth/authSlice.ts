@@ -120,6 +120,14 @@ const authSlice = createSlice({
       state.accessToken = action.payload;
       syncAuthCookies(action.payload, state.user?.role);
     },
+    updateUserRole: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.role = action.payload as any;
+      }
+      if (state.accessToken) {
+        syncAuthCookies(state.accessToken, action.payload);
+      }
+    },
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
@@ -128,7 +136,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setAccessToken, logout } = authSlice.actions;
+export const { setUser, setAccessToken, updateUserRole, logout } = authSlice.actions;
 export default authSlice.reducer;
 
 export const selectCurrentUser = (state: RootState) => state.auth.user;
