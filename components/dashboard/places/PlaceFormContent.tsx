@@ -1749,12 +1749,16 @@ export const PlaceFormContent = ({
           <Loader2 size={18} className="animate-spin text-blue-600 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-blue-950">
-              {mediaFiles.some(f => isVideoFile(f))
-                ? "Uploading video and saving place..."
-                : "Uploading media and saving place..."}
+              {mediaFiles.length > 0
+                ? mediaFiles.some((f) => isVideoFile(f))
+                  ? "Uploading video and saving place..."
+                  : "Uploading media and saving place..."
+                : "Saving changes..."}
             </p>
             <p className="text-[11px] text-blue-700">
-              Please keep this window open while the upload finishes.
+              {mediaFiles.length > 0
+                ? "Please keep this window open while the upload finishes."
+                : "Please wait a moment while your changes are saved."}
             </p>
           </div>
         </div>
@@ -1807,8 +1811,14 @@ export const PlaceFormContent = ({
             >
               {isSaving && <Loader2 size={14} className="animate-spin" />}
               {isSaving
-                ? (mediaFiles.some(f => isVideoFile(f)) ? (t("common.uploading") || "Uploading Video...") : (t("common.uploading") || "Uploading..."))
-                : (initialData?.isNew === false ? (t("common.save_changes") || "Save Changes") : (t("common.save_and_publish") || "Save & Publish"))}
+                ? mediaFiles.length > 0
+                  ? mediaFiles.some((f) => isVideoFile(f))
+                    ? t("common.uploading") || "Uploading Video..."
+                    : t("common.uploading") || "Uploading..."
+                  : t("common.saving") || "Saving..."
+                : initialData?.isNew === false
+                  ? t("common.save_changes") || "Save Changes"
+                  : t("common.save_and_publish") || "Save & Publish"}
             </Button>
           )}
 
