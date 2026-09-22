@@ -45,6 +45,41 @@ function getPlaceLatLng(place: any): { lat: number; lng: number } | null {
   return { lat: Number(lat), lng: Number(lng) };
 }
 
+export function normalizeAccents(str: unknown): string {
+  if (!str) return "";
+  if (typeof str === "object") {
+    const obj = str as Record<string, unknown>;
+    const en = typeof obj.en === "string" ? obj.en : "";
+    const es = typeof obj.es === "string" ? obj.es : "";
+    return `${en} ${es}`
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+  return String(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function matchesSearch(place: any, query: string): boolean {
+  if (!query) return true;
+  const normalizedQuery = normalizeAccents(query).trim();
+  if (!normalizedQuery) return true;
+
+  const combined = [
+    normalizeAccents(place?.name),
+    normalizeAccents(place?.address),
+    normalizeAccents(place?.location?.address),
+    normalizeAccents(place?.location?.city),
+    normalizeAccents(place?.location?.state),
+    normalizeAccents(place?.location?.country || place?.country),
+    normalizeAccents(place?.description),
+  ].join(" ");
+
+  return combined.includes(normalizedQuery);
+}
+
 /** Only mount AdvancedMarkers inside the current map viewport (big win for purchased users). */
 function ViewportPlaceMarkers({
   places,
@@ -753,25 +788,15 @@ export default function MapPage() {
     return () => clearTimeout(timer);
   }, [pendingFocus, focusReady, isPlacesSettledForMap]);
 
-  const searchQuery = (searchParams.get("q") || searchParams.get("search") || "").trim().toLowerCase();
+  const searchQuery = (searchParams.get("q") || searchParams.get("search") || "").trim();
 
   const displayPlaces = (selectedCountry && isPlacesSettledForMap)
     ? fetchedPlaces?.filter((place: any) => {
       if (!belongsToSelectedMap(place)) return false;
 
-      // Municipality/region/city/town address filter when searching
-      if (searchQuery) {
-        const placeAddr = String(
-          place?.address ||
-          place?.location?.address ||
-          place?.location?.city ||
-          place?.location?.state ||
-          place?.name ||
-          ""
-        ).toLowerCase();
-        if (!placeAddr.includes(searchQuery)) {
-          return false;
-        }
+      // Municipality/region/city/town address filter when searching (accent-insensitive)
+      if (searchQuery && !matchesSearch(place, searchQuery)) {
+        return false;
       }
 
       const categoryId = getCategoryId(place);
@@ -794,18 +819,8 @@ export default function MapPage() {
       ? fetchedPlaces.filter((place: any) => {
         if (!belongsToSelectedMap(place)) return false;
 
-        if (searchQuery) {
-          const placeAddr = String(
-            place?.address ||
-            place?.location?.address ||
-            place?.location?.city ||
-            place?.location?.state ||
-            place?.name ||
-            ""
-          ).toLowerCase();
-          if (!placeAddr.includes(searchQuery)) {
-            return false;
-          }
+        if (searchQuery && !matchesSearch(place, searchQuery)) {
+          return false;
         }
 
         const categoryId = getCategoryId(place);
@@ -817,18 +832,8 @@ export default function MapPage() {
       : fetchedPlaces.filter((place: any) => {
         if (!belongsToSelectedMap(place)) return false;
 
-        if (searchQuery) {
-          const placeAddr = String(
-            place?.address ||
-            place?.location?.address ||
-            place?.location?.city ||
-            place?.location?.state ||
-            place?.name ||
-            ""
-          ).toLowerCase();
-          if (!placeAddr.includes(searchQuery)) {
-            return false;
-          }
+        if (searchQuery && !matchesSearch(place, searchQuery)) {
+          return false;
         }
 
         return true;
