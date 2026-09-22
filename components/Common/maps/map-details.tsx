@@ -151,8 +151,28 @@ export default function MapDetails() {
 
   // Normalize Place vs Business schemas for the shared details UI
   const placeData = useMemo(() => {
-    if (!rawData) return null;
-    if (!isActuallyBusiness) return rawData;
+    const operatingHoursData =
+      (rawData.operatingHours && typeof rawData.operatingHours === "object" ? rawData.operatingHours : null) ||
+      (rawData.hours?.schedule && typeof rawData.hours.schedule === "object" && !Array.isArray(rawData.hours.schedule) ? rawData.hours.schedule : null) ||
+      (rawData.hours && typeof rawData.hours === "object" && !Array.isArray(rawData.hours) && !rawData.hours.schedule ? rawData.hours : null);
+
+    let derivedSchedules = rawData.schedules || "";
+    if (!derivedSchedules && operatingHoursData) {
+      const activeDays = Object.entries(operatingHoursData)
+        .filter(([_, v]: any) => v && !v.closed && v.open && v.close)
+        .map(([day, v]: any) => `${day.slice(0, 3)}: ${v.open} - ${v.close}`);
+      if (activeDays.length > 0) {
+        derivedSchedules = activeDays.join(" · ");
+      }
+    } else if (!derivedSchedules && Array.isArray(rawData.hours?.schedule)) {
+      derivedSchedules = rawData.hours.schedule
+        .map((s: any) => {
+          const dayName = s.days || s.day;
+          return dayName ? `${dayName}: ${s.openTime || ""} - ${s.closeTime || ""}` : "";
+        })
+        .filter(Boolean)
+        .join(", ");
+    }
 
     return {
       ...rawData,
@@ -171,14 +191,8 @@ export default function MapDetails() {
         coordinates: rawData.location?.mapLocation?.coordinates || rawData.location?.coordinates || [],
       },
       map: { name: rawData.location?.country || rawData.country },
-      schedules:
-        rawData.hours?.schedule
-          ?.map((s: any) => {
-            const dayName = s.days || s.day;
-            return dayName ? `${dayName}: ${s.openTime || ""} - ${s.closeTime || ""}` : "";
-          })
-          .filter(Boolean)
-          .join(", ") || rawData.schedules || "",
+      operatingHours: operatingHoursData,
+      schedules: derivedSchedules,
     };
   }, [rawData, isActuallyBusiness]);
 
@@ -231,13 +245,32 @@ export default function MapDetails() {
     [language]
   );
 
+  const hoursObj = useMemo(() => {
+    const raw =
+      placeData?.operatingHours ||
+      placeData?.hours?.schedule ||
+      placeData?.hours;
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      return raw as Record<string, { open?: string; close?: string; closed?: boolean }>;
+    }
+    return null;
+  }, [placeData]);
+
   const formatHours = () => {
     // 1. Check structured operatingHours object
-    if (placeData?.operatingHours && typeof placeData.operatingHours === "object") {
-      const openDays = Object.entries(placeData.operatingHours)
+    if (hoursObj) {
+      const entries = Object.entries(hoursObj);
+      const openDays = entries
         .filter(([_, v]: any) => v && !v.closed && v.open && v.close)
         .map(([day, v]: any) => `${day.slice(0, 3)}: ${v.open} - ${v.close}`);
       if (openDays.length > 0) {
+        if (openDays.length === 7) {
+          const first = entries[0][1];
+          const allSame = entries.every(([_, v]: any) => !v.closed && v.open === first.open && v.close === first.close);
+          if (allSame) {
+            return `Mon – Sun: ${first.open} – ${first.close}`;
+          }
+        }
         return openDays.join(" · ");
       }
     }
@@ -1250,6 +1283,46 @@ export default function MapDetails() {
 
         {isBusiness && (
           <div className="px-2 mt-10">
+            {/* Dedicated Operating Hours Card for Business */}
+            {hoursObj && Object.keys(hoursObj).length > 0 && (
+              <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-lg sm:text-xl uppercase tracking-tight text-gray-900">
+                        {t("places_admin.operating_hours") || "Operating Hours"}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {t("place.weekly_schedule") || "Weekly business hours"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {Object.entries(hoursObj).map(([day, hours]: any) => (
+                    <div
+                      key={day}
+                      className="flex items-center justify-between py-2 px-3 rounded-xl bg-gray-50/60 hover:bg-gray-100/70 transition-colors"
+                    >
+                      <span className="text-xs sm:text-sm font-semibold text-gray-700">{day}</span>
+                      {hours?.closed ? (
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-100">
+                          {t("place.closed") || "Closed"}
+                        </span>
+                      ) : (
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                          {hours?.open || "—"} – {hours?.close || "—"}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
               {t("place.online_presence")}
             </h3>

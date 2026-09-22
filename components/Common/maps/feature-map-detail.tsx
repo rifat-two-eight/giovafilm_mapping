@@ -18,7 +18,7 @@ import {
 } from "@/redux/features/award/awardApi";
 import { useAppSelector } from "@/redux/hook";
 import { selectAccessToken } from "@/redux/features/auth/authSlice";
-import { Star } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { useLoginRequired } from "@/components/shared/login-required-modal";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -259,41 +259,11 @@ export default function FeatureMapDetailPage() {
                 {getLocalized(mapData.name, language)}
               </h1>
 
-              {/* Rating */}
+              {/* Price */}
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-bold text-yellow-500">
                   ${mapData.price}
                 </span>
-                {mapData.totalReview > 0 ? (
-                  <div className="flex items-center gap-1">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={18}
-                          className={
-                            i < Math.floor(mapData.rating || 0)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600 ml-2">
-                      {mapData.rating} (
-                      {(mapData.totalReview || 0).toLocaleString()} {t("map.reviews_count")})
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className="text-gray-300" />
-                      ))}
-                    </div>
-                    <span>{t("map.no_reviews_yet")}</span>
-                  </div>
-                )}
               </div>
             </div>
 

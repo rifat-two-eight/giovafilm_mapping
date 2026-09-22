@@ -43,6 +43,8 @@ export default function ExplorePlaces() {
   const { data: profile } = useGetProfileQuery({});
   const isPremium = profile && ["super_admin", "admin", "map_editor"].includes(profile.role);
 
+  const SESSION_STORAGE_KEY = "explore_places_state";
+
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(9);
   const [searchInput, setSearchInput] = useState("");
@@ -52,10 +54,36 @@ export default function ExplorePlaces() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [hasRestoredState, setHasRestoredState] = useState(false);
+  const [savedScrollY, setSavedScrollY] = useState<number | null>(null);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
+
+  // Restore saved state from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const savedStr = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (savedStr) {
+        const saved = JSON.parse(savedStr);
+        if (saved.selectedCategory !== undefined) setSelectedCategory(saved.selectedCategory);
+        if (saved.activeFilter !== undefined) setActiveFilter(saved.activeFilter);
+        if (saved.page !== undefined) setPage(saved.page);
+        if (saved.searchTerm !== undefined) setSearchTerm(saved.searchTerm);
+        if (saved.searchInput !== undefined) setSearchInput(saved.searchInput);
+        if (saved.selectedCountry !== undefined && saved.selectedCountry) {
+          setSelectedCountry(saved.selectedCountry);
+        }
+        if (typeof saved.scrollY === "number" && saved.scrollY > 0) {
+          setSavedScrollY(saved.scrollY);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to restore explore places state", e);
+    }
+    setHasRestoredState(true);
+  }, []);
 
   const { data: categoriesResponse } = useGetCategoriesQuery({ limit: 100 });
 
@@ -81,6 +109,7 @@ export default function ExplorePlaces() {
   // Load country from localStorage or default to the first one available
   useEffect(() => {
     if (isLoadingMaps || !mapsResponse?.data?.length) return;
+    if (selectedCountry) return; // Already restored or selected
     const maps = mapsResponse.data;
     const saved = localStorage.getItem("selectedCountryFilter");
     if (saved && maps.some((m: any) => m.name === saved)) {
@@ -90,7 +119,48 @@ export default function ExplorePlaces() {
       setSelectedCountry(defaultCountry);
       localStorage.setItem("selectedCountryFilter", defaultCountry);
     }
-  }, [isLoadingMaps, mapsResponse]);
+  }, [isLoadingMaps, mapsResponse, selectedCountry]);
+
+  // Persist state to sessionStorage whenever filters change
+  useEffect(() => {
+    if (!hasRestoredState) return;
+    try {
+      const prevStr = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      const prev = prevStr ? JSON.parse(prevStr) : {};
+      sessionStorage.setItem(
+        SESSION_STORAGE_KEY,
+        JSON.stringify({
+          ...prev,
+          selectedCategory,
+          activeFilter,
+          page,
+          searchTerm,
+          searchInput,
+          selectedCountry,
+        })
+      );
+    } catch (e) {}
+  }, [hasRestoredState, selectedCategory, activeFilter, page, searchTerm, searchInput, selectedCountry]);
+
+  // Continuously keep scrollY up to date in sessionStorage
+  useEffect(() => {
+    const handleScroll = () => {
+      try {
+        const prevStr = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        const prev = prevStr ? JSON.parse(prevStr) : {};
+        sessionStorage.setItem(
+          SESSION_STORAGE_KEY,
+          JSON.stringify({
+            ...prev,
+            scrollY: window.scrollY,
+          })
+        );
+      } catch (e) {}
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const { data: response, isLoading, isFetching } = useGetPlacesQuery({
     page,
@@ -113,14 +183,34 @@ export default function ExplorePlaces() {
   const isPlacesLoading =
     isLoading || (isFetching && !response) || isWaitingForMapId;
 
+  // Restore scroll position after places have loaded
   useEffect(() => {
+    if (!isPlacesLoading && places.length > 0 && savedScrollY !== null) {
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: savedScrollY,
+          behavior: "instant",
+        });
+        setSavedScrollY(null);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isPlacesLoading, places.length, savedScrollY]);
+
+  useEffect(() => {
+    if (!hasRestoredState) return;
     const delayDebounceFn = setTimeout(() => {
-      setSearchTerm(searchInput);
-      setPage(1);
+      setSearchTerm((prev) => {
+        if (prev !== searchInput) {
+          setPage(1);
+          return searchInput;
+        }
+        return prev;
+      });
     }, 400); // 400ms debounce delay
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchInput]);
+  }, [searchInput, hasRestoredState]);
 
   const handleSearch = () => {
     setEnterSearching(true);
