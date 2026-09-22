@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import {
   useDeletePlaceMutation,
   useGetPlacesQuery,
+  useUpdatePlaceMutation,
 } from "@/redux/features/place/placeApi";
-import { Edit, Eye, MessageSquare, Search, Trash2 } from "lucide-react";
+import { Edit, Eye, EyeOff, FileText, MessageSquare, Search, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
@@ -81,6 +82,23 @@ export function PlacesTable() {
     type,
   });
   const [deletePlace] = useDeletePlaceMutation();
+  const [updatePlace] = useUpdatePlaceMutation();
+
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "Published" ? "Draft" : "Published";
+    try {
+      await updatePlace({ id, data: { status: nextStatus } }).unwrap();
+      toast.success(
+        nextStatus === "Draft"
+          ? (t("places_admin.set_to_draft") || "Place set to Draft")
+          : (t("places_admin.published_successfully") || "Place published successfully")
+      );
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error?.message || "Failed to update place status"
+      );
+    }
+  };
 
   const places: Place[] = response?.data || [];
   const meta = response?.meta;
@@ -299,14 +317,33 @@ export function PlacesTable() {
                         <Edit size={18} />
                       </button>
                       <button
+                        onClick={() => handleToggleStatus(place._id, place.status)}
+                        className={`${
+                          place.status === "Published"
+                            ? "text-green-500 hover:text-green-700"
+                            : "text-amber-500 hover:text-amber-700"
+                        } transition-colors`}
+                        aria-label={
+                          place.status === "Published"
+                            ? "Set to draft"
+                            : "Publish place"
+                        }
+                      >
+                        {place.status === "Published" ? (
+                          <Eye size={18} />
+                        ) : (
+                          <EyeOff size={18} />
+                        )}
+                      </button>
+                      <button
                         onClick={() => {
                           setSelectedPlaceId(place._id);
                           setIsViewModalOpen(true);
                         }}
-                        className="text-green-500 hover:text-green-700 transition-colors"
-                        aria-label="View place"
+                        className="text-slate-500 hover:text-slate-700 transition-colors"
+                        aria-label="View place details"
                       >
-                        <Eye size={18} />
+                        <FileText size={18} />
                       </button>
                       <button
                         onClick={() => {
