@@ -262,7 +262,7 @@ export function MapFilters({
                                           }
                                           setSelectedLocation({
                                             id: place._id,
-                                            type: normalizePinType(place.type),
+                                            type: normalizePinType(place),
                                             data: place,
                                           });
                                         }}

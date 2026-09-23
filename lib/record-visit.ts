@@ -13,8 +13,13 @@ export function normalizeEntityType(type?: string | null): UsageType {
   return "place";
 }
 
-export function normalizePinType(type?: string | null): "place" | "business" {
-  return String(type || "").trim().toLowerCase() === "business"
+export function normalizePinType(typeOrObj?: any): "place" | "business" {
+  if (!typeOrObj) return "place";
+  if (typeof typeOrObj === "object") {
+    const raw = typeOrObj.type || typeOrObj.placeType || "";
+    return String(raw).trim().toLowerCase() === "business" ? "business" : "place";
+  }
+  return String(typeOrObj).trim().toLowerCase() === "business"
     ? "business"
     : "place";
 }

@@ -180,7 +180,7 @@ export default function MapDetails() {
 
     return {
       ...rawData,
-      type: "Business",
+      type: isActuallyBusiness ? "Business" : (rawData.type || rawData.placeType || "Place"),
       media: rawData.media?.photos || (Array.isArray(rawData.media) ? rawData.media : []),
       menuImages: [
         ...(Array.isArray(rawData.menuImages) ? rawData.menuImages : []),
