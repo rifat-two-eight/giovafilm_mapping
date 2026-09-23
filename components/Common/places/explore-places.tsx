@@ -7,6 +7,7 @@ import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetMapsQuery } from "@/redux/features/map/mapApi";
 import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { getLocalized } from "@/lib/utils";
 import Link from "next/link";
 import {
   Flame,
@@ -21,7 +22,7 @@ import { toast } from "sonner";
 import { PlaceCard } from "./place-card";
 
 export default function ExplorePlaces() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const filters = [
     {
@@ -101,25 +102,31 @@ export default function ExplorePlaces() {
   const { data: mapsResponse, isLoading: isLoadingMaps } = useGetMapsQuery({
     limit: 100,
   });
+
+  const getMapName = (m: any) => {
+    if (!m) return "";
+    return getLocalized(m.name, language) || m.country || getLocalized(m.name, "es") || getLocalized(m.name, "en") || "";
+  };
+
   const selectedMapObj = mapsResponse?.data?.find(
-    (m: any) => m.name === selectedCountry
+    (m: any) =>
+      getMapName(m) === selectedCountry ||
+      m.country === selectedCountry ||
+      m._id === selectedCountry ||
+      m.name === selectedCountry
   );
   const mapIdFilter = selectedMapObj ? selectedMapObj._id : "";
 
-  // Load country from localStorage or default to the first one available
+  // Load country from localStorage if available
   useEffect(() => {
     if (isLoadingMaps || !mapsResponse?.data?.length) return;
     if (selectedCountry) return; // Already restored or selected
     const maps = mapsResponse.data;
     const saved = localStorage.getItem("selectedCountryFilter");
-    if (saved && maps.some((m: any) => m.name === saved)) {
+    if (saved && maps.some((m: any) => getMapName(m) === saved || m.country === saved)) {
       setSelectedCountry(saved);
-    } else {
-      const defaultCountry = maps[0].name;
-      setSelectedCountry(defaultCountry);
-      localStorage.setItem("selectedCountryFilter", defaultCountry);
     }
-  }, [isLoadingMaps, mapsResponse, selectedCountry]);
+  }, [isLoadingMaps, mapsResponse, selectedCountry, language]);
 
   // Persist state to sessionStorage whenever filters change
   useEffect(() => {
@@ -315,11 +322,15 @@ export default function ExplorePlaces() {
             }}
             className="h-10 px-3 sm:px-4 max-w-[130px] sm:max-w-[180px] truncate border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm bg-white font-semibold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-100 transition-colors shrink-0"
           >
-            {mapsResponse?.data?.map((map: any) => (
-              <option key={map._id} value={map.name}>
-                {map.name}
-              </option>
-            ))}
+            <option value="">{t("filters.all_countries") || "All Countries"}</option>
+            {mapsResponse?.data?.map((map: any) => {
+              const nameStr = getMapName(map);
+              return (
+                <option key={map._id} value={nameStr}>
+                  {nameStr}
+                </option>
+              );
+            })}
           </select>
 
           {/* Categories Selector */}
