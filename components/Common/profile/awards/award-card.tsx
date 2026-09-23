@@ -33,12 +33,11 @@ export function AwardCard({
             <img
               src={coverPhoto}
               alt={title}
-              className="w-full h-full object-cover filter grayscale opacity-75"
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-              <div className="w-12 h-12 bg-white/95 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                <Lock className="text-gray-600 w-5 h-5" />
-              </div>
+            {/* Top-right Lock badge that clearly indicates locked status without obscuring the cover image */}
+            <div className="absolute top-3 right-3 bg-gray-900/85 backdrop-blur-md text-amber-400 p-2 rounded-full shadow-lg border border-amber-500/30 flex items-center justify-center">
+              <Lock className="w-4 h-4 text-amber-400" />
             </div>
           </>
         ) : (
@@ -58,7 +57,7 @@ export function AwardCard({
           <h3 className="font-bold text-sm md:text-base text-gray-900 leading-tight">{title}</h3>
           {/* Description */}
           {description && (
-            <p className="text-xs text-gray-500 mt-1 line-clamp-2 min-h-[32px]">{description}</p>
+            <p className="text-xs text-gray-500 mt-1 whitespace-pre-line leading-relaxed">{description}</p>
           )}
         </div>
 

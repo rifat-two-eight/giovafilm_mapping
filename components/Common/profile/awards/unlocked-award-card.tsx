@@ -38,7 +38,7 @@ export function UnlockedAwardCard({
         <div>
           <h3 className="font-semibold text-sm md:text-base text-gray-900 leading-tight">{title}</h3>
           {description && (
-            <p className="text-xs text-gray-500 mt-1 line-clamp-2 min-h-[32px]">{description}</p>
+            <p className="text-xs text-gray-500 mt-1 whitespace-pre-line leading-relaxed">{description}</p>
           )}
         </div>
 
