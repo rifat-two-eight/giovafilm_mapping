@@ -153,6 +153,8 @@ export default function MapDetails() {
 
   // Normalize Place vs Business schemas for the shared details UI
   const placeData = useMemo(() => {
+    if (!rawData) return null;
+
     const operatingHoursData =
       (rawData.operatingHours && typeof rawData.operatingHours === "object" ? rawData.operatingHours : null) ||
       (rawData.hours?.schedule && typeof rawData.hours.schedule === "object" && !Array.isArray(rawData.hours.schedule) ? rawData.hours.schedule : null) ||
