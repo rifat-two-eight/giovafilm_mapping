@@ -74,8 +74,10 @@ function matchesSearch(place: any, query: string): boolean {
     normalizeAccents(place?.location?.address),
     normalizeAccents(place?.location?.city),
     normalizeAccents(place?.location?.state),
+    normalizeAccents(place?.location?.municipality || place?.municipality),
+    normalizeAccents(place?.location?.region || place?.region),
+    normalizeAccents(place?.location?.town || place?.town),
     normalizeAccents(place?.location?.country || place?.country),
-    normalizeAccents(place?.description),
   ].join(" ");
 
   return combined.includes(normalizedQuery);
