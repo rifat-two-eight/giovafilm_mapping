@@ -7,18 +7,21 @@ import { useState } from "react";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { getImageUrl } from "@/lib/utils";
+import { useGetProfileQuery } from "@/redux/features/user/userApi";
 import { useGetFavouritesQuery } from "@/redux/features/favourite/favouriteApi";
 import { useGetOffersQuery } from "@/redux/features/offer/offerApi";
+import { useAppSelector } from "@/redux/hook";
 import Link from "next/link";
 import { Lock, Search } from "lucide-react";
-import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { formatOfferDiscountLabel } from "@/lib/offer-label";
+import { getImageUrl } from "@/lib/utils";
 
 export default function OfferSection() {
   const { t } = useLanguage();
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -222,17 +225,28 @@ export default function OfferSection() {
             // Handle case where offer.place is an object
             const placeId = (offer.place && typeof offer.place === 'object') ? offer.place._id : (offer.place || null);
 
-            const handleOfferClick = (e: React.MouseEvent) => {
-              if (offer.isLocked) {
-                e.preventDefault();
-                const mapId = offer.map
-                  ? (typeof offer.map === 'object' ? (offer.map._id || offer.map.id) : offer.map)
-                  : (offer.place && typeof offer.place === 'object' && offer.place.map)
-                    ? (typeof offer.place.map === 'object' ? (offer.place.map._id || offer.place.map.id) : offer.place.map)
-                    : (offer.business && typeof offer.business === 'object' && offer.business.map)
-                      ? (typeof offer.business.map === 'object' ? (offer.business.map._id || offer.business.map.id) : offer.business.map)
-                      : null;
+            const purchasedMaps = Array.isArray(userProfile?.purchasedMaps) ? userProfile.purchasedMaps : [];
+            const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(userProfile?.role || "");
 
+            const offerMapId = offer.map
+              ? (typeof offer.map === 'object' ? (offer.map._id || offer.map.id) : offer.map)
+              : (offer.place && typeof offer.place === 'object' && offer.place.map)
+                ? (typeof offer.place.map === 'object' ? (offer.place.map._id || offer.place.map.id) : offer.place.map)
+                : (offer.business && typeof offer.business === 'object' && offer.business.map)
+                  ? (typeof offer.business.map === 'object' ? (offer.business.map._id || offer.business.map.id) : offer.business.map)
+                  : null;
+
+            const isPurchased = isAdminOrEditor || (offerMapId && purchasedMaps.some((m: any) => {
+              const mid = typeof m === 'object' ? (m._id || m.id) : m;
+              return String(mid) === String(offerMapId);
+            }));
+
+            const isStandardPlaceOffer = !offer.business && !!offer.place;
+            const isOfferLocked = offer.isLocked || (isStandardPlaceOffer && !isPurchased);
+
+            const handleOfferClick = (e: React.MouseEvent) => {
+              if (isOfferLocked) {
+                e.preventDefault();
                 appAlert.fire({
                   title: t("offer.unlock_title"),
                   text: t("offer.unlock_text"),
@@ -242,8 +256,8 @@ export default function OfferSection() {
                   cancelButtonText: t("offer.unlock_cancel"),
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    if (mapId) {
-                      window.location.href = `/catalog/${mapId}`;
+                    if (offerMapId) {
+                      window.location.href = `/catalog/${offerMapId}`;
                     } else {
                       window.location.href = "/catalog";
                     }
@@ -289,7 +303,7 @@ export default function OfferSection() {
                     </div>
 
                     {/* Lock Badge */}
-                    {offer.isLocked && (
+                    {isOfferLocked && (
                       <div className="absolute left-3 top-3 bg-red-500 text-white px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg">
                         <Lock className="w-3.5 h-3.5" />
                         {t("common.locked")}

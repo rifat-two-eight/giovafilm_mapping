@@ -113,7 +113,7 @@ export default function MapDetails() {
   const [selectedReviewForEdit, setSelectedReviewForEdit] = useState<any>(null);
 
   const accessToken = useAppSelector(selectAccessToken);
-  const { data: userProfile } = useGetProfileQuery({}, { skip: !accessToken });
+  const { data: userProfile, isLoading: isProfileLoading } = useGetProfileQuery({}, { skip: !accessToken });
   const { openLoginRequired } = useLoginRequired();
 
   const {
@@ -150,6 +150,21 @@ export default function MapDetails() {
     isBusinessEntity ||
     rawData?.type === "Business" ||
     rawData?.placeType === "Business";
+
+  // Client-side purchase gate — same logic as explore-places.tsx and map.tsx
+  const purchasedMaps = Array.isArray(userProfile?.purchasedMaps) ? userProfile.purchasedMaps : [];
+  const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(userProfile?.role || "");
+  const placeMapId = rawData?.map
+    ? (typeof rawData.map === "object" ? (rawData.map._id || rawData.map.id) : rawData.map)
+    : null;
+  const isMapPurchased = isAdminOrEditor || (placeMapId && purchasedMaps.some((m: any) => {
+    const mid = typeof m === "object" ? (m._id || m.id) : m;
+    return String(mid) === String(placeMapId);
+  }));
+  // A standard (non-business) place requires map purchase to view details.
+  // Wait for profile to resolve so we don't flash the lock screen mid-load.
+  const isProfileResolved = !accessToken || !isProfileLoading;
+  const isLockedForUser = isProfileResolved && !isActuallyBusiness && !!rawData && !isMapPurchased;
 
   // Normalize Place vs Business schemas for the shared details UI
   const placeData = useMemo(() => {
@@ -741,7 +756,7 @@ export default function MapDetails() {
     );
   }
 
-  if (error && ((error as any).status === 403 || (error as any).originalStatus === 403)) {
+  if (isLockedForUser || (error && ((error as any).status === 403 || (error as any).originalStatus === 403))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="text-center space-y-6 max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">

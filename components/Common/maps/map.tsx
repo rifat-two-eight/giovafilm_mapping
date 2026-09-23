@@ -793,6 +793,14 @@ export default function MapPage() {
 
   const searchQuery = (searchParams.get("q") || searchParams.get("search") || "").trim();
 
+  const purchasedMaps = Array.isArray(userProfile?.purchasedMaps) ? userProfile.purchasedMaps : [];
+  const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(userProfile?.role || "");
+
+  const isCurrentMapPurchased = isAdminOrEditor || (selectedMapObj && purchasedMaps.some((m: any) => {
+    const mid = typeof m === "object" ? (m._id || m.id) : m;
+    return String(mid) === String(selectedMapObj._id);
+  }));
+
   const displayPlaces = (selectedCountry && isPlacesSettledForMap)
     ? fetchedPlaces?.filter((place: any) => {
       if (!belongsToSelectedMap(place)) return false;
@@ -805,8 +813,8 @@ export default function MapPage() {
       const categoryId = getCategoryId(place);
       if (!categoryId) return true;
 
-      // Guest: only business-type locations OR inherently business categories
-      if (!isLoggedIn && isUserResolved) {
+      // Unpurchased map: only business-type locations OR inherently business categories
+      if (isUserResolved && !isCurrentMapPurchased) {
         if (!isBusinessLocation(place) && !inherentlyBusinessCatIds.has(categoryId)) {
           return false;
         }
@@ -816,9 +824,9 @@ export default function MapPage() {
     })
     : [];
 
-  // Guest sidebar: same visibility rules as map markers
+  // Unpurchased sidebar: same visibility rules as map markers
   const sidebarPlaces = (selectedCountry && isPlacesSettledForMap)
-    ? (!isLoggedIn && isUserResolved
+    ? (isUserResolved && !isCurrentMapPurchased
       ? fetchedPlaces.filter((place: any) => {
         if (!belongsToSelectedMap(place)) return false;
 
