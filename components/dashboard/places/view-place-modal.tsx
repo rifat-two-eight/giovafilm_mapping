@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized, convertTo12Hour } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -418,7 +418,7 @@ export function ViewPlaceModal({
                           <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
                             <span className="text-gray-500 font-medium">{t("place.daily_hours")}</span>
                             <span className="font-bold text-gray-900">
-                              {place.operatingHours.openTime} - {place.operatingHours.closeTime}
+                              {convertTo12Hour(place.operatingHours.openTime)} - {convertTo12Hour(place.operatingHours.closeTime)}
                             </span>
                           </div>
                           {place.operatingHours.offDays && place.operatingHours.offDays.length > 0 && (
@@ -439,7 +439,7 @@ export function ViewPlaceModal({
                             <span>{t("place.schedules")}</span>
                           </div>
                           <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                            {getLocalized(place.schedules, language)}
+                            {convertTo12Hour(getLocalized(place.schedules, language))}
                           </p>
                         </div>
                       )

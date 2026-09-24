@@ -57,7 +57,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl, getLocalized } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl, getLocalized, convertTo12Hour } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
@@ -179,7 +179,7 @@ export default function MapDetails() {
     if (!derivedSchedules && operatingHoursData) {
       const activeDays = Object.entries(operatingHoursData)
         .filter(([_, v]: any) => v && !v.closed && v.open && v.close)
-        .map(([day, v]: any) => `${day.slice(0, 3)}: ${v.open} - ${v.close}`);
+        .map(([day, v]: any) => `${day.slice(0, 3)}: ${convertTo12Hour(v.open)} - ${convertTo12Hour(v.close)}`);
       if (activeDays.length > 0) {
         derivedSchedules = activeDays.join(" · ");
       }
@@ -187,7 +187,7 @@ export default function MapDetails() {
       derivedSchedules = rawData.hours.schedule
         .map((s: any) => {
           const dayName = s.days || s.day;
-          return dayName ? `${dayName}: ${s.openTime || ""} - ${s.closeTime || ""}` : "";
+          return dayName ? `${dayName}: ${convertTo12Hour(s.openTime)} - ${convertTo12Hour(s.closeTime)}` : "";
         })
         .filter(Boolean)
         .join(", ");
@@ -291,7 +291,7 @@ export default function MapDetails() {
         if (!item || item.closed || !item.open || !item.close) {
           return { day, shortDay: shortDays[day] || day.slice(0, 3), closed: true, timeStr: language === "es" ? "Cerrado" : "Closed" };
         }
-        return { day, shortDay: shortDays[day] || day.slice(0, 3), closed: false, timeStr: `${item.open} – ${item.close}` };
+        return { day, shortDay: shortDays[day] || day.slice(0, 3), closed: false, timeStr: `${convertTo12Hour(item.open)} – ${convertTo12Hour(item.close)}` };
       });
 
       const hasAnyOpen = schedules.some((s) => !s.closed);
@@ -356,7 +356,7 @@ export default function MapDetails() {
         trimmed !== "-" &&
         !trimmed.includes("?: ? - ?")
       ) {
-        return { text: trimmed };
+        return { text: convertTo12Hour(trimmed) };
       }
     }
 
@@ -364,7 +364,7 @@ export default function MapDetails() {
     if (hasText(placeData?.hours) && typeof placeData.hours === "string") {
       const trimmed = placeData.hours.trim();
       if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-") {
-        return { text: trimmed };
+        return { text: convertTo12Hour(trimmed) };
       }
     }
 
@@ -384,8 +384,8 @@ export default function MapDetails() {
       if (validItems.length > 0) {
         const lines = validItems.map((s: any) => {
           const days = s.days || s.day;
-          const open = s.openTime;
-          const close = s.closeTime;
+          const open = convertTo12Hour(s.openTime);
+          const close = convertTo12Hour(s.closeTime);
           if (open && close) return `${days}: ${open} – ${close}`;
           if (open) return `${days}: ${open}`;
           if (close) return `${days}: ${close}`;

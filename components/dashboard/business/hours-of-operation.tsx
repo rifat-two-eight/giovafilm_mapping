@@ -10,6 +10,7 @@ type ScheduleItem = {
 };
 
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { convertTo12Hour } from "@/lib/utils";
 
 export default function HoursOfOperation({
   schedule,
@@ -43,10 +44,10 @@ export default function HoursOfOperation({
                 {item.days || item.day}
               </p>
               <p className="text-sm text-gray-700 font-medium">
-                {item.openTime || "--"}
+                {item.openTime ? convertTo12Hour(item.openTime) : "--"}
               </p>
               <p className="text-sm text-gray-700 font-medium">
-                {item.closeTime || "--"}
+                {item.closeTime ? convertTo12Hour(item.closeTime) : "--"}
               </p>
             </div>
           ))}

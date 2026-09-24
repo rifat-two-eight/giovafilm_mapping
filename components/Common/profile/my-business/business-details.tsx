@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { NoImage } from "@/lib/others/others";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, convertTo12Hour } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
@@ -579,7 +579,7 @@ export default function BusinessDetails() {
                         {h.days || h.day}
                       </span>
                       <span className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
-                        {h.openTime} - {h.closeTime}
+                        {convertTo12Hour(h.openTime)} - {convertTo12Hour(h.closeTime)}
                       </span>
                     </div>
                   ))

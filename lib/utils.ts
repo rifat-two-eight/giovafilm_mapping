@@ -439,4 +439,30 @@ export function composeHikeTime(value: string, unit: "mins" | "hours"): string {
   return `${trimmed} ${unit}`;
 }
 
+/**
+ * Converts military time (24-hour, e.g. "14:00", "09:00 - 18:00") into 12-hour AM/PM format (e.g. "2:00 PM", "9:00 AM - 6:00 PM").
+ */
+export function convertTo12Hour(timeStr?: string | null): string {
+  if (!timeStr || typeof timeStr !== "string") return "";
+
+  // Replace HH:MM (24-hr) patterns that aren't already followed by AM or PM
+  return timeStr.replace(/\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?:\s*(am|pm|AM|PM))?\b/g, (match, hourStr, minStr, ampm) => {
+    if (ampm) {
+      let h = parseInt(hourStr, 10);
+      const period = ampm.toUpperCase();
+      if (h === 0) h = 12;
+      else if (h > 12) h = h % 12;
+      return `${h}:${minStr} ${period}`;
+    }
+
+    let h = parseInt(hourStr, 10);
+    const period = h >= 12 ? "PM" : "AM";
+    h = h % 12;
+    if (h === 0) h = 12;
+
+    return `${h}:${minStr} ${period}`;
+  });
+}
+
+
 
