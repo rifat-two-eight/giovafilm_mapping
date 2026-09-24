@@ -1,0 +1,273 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { getImageUrl } from "@/lib/utils";
+import {
+  Check,
+  Lock,
+  FileText,
+  Map as MapIcon,
+  Tag,
+  Copy,
+  Sparkles,
+  Trophy,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
+interface AwardDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  award: any;
+  user?: any;
+}
+
+export function AwardDetailModal({
+  isOpen,
+  onClose,
+  award,
+  user,
+}: AwardDetailModalProps) {
+  const { language } = useLanguage();
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (!award) return null;
+
+  const isUnlocked = !!award.isUnlocked;
+  const title = award.config?.title || award.title || award.type;
+  const description = award.config?.description || award.description || "";
+  const rawCover = award.config?.coverPhoto || award.coverPhoto;
+  const coverPhoto = rawCover ? getImageUrl(rawCover) : null;
+  const rawFile = award.config?.fileUrl || award.fileUrl;
+  const fileUrl = rawFile ? getImageUrl(rawFile) : null;
+  const discountPercentage =
+    award.config?.discountPercentage ||
+    award.discountPercentage ||
+    (award.type?.includes("10%") ? 10 : award.type?.includes("Discount") ? 15 : null);
+  const promoCode =
+    award.config?.promoCode ||
+    award.promoCode ||
+    (discountPercentage ? `ROADTRIP${discountPercentage}` : "ROADTRIP10");
+
+  const current = award.progress || 0;
+  const total = award.target || 100;
+  const percent = Math.min(
+    100,
+    Math.max(0, Math.round((current / (total || 1)) * 100))
+  );
+
+  const hasRedeemedMap = !!user?.redeemedFreeMap;
+
+  const handleCopyDiscount = () => {
+    navigator.clipboard.writeText(promoCode);
+    setCopiedCode(true);
+    toast.success(
+      language === "es"
+        ? "¡Código de descuento copiado al portapapeles!"
+        : "Discount code copied to clipboard!"
+    );
+    setTimeout(() => setCopiedCode(false), 3000);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="w-[calc(100vw-32px)] sm:max-w-[520px] p-0 overflow-hidden rounded-3xl border-0 shadow-2xl bg-white max-h-[88vh] flex flex-col">
+        {/* Header Banner */}
+        <div className="relative h-44 sm:h-56 bg-slate-900 shrink-0 overflow-hidden flex items-center justify-center">
+          {coverPhoto && !imgFailed ? (
+            <img
+              src={coverPhoto}
+              alt={title}
+              onError={() => setImgFailed(true)}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 flex flex-col items-center justify-center text-white p-6 text-center">
+              <Trophy size={48} className="mb-2 text-amber-400 drop-shadow-md" />
+              <span className="font-extrabold uppercase tracking-widest text-xs text-amber-200/90">
+                {award.type}
+              </span>
+            </div>
+          )}
+
+          {/* Gradient Overlay for Top Badges */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/30 pointer-events-none" />
+
+          {/* Top-Left Status Badge */}
+          <div className="absolute top-3 left-3 z-20">
+            {isUnlocked ? (
+              <div className="bg-amber-500 text-white font-black text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider">
+                <Check size={13} className="stroke-[3]" />
+                <span>{language === "es" ? "Desbloqueado" : "Unlocked"}</span>
+              </div>
+            ) : (
+              <div className="bg-slate-900/90 backdrop-blur-md text-amber-400 font-bold text-[11px] px-3 py-1 rounded-full shadow-lg border border-amber-500/30 flex items-center gap-1.5 uppercase tracking-wider">
+                <Lock size={12} />
+                <span>{percent}% {language === "es" ? "Completado" : "PROGRESS"}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Top-Right Explicit Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white/90 hover:text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer border border-white/10"
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="p-5 sm:p-7 space-y-5 overflow-y-auto flex-1 font-public-sans">
+          <DialogHeader className="space-y-1.5 text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-md">
+                {award.type}
+              </span>
+            </div>
+            <DialogTitle className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
+              {title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Description */}
+          {description && (
+            <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line font-medium">
+                {description}
+              </p>
+            </div>
+          )}
+
+          {/* Progress Tracker */}
+          <div className="space-y-2 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+            <div className="flex justify-between items-center text-xs font-bold">
+              <span className="text-slate-500 uppercase tracking-wider text-[11px]">
+                {language === "es" ? "PROGRESO DE TROFEO" : "TROPHY PROGRESS"}
+              </span>
+              <span className="text-amber-800 font-extrabold">
+                {current.toLocaleString()} / {total.toLocaleString()} ({percent}%)
+              </span>
+            </div>
+            <Progress value={percent} className="h-2 bg-slate-200" />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-1 space-y-3">
+            {isUnlocked ? (
+              <>
+                {/* 1. Free Map Reward Button */}
+                {award.type === "Free Map" && (
+                  hasRedeemedMap ? (
+                    <Button
+                      disabled
+                      className="w-full h-12 bg-slate-200 text-slate-500 font-bold text-xs uppercase tracking-wider rounded-xl cursor-not-allowed border-0"
+                    >
+                      {language === "es" ? "Mapa Canjeado" : "Map Claimed"}
+                    </Button>
+                  ) : (
+                    <Link href="/catalog?redeemFreeMap=1" className="block w-full" onClick={onClose}>
+                      <Button className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-amber-200 gap-2 border-0 cursor-pointer">
+                        <MapIcon size={16} />
+                        {language === "es" ? "ELEGIR MAPA GRATIS" : "CHOOSE FREE MAP"}
+                      </Button>
+                    </Link>
+                  )
+                )}
+
+                {/* 2. Download PDF Button */}
+                {(fileUrl || award.type === "PDF Itinerary") && fileUrl && (
+                  <a
+                    href={fileUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full"
+                  >
+                    <Button className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-200 gap-2 border-0 cursor-pointer">
+                      <FileText size={16} />
+                      {language === "es" ? "DESCARGAR PDF" : "DOWNLOAD PDF"}
+                    </Button>
+                  </a>
+                )}
+
+                {/* 3. Use Discount / Coupon Button */}
+                {(discountPercentage || award.type?.includes("Discount") || award.type?.includes("10%")) && (
+                  <div className="space-y-3">
+                    <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest">
+                          {language === "es" ? "Código de Descuento" : "Discount Promo Code"}
+                        </p>
+                        <p className="text-base font-black font-mono text-slate-900 tracking-wider">
+                          {promoCode}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleCopyDiscount}
+                        variant="outline"
+                        className="bg-white border-amber-300 text-amber-800 font-bold text-xs gap-1.5 h-9 px-3 rounded-xl cursor-pointer"
+                      >
+                        <Copy size={13} />
+                        {copiedCode
+                          ? (language === "es" ? "¡Copiado!" : "Copied!")
+                          : (language === "es" ? "Copiar" : "Copy Code")}
+                      </Button>
+                    </div>
+
+                    <Link href="/catalog" className="block w-full" onClick={onClose}>
+                      <Button className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-amber-200/60 gap-2 border-0 cursor-pointer">
+                        <Tag size={16} />
+                        {language === "es" ? "USAR DESCUENTO EN CATÁLOGO" : "USE DISCOUNT IN CATALOG"}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+
+                {/* Default Claimed status if unlocked but no specific action */}
+                {award.type !== "Free Map" && !fileUrl && !discountPercentage && !award.type?.includes("Discount") && (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-center">
+                    <p className="text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+                      <Sparkles size={15} className="text-emerald-600 shrink-0" />
+                      {language === "es"
+                        ? "¡Recompensa desbloqueada! Tus puntos de experiencia han sido acreditados."
+                        : "Reward unlocked! Your XP points have been credited."}
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-center space-y-1">
+                <p className="text-xs font-bold text-amber-900 flex items-center justify-center gap-1.5">
+                  <Lock size={14} className="text-amber-700 shrink-0" />
+                  {language === "es"
+                    ? "Trofeo en Progreso"
+                    : "Trophy In Progress"}
+                </p>
+                <p className="text-xs text-amber-800/80 leading-relaxed font-medium">
+                  {language === "es"
+                    ? `Sigue explorando lugares, dejando reseñas y ganando XP para alcanzar los ${total.toLocaleString()} puntos y desbloquear esta recompensa.`
+                    : `Keep exploring places, leaving reviews, and earning XP to reach ${total.toLocaleString()} points and unlock this perk.`}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

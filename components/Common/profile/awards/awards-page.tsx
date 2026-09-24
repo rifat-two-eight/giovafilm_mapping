@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { AwardCard } from "./award-card";
 import { UnlockedAwardCard } from "./unlocked-award-card";
+import { AwardDetailModal } from "./award-detail-modal";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGetAwardsQuery } from "@/redux/features/award/awardApi";
@@ -72,6 +73,7 @@ export default function AwardsPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
   const [activeFilter, setActiveFilter] = useState<"all" | "unlocked" | "locked">("all");
+  const [selectedAward, setSelectedAward] = useState<any | null>(null);
 
   const { data: user, isLoading: isProfileLoading } = useGetProfileQuery({});
   const { data: awardsRes, isLoading } = useGetAwardsQuery({ page, limit });
@@ -250,8 +252,8 @@ export default function AwardsPage() {
             </div>
           ) : (
             <>
-              {/* Unified Awards Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+              {/* Unified Symmetrical Awards Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8 items-stretch">
                 {sortedAwards
                   .filter((award: any) => {
                     if (activeFilter === "unlocked") return award.isUnlocked;
@@ -269,41 +271,56 @@ export default function AwardsPage() {
                           title={award.config?.title || award.type}
                           description={award.config?.description}
                           image={rewardImage}
+                          onClick={() => setSelectedAward(award)}
                         >
                           {award.type === "Free Map" ? (
-                            <div className="pt-2">
+                            <div className="pt-1.5">
                               {isProfileLoading ? (
-                                <Button className="w-full bg-gray-200 text-gray-400 font-bold cursor-default text-xs uppercase tracking-wider py-5.5 rounded-xl border-none" disabled>
+                                <Button className="w-full bg-gray-200 text-gray-400 font-bold cursor-default text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none" disabled>
                                   Loading...
                                 </Button>
                               ) : hasRedeemed ? (
-                                <Button className="w-full bg-gray-300 text-gray-500 font-bold cursor-default text-xs uppercase tracking-wider py-5.5 rounded-xl border-none" disabled>
+                                <Button className="w-full bg-gray-300 text-gray-500 font-bold cursor-default text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none" disabled>
                                   Used
                                 </Button>
                               ) : (
                                 <Link
                                   href="/catalog?redeemFreeMap=1"
                                   className="block w-full"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
-                                  <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider py-5.5 rounded-xl border-none">
+                                  <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-amber-200/50 cursor-pointer">
                                     Redeem Now
                                   </Button>
                                 </Link>
                               )}
                             </div>
                           ) : award.config?.fileUrl ? (
-                            <div className="pt-2">
+                            <div className="pt-1.5">
                               <a
                                 href={getImageUrl(award.config.fileUrl)}
                                 download
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block w-full"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-xs uppercase tracking-wider py-5.5 rounded-xl border-none">
+                                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-emerald-200/50 cursor-pointer">
                                   Download PDF
                                 </Button>
                               </a>
+                            </div>
+                          ) : award.type?.includes("Discount") || award.type?.includes("10%") || award.config?.discountPercentage ? (
+                            <div className="pt-1.5">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedAward(award);
+                                }}
+                                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-amber-200/50 cursor-pointer"
+                              >
+                                Use Discount
+                              </Button>
                             </div>
                           ) : null}
                         </UnlockedAwardCard>
@@ -326,6 +343,7 @@ export default function AwardsPage() {
                           total={award.target}
                           coverPhoto={coverPhoto}
                           Icon={getAwardIcon(award.type)}
+                          onClick={() => setSelectedAward(award)}
                         />
                       );
                     }
@@ -377,6 +395,14 @@ export default function AwardsPage() {
           )}
         </div>
       </div>
+
+      {/* Award Detail Modal */}
+      <AwardDetailModal
+        isOpen={!!selectedAward}
+        onClose={() => setSelectedAward(null)}
+        award={selectedAward}
+        user={user}
+      />
     </div>
   );
 }
