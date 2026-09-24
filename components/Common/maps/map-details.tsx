@@ -523,14 +523,37 @@ export default function MapDetails() {
     setIsReviewOpen(true);
   };
 
-  const servicesMap: Record<string, any> = {
-    Parking: { icon: Car, label: t("services.parking") },
-    Restrooms: { icon: Toilet, label: t("services.restrooms") },
-    "Food Nearby": { icon: Utensils, label: t("services.food_nearby") },
-    "Guided Tour": { icon: MapPin, label: t("services.guided_tour") },
-    "Family Friendly": { icon: User2, label: t("services.family_friendly") },
-    Wifi: { icon: Wifi, label: t("services.wifi") },
-    "Pet Friendly": { icon: Dog, label: t("services.pet_friendly") },
+  const resolveServiceInfo = (rawService: any) => {
+    if (!rawService) return null;
+    const serviceStr = typeof rawService === "string" ? rawService : rawService.name || rawService.label || String(rawService);
+    const normalized = serviceStr.toLowerCase().trim();
+
+    if (normalized.includes("park") || normalized.includes("estacionamiento") || normalized.includes("parqueo")) {
+      return { icon: Car, label: t("services.parking") || "Parking" };
+    }
+    if (normalized.includes("restroom") || normalized.includes("baño") || normalized.includes("bano") || normalized.includes("toilet") || normalized.includes("sanitario")) {
+      return { icon: Toilet, label: t("services.restrooms") || "Restrooms" };
+    }
+    if (normalized.includes("food") || normalized.includes("comida") || normalized.includes("restaurante")) {
+      return { icon: Utensils, label: t("services.food_nearby") || "Food Nearby" };
+    }
+    if (normalized.includes("tour") || normalized.includes("guiad") || normalized.includes("guia")) {
+      return { icon: MapPin, label: t("services.guided_tour") || "Guided Tour" };
+    }
+    if (normalized.includes("family") || normalized.includes("famili")) {
+      return { icon: User2, label: t("services.family_friendly") || "Family Friendly" };
+    }
+    if (normalized.includes("wifi") || normalized.includes("wi-fi") || normalized.includes("internet")) {
+      return { icon: Wifi, label: t("services.wifi") || "Wi-Fi" };
+    }
+    if (normalized.includes("pet") || normalized.includes("mascota")) {
+      return { icon: Dog, label: t("services.pet_friendly") || "Pet Friendly" };
+    }
+
+    return {
+      icon: Sparkles,
+      label: getLocalized(serviceStr, language) || serviceStr,
+    };
   };
 
   const handleViewOnMap = () => {
@@ -1231,20 +1254,20 @@ export default function MapDetails() {
 
                 <AccordionContent className="px-6 pb-8">
                   <div className="grid grid-cols-3 md:grid-cols-4 gap-6 text-center">
-                    {placeData.services.map((serviceName: string) => {
-                      const serviceInfo = servicesMap[serviceName];
+                    {placeData.services.map((item: any, idx: number) => {
+                      const serviceInfo = resolveServiceInfo(item);
                       if (!serviceInfo) return null;
                       const Icon = serviceInfo.icon;
 
                       return (
                         <div
-                          key={serviceName}
-                          className="flex flex-col items-center gap-2"
+                          key={idx}
+                          className="flex flex-col items-center gap-2 group"
                         >
-                          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 group-hover:bg-yellow-50 transition-colors">
-                            <Icon size={22} className="text-gray-600" />
+                          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 group-hover:bg-amber-50 transition-colors">
+                            <Icon size={22} className="text-gray-600 group-hover:text-amber-600" />
                           </div>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">
                             {serviceInfo.label}
                           </p>
                         </div>
