@@ -4,7 +4,7 @@ import { FavouriteButton } from "@/components/shared/favourite-button";
 import { SafeImage } from "@/components/shared/safe-image";
 import { Button } from "@/components/ui/button";
 import { NoImage } from "@/lib/others/others";
-import { getUsableMediaUrl } from "@/lib/utils";
+import { getUsableMediaUrl, getLocalized } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { normalizePinType, trackUsage } from "@/lib/record-visit";
@@ -14,12 +14,7 @@ import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const getSafeString = (val: any, lang: string = "es"): string => {
-  if (val == null) return "";
-  if (typeof val === "string") return val;
-  if (typeof val === "object") {
-    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
-  }
-  return String(val);
+  return getLocalized(val, lang);
 };
 
 type Props = {

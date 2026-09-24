@@ -78,7 +78,13 @@ export default function ExplorerProfilePage() {
     );
   }
 
-  const levelName = USER_LEVELS[data.level ?? 0] || "Explorador";
+  const USER_LEVEL_KEYS = [
+    "explorador", "aventurero", "tlacuilo", "expedicionario", "viajero",
+    "chasqui", "cronista", "baquiano", "cartografo", "maestro_ruta",
+    "leyenda", "gran_leyenda", "mitico", "inmortal", "supremo"
+  ];
+  const levelKey = USER_LEVEL_KEYS[data.level ?? 0] || "explorador";
+  const levelName = t(`levels.${levelKey}`) || USER_LEVELS[data.level ?? 0] || "Explorer";
 
   return (
     <main className="min-h-[70vh] bg-gray-50 py-10 px-4">

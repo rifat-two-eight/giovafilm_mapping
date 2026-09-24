@@ -57,7 +57,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { FavouriteButton } from "@/components/shared/favourite-button";
 import { NoImage } from "@/lib/others/others";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
-import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl, getLocalized, convertTo12Hour } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getUsableMediaList, isVideoUrl, getLocalized, convertTo12Hour, formatLocalizedDifficulty, formatLocalizedSchedule } from "@/lib/utils";
 import { SafeImage } from "@/components/shared/safe-image";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
 import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
@@ -347,7 +347,7 @@ export default function MapDetails() {
 
     // 2. Check schedules string / i18n
     if (hasText(placeData?.schedules)) {
-      const str = getLocalized(placeData.schedules, language);
+      const str = formatLocalizedSchedule(placeData.schedules, language);
       const trimmed = String(str).trim();
       if (
         trimmed &&
@@ -362,7 +362,7 @@ export default function MapDetails() {
 
     // 3. Check hours string
     if (hasText(placeData?.hours) && typeof placeData.hours === "string") {
-      const trimmed = placeData.hours.trim();
+      const trimmed = formatLocalizedSchedule(placeData.hours, language).trim();
       if (!trimmed.includes("undefined") && !trimmed.startsWith(":") && trimmed !== "-") {
         return { text: convertTo12Hour(trimmed) };
       }
@@ -383,7 +383,8 @@ export default function MapDetails() {
       );
       if (validItems.length > 0) {
         const lines = validItems.map((s: any) => {
-          const days = s.days || s.day;
+          const daysRaw = s.days || s.day;
+          const days = formatLocalizedSchedule(daysRaw, language);
           const open = convertTo12Hour(s.openTime);
           const close = convertTo12Hour(s.closeTime);
           if (open && close) return `${days}: ${open} – ${close}`;
@@ -432,7 +433,7 @@ export default function MapDetails() {
       icon: BarChart3,
       label: t("place.difficulty"),
       value: hasText(placeData?.difficulty)
-        ? placeData.difficulty
+        ? formatLocalizedDifficulty(placeData.difficulty, language)
         : t("place.not_specified"),
       empty: !hasText(placeData?.difficulty),
       highlight: hasText(placeData?.difficulty),
@@ -982,7 +983,7 @@ export default function MapDetails() {
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     {placeData?.category?.name && (
                       <span className="inline-flex items-center rounded-full bg-yellow-400/95 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-black">
-                        {placeData.category.name}
+                        {getLocalized(placeData.category.name, language)}
                       </span>
                     )}
                     {typeof placeData?.rating === "number" &&
@@ -1003,7 +1004,7 @@ export default function MapDetails() {
                   </div>
 
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-public-sans text-white leading-tight tracking-tight" style={{userSelect:'text'}}>
-                    {placeData?.name || "Untitled location"}
+                    {getLocalized(placeData?.name, language) || "Untitled location"}
                   </h1>
 
                   <div className="mt-2 flex items-start gap-2 text-sm text-white/90">
@@ -1023,7 +1024,7 @@ export default function MapDetails() {
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 {placeData?.category?.name && (
                   <span className="inline-flex items-center rounded-full bg-yellow-400 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-black">
-                    {placeData.category.name}
+                    {getLocalized(placeData.category.name, language)}
                   </span>
                 )}
                 {typeof placeData?.rating === "number" && placeData.rating > 0 && (
@@ -1040,7 +1041,7 @@ export default function MapDetails() {
               </div>
 
               <h1 className="text-2xl font-bold font-public-sans text-gray-900 leading-tight tracking-tight" style={{userSelect:'text'}}>
-                {placeData?.name || "Untitled location"}
+                {getLocalized(placeData?.name, language) || "Untitled location"}
               </h1>
 
               <div className="mt-2 flex items-start gap-2 text-sm text-gray-600">

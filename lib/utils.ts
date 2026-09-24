@@ -23,17 +23,125 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function translatePlaceName(str: string, lang: string = "es"): string {
+  if (!str || typeof str !== "string") return str || "";
+  if (lang !== "en") return str;
+
+  let result = str;
+
+  result = result
+    .replace(/Desafío59 La sala de escape/gi, "Challenge 59 Escape Room")
+    .replace(/La sala de escape/gi, "Escape Room")
+    .replace(/Fórmula divertida/gi, "Formula Fun")
+    .replace(/Fórmula Diversión/gi, "Formula Fun")
+    .replace(/Sal si puedes aventuras/gi, "Sal Si Puedes Adventures")
+    .replace(/Arena vikinga/gi, "Viking Arena")
+    .replace(/Parque de aventuras/gi, "Adventure Park")
+    .replace(/Parque Pasivo/gi, "Passive Park")
+    .replace(/Parque Recreativo/gi, "Recreational Park")
+    .replace(/Parque Nacional/gi, "National Park")
+    .replace(/Parque Central/gi, "Central Park")
+    .replace(/Parque Infantil/gi, "Children's Park")
+    .replace(/Parque Urban/gi, "Urban Park")
+    .replace(/Parque/gi, "Park")
+    .replace(/Jardín Botánico|Jardin Botanico/gi, "Botanical Garden")
+    .replace(/Reserva Natural/gi, "Nature Reserve")
+    .replace(/Centro de Visitantes/gi, "Visitor Center")
+    .replace(/Bosque Nacional/gi, "National Forest")
+    .replace(/Bosque Estatal/gi, "State Forest")
+    .replace(/Bosque/gi, "Forest")
+    .replace(/Playa de/gi, "Beach of")
+    .replace(/Playa/gi, "Beach")
+    .replace(/Isla de/gi, "Island of")
+    .replace(/Isla/gi, "Island")
+    .replace(/Cueva de/gi, "Cave of")
+    .replace(/Cueva/gi, "Cave")
+    .replace(/Faro de/gi, "Lighthouse of")
+    .replace(/Faro/gi, "Lighthouse")
+    .replace(/Castillo de/gi, "Castle of")
+    .replace(/Castillo/gi, "Castle")
+    .replace(/Fuerte de/gi, "Fort of")
+    .replace(/Fuerte/gi, "Fort")
+    .replace(/Cascada/gi, "Waterfall")
+    .replace(/Mirador/gi, "Viewpoint")
+    .replace(/Paseo/gi, "Promenade")
+    .replace(/Muelle/gi, "Pier")
+    .replace(/Laguna/gi, "Lagoon")
+    .replace(/Bahía|Bahia/gi, "Bay");
+
+  return result;
+}
+
 /**
  * Safely extracts a localized string from an i18n object { en?: string, es?: string } or string.
  * Supports fallback to current active language or alternate language.
  */
 export function getLocalized(val: any, lang: string = "es"): string {
   if (val == null) return "";
-  if (typeof val === "string") return val;
-  if (typeof val === "object") {
-    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  let extracted = "";
+  if (typeof val === "string") {
+    extracted = val;
+  } else if (typeof val === "object") {
+    extracted = val[lang] || val.es || val.en || Object.values(val)[0] || "";
+  } else {
+    extracted = String(val);
   }
-  return String(val);
+  return translatePlaceName(extracted, lang);
+}
+
+export function formatLocalizedDifficulty(val: any, lang: string = "es"): string {
+  if (!val) return "";
+  const str = getLocalized(val, lang);
+  if (!str) return "";
+  const lower = str.toLowerCase().trim();
+  if (lower.includes("facil") || lower.includes("easy")) {
+    return lang === "es" ? "Fácil" : "Easy";
+  }
+  if (lower.includes("med") || lower.includes("mod") || lower.includes("interm")) {
+    return lang === "es" ? "Media" : "Medium";
+  }
+  if (lower.includes("dificil") || lower.includes("hard") || lower.includes("alta")) {
+    return lang === "es" ? "Difícil" : "Hard";
+  }
+  return str;
+}
+
+export function formatLocalizedSchedule(val: any, lang: string = "es"): string {
+  if (!val) return "";
+  const str = getLocalized(val, lang);
+  if (!str) return "";
+  
+  if (lang === "en") {
+    return str
+      .replace(/lunes a viernes/gi, "Mon to Fri")
+      .replace(/lunes a domingo/gi, "Mon to Sun")
+      .replace(/lun - dom/gi, "Mon - Sun")
+      .replace(/lun - vie/gi, "Mon - Fri")
+      .replace(/lunes/gi, "Mon")
+      .replace(/martes/gi, "Tue")
+      .replace(/miércoles|miercoles/gi, "Wed")
+      .replace(/jueves/gi, "Thu")
+      .replace(/viernes/gi, "Fri")
+      .replace(/sábado|sabado/gi, "Sat")
+      .replace(/domingo/gi, "Sun")
+      .replace(/abierto las 24 horas|24 horas/gi, "Open 24 Hours")
+      .replace(/cerrado/gi, "Closed");
+  } else {
+    return str
+      .replace(/monday to friday/gi, "Lun a Vie")
+      .replace(/monday to sunday/gi, "Lun a Dom")
+      .replace(/mon - sun/gi, "Lun - Dom")
+      .replace(/mon - fri/gi, "Lun - Vie")
+      .replace(/monday/gi, "Lunes")
+      .replace(/tuesday/gi, "Martes")
+      .replace(/wednesday/gi, "Miércoles")
+      .replace(/thursday/gi, "Jueves")
+      .replace(/friday/gi, "Viernes")
+      .replace(/saturday/gi, "Sábado")
+      .replace(/sunday/gi, "Domingo")
+      .replace(/open 24 hours/gi, "Abierto 24 Horas")
+      .replace(/closed/gi, "Cerrado");
+  }
 }
 
 const FALLBACK_IMAGE = "/exploring-today.jpg";

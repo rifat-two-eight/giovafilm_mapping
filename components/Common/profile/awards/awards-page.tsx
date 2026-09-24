@@ -95,6 +95,16 @@ export default function AwardsPage() {
   const nextLevelIndex = currentLevel < 14 ? currentLevel + 1 : 14;
   const nextLevelData = USER_LEVELS[nextLevelIndex];
 
+  const getUserLevelName = (lvlIdx: number) => {
+    const keys = [
+      "explorador", "aventurero", "tlacuilo", "expedicionario", "viajero",
+      "chasqui", "cronista", "baquiano", "cartografo", "maestro_ruta",
+      "leyenda", "gran_leyenda", "mitico", "inmortal", "supremo"
+    ];
+    const key = keys[lvlIdx] || "explorador";
+    return t(`levels.${key}`) || USER_LEVELS[lvlIdx]?.name || "Explorer";
+  };
+
   const currentLevelMinPoints = currentLevelData.points;
   const nextLevelMinPoints = nextLevelData.points;
   const pointsNeededForNext = Math.max(0, nextLevelMinPoints - points);
@@ -164,7 +174,7 @@ export default function AwardsPage() {
             <span className="inline-block bg-amber-500/20 text-amber-800 px-2 py-0.5 md:px-4 md:py-1 rounded-full text-[8px] md:text-xs font-bold mb-0.5 md:mb-2 uppercase tracking-wider">
               {isProfileLoading
                 ? "Loading..."
-                : `🏆 Level ${currentLevel} · ${currentLevelData.name}`}
+                : `🏆 Level ${currentLevel} · ${getUserLevelName(currentLevel)}`}
             </span>
 
             {/* Name */}
@@ -190,7 +200,7 @@ export default function AwardsPage() {
               <div className="bg-white/80 border border-gray-100 px-2 py-1 md:px-4 md:py-2.5 rounded-lg md:rounded-xl flex-1 md:flex-none md:w-36 shadow-sm">
                 <p className="text-[6px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">{t("common.next_level")}</p>
                 <p className="font-extrabold text-gray-800 mt-0.5 text-[9px] md:text-xs leading-none">
-                  {currentLevel >= 14 ? "Max Level" : `Level ${nextLevelData.level} · ${nextLevelData.name}`}
+                  {currentLevel >= 14 ? "Max Level" : `Level ${nextLevelData.level} · ${getUserLevelName(nextLevelIndex)}`}
                 </p>
               </div>
 

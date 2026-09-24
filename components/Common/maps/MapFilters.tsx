@@ -18,19 +18,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { normalizePinType } from "@/lib/record-visit";
-import { getUsableMediaUrl } from "@/lib/utils";
+import { getUsableMediaUrl, getLocalized } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 /** Avoid mounting hundreds of sidebar rows per category on purchased maps */
 const SIDEBAR_PLACES_CAP = 40;
 
 const getSafeString = (val: any, lang: string = "es"): string => {
-  if (val == null) return "";
-  if (typeof val === "string") return val;
-  if (typeof val === "object") {
-    return val[lang] || val.es || val.en || Object.values(val)[0] || "";
-  }
-  return String(val);
+  return getLocalized(val, lang);
 };
 
 interface MapFiltersProps {

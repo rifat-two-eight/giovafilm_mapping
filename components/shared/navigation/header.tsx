@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized } from "@/lib/utils";
 import { useLogoutMutation } from "@/redux/features/auth/authApi";
 import { logout } from "@/redux/features/auth/authSlice";
 import { broadcastLogout } from "@/components/shared/cross-tab-logout-listener";
@@ -90,7 +90,7 @@ export default function Header() {
   const onMapsPage = pathname === "/maps";
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -184,21 +184,21 @@ export default function Header() {
   };
 
   const USER_LEVELS = [
-    { level: 0, name: "Explorador", points: 0 },
-    { level: 1, name: "Aventurero", points: 100 },
-    { level: 2, name: "Tlacuilo", points: 200 },
-    { level: 3, name: "Expedicionario", points: 400 },
-    { level: 4, name: "Viajero", points: 700 },
-    { level: 5, name: "Chasqui", points: 1300 },
-    { level: 6, name: "Cronista", points: 2200 },
-    { level: 7, name: "Baquiano", points: 3500 },
-    { level: 8, name: "Cartógrafo", points: 5500 },
-    { level: 9, name: "Maestro Ruta", points: 8500 },
-    { level: 10, name: "Leyenda", points: 13000 },
-    { level: 11, name: "Gran Leyenda", points: 20000 },
-    { level: 12, name: "Mítico", points: 30000 },
-    { level: 13, name: "Inmortal", points: 45000 },
-    { level: 14, name: "Supremo", points: 65000 }
+    { level: 0, name: t("levels.explorador") || "Explorador", points: 0 },
+    { level: 1, name: t("levels.aventurero") || "Aventurero", points: 100 },
+    { level: 2, name: t("levels.tlacuilo") || "Tlacuilo", points: 200 },
+    { level: 3, name: t("levels.expedicionario") || "Expedicionario", points: 400 },
+    { level: 4, name: t("levels.viajero") || "Viajero", points: 700 },
+    { level: 5, name: t("levels.chasqui") || "Chasqui", points: 1300 },
+    { level: 6, name: t("levels.cronista") || "Cronista", points: 2200 },
+    { level: 7, name: t("levels.baquiano") || "Baquiano", points: 3500 },
+    { level: 8, name: t("levels.cartografo") || "Cartógrafo", points: 5500 },
+    { level: 9, name: t("levels.maestro_ruta") || "Maestro Ruta", points: 8500 },
+    { level: 10, name: t("levels.leyenda") || "Leyenda", points: 13000 },
+    { level: 11, name: t("levels.gran_leyenda") || "Gran Leyenda", points: 20000 },
+    { level: 12, name: t("levels.mitico") || "Mítico", points: 30000 },
+    { level: 13, name: t("levels.inmortal") || "Inmortal", points: 45000 },
+    { level: 14, name: t("levels.supremo") || "Supremo", points: 65000 }
   ];
   const currentLevelIndex = user?.level || 0;
   const nextLevelIndex = currentLevelIndex < 14 ? currentLevelIndex + 1 : 14;
@@ -333,7 +333,7 @@ export default function Header() {
                           </div>
                           <div>
                             <h4 className="text-sm font-semibold text-gray-900">
-                              {place.name}
+                              {getLocalized(place.name, language)}
                             </h4>
                             <p className="text-xs text-gray-500 truncate">
                               {place.address}
@@ -823,7 +823,7 @@ export default function Header() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <h4 className="text-sm font-semibold text-gray-900 truncate">
-                              {place.name}
+                              {getLocalized(place.name, language)}
                             </h4>
                             <p className="text-xs text-gray-500 truncate">
                               {place.address}
