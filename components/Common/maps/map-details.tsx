@@ -1099,26 +1099,16 @@ export default function MapDetails() {
 
               {isBusiness && (
                 <>
-                  <div>
-                    {hasText(placeData?.phone) ? (
+                  {hasText(placeData?.phone) && (
+                    <div>
                       <a href={`tel:${placeData.phone}`} className="w-full block">
                         <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-amber-500 text-black hover:text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
                           <Phone size={16} />
                           {t("place.call")}
                         </button>
                       </a>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        title="This business hasn't shared a phone number"
-                        className="w-full inline-flex items-center justify-center gap-2 bg-gray-50 text-gray-400 border border-gray-200 h-11 text-xs rounded-xl cursor-not-allowed opacity-60"
-                      >
-                        <Phone size={16} />
-                        {t("place.no_phone")}
-                      </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   {offerId && (
                     <Link href={`/offer/${offerId}`} className="block">
                       <button type="button" className="w-full inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 text-sm rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer">
@@ -1403,94 +1393,78 @@ export default function MapDetails() {
               </div>
             )}
 
-            <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
-              {t("place.online_presence")}
-            </h3>
-            <p className="text-sm text-gray-500 mb-6">
-              {t("place.online_presence_desc")}
-            </p>
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* WEBSITE */}
-              <div
-                className={`flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.website) ? "hover:shadow-md" : "opacity-90"
-                  }`}
-              >
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                  <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl shrink-0">🌐</div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      {t("business_details.website")}
-                    </p>
-                    <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
-                      {hasText(placeData?.website)
-                        ? t("place.official_website")
-                        : t("place.not_provided_yet")}
-                    </p>
-                  </div>
-                </div>
-                {hasText(placeData?.website) ? (
-                  <button
-                    onClick={() => {
-                      const url = placeData.website.startsWith("http")
-                        ? placeData.website
-                        : `https://${placeData.website}`;
-                      window.open(url, "_blank");
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
-                  >
-                    {t("place.visit")}
-                  </button>
-                ) : (
-                  <span className="text-xs text-gray-400 font-medium shrink-0 px-1 sm:px-2">
-                    {t("place.coming_soon")}
-                  </span>
-                )}
-              </div>
+            {(hasText(placeData?.website) || hasText(placeData?.instagram)) && (
+              <>
+                <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
+                  {t("place.online_presence")}
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  {t("place.online_presence_desc")}
+                </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* WEBSITE */}
+                  {hasText(placeData?.website) && (
+                    <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
+                      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl shrink-0">🌐</div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {t("business_details.website")}
+                          </p>
+                          <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
+                            {t("place.official_website")}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const url = placeData.website.startsWith("http")
+                            ? placeData.website
+                            : `https://${placeData.website}`;
+                          window.open(url, "_blank");
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                      >
+                        {t("place.visit")}
+                      </button>
+                    </div>
+                  )}
 
-              {/* INSTAGRAM */}
-              <div
-                className={`flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow ${hasText(placeData?.instagram)
-                    ? "hover:shadow-md"
-                    : "opacity-90"
-                  }`}
-              >
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                  <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0 text-pink-600 flex items-center justify-center">
-                    <Instagram size={22} className="text-pink-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                      {t("business_details.instagram")}
-                    </p>
-                    <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
-                      {hasText(placeData?.instagram)
-                        ? `@${placeData.instagram.replace("@", "")}`
-                        : t("place.not_provided_yet")}
-                    </p>
-                  </div>
+                  {/* INSTAGRAM */}
+                  {hasText(placeData?.instagram) && (
+                    <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
+                      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0 text-pink-600 flex items-center justify-center">
+                          <Instagram size={22} className="text-pink-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {t("business_details.instagram")}
+                          </p>
+                          <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
+                            {`@${placeData.instagram.replace("@", "")}`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const username = placeData.instagram
+                            .replace("@", "")
+                            .trim();
+                          window.open(
+                            `https://instagram.com/${username}`,
+                            "_blank",
+                          );
+                        }}
+                        className="bg-pink-600 hover:bg-pink-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                      >
+                        {t("place.view")}
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {hasText(placeData?.instagram) ? (
-                  <button
-                    onClick={() => {
-                      const username = placeData.instagram
-                        .replace("@", "")
-                        .trim();
-                      window.open(
-                        `https://instagram.com/${username}`,
-                        "_blank",
-                      );
-                    }}
-                    className="bg-pink-600 hover:bg-pink-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
-                  >
-                    {t("place.view")}
-                  </button>
-                ) : (
-                  <span className="text-xs text-gray-400 font-medium shrink-0 px-1 sm:px-2">
-                    {t("place.coming_soon")}
-                  </span>
-                )}
-              </div>
-            </div>
+              </>
+            )}
           </div>
         )}
         {/* REVIEWS & EXPERIENCES SECTION */}
