@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl, getLocalized } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
 import { shareProfile } from "@/lib/share-profile";
 import { useGetPublicProfileQuery } from "@/redux/features/user/userApi";
-import { ArrowLeft, Globe, Instagram, Share2 } from "lucide-react";
+import { ArrowLeft, Globe, Instagram, Share2, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -32,7 +32,7 @@ const USER_LEVELS = [
 ];
 
 export default function ExplorerProfilePage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const params = useParams();
   const userId = String(params?.id || "");
   const { data, isLoading, isError, error } = useGetPublicProfileQuery(userId, {
@@ -181,6 +181,54 @@ export default function ExplorerProfilePage() {
             {isSharing ? "Sharing..." : "Share this profile"}
           </Button>
         </div>
+
+        {/* Public User Reviews & Experiences Section */}
+        {Array.isArray(data.reviews) && data.reviews.length > 0 && (
+          <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm font-public-sans text-left space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h3 className="text-base font-extrabold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                <Star className="text-amber-500 fill-amber-500" size={18} />
+                {language === "es" ? "Reseñas y Experiencias" : "Reviews & Experiences"}
+              </h3>
+              <span className="text-xs font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full">
+                {data.reviews.length}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {data.reviews.map((rev: any) => {
+                const targetName = getLocalized(
+                  rev.place?.name || rev.business?.name || rev.targetName || rev.placeName,
+                  language
+                ) || (language === "es" ? "Lugar Explorado" : "Explored Location");
+
+                return (
+                  <div key={rev._id || rev.id} className="bg-gray-50/80 border border-gray-100 p-4 rounded-xl space-y-2">
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="font-bold text-sm text-gray-900 truncate">{targetName}</span>
+                      <div className="flex items-center gap-1 bg-white border border-gray-200 px-2 py-0.5 rounded-lg text-amber-600 font-extrabold text-xs shrink-0">
+                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                        {rev.rating || 5}
+                      </div>
+                    </div>
+
+                    {rev.review && (
+                      <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                        "{getLocalized(rev.review, language)}"
+                      </p>
+                    )}
+
+                    {rev.createdAt && (
+                      <p className="text-[10px] text-gray-400">
+                        {formatDate(rev.createdAt)}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

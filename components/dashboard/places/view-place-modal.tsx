@@ -15,6 +15,7 @@ import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized, convertTo12
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { MenuLightbox } from "@/components/Common/maps/MenuLightbox";
 import {

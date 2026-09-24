@@ -1724,34 +1724,68 @@ export default function MapDetails() {
                   className="bg-gray-50/70 hover:bg-gray-50 border border-gray-100 rounded-2xl p-5 transition-all space-y-3"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-11 h-11 border-2 border-white shadow-xs shrink-0">
-                        <AvatarImage
-                          src={getImageUrl(rev.reviewer?.profile)}
-                          alt={rev.reviewer?.name}
-                        />
-                        <AvatarFallback className="capitalize bg-gradient-to-br from-amber-100 to-yellow-200 text-yellow-900 font-black text-sm">
-                          {rev.reviewer?.name?.slice(0, 2) || "EX"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-gray-900 text-sm">
-                            {rev.reviewer?.name || t("reviews.explorer")}
-                          </span>
-                          <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-tight">
-                            {t("reviews.level")} {rev.reviewer?.level || 0}
+                    {rev.reviewer?._id || rev.reviewer?.id ? (
+                      <Link
+                        href={`/explorer/${rev.reviewer._id || rev.reviewer.id}`}
+                        className="flex items-center gap-3 group/user"
+                      >
+                        <Avatar className="w-11 h-11 border-2 border-white shadow-xs shrink-0 group-hover/user:scale-105 transition-transform">
+                          <AvatarImage
+                            src={getImageUrl(rev.reviewer?.profile)}
+                            alt={rev.reviewer?.name}
+                          />
+                          <AvatarFallback className="capitalize bg-gradient-to-br from-amber-100 to-yellow-200 text-yellow-900 font-black text-sm">
+                            {rev.reviewer?.name?.slice(0, 2) || "EX"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 text-sm group-hover/user:text-amber-600 transition-colors">
+                              {rev.reviewer?.name || t("reviews.explorer")}
+                            </span>
+                            <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-tight">
+                              {t("reviews.level")} {rev.reviewer?.level || 0}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-gray-400">
+                            {new Date(rev.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
                           </span>
                         </div>
-                        <span className="text-[11px] text-gray-400">
-                          {new Date(rev.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-11 h-11 border-2 border-white shadow-xs shrink-0">
+                          <AvatarImage
+                            src={getImageUrl(rev.reviewer?.profile)}
+                            alt={rev.reviewer?.name}
+                          />
+                          <AvatarFallback className="capitalize bg-gradient-to-br from-amber-100 to-yellow-200 text-yellow-900 font-black text-sm">
+                            {rev.reviewer?.name?.slice(0, 2) || "EX"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 text-sm">
+                              {rev.reviewer?.name || t("reviews.explorer")}
+                            </span>
+                            <span className="text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-tight">
+                              {t("reviews.level")} {rev.reviewer?.level || 0}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-gray-400">
+                            {new Date(rev.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center gap-1.5 bg-white border border-gray-100 px-2.5 py-1 rounded-xl shadow-2xs">
                       <Star size={13} className="fill-yellow-400 text-yellow-400" />
