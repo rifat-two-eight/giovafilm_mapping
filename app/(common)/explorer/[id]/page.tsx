@@ -198,9 +198,13 @@ export default function ExplorerProfilePage() {
             <div className="space-y-3">
               {data.reviews.map((rev: any) => {
                 const targetName = getLocalized(
-                  rev.place?.name || rev.business?.name || rev.targetName || rev.placeName,
+                  rev.placeId?.name || rev.businessId?.name || rev.place?.name || rev.business?.name || rev.targetName || rev.placeName,
                   language
                 ) || (language === "es" ? "Lugar Explorado" : "Explored Location");
+
+                const reviewText = typeof rev.review === "object"
+                  ? getLocalized(rev.review, language)
+                  : rev.review;
 
                 return (
                   <div key={rev._id || rev.id} className="bg-gray-50/80 border border-gray-100 p-4 rounded-xl space-y-2">
@@ -212,9 +216,9 @@ export default function ExplorerProfilePage() {
                       </div>
                     </div>
 
-                    {rev.review && (
+                    {reviewText && (
                       <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                        "{getLocalized(rev.review, language)}"
+                        &quot;{reviewText}&quot;
                       </p>
                     )}
 
