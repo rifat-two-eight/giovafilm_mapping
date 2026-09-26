@@ -39,6 +39,7 @@ export default function CreateMapModal({
   const { t } = useLanguage();
   const { register, handleSubmit, reset } = useForm<FormValues>();
   const [preview, setPreview] = useState<string | null>(null);
+  const [status, setStatus] = useState<"Draft" | "Published">("Draft");
   const fileRef = useRef<HTMLInputElement | null>(null);
   
   const [createMap, { isLoading: isCreating }] = useCreateMapMutation();
@@ -57,6 +58,7 @@ export default function CreateMapModal({
           features: initialData.features?.join(", "),
           tips: initialData.recommendations?.tips || "",
         });
+        setStatus(initialData.status === "Published" ? "Published" : "Draft");
 
         // Resolve Image URL
         let imagePath = null;
@@ -71,6 +73,7 @@ export default function CreateMapModal({
         setPreview(imagePath ? getImageUrl(imagePath) : null);
       } else {
         reset({ name: "", description: "", price: 0, features: "", tips: "" });
+        setStatus("Draft");
         setPreview(null);
       }
     }
@@ -83,7 +86,7 @@ export default function CreateMapModal({
       price: Number(data.price) || 0,
       features: data.features ? data.features.split(",").map((f) => f.trim()).filter(Boolean) : [],
       recommendations: { tips: data.tips || "" },
-      status: initialData?.status || "Published",
+      status: status,
       isPaid: true,
       rating: initialData?.rating ?? 0,
       totalReview: initialData?.totalReview ?? 0,
@@ -181,6 +184,19 @@ export default function CreateMapModal({
               {...register("features")}
               className="py-6 bg-gray-100/80"
             />
+          </div>
+
+          {/* Status (Draft / Published) */}
+          <div className="space-y-2">
+            <Label className="ml-1">{t("offers_admin.status") || "Status"}</Label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as "Draft" | "Published")}
+              className="w-full h-12 px-4 bg-gray-100/80 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
+            >
+              <option value="Draft">{t("places_admin.draft") || "Draft"}</option>
+              <option value="Published">{t("places_admin.published") || "Published"}</option>
+            </select>
           </div>
 
           {/* Tips */}

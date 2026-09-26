@@ -13,10 +13,39 @@ import {
 } from "@/redux/features/award/awardApi";
 import { getImageUrl, getLocalized } from "@/lib/utils";
 import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText, Trash2, Award, Percent, FileCode, Gift } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+
+const LEVEL_THRESHOLDS = [
+  { level: 0, title: "Explorador", xp: 0 },
+  { level: 1, title: "Aventurero", xp: 100 },
+  { level: 2, title: "Tlacuilo", xp: 200 },
+  { level: 3, title: "Expedicionario", xp: 400 },
+  { level: 4, title: "Viajero", xp: 700 },
+  { level: 5, title: "Chasqui", xp: 1300 },
+  { level: 6, title: "Cronista", xp: 2200 },
+  { level: 7, title: "Baquiano", xp: 3500 },
+  { level: 8, title: "Cartógrafo", xp: 5500 },
+  { level: 9, title: "Maestro Ruta", xp: 8500 },
+  { level: 10, title: "Leyenda", xp: 13000 },
+  { level: 11, title: "Gran Leyenda", xp: 20000 },
+  { level: 12, title: "Mítico", xp: 30000 },
+  { level: 13, title: "Inmortal", xp: 45000 },
+  { level: 14, title: "Supremo", xp: 65000 },
+];
+
+function getLevelInfo(targetXp: number) {
+  const exact = LEVEL_THRESHOLDS.find((l) => l.xp === targetXp);
+  if (exact) return exact;
+  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (targetXp >= LEVEL_THRESHOLDS[i].xp) {
+      return LEVEL_THRESHOLDS[i];
+    }
+  }
+  return { level: 0, title: "Explorador", xp: 0 };
+}
 
 export default function RewardsAdminPage() {
   const { t, language } = useLanguage();
@@ -32,6 +61,19 @@ export default function RewardsAdminPage() {
   const [open, setOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
+  const [levelFilter, setLevelFilter] = useState<string>("all");
+
+  const sortedAndFilteredConfigs = useMemo(() => {
+    const list = [...configs];
+    // Sort strictly by target XP ascending so rewards are ordered by level
+    list.sort((a, b) => (Number(a.target) || 0) - (Number(b.target) || 0));
+
+    if (levelFilter === "all") return list;
+    return list.filter((r) => {
+      const info = getLevelInfo(Number(r.target) || 0);
+      return String(info.level) === levelFilter;
+    });
+  }, [configs, levelFilter]);
 
   // Form states
   const [title, setTitle] = useState("");
@@ -200,18 +242,34 @@ export default function RewardsAdminPage() {
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{t("rewards_admin.title") || "Rewards & Badges Management"}</h1>
           <p className="text-xs text-gray-500 mt-1">{t("rewards_admin.subtitle") || "Configure XP targets, downloadable itineraries, free map unlocks, and achievement badges"}</p>
         </div>
-        <Button
-          onClick={handleOpenCreate}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-5 py-2.5 shadow-sm transition-all"
-        >
-          <Plus size={16} />
-          {t("rewards_admin.add_reward") || "Add New Reward"}
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Level Filter Dropdown */}
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
+            className="h-10 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          >
+            <option value="all">All Levels (0 - 14)</option>
+            {LEVEL_THRESHOLDS.map((item) => (
+              <option key={item.level} value={String(item.level)}>
+                Level {item.level}: {item.title} ({item.xp.toLocaleString()} XP)
+              </option>
+            ))}
+          </select>
+
+          <Button
+            onClick={handleOpenCreate}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-5 py-2.5 shadow-sm transition-all cursor-pointer"
+          >
+            <Plus size={16} />
+            {t("rewards_admin.add_reward") || "Add New Reward"}
+          </Button>
+        </div>
       </div>
 
       {/* Grid List Table */}
@@ -220,6 +278,7 @@ export default function RewardsAdminPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50/80 text-[11px] uppercase font-bold text-gray-500 tracking-wider">
+                <th className="px-6 py-4 text-left">Level & Rank</th>
                 <th className="px-6 py-4 text-left">{t("rewards_admin.cover") || "Icon"}</th>
                 <th className="px-6 py-4 text-left">{t("rewards_admin.reward_name") || "Reward & Description"}</th>
                 <th className="px-6 py-4 text-left">{t("rewards_admin.reward_type") || "Category / Type"}</th>
@@ -231,100 +290,114 @@ export default function RewardsAdminPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoadingConfigs ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                       {t("rewards_admin.loading_configs") || "Loading reward configurations..."}
                     </div>
                   </td>
                 </tr>
-              ) : configs.length === 0 ? (
+              ) : sortedAndFilteredConfigs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 font-medium text-sm">
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500 font-medium text-sm">
                     {t("rewards_admin.no_rewards") || "No rewards found. Click 'Add New Reward' to create one."}
                   </td>
                 </tr>
               ) : (
-                configs.map((reward: any) => (
-                  <tr key={reward._id} className="hover:bg-gray-50/60 transition-colors">
-                    {/* Cover photo */}
-                    <td className="px-6 py-4">
-                      {reward.coverPhoto ? (
-                        <img
-                          src={getImageUrl(reward.coverPhoto)}
-                          alt={getLocalized(reward.title, language)}
-                          className="w-12 h-12 object-cover rounded-xl border border-gray-200 shadow-2xs"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400 border border-gray-200">
-                          <ImageIcon size={20} />
+                sortedAndFilteredConfigs.map((reward: any) => {
+                  const levelInfo = getLevelInfo(Number(reward.target) || 0);
+                  return (
+                    <tr key={reward._id} className="hover:bg-gray-50/60 transition-colors">
+                      {/* Level Badge */}
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-blue-50 text-blue-800 border border-blue-200/60 shadow-2xs">
+                          <Award size={13} className="text-blue-600" />
+                          <span>Level {levelInfo.level}</span>
                         </div>
-                      )}
-                    </td>
-
-                    {/* Title & Description */}
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-gray-900 text-sm">{getLocalized(reward.title, language)}</div>
-                      <div className="text-xs text-gray-500 line-clamp-2 max-w-md mt-0.5 font-normal leading-relaxed">
-                        {getLocalized(reward.description, language)}
-                      </div>
-                    </td>
-
-                    {/* Type Badge */}
-                    <td className="px-6 py-4">
-                      {getTypeBadge(reward.type)}
-                    </td>
-
-                    {/* Points target */}
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/50 inline-block">
-                        {reward.target?.toLocaleString()} XP
-                      </div>
-                      {reward.discountPercentage !== undefined && (
-                        <div className="text-xs text-purple-700 font-bold mt-1">
-                          Discount: {reward.discountPercentage}%
+                        <div className="text-[11px] font-bold text-gray-500 mt-1">
+                          {levelInfo.title}
                         </div>
-                      )}
-                    </td>
+                      </td>
 
-                    {/* Attached elements */}
-                    <td className="px-6 py-4 text-xs space-y-1">
-                      {reward.mapId && (
-                        <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
-                          <MapPin size={13} />
-                          <span>Map: {reward.mapId?.name || reward.mapId?.title}</span>
-                        </div>
-                      )}
-                      {reward.fileUrl && (
-                        <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
-                          <FileText size={13} />
-                          <span className="truncate max-w-[160px]">PDF: {reward.fileUrl.split("/").pop()}</span>
-                        </div>
-                      )}
-                      {!reward.mapId && !reward.fileUrl && (
-                        <span className="text-gray-400 italic">No attachments required</span>
-                      )}
-                    </td>
+                      {/* Cover photo */}
+                      <td className="px-6 py-4">
+                        {reward.coverPhoto ? (
+                          <img
+                            src={getImageUrl(reward.coverPhoto)}
+                            alt={getLocalized(reward.title, language)}
+                            className="w-12 h-12 object-cover rounded-xl border border-gray-200 shadow-2xs"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400 border border-gray-200">
+                            <ImageIcon size={20} />
+                          </div>
+                        )}
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleOpenEdit(reward)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
-                        >
-                          <Edit size={14} /> {t("common.edit") || "Edit"}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(reward._id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
-                        >
-                          <Trash2 size={14} /> {t("common.delete") || "Delete"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      {/* Title & Description */}
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-gray-900 text-sm">{getLocalized(reward.title, language)}</div>
+                        <div className="text-xs text-gray-500 line-clamp-2 max-w-md mt-0.5 font-normal leading-relaxed">
+                          {getLocalized(reward.description, language)}
+                        </div>
+                      </td>
+
+                      {/* Type Badge */}
+                      <td className="px-6 py-4">
+                        {getTypeBadge(reward.type)}
+                      </td>
+
+                      {/* Points target */}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/50 inline-block">
+                          {reward.target?.toLocaleString()} XP
+                        </div>
+                        {reward.discountPercentage !== undefined && (
+                          <div className="text-xs text-purple-700 font-bold mt-1">
+                            Discount: {reward.discountPercentage}%
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Attached elements */}
+                      <td className="px-6 py-4 text-xs space-y-1">
+                        {reward.mapId && (
+                          <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
+                            <MapPin size={13} />
+                            <span>Map: {reward.mapId?.name || reward.mapId?.title}</span>
+                          </div>
+                        )}
+                        {reward.fileUrl && (
+                          <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
+                            <FileText size={13} />
+                            <span className="truncate max-w-[160px]">PDF: {reward.fileUrl.split("/").pop()}</span>
+                          </div>
+                        )}
+                        {!reward.mapId && !reward.fileUrl && (
+                          <span className="text-gray-400 italic">No attachments required</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleOpenEdit(reward)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
+                          >
+                            <Edit size={14} /> {t("common.edit") || "Edit"}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(reward._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
+                          >
+                            <Trash2 size={14} /> {t("common.delete") || "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

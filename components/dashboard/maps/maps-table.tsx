@@ -89,14 +89,17 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
     });
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "Published" ? "Draft" : "Published";
     try {
       await updateMapStatus({
         id,
-        data: { isActive: !currentStatus },
+        data: { status: nextStatus, isActive: nextStatus === "Published" },
       }).unwrap();
       toast.success(
-        `Map ${!currentStatus ? "published" : "hidden"} successfully`,
+        nextStatus === "Draft"
+          ? (t("places_admin.set_to_draft") || "Map saved as draft")
+          : (t("places_admin.published_successfully") || "Map published successfully")
       );
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update map status");
@@ -105,9 +108,9 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
   };
 
   const getStatusColor = (status: string) => {
-    return status === "Published" || status === "Active"
-      ? "bg-green-100 text-green-800"
-      : "bg-gray-100 text-gray-800";
+    return status === "Published"
+      ? "bg-emerald-100 text-emerald-800 border-emerald-300/60 hover:bg-emerald-200"
+      : "bg-amber-100 text-amber-800 border-amber-300/60 hover:bg-amber-200";
   };
 
   const tableHeaders = [
@@ -185,13 +188,14 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
                   </td>
 
                   <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        map.status,
+                    <button
+                      onClick={() => handleToggleStatus(map._id, map.status || "Draft")}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-2xs ${getStatusColor(
+                        map.status || "Draft",
                       )}`}
                     >
-                      {map.status === "Published" ? t("places_admin.published") : t("places_admin.draft")}
-                    </span>
+                      {map.status === "Published" ? (t("places_admin.published") || "Published") : (t("places_admin.draft") || "Draft")}
+                    </button>
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-600">
@@ -214,7 +218,7 @@ export function MapsTable({ onEditMap }: { onEditMap?: (map: Map) => void }) {
 
                       <button
                         onClick={() =>
-                          handleToggleStatus(map._id, map.isActive)
+                          handleToggleStatus(map._id, map.status || "Draft")
                         }
                         className="text-orange-500 hover:text-orange-700 transition-colors"
                         aria-label={map.isActive ? "Hide map" : "Show map"}
