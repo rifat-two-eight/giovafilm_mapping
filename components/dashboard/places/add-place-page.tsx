@@ -1219,6 +1219,7 @@ export default function AddPlacePage() {
               defaultZoom={13}
               minZoom={3}
               maxZoom={19}
+              renderingType={"RASTER"}
               gestureHandling={"greedy"}
               disableDefaultUI={false}
               streetViewControl={false}
