@@ -214,45 +214,45 @@ export const PlaceFormContent = ({
 
       return {
         ...prev,
-        name: prev.name.trim() ? prev.name : initialData.name || "",
-        description: prev.description.trim()
-          ? prev.description
-          : initialData.description || "",
-        address: prev.address.trim() ? prev.address : initialData.address || "",
-        category: prev.category || initialData.category || "",
+        name: initialData.name || prev.name || "",
+        description: initialData.description || prev.description || "",
+        address: initialData.address || prev.address || "",
+        category: initialData.category || prev.category || "",
         type: typeTouchedRef.current
           ? prev.type
           : normalizePlaceType(initialData),
-        accessDescription:
-          prev.accessDescription || initialData.accessDescription || "",
-        tips: prev.tips || initialData.tips || "",
-        phone: prev.phone || initialData.phone || "",
-        website: prev.website || initialData.website || "",
-        instagram: prev.instagram || initialData.instagram || "",
-        schedules: prev.schedules || initialData.schedules || "",
+        accessDescription: initialData.accessDescription || prev.accessDescription || "",
+        tips: initialData.tips || prev.tips || "",
+        phone: initialData.phone || prev.phone || "",
+        website: initialData.website || prev.website || "",
+        instagram: initialData.instagram || prev.instagram || "",
+        schedules: initialData.schedules || prev.schedules || "",
         entryCost:
-          prev.entryCost !== undefined && prev.entryCost !== ""
-            ? prev.entryCost
-            : (initialData.entryCost !== undefined && initialData.entryCost !== null ? String(initialData.entryCost) : ""),
+          initialData.entryCost !== undefined && initialData.entryCost !== null
+            ? String(initialData.entryCost)
+            : prev.entryCost,
         hikeTime:
-          prev.hikeTime !== undefined && prev.hikeTime !== ""
-            ? prev.hikeTime
-            : (initialData.hikeTime !== undefined && initialData.hikeTime !== null ? String(initialData.hikeTime) : ""),
-        atmosphere: prev.atmosphere || initialData.atmosphere || "",
-        difficulty: prev.difficulty ? normalizeDifficulty(prev.difficulty) : normalizeDifficulty(initialData.difficulty),
+          initialData.hikeTime !== undefined && initialData.hikeTime !== null
+            ? String(initialData.hikeTime)
+            : prev.hikeTime,
+        atmosphere: initialData.atmosphere || prev.atmosphere || "",
+        difficulty: initialData.difficulty ? normalizeDifficulty(initialData.difficulty) : prev.difficulty,
         operatingHours: initialData.operatingHours || prev.operatingHours,
-        services: prev.services && prev.services.length > 0 ? prev.services : (initialData.services || []).map(normalizeService),
+        services: (initialData.services && initialData.services.length > 0)
+          ? initialData.services.map(normalizeService)
+          : prev.services,
         accessibility: resolvedAccessibility,
       };
     });
     const initImgs = initialData.images || (initialData as any).media;
-    if (!existingImages.length && initImgs?.length) {
+    if (initImgs && Array.isArray(initImgs) && initImgs.length > 0) {
       setExistingImages(asMediaUrls(initImgs));
     }
-    if (!existingMenuImages.length && initialData.menuImages?.length) {
+    if (initialData.menuImages && Array.isArray(initialData.menuImages) && initialData.menuImages.length > 0) {
       setExistingMenuImages(asMediaUrls(initialData.menuImages));
     }
   }, [
+    initialData,
     initialData?.name,
     initialData?.description,
     initialData?.address,

@@ -41,6 +41,7 @@ import React, { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { PlaceInfoWindow } from "./PlaceInfoWindow";
+import { PlaceFormContent } from "./PlaceFormContent";
 import {
   asId,
   asMediaUrls,
@@ -1303,12 +1304,39 @@ export default function AddPlacePage() {
                 </AdvancedMarker>
               )}
 
-              {/* ── InfoWindow for new or existing place ── */}
-              {selectedPlace && (
-                <PlaceInfoWindow
-                  key={selectedPlace._id || "new-place"}
-                  position={selectedPlace.position}
-                  onClose={() => {
+            </Map>
+          </div>
+        </div>
+
+        {/* ── Modal overlay for new or existing place (prevents Google Maps canvas lag) ── */}
+        {selectedPlace && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
+            onClick={() => {
+              if (isCreating || isUpdating) {
+                toast.warning(t("places.upload_in_progress"));
+                return;
+              }
+              setDraggedPositions({});
+              if (selectedPlace.isNew) {
+                setTempMarker(null);
+              }
+              setSelectedPlace(null);
+            }}
+          >
+            <div
+              className="relative w-full max-w-6xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-y-auto flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b bg-white sticky top-0 z-20">
+                <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
+                  {selectedPlace.isNew
+                    ? (t("places_admin.add_place") || "Add Place")
+                    : (t("places_admin.update_place") || "Update Place")}
+                </h2>
+                <button
+                  onClick={() => {
                     if (isCreating || isUpdating) {
                       toast.warning(t("places.upload_in_progress"));
                       return;
@@ -1319,67 +1347,82 @@ export default function AddPlacePage() {
                     }
                     setSelectedPlace(null);
                   }}
-                  onDelete={handleDeletePlace}
-                  categories={categories}
-                  onSave={handleSavePlace}
-                  isSaving={isCreating || isUpdating}
-                  isFetchingAddress={isFetchingAddress}
-                  initialData={{
-                    ...selectedPlace,
-                    category:
-                      selectedCategoryId ||
-                      (typeof selectedPlace.category === "object"
-                        ? selectedPlace.category?._id
-                        : selectedPlace.category) ||
-                      "",
-                    type: normalizePlaceType(selectedPlace),
-                    phone: selectedPlace.phone || "",
-                    website: selectedPlace.website || "",
-                    instagram: selectedPlace.instagram || "",
-                    address: selectedPlace.address || "",
-                    accessDescription:
-                      selectedPlace.access || selectedPlace.details?.access || "",
-                    tips:
-                      selectedPlace.recommendations?.tips ||
-                      selectedPlace.details?.recommendations ||
-                      "",
-                    services: selectedPlace.services || [],
-                    accessibility: {
-                      wheelchair:
-                        (selectedPlace.accessibility?.features || []).includes("wheelchair") ||
-                        !!selectedPlace.accessibility?.wheelchair,
-                      children:
-                        (selectedPlace.accessibility?.features || []).includes("children") ||
-                        !!selectedPlace.accessibility?.children,
-                      pets:
-                        (selectedPlace.accessibility?.features || []).includes("pets") ||
-                        !!selectedPlace.accessibility?.pets,
-                      senior:
-                        (selectedPlace.accessibility?.features || []).includes("senior") ||
-                        !!selectedPlace.accessibility?.senior,
-                      notes: selectedPlace.accessibility?.notes || "",
-                    },
-                    schedules: selectedPlace.schedules || "",
-                    entryCost:
-                      selectedPlace.entryCost !== undefined && selectedPlace.entryCost !== null
-                        ? String(selectedPlace.entryCost)
-                        : "",
-                    hikeTime:
-                      selectedPlace.hikeTime !== undefined && selectedPlace.hikeTime !== null
-                        ? String(selectedPlace.hikeTime)
-                        : "",
-                    atmosphere: selectedPlace.atmosphere || "",
-                    difficulty: selectedPlace.difficulty || "",
-                    operatingHours: selectedPlace.operatingHours || undefined,
-                    images: asMediaUrls(selectedPlace.media),
-                    menuImages: asMediaUrls(selectedPlace.menuImages),
-                    isNew: selectedPlace.isNew,
-                  }}
-                />
-              )}
-            </Map>
+                  className="rounded-full p-1 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Place Form Content */}
+              <PlaceFormContent
+                key={selectedPlace._id || "new-place"}
+                categories={categories}
+                onSave={handleSavePlace}
+                isSaving={isCreating || isUpdating}
+                isFetchingAddress={isFetchingAddress}
+                onClose={() => {
+                  setDraggedPositions({});
+                  if (selectedPlace.isNew) {
+                    setTempMarker(null);
+                  }
+                  setSelectedPlace(null);
+                }}
+                onDelete={handleDeletePlace}
+                initialData={{
+                  ...selectedPlace,
+                  category:
+                    selectedCategoryId ||
+                    (typeof selectedPlace.category === "object"
+                      ? selectedPlace.category?._id
+                      : selectedPlace.category) ||
+                    "",
+                  type: normalizePlaceType(selectedPlace),
+                  phone: selectedPlace.phone || "",
+                  website: selectedPlace.website || "",
+                  instagram: selectedPlace.instagram || "",
+                  address: selectedPlace.address || "",
+                  accessDescription:
+                    selectedPlace.access || selectedPlace.details?.access || "",
+                  tips:
+                    selectedPlace.recommendations?.tips ||
+                    selectedPlace.details?.recommendations ||
+                    "",
+                  services: selectedPlace.services || [],
+                  accessibility: {
+                    wheelchair:
+                      (selectedPlace.accessibility?.features || []).includes("wheelchair") ||
+                      !!selectedPlace.accessibility?.wheelchair,
+                    children:
+                      (selectedPlace.accessibility?.features || []).includes("children") ||
+                      !!selectedPlace.accessibility?.children,
+                    pets:
+                      (selectedPlace.accessibility?.features || []).includes("pets") ||
+                      !!selectedPlace.accessibility?.pets,
+                    senior:
+                      (selectedPlace.accessibility?.features || []).includes("senior") ||
+                      !!selectedPlace.accessibility?.senior,
+                    notes: selectedPlace.accessibility?.notes || "",
+                  },
+                  schedules: selectedPlace.schedules || "",
+                  entryCost:
+                    selectedPlace.entryCost !== undefined && selectedPlace.entryCost !== null
+                      ? String(selectedPlace.entryCost)
+                      : "",
+                  hikeTime:
+                    selectedPlace.hikeTime !== undefined && selectedPlace.hikeTime !== null
+                      ? String(selectedPlace.hikeTime)
+                      : "",
+                  atmosphere: selectedPlace.atmosphere || "",
+                  difficulty: selectedPlace.difficulty || "",
+                  operatingHours: selectedPlace.operatingHours || undefined,
+                  images: asMediaUrls(selectedPlace.media),
+                  menuImages: asMediaUrls(selectedPlace.menuImages),
+                  isNew: selectedPlace.isNew,
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <AddCategoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
 
