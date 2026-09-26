@@ -105,7 +105,7 @@ export const PlaceFormContent = ({
   onDelete,
   initialData,
 }: PlaceFormContentProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
@@ -515,12 +515,12 @@ export const PlaceFormContent = ({
     categories.find((c: any) => c._id === formData.category)?.name?.toLowerCase() === "restaurant";
 
   const dynamicTabs = [
-    { label: t("places_admin.tabs.basic_info") || "Basic Info", icon: FileText, id: 0 },
-    { label: t("places_admin.tabs.access") || "Access", icon: Compass, id: 1 },
-    ...(isBusinessOrRestaurant ? [{ label: t("place.menu_and_prices") || "Menu & Prices", icon: Utensils, id: 2 }] : []),
-    { label: t("place.accessibility_features") || "Accessibility", icon: Accessibility, id: 3 },
-    { label: t("place.tips") || "Recommendations", icon: Heart, id: 4 },
-    { label: t("place.services_available") || "Services", icon: Grid, id: 5 },
+    { label: t("places_admin.tabs.basic_info") || (language === "es" ? "Información Básica" : "Basic Info"), icon: FileText, id: 0 },
+    { label: t("places_admin.tabs.access") || (language === "es" ? "Acceso" : "Access"), icon: Compass, id: 1 },
+    ...(isBusinessOrRestaurant ? [{ label: t("place.menu_and_prices") || (language === "es" ? "Menú y Precios" : "Menu & Prices"), icon: Utensils, id: 2 }] : []),
+    { label: t("place.accessibility_features") || (language === "es" ? "Accesibilidad" : "Accessibility"), icon: Accessibility, id: 3 },
+    { label: t("place.tips") || (language === "es" ? "Consejos Locales" : "Recommendations"), icon: Heart, id: 4 },
+    { label: t("place.services_available") || (language === "es" ? "Servicios" : "Services"), icon: Grid, id: 5 },
   ];
 
   const currentTabIdx = dynamicTabs.findIndex((t) => t.id === activeTab);
@@ -908,13 +908,15 @@ export const PlaceFormContent = ({
                 <div className="text-center">
                   <p className="text-xs font-bold text-gray-700">
                     {isOptimizingMedia
-                      ? "Optimizing media for rapid upload..."
+                      ? (language === "es" ? "Optimizando archivos..." : "Optimizing media for rapid upload...")
                       : isDraggingMedia
-                        ? "Drop photos or videos here"
-                        : "Click to upload or drag and drop"}
+                        ? (language === "es" ? "Arrastra fotos o videos aquí" : "Drop photos or videos here")
+                        : (language === "es" ? "Haz clic para subir o arrastra y suelta" : "Click to upload or drag and drop")}
                   </p>
                   <p className="text-[9px] text-gray-400 tracking-tight mt-0.5">
-                    Images and videos up to 200MB (drag & drop supported)
+                    {language === "es"
+                      ? "Imágenes y videos de hasta 200MB (arrastrar y soltar compatible)"
+                      : "Images and videos up to 200MB (drag & drop supported)"}
                   </p>
                 </div>
               </div>
@@ -924,8 +926,12 @@ export const PlaceFormContent = ({
               {existingImages.length > 0 && (
                 <div className="space-y-1.5 mt-3">
                   <div className="flex justify-between items-center text-xs font-semibold text-gray-500">
-                    <span>{t("places_admin.existing_photos") || "Uploaded Photos & Videos"} ({existingImages.length})</span>
-                    <span className="text-[10px] text-gray-400 font-normal italic">Drag or click arrows to reorder • 1st photo is Cover</span>
+                    <span>{t("places_admin.existing_photos") || (language === "es" ? "Fotos y Videos Subidos" : "Uploaded Photos & Videos")} ({existingImages.length})</span>
+                    <span className="text-[10px] text-gray-400 font-normal italic">
+                      {language === "es"
+                        ? "Arrastra o usa las flechas para reordenar • La 1.ª foto es la portada"
+                        : "Drag or click arrows to reorder • 1st photo is Cover"}
+                    </span>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {existingImages.map((url, index) => {
@@ -1384,15 +1390,18 @@ export const PlaceFormContent = ({
             <div className="bg-white p-5 rounded-xl border border-gray-200 space-y-4">
               <div className="space-y-1">
                 <Label className="text-sm font-bold text-gray-800">
-                  Access Description
+                  {t("places_admin.access_description") || (language === "es" ? "Descripción de Acceso" : "Access Description")}
                 </Label>
                 <p className="text-[11px] text-gray-500">
-                  Write how to get here (public transport, taxi, parking notes).
-                  Keep it simple.
+                  {language === "es"
+                    ? "Escribe cómo llegar aquí (transporte público, taxi, notas de estacionamiento). Sé conciso."
+                    : "Write how to get here (public transport, taxi, parking notes). Keep it simple."}
                 </p>
               </div>
               <Textarea
-                placeholder="e.g., Take Metro Line 2 to Central Station. Exit B. Taxi cost approx $5 from downtown."
+                placeholder={language === "es"
+                  ? "Ej: Toma la Línea 2 del Metro hasta la Estación Central. Salida B."
+                  : "e.g., Take Metro Line 2 to Central Station. Exit B. Taxi cost approx $5 from downtown."}
                 value={formData.accessDescription}
                 onChange={(e) =>
                   setFormData({
@@ -1643,7 +1652,7 @@ export const PlaceFormContent = ({
                     htmlFor="wheelchair"
                     className="text-sm font-medium text-gray-700 flex items-center gap-2"
                   >
-                    Wheelchair Access
+                    {language === "es" ? "Acceso en Silla de Ruedas" : "Wheelchair Access"}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1658,7 +1667,7 @@ export const PlaceFormContent = ({
                     htmlFor="children"
                     className="text-sm font-medium text-gray-700 flex items-center gap-2"
                   >
-                    Children
+                    {language === "es" ? "Apto para Niños" : "Children"}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1673,7 +1682,7 @@ export const PlaceFormContent = ({
                     htmlFor="pets"
                     className="text-sm font-medium text-gray-700 flex items-center gap-2"
                   >
-                    Pets
+                    {language === "es" ? "Mascotas Permitidas" : "Pets"}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1688,15 +1697,17 @@ export const PlaceFormContent = ({
                     htmlFor="senior"
                     className="text-sm font-medium text-gray-700 flex items-center gap-2"
                   >
-                    Senior Access
+                    {language === "es" ? "Acceso Adultos Mayores" : "Senior Access"}
                   </Label>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Notes (optional)</Label>
+                <Label className="text-sm font-medium">
+                  {language === "es" ? "Notas (opcional)" : "Notes (optional)"}
+                </Label>
                 <Textarea
-                  placeholder="Additional accessibility information..."
+                  placeholder={language === "es" ? "Información adicional de accesibilidad..." : "Additional accessibility information..."}
                   value={formData.accessibility.notes}
                   onChange={(e) => updateAccessibility("notes", e.target.value)}
                   className="min-h-[100px] border-gray-100 italic text-sm"
@@ -1711,14 +1722,16 @@ export const PlaceFormContent = ({
             <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-4">
               <div className="space-y-1">
                 <Label className="text-sm font-bold text-gray-800">
-                  What to Take / Tips
+                  {language === "es" ? "Qué Llevar / Consejos" : "What to Take / Tips"}
                 </Label>
                 <p className="text-sm font-medium">
-                  Water, comfortable shoes, sunscreen, light jacket...
+                  {language === "es"
+                    ? "Agua, calzado cómodo, protector solar, chaqueta ligera..."
+                    : "Water, comfortable shoes, sunscreen, light jacket..."}
                 </p>
               </div>
               <Textarea
-                placeholder="List recommended items to bring..."
+                placeholder={language === "es" ? "Lista de artículos recomendados para llevar..." : "List recommended items to bring..."}
                 value={formData.tips}
                 onChange={(e) =>
                   setFormData({
@@ -1736,29 +1749,49 @@ export const PlaceFormContent = ({
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="space-y-1 mb-3">
               <p className="text-sm font-semibold">
-                Services will appear in a compact grid.
+                {language === "es" ? "Los servicios aparecerán en una cuadrícula compacta." : "Services will appear in a compact grid."}
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {servicesList.map((service) => (
-                <div
-                  key={service.id}
-                  onClick={() => toggleService(service.id)}
-                  className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${formData.services.includes(service.id)
-                    ? "bg-blue-50 border-blue-200"
-                    : "bg-white border-gray-100 hover:border-gray-200"
-                    }`}
-                >
-                  <Checkbox
-                    checked={formData.services.includes(service.id)}
-                    className="rounded-full"
-                  />
-                  <div className="space-y-1">
-                    <div className="">{service.icon}</div>
-                    <p className="text-xs  leading-tight">{t(`services.${service.key}`) || service.id}</p>
+              {servicesList.map((service) => {
+                const label = (() => {
+                  const trans = t(`services.${service.key}`);
+                  if (trans && trans !== `services.${service.key}`) return trans;
+                  if (language === "es") {
+                    switch (service.key) {
+                      case "parking": return "ESTACIONAMIENTO";
+                      case "restrooms": return "BAÑOS";
+                      case "food_nearby": return "COMIDA CERCA";
+                      case "guided_tour": return "TOUR GUIADO";
+                      case "family_friendly": return "FAMILIAR";
+                      case "wifi": return "WIFI";
+                      case "pet_friendly": return "PET FRIENDLY";
+                      default: return service.id;
+                    }
+                  }
+                  return service.id;
+                })();
+
+                return (
+                  <div
+                    key={service.id}
+                    onClick={() => toggleService(service.id)}
+                    className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${formData.services.includes(service.id)
+                      ? "bg-blue-50 border-blue-200"
+                      : "bg-white border-gray-100 hover:border-gray-200"
+                      }`}
+                  >
+                    <Checkbox
+                      checked={formData.services.includes(service.id)}
+                      className="rounded-full"
+                    />
+                    <div className="space-y-1">
+                      <div className="">{service.icon}</div>
+                      <p className="text-xs leading-tight font-bold">{label}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

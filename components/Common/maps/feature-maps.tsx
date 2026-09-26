@@ -39,10 +39,12 @@ function FeaturedMapsInner() {
           <div className="flex justify-between items-center mb-5 mt-2">
             <div className="">
               <h2 className="text-3xl font-bold leading-normal">
-                Featured Maps
+                {language === "es" ? "Mapas Destacados" : "Featured Maps"}
               </h2>
               <p className="text-gray-500/80">
-                Explore the best walking tours curated by professionals.
+                {language === "es"
+                  ? "Explora los mejores recorridos guiados por profesionales."
+                  : "Explore the best walking tours curated by professionals."}
               </p>
             </div>
           </div>
@@ -59,7 +61,7 @@ function FeaturedMapsInner() {
               ))
             ) : featuredMaps.length === 0 ? (
               <p className="col-span-full text-center text-gray-500 py-10">
-                No featured maps found.
+                {language === "es" ? "No se encontraron mapas destacados." : "No featured maps found."}
               </p>
             ) : (
               featuredMaps.map((map) => {
@@ -100,7 +102,9 @@ function FeaturedMapsInner() {
                       </h3>
                       <p className="text-xs sm:text-sm text-[#9E9E9E] mb-2 line-clamp-2">
                         {getLocalized(map.description, language) ||
-                          "Explore the best of the city with this curated guide."}
+                          (language === "es"
+                            ? "Explora lo mejor de la ciudad con esta guía seleccionada."
+                            : "Explore the best of the city with this curated guide.")}
                       </p>
                       <div className="mt-auto">
                         <span className="text-base sm:text-lg md:text-xl font-bold text-[#1A1A1A] block mb-2">
@@ -108,7 +112,9 @@ function FeaturedMapsInner() {
                         </span>
                         <Link href={mapHref(map._id)} onClick={(e) => e.stopPropagation()}>
                           <Button className="w-full text-black py-2.5 md:py-4 text-xs md:text-base bg-primary/80 hover:bg-primary font-bold rounded-lg transition-colors shadow-sm cursor-pointer border-none">
-                            {redeemFreeMap ? "Claim this map" : "View details"}
+                            {redeemFreeMap
+                              ? (language === "es" ? "Reclamar este mapa" : "Claim this map")
+                              : (language === "es" ? "Ver detalles" : "View details")}
                           </Button>
                         </Link>
                       </div>

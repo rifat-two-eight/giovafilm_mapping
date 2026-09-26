@@ -108,7 +108,7 @@ export function AwardCard({
             {/* Progress Text */}
             <div className="flex justify-between w-full text-[10px] sm:text-[11px] text-slate-500 font-bold">
               <span>
-                PROGRESS: {current.toLocaleString()} / {total.toLocaleString()}
+                {language === "es" ? "PROGRESO" : "PROGRESS"}: {current.toLocaleString()} / {total.toLocaleString()}
               </span>
               <span className="text-amber-600 font-extrabold">{progress}%</span>
             </div>

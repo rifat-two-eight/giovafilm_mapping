@@ -94,7 +94,7 @@ export default function ExplorerProfilePage() {
           className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6"
         >
           <ArrowLeft size={16} />
-          Back to maps
+          {language === "es" ? "Volver a los mapas" : "Back to maps"}
         </Link>
 
         <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 text-center shadow-sm">
@@ -127,10 +127,10 @@ export default function ExplorerProfilePage() {
           </div>
 
           <p className="text-sm text-gray-500 mb-1">
-            {(data.points || 0).toLocaleString()} points
+            {(data.points || 0).toLocaleString()} {language === "es" ? "puntos" : "points"}
           </p>
           <p className="text-xs text-gray-400 mb-6">
-            Joined {formatDate(data.createdAt) || "—"}
+            {language === "es" ? "Se unió el" : "Joined"} {formatDate(data.createdAt) || "—"}
           </p>
 
           {data.description && (
@@ -178,7 +178,9 @@ export default function ExplorerProfilePage() {
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg flex items-center justify-center gap-2 h-11"
           >
             <Share2 size={18} />
-            {isSharing ? "Sharing..." : "Share this profile"}
+            {isSharing
+              ? (language === "es" ? "Compartiendo..." : "Sharing...")
+              : (language === "es" ? "Compartir este perfil" : "Share this profile")}
           </Button>
         </div>
 

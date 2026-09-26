@@ -87,7 +87,7 @@ export function UnlockedAwardCard({
         <div className="pt-1.5 mt-auto space-y-2">
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] sm:text-[11px] text-amber-700 font-extrabold tracking-wider">
-              <span>UNLOCKED</span>
+              <span>{language === "es" ? "DESBLOQUEADO" : "UNLOCKED"}</span>
               <span>100%</span>
             </div>
 

@@ -1045,7 +1045,7 @@ export default function AddPlacePage() {
               />
               <Input
                 type="text"
-                placeholder={t("places_admin.search_places") || "Search places..."}
+                placeholder={t("places_admin.search_places") || (language === "es" ? "Buscar lugares..." : "Search places...")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-8 py-1.5 bg-gray-50 border-gray-200 rounded-lg text-xs focus:bg-white transition-colors"
@@ -1064,7 +1064,7 @@ export default function AddPlacePage() {
           {/* Categories List */}
           <div className="flex-1 overflow-y-auto px-2">
             <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              Categories
+              {t("common.categories") || (language === "es" ? "Categorías" : "Categories")}
             </div>
 
             <div className="space-y-1">
@@ -1080,7 +1080,7 @@ export default function AddPlacePage() {
                   }`}
               >
                 <MapIcon size={14} />
-                Show All Places
+                {t("places_admin.show_all_places") || (language === "es" ? "Mostrar todos los lugares" : "Show All Places")}
               </button>
 
               {categoriesWithPlaces.map(({ cat, placesInCat }: { cat: any; placesInCat: any[] }) => {
