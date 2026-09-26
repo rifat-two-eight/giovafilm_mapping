@@ -1,6 +1,7 @@
 "use client";
 
-import { Trash2, Search, Map } from "lucide-react";
+import { Trash2, Search, Map, Eye } from "lucide-react";
+import { UserProfileModal } from "./user-profile-modal";
 import { Card } from "@/components/ui/card";
 import {
   useGetAllUsersQuery,
@@ -76,6 +77,15 @@ export function UsersTable(): React.ReactElement {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [tempRole, setTempRole] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>([]);
+
+  // User Profile Modal State
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const handleViewProfile = (userId: string) => {
+    setProfileUserId(userId);
+    setIsProfileModalOpen(true);
+  };
 
   // Search state for Modal
   const [modalMapSearch, setModalMapSearch] = useState("");
@@ -329,8 +339,12 @@ export function UsersTable(): React.ReactElement {
                   >
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                       <div className="flex flex-col">
-                        <span>{user.name || "Unknown User"}</span>
-                        {/* {user.profile && <img src={user.profile} alt="" className="w-8 h-8 rounded-full" />} */}
+                        <span
+                          onClick={() => handleViewProfile(user._id)}
+                          className="cursor-pointer hover:underline font-semibold hover:text-amber-600 transition-colors"
+                        >
+                          {user.name || "Unknown User"}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
@@ -391,7 +405,15 @@ export function UsersTable(): React.ReactElement {
                       {formatDate(user.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleViewProfile(user._id)}
+                          className="text-amber-600 hover:text-amber-700 transition-colors p-2 hover:bg-amber-50 rounded"
+                          title={t("users_admin.view_profile") || "View User Profile"}
+                          aria-label={t("users_admin.view_profile") || "View User Profile"}
+                        >
+                          <Eye size={18} />
+                        </button>
                         {user.role === "map_editor" &&
                           canManageUserRole(currentUser?.role, user.role) && (
                             <button
@@ -559,6 +581,16 @@ export function UsersTable(): React.ReactElement {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* User Detailed Profile Modal */}
+      <UserProfileModal
+        userId={profileUserId}
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setProfileUserId(null);
+        }}
+      />
     </div>
   );
 }

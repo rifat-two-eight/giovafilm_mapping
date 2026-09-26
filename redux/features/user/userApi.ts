@@ -31,6 +31,12 @@ const userApi = baseApi.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
+    getUserById: builder.query({
+      query: (userId: string) => `/user/${userId}`,
+      providesTags: ["User"],
+      transformResponse: (response: any) => response.data,
+    }),
+
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `/user/${id}`,
@@ -73,6 +79,7 @@ export const {
   useGetPublicProfileQuery,
   useUpdateProfileMutation,
   useGetAllUsersQuery,
+  useGetUserByIdQuery,
   useDeleteUserMutation,
   useUpdateUserRoleMutation,
   useInviteUserMutation,
