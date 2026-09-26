@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import SalesTaxes from "@/components/dashboard/reports/sales-taxes";
 import { UsageStatistics } from "@/components/dashboard/reports/usage-statistics";
 import {
   useGetReportsQuery,
@@ -9,7 +8,7 @@ import {
 } from "@/redux/features/stats/statsApi";
 import { useGetCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { useGetAvailableCountriesQuery } from "@/redux/features/map/mapApi";
-import { Loader2, ArrowLeft, RefreshCw, Search, MapPin, Store, Map, Ticket, X } from "lucide-react";
+import { Loader2, ArrowLeft, RefreshCw, Search, MapPin, Store, Map, Ticket, X, Download } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -126,23 +125,9 @@ export default function ReportsPage() {
   const handleExportCSV = () => {
     if (!reportData) return;
 
-    // Construct CSV file
     let csvContent = "";
 
-    // 1. Sales Summary
-    csvContent += "SALES & TAXES SUMMARY\n";
-    csvContent += `Total Sales,Taxes Collected,Net Revenue\n`;
-    csvContent += `"${reportData.salesAndTaxes?.totalSales}","${reportData.salesAndTaxes?.taxesCollected}","${reportData.salesAndTaxes?.netRevenue}"\n\n`;
-
-    // 2. Monthly Breakdown
-    csvContent += "MONTHLY BREAKDOWN\n";
-    csvContent += "Month,Total Sales,Taxes,Net Revenue\n";
-    reportData.salesAndTaxes?.monthlyData?.forEach((item: any) => {
-      csvContent += `"${item.month}","${item.totalSales}","${item.taxes}","${item.netRevenue}"\n`;
-    });
-    csvContent += "\n";
-
-    // 3. Usage Lists
+    // Usage Lists
     csvContent += "USAGE STATISTICS - TOP VIEWED MAPS\n";
     csvContent += "Map Name,Views\n";
     reportData.usage?.mostViewedMaps?.forEach((item: any) => {
@@ -167,7 +152,7 @@ export default function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `reports_and_insights_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `usage_statistics_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -182,17 +167,13 @@ export default function ReportsPage() {
     const htmlContent = `
       <html>
         <head>
-          <title>Reports & Insights - ${new Date().toLocaleDateString()}</title>
+          <title>Usage Statistics & Insights - ${new Date().toLocaleDateString()}</title>
           <style>
             body { font-family: sans-serif; color: #333; padding: 40px; line-height: 1.6; }
             h1 { font-size: 24px; color: #111; margin-bottom: 5px; }
             .subtitle { font-size: 14px; color: #666; margin-bottom: 30px; }
             .section { margin-bottom: 40px; }
             .section-title { font-size: 18px; font-weight: bold; border-bottom: 2px solid #eaeaea; padding-bottom: 8px; margin-bottom: 20px; color: #1e3a8a; }
-            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-            .card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; }
-            .card-title { font-size: 12px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 5px; }
-            .card-value { font-size: 24px; font-weight: bold; color: #0f172a; }
             table { width: 100%; border-collapse: collapse; margin-top: 15px; }
             th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 14px; }
             th { background-color: #f1f5f9; color: #475569; font-weight: bold; }
@@ -205,50 +186,11 @@ export default function ReportsPage() {
           </style>
         </head>
         <body>
-          <h1>Reports & Insights Summary</h1>
+          <h1>Platform Usage Statistics & Insights</h1>
           <div class="subtitle">Generated on ${new Date().toLocaleString()}</div>
 
           <div class="section">
-            <div class="section-title">Sales & Taxes</div>
-            <div class="grid">
-              <div class="card">
-                <div class="card-title">Total Sales</div>
-                <div class="card-value">$${(reportData.salesAndTaxes?.totalSales || 0).toLocaleString()}</div>
-              </div>
-              <div class="card">
-                <div class="card-title">Taxes Collected</div>
-                <div class="card-value">$${(reportData.salesAndTaxes?.taxesCollected || 0).toLocaleString()}</div>
-              </div>
-              <div class="card">
-                <div class="card-title">Net Revenue</div>
-                <div class="card-value">$${(reportData.salesAndTaxes?.netRevenue || 0).toLocaleString()}</div>
-              </div>
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Total Sales</th>
-                  <th>Taxes</th>
-                  <th>Net Revenue</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${reportData.salesAndTaxes?.monthlyData?.map((item: any) => `
-                  <tr>
-                    <td>${item.month}</td>
-                    <td>$${(item.totalSales || 0).toLocaleString()}</td>
-                    <td>$${(item.taxes || 0).toLocaleString()}</td>
-                    <td>$${(item.netRevenue || 0).toLocaleString()}</td>
-                  </tr>
-                `).join('') || '<tr><td colspan="4">No data</td></tr>'}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="section">
-            <div class="section-title">Platform Usage Statistics</div>
+            <div class="section-title">Usage Statistics Overview</div>
             <div class="row-flex">
               <div class="col">
                 <h3>Most Viewed Maps</h3>
@@ -353,17 +295,33 @@ export default function ReportsPage() {
             {t("reports_admin.title") || "Reports & Insights"}
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            {t("reports_admin.subtitle") || "Real-time business performance and platform usage statistics."}
+            {t("reports_admin.subtitle") || "Comprehensive view of platform statistics: location visits, redeemed offers, and map usage."}
           </p>
         </div>
-        <button
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="self-start md:self-auto flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
-        >
-          <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-          {t("common.refresh") || "Refresh"}
-        </button>
+        <div className="flex items-center gap-3 self-start md:self-auto">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer"
+          >
+            <Download size={14} />
+            {t("reports_admin.export_csv") || "Export CSV"}
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer"
+          >
+            <Download size={14} />
+            {t("reports_admin.export_pdf") || "Export PDF"}
+          </button>
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
+            {t("common.refresh") || "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* FILTER TOOLBAR */}
@@ -528,18 +486,13 @@ export default function ReportsPage() {
           </p>
           {selectedEntity.type === "business" && (
             <p className="mt-1 text-xs text-amber-800">
-              Map sales are not linked to businesses. Visit and offer stats below are for this business.
+              Visit and offer stats below are for this business.
             </p>
           )}
         </div>
       )}
 
       <div className="space-y-8">
-        <SalesTaxes
-          data={reportData?.salesAndTaxes}
-          onExportCSV={handleExportCSV}
-          onExportPDF={handleExportPDF}
-        />
         <UsageStatistics
           data={reportData?.usage}
           timeFilterActive={!!timeFilter}

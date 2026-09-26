@@ -10,7 +10,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized, convertTo12Hour } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
@@ -364,7 +363,7 @@ export function ViewPlaceModal({
             </div>
 
             {/* Content Area */}
-            <ScrollArea className="flex-1 p-5 sm:p-6 bg-neutral-50/60">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 bg-neutral-50/60">
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* 1. OVERVIEW TAB */}
                 {activeTab === "overview" && (
@@ -815,7 +814,7 @@ export function ViewPlaceModal({
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </>
         ) : (
           <div className="p-12 text-center text-gray-400 bg-gray-50 flex-1 flex items-center justify-center">
