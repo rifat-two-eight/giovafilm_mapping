@@ -111,8 +111,9 @@ export function formatLocalizedSchedule(val: any, lang: string = "es"): string {
   const str = getLocalized(val, lang);
   if (!str) return "";
   
+  let result = str;
   if (lang === "en") {
-    return str
+    result = str
       .replace(/lunes a viernes/gi, "Mon to Fri")
       .replace(/lunes a domingo/gi, "Mon to Sun")
       .replace(/lun - dom/gi, "Mon - Sun")
@@ -127,7 +128,7 @@ export function formatLocalizedSchedule(val: any, lang: string = "es"): string {
       .replace(/abierto las 24 horas|24 horas/gi, "Open 24 Hours")
       .replace(/cerrado/gi, "Closed");
   } else {
-    return str
+    result = str
       .replace(/monday to friday/gi, "Lun a Vie")
       .replace(/monday to sunday/gi, "Lun a Dom")
       .replace(/mon - sun/gi, "Lun - Dom")
@@ -142,6 +143,7 @@ export function formatLocalizedSchedule(val: any, lang: string = "es"): string {
       .replace(/open 24 hours/gi, "Abierto 24 Horas")
       .replace(/closed/gi, "Cerrado");
   }
+  return convertTo12Hour(result);
 }
 
 const FALLBACK_IMAGE = "/exploring-today.jpg";
@@ -548,28 +550,38 @@ export function composeHikeTime(value: string, unit: "mins" | "hours"): string {
 }
 
 /**
- * Converts military time (24-hour, e.g. "14:00", "09:00 - 18:00") into 12-hour AM/PM format (e.g. "2:00 PM", "9:00 AM - 6:00 PM").
+ * Converts military time (24-hour, e.g. "14:00", "09:00:00", "09:00 - 18:00") into 12-hour AM/PM format (e.g. "2:00 PM", "9:00 AM - 6:00 PM").
  */
 export function convertTo12Hour(timeStr?: string | null): string {
   if (!timeStr || typeof timeStr !== "string") return "";
 
-  // Replace HH:MM (24-hr) patterns that aren't already followed by AM or PM
-  return timeStr.replace(/\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?:\s*(am|pm|AM|PM))?\b/g, (match, hourStr, minStr, ampm) => {
-    if (ampm) {
-      let h = parseInt(hourStr, 10);
-      const period = ampm.toUpperCase();
-      if (h === 0) h = 12;
-      else if (h > 12) h = h % 12;
-      return `${h}:${minStr} ${period}`;
-    }
+  let result = timeStr;
 
+  // 1. Replace HH:MM:SS or HH:MM patterns (with optional existing AM/PM)
+  result = result.replace(/\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?::[0-5][0-9])?(?:\s*(am|pm|AM|PM))?\b/gi, (match, hourStr, minStr, ampm) => {
     let h = parseInt(hourStr, 10);
-    const period = h >= 12 ? "PM" : "AM";
-    h = h % 12;
+    let period = ampm ? ampm.toUpperCase() : (h >= 12 ? "PM" : "AM");
     if (h === 0) h = 12;
-
+    else if (h > 12) h = h % 12;
     return `${h}:${minStr} ${period}`;
   });
+
+  // 2. Handle standalone military hours without minutes in range pattern like "9 - 18" or "09 - 18"
+  result = result.replace(/\b([0-1]?[0-9]|2[0-3])\s*[-–—]\s*([0-1]?[0-9]|2[0-3])\b/gi, (match, startHStr, endHStr) => {
+    if (match.includes("AM") || match.includes("PM")) return match;
+    let sh = parseInt(startHStr, 10);
+    let eh = parseInt(endHStr, 10);
+    if (sh >= 0 && sh <= 24 && eh >= 0 && eh <= 24) {
+      const sPeriod = sh >= 12 ? "PM" : "AM";
+      sh = sh % 12 || 12;
+      const ePeriod = eh >= 12 ? "PM" : "AM";
+      eh = eh % 12 || 12;
+      return `${sh}:00 ${sPeriod} – ${eh}:00 ${ePeriod}`;
+    }
+    return match;
+  });
+
+  return result;
 }
 
 

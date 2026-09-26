@@ -10,7 +10,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized, convertTo12Hour } from "@/lib/utils";
+import { formatEntryCost, formatHikeTime, getImageUrl, getLocalized, convertTo12Hour, formatLocalizedSchedule } from "@/lib/utils";
 import { useGetPlaceDetailsQuery } from "@/redux/features/place/placeApi";
 import { useGetReviewsByPlaceQuery } from "@/redux/features/review/reviewApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -439,7 +439,7 @@ export function ViewPlaceModal({
                             <span>{t("place.schedules")}</span>
                           </div>
                           <p className="text-gray-700 text-sm leading-relaxed font-normal">
-                            {convertTo12Hour(getLocalized(place.schedules, language))}
+                            {formatLocalizedSchedule(place.schedules, language)}
                           </p>
                         </div>
                       )
