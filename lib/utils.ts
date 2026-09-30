@@ -555,31 +555,49 @@ export function composeHikeTime(value: string, unit: "mins" | "hours"): string {
 export function convertTo12Hour(timeStr?: string | null): string {
   if (!timeStr || typeof timeStr !== "string") return "";
 
-  let result = timeStr;
+  let result = timeStr.trim();
 
-  // 1. Replace HH:MM:SS or HH:MM patterns (with optional existing AM/PM)
-  result = result.replace(/\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?::[0-5][0-9])?(?:\s*(am|pm|AM|PM))?\b/gi, (match, hourStr, minStr, ampm) => {
-    let h = parseInt(hourStr, 10);
-    const period = ampm ? ampm.toUpperCase() : (h >= 12 ? "PM" : "AM");
+  // If already contains AM or PM, return as is
+  if (/\b(am|pm)\b/i.test(result)) return result;
+
+  // Handle standalone single hour number like "9", "14", "18"
+  if (/^([0-1]?[0-9]|2[0-3])$/.test(result)) {
+    let h = parseInt(result, 10);
+    const period = h >= 12 ? "PM" : "AM";
     if (h === 0) h = 12;
     else if (h > 12) h = h % 12;
-    return `${h}:${minStr} ${period}`;
-  });
+    return `${h}:00 ${period}`;
+  }
+
+  // 1. Replace HH:MM:SS or HH:MM patterns (with optional existing AM/PM)
+  result = result.replace(
+    /\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?::[0-5][0-9])?(?:\s*(am|pm|AM|PM))?\b/gi,
+    (match, hourStr, minStr, ampm) => {
+      let h = parseInt(hourStr, 10);
+      const period = ampm ? ampm.toUpperCase() : h >= 12 ? "PM" : "AM";
+      if (h === 0) h = 12;
+      else if (h > 12) h = h % 12;
+      return `${h}:${minStr} ${period}`;
+    }
+  );
 
   // 2. Handle standalone military hours without minutes in range pattern like "9 - 18" or "09 - 18"
-  result = result.replace(/\b([0-1]?[0-9]|2[0-3])\s*[-–—]\s*([0-1]?[0-9]|2[0-3])\b/gi, (match, startHStr, endHStr) => {
-    if (match.includes("AM") || match.includes("PM")) return match;
-    let sh = parseInt(startHStr, 10);
-    let eh = parseInt(endHStr, 10);
-    if (sh >= 0 && sh <= 24 && eh >= 0 && eh <= 24) {
-      const sPeriod = sh >= 12 ? "PM" : "AM";
-      sh = sh % 12 || 12;
-      const ePeriod = eh >= 12 ? "PM" : "AM";
-      eh = eh % 12 || 12;
-      return `${sh}:00 ${sPeriod} – ${eh}:00 ${ePeriod}`;
+  result = result.replace(
+    /\b([0-1]?[0-9]|2[0-3])\s*[-–—]\s*([0-1]?[0-9]|2[0-3])\b/gi,
+    (match, startHStr, endHStr) => {
+      if (match.includes("AM") || match.includes("PM")) return match;
+      let sh = parseInt(startHStr, 10);
+      let eh = parseInt(endHStr, 10);
+      if (sh >= 0 && sh <= 24 && eh >= 0 && eh <= 24) {
+        const sPeriod = sh >= 12 ? "PM" : "AM";
+        sh = sh % 12 || 12;
+        const ePeriod = eh >= 12 ? "PM" : "AM";
+        eh = eh % 12 || 12;
+        return `${sh}:00 ${sPeriod} – ${eh}:00 ${ePeriod}`;
+      }
+      return match;
     }
-    return match;
-  });
+  );
 
   return result;
 }

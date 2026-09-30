@@ -1375,120 +1375,131 @@ export default function MapDetails() {
           )}
         </div>
 
-        {isBusiness && (
+        {/* Dedicated Operating Hours Card */}
+        {hoursObj && Object.keys(hoursObj).length > 0 && (
           <div className="px-2 mt-10">
-            {/* Dedicated Operating Hours Card for Business */}
-            {hoursObj && Object.keys(hoursObj).length > 0 && (
-              <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-lg sm:text-xl uppercase tracking-tight text-gray-900">
-                        {t("places_admin.operating_hours") || "Operating Hours"}
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        {t("place.weekly_schedule") || "Weekly business hours"}
-                      </p>
-                    </div>
+            <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                    <Clock size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-lg sm:text-xl uppercase tracking-tight text-gray-900">
+                      {t("places_admin.operating_hours") || "Operating Hours"}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {t("place.weekly_schedule") || "Weekly business hours"}
+                    </p>
                   </div>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {Object.entries(hoursObj).map(([day, hours]: any) => (
+              </div>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {Object.entries(hoursObj).map(([day, hours]: any) => {
+                  const dayLabels: Record<string, string> = {
+                    Monday: "Lunes",
+                    Tuesday: "Martes",
+                    Wednesday: "Miércoles",
+                    Thursday: "Jueves",
+                    Friday: "Viernes",
+                    Saturday: "Sábado",
+                    Sunday: "Domingo",
+                  };
+                  const displayDay = language === "es" ? (dayLabels[day] || day) : day;
+
+                  return (
                     <div
                       key={day}
                       className="flex items-center justify-between py-2 px-3 rounded-xl bg-gray-50/60 hover:bg-gray-100/70 transition-colors"
                     >
-                      <span className="text-xs sm:text-sm font-semibold text-gray-700">{day}</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-700">{displayDay}</span>
                       {hours?.closed ? (
                         <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-100">
                           {t("place.closed") || "Closed"}
                         </span>
                       ) : (
                         <span className="text-xs sm:text-sm font-semibold text-gray-900">
-                          {hours?.open || "—"} – {hours?.close || "—"}
+                          {hours?.open ? convertTo12Hour(hours.open) : "—"} – {hours?.close ? convertTo12Hour(hours.close) : "—"}
                         </span>
                       )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          </div>
+        )}
 
-            {(hasText(placeData?.website) || hasText(placeData?.instagram)) && (
-              <>
-                <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
-                  {t("place.online_presence")}
-                </h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  {t("place.online_presence_desc")}
-                </p>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* WEBSITE */}
-                  {hasText(placeData?.website) && (
-                    <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
-                      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                        <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl shrink-0">🌐</div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                            {t("business_details.website")}
-                          </p>
-                          <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
-                            {t("place.official_website")}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const url = placeData.website.startsWith("http")
-                            ? placeData.website
-                            : `https://${placeData.website}`;
-                          window.open(url, "_blank");
-                        }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
-                      >
-                        {t("place.visit")}
-                      </button>
+        {(hasText(placeData?.website) || hasText(placeData?.instagram)) && (
+          <div className="px-2 mt-6">
+            <h3 className="font-black text-xl uppercase tracking-tight text-gray-900 mb-2">
+              {t("place.online_presence")}
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              {t("place.online_presence_desc")}
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* WEBSITE */}
+              {hasText(placeData?.website) && (
+                <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
+                  <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl shrink-0">🌐</div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        {t("business_details.website")}
+                      </p>
+                      <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
+                        {t("place.official_website")}
+                      </p>
                     </div>
-                  )}
-
-                  {/* INSTAGRAM */}
-                  {hasText(placeData?.instagram) && (
-                    <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
-                      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                        <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0 text-pink-600 flex items-center justify-center">
-                          <Instagram size={22} className="text-pink-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                            {t("business_details.instagram")}
-                          </p>
-                          <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
-                            {`@${placeData.instagram.replace("@", "")}`}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const username = placeData.instagram
-                            .replace("@", "")
-                            .trim();
-                          window.open(
-                            `https://instagram.com/${username}`,
-                            "_blank",
-                          );
-                        }}
-                        className="bg-pink-600 hover:bg-pink-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
-                      >
-                        {t("place.view")}
-                      </button>
-                    </div>
-                  )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const url = placeData.website.startsWith("http")
+                        ? placeData.website
+                        : `https://${placeData.website}`;
+                      window.open(url, "_blank");
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                  >
+                    {t("place.visit")}
+                  </button>
                 </div>
-              </>
-            )}
+              )}
+
+              {/* INSTAGRAM */}
+              {hasText(placeData?.instagram) && (
+                <div className="flex items-center justify-between p-3.5 sm:p-5 gap-2 sm:gap-4 border rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md">
+                  <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <div className="bg-pink-50 p-2.5 sm:p-3 rounded-xl shrink-0 text-pink-600 flex items-center justify-center">
+                      <Instagram size={22} className="text-pink-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        {t("business_details.instagram")}
+                      </p>
+                      <p className="font-bold text-gray-900 truncate text-xs sm:text-base">
+                        {`@${placeData.instagram.replace("@", "")}`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const username = placeData.instagram
+                        .replace("@", "")
+                        .trim();
+                      window.open(
+                        `https://instagram.com/${username}`,
+                        "_blank",
+                      );
+                    }}
+                    className="bg-pink-600 hover:bg-pink-700 text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-xs uppercase transition-colors shrink-0 cursor-pointer"
+                  >
+                    {t("place.view")}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {/* REVIEWS & EXPERIENCES SECTION */}

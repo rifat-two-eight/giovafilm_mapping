@@ -111,7 +111,7 @@ export default function RestaurantDetail() {
       title: t("offer.confirm_redemption_title"),
       text: t("offer.confirm_redemption_text"),
       icon: "warning",
-      timer: 3000,
+      timer: 5000,
       timerProgressBar: true,
       showCancelButton: true,
       confirmButtonText: t("offer.proceed_now"),
