@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import unlockImage from "@/public/offers-image/Gourmet Garden.png";
 import Image from "next/image";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized, downloadFileWithCustomName } from "@/lib/utils";
 import { NoImage } from "@/lib/others/others";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -74,6 +74,26 @@ export default function AwardsPage() {
   const limit = 10;
   const [activeFilter, setActiveFilter] = useState<"all" | "unlocked" | "locked">("all");
   const [selectedAward, setSelectedAward] = useState<any | null>(null);
+  const [downloadingAwardId, setDownloadingAwardId] = useState<string | null>(null);
+
+  const handleDownloadAwardPdf = async (e: React.MouseEvent, award: any) => {
+    e.stopPropagation();
+    if (!award?.config?.fileUrl || downloadingAwardId) return;
+    setDownloadingAwardId(award._id);
+    const rawTitle = award.config?.title || award.title || award.type;
+    const title = getLocalized(rawTitle, language);
+    const downloadFileName =
+      award.config?.originalFileName ||
+      award.originalFileName ||
+      `${(title || "Itinerario").replace(/[<>:"/\\|?*]/g, "_").trim()}.pdf`;
+    try {
+      await downloadFileWithCustomName(getImageUrl(award.config.fileUrl), downloadFileName);
+    } catch {
+      // ignore
+    } finally {
+      setDownloadingAwardId(null);
+    }
+  };
 
   const { data: user, isLoading: isProfileLoading } = useGetProfileQuery({});
   const { data: awardsRes, isLoading } = useGetAwardsQuery({ page, limit });
@@ -288,8 +308,8 @@ export default function AwardsPage() {
                       return (
                         <UnlockedAwardCard
                           key={award._id}
-                          title={award.config?.title || award.type}
-                          description={award.config?.description}
+                          title={getLocalized(award.config?.title || award.type, language)}
+                          description={getLocalized(award.config?.description, language)}
                           image={rewardImage}
                           onClick={() => setSelectedAward(award)}
                         >
@@ -317,18 +337,15 @@ export default function AwardsPage() {
                             </div>
                           ) : award.config?.fileUrl ? (
                             <div className="pt-1.5">
-                              <a
-                                href={getImageUrl(award.config.fileUrl)}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full"
-                                onClick={(e) => e.stopPropagation()}
+                              <Button
+                                onClick={(e) => handleDownloadAwardPdf(e, award)}
+                                disabled={downloadingAwardId === award._id}
+                                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-emerald-200/50 cursor-pointer"
                               >
-                                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-emerald-200/50 cursor-pointer">
-                                  {language === "es" ? "Descargar PDF" : "Download PDF"}
-                                </Button>
-                              </a>
+                                {downloadingAwardId === award._id
+                                  ? (language === "es" ? "Descargando..." : "Downloading...")
+                                  : (language === "es" ? "Descargar PDF" : "Download PDF")}
+                              </Button>
                             </div>
                           ) : award.type?.includes("Discount") || award.type?.includes("10%") || award.config?.discountPercentage ? (
                             <div className="pt-1.5">
@@ -356,8 +373,8 @@ export default function AwardsPage() {
                       return (
                         <AwardCard
                           key={award._id}
-                          title={award.config?.title || award.type}
-                          description={award.config?.description}
+                          title={getLocalized(award.config?.title || award.type, language)}
+                          description={getLocalized(award.config?.description, language)}
                           progress={percent}
                           current={award.progress}
                           total={award.target}

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getLocalized, downloadFileWithCustomName } from "@/lib/utils";
 import {
   Check,
   Lock,
@@ -41,16 +41,23 @@ export function AwardDetailModal({
   const { language } = useLanguage();
   const [copiedCode, setCopiedCode] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!award) return null;
 
   const isUnlocked = !!award.isUnlocked;
-  const title = award.config?.title || award.title || award.type;
-  const description = award.config?.description || award.description || "";
+  const rawTitle = award.config?.title || award.title || award.type;
+  const title = getLocalized(rawTitle, language);
+  const rawDesc = award.config?.description || award.description || "";
+  const description = getLocalized(rawDesc, language);
   const rawCover = award.config?.coverPhoto || award.coverPhoto;
   const coverPhoto = rawCover ? getImageUrl(rawCover) : null;
   const rawFile = award.config?.fileUrl || award.fileUrl;
   const fileUrl = rawFile ? getImageUrl(rawFile) : null;
+  const downloadFileName =
+    award.config?.originalFileName ||
+    award.originalFileName ||
+    `${(title || "Itinerario").replace(/[<>:"/\\|?*]/g, "_").trim()}.pdf`;
   const discountPercentage =
     award.config?.discountPercentage ||
     award.discountPercentage ||
@@ -78,6 +85,22 @@ export function AwardDetailModal({
         : "Discount code copied to clipboard!"
     );
     setTimeout(() => setCopiedCode(false), 3000);
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!fileUrl || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      await downloadFileWithCustomName(fileUrl, downloadFileName);
+    } catch {
+      toast.error(
+        language === "es"
+          ? "Error al descargar el archivo."
+          : "Failed to download file."
+      );
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -190,18 +213,16 @@ export function AwardDetailModal({
 
                 {/* 2. Download PDF Button */}
                 {(fileUrl || award.type === "PDF Itinerary") && fileUrl && (
-                  <a
-                    href={fileUrl}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full"
+                  <Button
+                    onClick={handleDownloadPdf}
+                    disabled={isDownloading}
+                    className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-200 gap-2 border-0 cursor-pointer"
                   >
-                    <Button className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-emerald-200 gap-2 border-0 cursor-pointer">
-                      <FileText size={16} />
-                      {language === "es" ? "DESCARGAR PDF" : "DOWNLOAD PDF"}
-                    </Button>
-                  </a>
+                    <FileText size={16} />
+                    {isDownloading
+                      ? (language === "es" ? "DESCARGANDO..." : "DOWNLOADING...")
+                      : (language === "es" ? "DESCARGAR PDF" : "DOWNLOAD PDF")}
+                  </Button>
                 )}
 
                 {/* 3. Use Discount / Coupon Button */}

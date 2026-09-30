@@ -231,6 +231,9 @@ export default function RewardsAdminPage() {
 
       if (!isCreateMode && selectedReward) {
         rewardData.fileUrl = selectedReward.fileUrl || "";
+        if (selectedReward.originalFileName) {
+          rewardData.originalFileName = selectedReward.originalFileName;
+        }
       }
 
       const formData = new FormData();
@@ -598,7 +601,7 @@ export default function RewardsAdminPage() {
                                 rel="noreferrer"
                                 className="hover:underline truncate"
                               >
-                                {reward.fileUrl.split("/").pop()}
+                                {reward.originalFileName || reward.fileUrl.split("/").pop()}
                               </a>
                             </div>
                           )}
@@ -1053,7 +1056,7 @@ export default function RewardsAdminPage() {
                         e.stopPropagation();
                         setPdfFile(null);
                         if (pdfInputRef.current) pdfInputRef.current.value = "";
-                        if (selectedReward) setSelectedReward({ ...selectedReward, fileUrl: "" });
+                        if (selectedReward) setSelectedReward({ ...selectedReward, fileUrl: "", originalFileName: "" });
                       }}
                       className="absolute top-2 right-2 p-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-full transition-colors cursor-pointer z-10"
                       title="Remove PDF"
@@ -1065,7 +1068,9 @@ export default function RewardsAdminPage() {
                     <div className="text-center">
                       <FileText size={22} className="text-emerald-600 mx-auto" />
                       <span className="text-[10px] font-bold text-gray-700 block truncate max-w-[130px] mt-1">
-                        {pdfFile ? pdfFile.name : selectedReward.fileUrl.split("/").pop()}
+                        {pdfFile
+                          ? pdfFile.name
+                          : (selectedReward?.originalFileName || selectedReward?.fileUrl?.split("/").pop())}
                       </span>
                     </div>
                   ) : (

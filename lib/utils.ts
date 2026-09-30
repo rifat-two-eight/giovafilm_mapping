@@ -584,5 +584,49 @@ export function convertTo12Hour(timeStr?: string | null): string {
   return result;
 }
 
+/**
+ * Triggers downloading a file with a custom filename.
+ * Uses fetch + blob URL so modern browsers always respect link.download regardless of cross-origin or server filename.
+ */
+export async function downloadFileWithCustomName(
+  url: string,
+  desiredFilename: string
+): Promise<void> {
+  if (!url || typeof window === "undefined") return;
+
+  let filename = desiredFilename ? desiredFilename.trim() : "Itinerary.pdf";
+  // Clean illegal characters for OS filenames
+  filename = filename.replace(/[<>:"/\\|?*]/g, "_").trim();
+  if (!/\.[a-zA-Z0-9]+$/i.test(filename)) {
+    filename += ".pdf";
+  }
+
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+  } catch (err) {
+    console.warn("Direct blob download failed, falling back to direct link:", err);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+
 
 
