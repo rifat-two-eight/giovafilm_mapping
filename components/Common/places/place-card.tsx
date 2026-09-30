@@ -3,7 +3,7 @@
 import { SafeImage } from "@/components/shared/safe-image";
 import { NoImage } from "@/lib/others/others";
 import { TPlace } from "@/lib/types/place/place";
-import { getUsableMediaUrl } from "@/lib/utils";
+import { getUsableMediaUrl, getLocalized } from "@/lib/utils";
 import { MapPin, Star, Lock } from "lucide-react";
 import Link from "next/link";
 import { appAlert } from "@/lib/app-alert";
@@ -11,7 +11,7 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function PlaceCard({ data }: { data: TPlace }) {
   const coverImage = getUsableMediaUrl(data?.media);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleClick = (e: React.MouseEvent) => {
     if (data?.isLocked) {
@@ -47,7 +47,7 @@ export function PlaceCard({ data }: { data: TPlace }) {
           {coverImage ? (
             <SafeImage
               src={coverImage}
-              alt={data?.isLocked ? "Premium Location" : data?.name}
+              alt={data?.isLocked ? "Premium Location" : getLocalized(data?.name, language)}
               fill
               className="hover:scale-105 transition-all"
             />
@@ -73,20 +73,20 @@ export function PlaceCard({ data }: { data: TPlace }) {
         {/* Content */}
         <div className="p-2.5 md:p-4 font-inter">
           <h3 className="font-semibold text-sm md:text-lg line-clamp-2">
-            {data?.isLocked ? `🔒 ${t("map.unlock_full_map")}` : data?.name}
+            {data?.isLocked ? `🔒 ${t("map.unlock_full_map")}` : getLocalized(data?.name, language)}
           </h3>
  
           <div className="flex items-start text-gray-500 text-xs md:text-sm mt-1 gap-1">
             <MapPin size={14} className="shrink-0 mt-0.5" />
             <span className="line-clamp-2">
-              {data?.isLocked ? t("map.unlock_full_map") : data?.address}
+              {data?.isLocked ? t("map.unlock_full_map") : getLocalized(data?.address, language)}
             </span>
           </div>
  
           <p className="text-gray-400 text-xs md:text-sm mt-1 line-clamp-1">
             {data?.isLocked
               ? t("map.unlock_full_map")
-              : `${data?.totalReview} ${t("place.reviews")} • ${data?.category?.name}`}
+              : `${data?.totalReview} ${t("place.reviews")} • ${getLocalized(data?.category?.name, language)}`}
           </p>
         </div>
       </div>
