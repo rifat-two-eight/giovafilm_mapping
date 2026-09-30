@@ -449,6 +449,7 @@ const SavedMarkersLayer = React.memo(function SavedMarkersLayer({
                 color={resolveCategoryColor(cat)}
                 name={place.name}
                 isSelected={isSelected}
+                status={place.status}
               />
             </div>
           </AdvancedMarker>
@@ -471,6 +472,7 @@ export default function AddPlacePage() {
   );
   const [selectedMapId, setSelectedMapId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "Published" | "Draft">("ALL");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const defaultPosition = { lat: 23.8103, lng: 90.4125 };
 
@@ -536,7 +538,7 @@ export default function AddPlacePage() {
     });
   };
 
-  // Map shows places filtered by disabled state, active category, and search query
+  // Map shows places filtered by disabled state, active category, status, and search query
   const displayPlaces = useMemo(() => {
     if (!selectedMapId) return [];
     const q = removeAccents(searchQuery.trim().toLowerCase());
@@ -548,6 +550,11 @@ export default function AddPlacePage() {
       if (pCatId && disabledCategories.has(pCatId)) return false;
       if (filterCategoryId && pCatId !== filterCategoryId) return false;
 
+      if (statusFilter !== "ALL") {
+        const placeStatus = place.status || "Published";
+        if (placeStatus !== statusFilter) return false;
+      }
+
       if (q) {
         const nameStr = getSearchableString(place.name);
         const addrStr = getSearchableString(place.address);
@@ -558,9 +565,9 @@ export default function AddPlacePage() {
       }
       return true;
     });
-  }, [selectedMapId, fetchedPlaces, disabledPlaces, disabledCategories, filterCategoryId, searchQuery]);
+  }, [selectedMapId, fetchedPlaces, disabledPlaces, disabledCategories, filterCategoryId, statusFilter, searchQuery]);
 
-  // Pre-calculate category counts with search filter
+  // Pre-calculate category counts with status and search filter
   const categoriesWithPlaces = useMemo(() => {
     const q = removeAccents(searchQuery.trim().toLowerCase());
     return categories
@@ -569,6 +576,10 @@ export default function AddPlacePage() {
           const pCat = typeof p.category === "object" ? p.category : null;
           const pCatId = pCat ? pCat._id : p.category;
           if (pCatId !== cat._id) return false;
+          if (statusFilter !== "ALL") {
+            const pStatus = p.status || "Published";
+            if (pStatus !== statusFilter) return false;
+          }
           if (q) {
             const nameStr = getSearchableString(p.name);
             const addrStr = getSearchableString(p.address);
@@ -584,7 +595,7 @@ export default function AddPlacePage() {
       .filter(
         ({ placesInCat }: { placesInCat: any[] }) => placesInCat.length > 0,
       );
-  }, [categories, fetchedPlaces, searchQuery]);
+  }, [categories, fetchedPlaces, statusFilter, searchQuery]);
 
   // --- States for Marker Management ---
   const [isAddingMarker, setIsAddingMarker] = useState(false);
@@ -892,7 +903,9 @@ export default function AddPlacePage() {
       }
 
       toast.success(
-        `Place ${finalData.status === "Published" ? "published" : "saved as draft"} successfully!`,
+        finalData.status === "Published"
+          ? (t("places_admin.published_successfully") || "Place published successfully!")
+          : (t("places_admin.saved_as_draft_successfully") || "Place saved as draft successfully!"),
       );
 
       setDraggedPositions({});
@@ -1059,6 +1072,45 @@ export default function AddPlacePage() {
                 </button>
               )}
             </div>
+
+            {/* Status Filter Toggle */}
+            <div className="flex bg-gray-100 p-0.5 rounded-lg text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setStatusFilter("ALL")}
+                className={`flex-1 py-1 rounded-md transition-all text-[11px] ${
+                  statusFilter === "ALL"
+                    ? "bg-white text-gray-900 shadow-sm font-bold"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                {t("places_admin.all_status") || "All"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter("Published")}
+                className={`flex-1 py-1 rounded-md transition-all text-[11px] flex items-center justify-center gap-1 ${
+                  statusFilter === "Published"
+                    ? "bg-white text-emerald-700 shadow-sm font-bold"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                {t("places_admin.published") || "Published"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter("Draft")}
+                className={`flex-1 py-1 rounded-md transition-all text-[11px] flex items-center justify-center gap-1 ${
+                  statusFilter === "Draft"
+                    ? "bg-white text-amber-700 shadow-sm font-bold"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                {t("places_admin.draft") || "Draft"}
+              </button>
+            </div>
           </div>
 
           {/* Categories List */}
@@ -1170,8 +1222,31 @@ export default function AddPlacePage() {
                                   onClick={() => handleSelectPlace(place)}
                                   className="flex-1 text-left min-w-0"
                                 >
-                                  <div className="flex flex-col">
-                                    <span className="truncate">{place.name}</span>
+                                  <div className="flex flex-col min-w-0">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <span className="truncate">{place.name}</span>
+                                      {place.status === "Draft" ? (
+                                        <span
+                                          className={`text-[8.5px] font-black px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0 ${
+                                            selectedPlace?._id === place._id
+                                              ? "bg-amber-300 text-amber-950"
+                                              : "bg-amber-100 text-amber-800 border border-amber-300"
+                                          }`}
+                                        >
+                                          {t("places_admin.draft") || "Draft"}
+                                        </span>
+                                      ) : (
+                                        <span
+                                          className={`text-[8.5px] font-bold px-1.5 py-0.2 rounded uppercase tracking-wider flex-shrink-0 ${
+                                            selectedPlace?._id === place._id
+                                              ? "bg-emerald-300 text-emerald-950"
+                                              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                          }`}
+                                        >
+                                          {t("places_admin.published") || "Published"}
+                                        </span>
+                                      )}
+                                    </div>
                                     <span
                                       className={`text-[9px] ${selectedPlace?._id === place._id ? "text-blue-100" : "text-gray-400"}`}
                                     >
@@ -1213,6 +1288,19 @@ export default function AddPlacePage() {
 
         {/* Map Area */}
         <div className="flex-1 relative">
+          {/* Floating Map Status Legend */}
+          <div className="absolute top-4 right-4 z-20 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-xl shadow-md border border-gray-200/80 flex items-center gap-3 select-none pointer-events-none">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
+              <span className="text-gray-700 font-bold text-[11px] uppercase tracking-wider">{t("places_admin.published") || "Published"}</span>
+            </div>
+            <div className="h-3 w-px bg-gray-200" />
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm" />
+              <span className="text-gray-700 font-bold text-[11px] uppercase tracking-wider">{t("places_admin.draft") || "Draft"}</span>
+            </div>
+          </div>
+
           <div className="w-full h-full bg-gray-200">
             <Map
               defaultCenter={defaultPosition}
@@ -1300,6 +1388,7 @@ export default function AddPlacePage() {
                       color={resolveCategoryColor(activeCategory)}
                       isTemp={true}
                       isSelected={true}
+                      status="Draft"
                     />
                   </div>
                 </AdvancedMarker>
@@ -1331,11 +1420,24 @@ export default function AddPlacePage() {
             >
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b bg-white sticky top-0 z-20">
-                <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
-                  {selectedPlace.isNew
-                    ? (t("places_admin.add_place") || "Add Place")
-                    : (t("places_admin.update_place") || "Update Place")}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
+                    {selectedPlace.isNew
+                      ? (t("places_admin.add_place") || "Add Place")
+                      : (t("places_admin.update_place") || "Update Place")}
+                  </h2>
+                  <span
+                    className={`text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+                      selectedPlace.isNew || selectedPlace.status === "Draft"
+                        ? "bg-amber-50 text-amber-800 border-amber-300"
+                        : "bg-emerald-50 text-emerald-800 border-emerald-300"
+                    }`}
+                  >
+                    {selectedPlace.isNew || selectedPlace.status === "Draft"
+                      ? (t("places_admin.draft") || "Draft")
+                      : (t("places_admin.published") || "Published")}
+                  </span>
+                </div>
                 <button
                   onClick={() => {
                     if (isCreating || isUpdating) {
@@ -1418,6 +1520,7 @@ export default function AddPlacePage() {
                   operatingHours: selectedPlace.operatingHours || undefined,
                   images: asMediaUrls(selectedPlace.media),
                   menuImages: asMediaUrls(selectedPlace.menuImages),
+                  status: selectedPlace.status || (selectedPlace.isNew ? "Draft" : undefined),
                   isNew: selectedPlace.isNew,
                 }}
               />

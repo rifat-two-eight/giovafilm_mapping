@@ -483,7 +483,7 @@ export default function MapDetails() {
       const reviewerId = typeof rev.reviewer === "object" ? rev.reviewer?._id : rev.reviewer;
       return reviewerId && String(reviewerId) === String(userProfile._id);
     });
-  }, [reviewData, userProfile?._id]);
+  }, [reviewData, userProfile]);
 
   const approvedReviews = useMemo(() => {
     if (!Array.isArray(reviewData)) return [];
@@ -495,7 +495,7 @@ export default function MapDetails() {
       const reviewerId = typeof rev.reviewer === "object" ? rev.reviewer?._id : rev.reviewer;
       return !myReview || String(reviewerId) !== String(userProfile?._id);
     });
-  }, [approvedReviews, myReview, userProfile?._id]);
+  }, [approvedReviews, myReview, userProfile]);
 
   const averageRating = useMemo(() => {
     if (approvedReviews.length > 0) {
@@ -503,7 +503,7 @@ export default function MapDetails() {
       return (sum / approvedReviews.length).toFixed(1);
     }
     return placeData?.rating ? Number(placeData.rating).toFixed(1) : null;
-  }, [approvedReviews, placeData?.rating]);
+  }, [approvedReviews, placeData]);
 
   const handleOpenReviewModal = () => {
     if (!accessToken) {

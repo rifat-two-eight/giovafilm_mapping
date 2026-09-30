@@ -14,6 +14,7 @@ interface CategoryMarkerProps {
   isSelected?: boolean;
   isLocked?: boolean;
   isMobile?: boolean;
+  status?: string;
 }
 
 export const CategoryMarker = React.memo(function CategoryMarker({
@@ -24,6 +25,7 @@ export const CategoryMarker = React.memo(function CategoryMarker({
   isSelected = false,
   isLocked = false,
   isMobile = false,
+  status,
 }: CategoryMarkerProps) {
   const { language } = useLanguage();
   // Proportions for a 100% Uniform Google Maps POI Pin
@@ -73,7 +75,7 @@ export const CategoryMarker = React.memo(function CategoryMarker({
       {/* ── Name Tooltip (Pure CSS driven: 0 JS re-renders during mouse wheel zoom) ── */}
       {Boolean(displayName) && !isLocked && (
         <div
-          className={`pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-opacity duration-150 z-[100] ${
+          className={`pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-opacity duration-150 z-[100] flex items-center gap-1.5 ${
             isSelected
               ? "opacity-100"
               : "opacity-0 group-hover:opacity-100"
@@ -87,10 +89,26 @@ export const CategoryMarker = React.memo(function CategoryMarker({
             fontSize: isSelected ? "12px" : "11px",
             fontWeight: isSelected ? "800" : "700",
             boxShadow: "0 8px 20px rgba(0, 0, 0, 0.45)",
-            border: isSelected ? "1.5px solid #FFC107" : "1px solid rgba(255, 255, 255, 0.2)",
+            border: isSelected ? "1.5px solid #FFC107" : status === "Draft" ? "1.5px solid #F59E0B" : "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          {displayName}
+          {status === "Draft" && (
+            <span
+              style={{
+                backgroundColor: "#F59E0B",
+                color: "#FFFFFF",
+                fontSize: "9px",
+                fontWeight: "900",
+                padding: "1px 5px",
+                borderRadius: "4px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Draft
+            </span>
+          )}
+          <span>{displayName}</span>
           {/* Arrow Triangle pointing down to pin */}
           <div
             style={{
@@ -116,7 +134,7 @@ export const CategoryMarker = React.memo(function CategoryMarker({
           filter: isSelected ? "drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))" : undefined,
         }}
       >
-        {/* 100% Google Maps Replica SVG (Clean White Pin Body) */}
+        {/* 100% Google Maps Replica SVG (Clean White Pin Body, or Warm Amber with Dashed Border for Draft) */}
         <svg
           width={width}
           height={height}
@@ -134,8 +152,11 @@ export const CategoryMarker = React.memo(function CategoryMarker({
         >
           {/* Subtle drop shadow outline inside SVG */}
           <path
-            d="M20 0C8.95 0 0 8.95 0 20C0 29 10 39 15 43.5C16.5 44.8 18.2 45.5 20 45.5C21.8 45.5 23.5 44.8 25 43.5C30 39 40 29 40 20C40 8.95 31.05 0 20 0Z"
-            fill="#FFFFFF"
+            d="M20 1C9.5 1 1 9.5 1 20C1 28.5 10.5 38.2 15.3 42.6C16.8 43.9 18.4 44.5 20 44.5C21.6 44.5 23.2 43.9 24.7 42.6C29.5 38.2 39 28.5 39 20C39 9.5 30.5 1 20 1Z"
+            fill={status === "Draft" ? "#FFFBEB" : "#FFFFFF"}
+            stroke={status === "Draft" ? "#D97706" : "rgba(0,0,0,0.08)"}
+            strokeWidth={status === "Draft" ? "2.5" : "1"}
+            strokeDasharray={status === "Draft" ? "4 2" : "none"}
           />
         </svg>
 
@@ -160,6 +181,34 @@ export const CategoryMarker = React.memo(function CategoryMarker({
         >
           <CategoryIcon icon={icon} size={iconSize} color="#FFFFFF" />
         </div>
+
+        {/* Draft Badge (if draft) */}
+        {status === "Draft" && !isLocked && (
+          <div
+            style={{
+              position: "absolute",
+              top: -6,
+              right: -10,
+              background: "#F59E0B",
+              color: "#FFFFFF",
+              borderRadius: "5px",
+              padding: "1px 4.5px",
+              fontSize: "8.5px",
+              fontWeight: "900",
+              letterSpacing: "0.5px",
+              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1.5px solid white",
+              zIndex: 10,
+              boxShadow: "0 2px 6px rgba(245, 158, 11, 0.45)",
+              lineHeight: "11px",
+            }}
+          >
+            DRAFT
+          </div>
+        )}
 
         {/* Lock Badge (if locked) */}
         {isLocked && (

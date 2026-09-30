@@ -21,6 +21,7 @@ interface PlaceInfoWindowProps {
     accessibility?: any;
     images?: string[];
     menuImages?: string[];
+    status?: string;
     isNew: boolean;
     phone?: string;
     website?: string;

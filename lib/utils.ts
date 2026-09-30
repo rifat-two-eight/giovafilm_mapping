@@ -560,7 +560,7 @@ export function convertTo12Hour(timeStr?: string | null): string {
   // 1. Replace HH:MM:SS or HH:MM patterns (with optional existing AM/PM)
   result = result.replace(/\b([0-1]?[0-9]|2[0-3]):([0-5][0-9])(?::[0-5][0-9])?(?:\s*(am|pm|AM|PM))?\b/gi, (match, hourStr, minStr, ampm) => {
     let h = parseInt(hourStr, 10);
-    let period = ampm ? ampm.toUpperCase() : (h >= 12 ? "PM" : "AM");
+    const period = ampm ? ampm.toUpperCase() : (h >= 12 ? "PM" : "AM");
     if (h === 0) h = 12;
     else if (h > 12) h = h % 12;
     return `${h}:${minStr} ${period}`;

@@ -71,6 +71,7 @@ interface PlaceFormContentProps {
     accessibility?: any;
     images?: string[];
     menuImages?: string[];
+    status?: string;
     isNew: boolean;
     phone?: string;
     website?: string;
@@ -417,8 +418,8 @@ export const PlaceFormContent = ({
     if (!formData.address.trim()) {
       newErrors.address = "Address is required";
     }
-    if (mediaFiles.length === 0 && existingImages.length === 0) {
-      newErrors.media = "At least one media file (image/video) is required";
+    if (publish && mediaFiles.length === 0 && existingImages.length === 0) {
+      newErrors.media = "At least one media file (image/video) is required to publish";
     }
     if (!formData.type) {
       newErrors.type = "Location type is required";
@@ -1843,7 +1844,7 @@ export const PlaceFormContent = ({
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           {currentTabIdx > 0 && (
             <Button
               type="button"
@@ -1853,6 +1854,21 @@ export const PlaceFormContent = ({
               className="px-5 h-10 border-gray-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               <ArrowLeft size={14} /> {t("common.previous") || "Back"}
+            </Button>
+          )}
+
+          {(initialData?.isNew !== false || initialData?.status === "Draft") && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSave(false)}
+              disabled={isSaving || isOptimizingMedia}
+              className="px-5 h-10 border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-400 font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-60"
+            >
+              {isSaving && <Loader2 size={14} className="animate-spin" />}
+              {isSaving
+                ? (t("common.saving") || "Saving...")
+                : (t("common.save_as_draft") || "Save as Draft")}
             </Button>
           )}
 
