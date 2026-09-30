@@ -3,11 +3,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl, convertTo12Hour } from "@/lib/utils";
 import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
-import { useGetOffersByPlaceOrBusinessIdQuery } from "@/redux/features/offer/offerApi";
+import {
+  useGetOffersByPlaceOrBusinessIdQuery,
+  useGetOfferRedemptionsQuery,
+} from "@/redux/features/offer/offerApi";
 import { useCreateCheckoutSessionMutation } from "@/redux/features/subscription/subscriptionApi";
 import { toast } from "sonner";
 import {
@@ -26,6 +30,7 @@ import {
   Phone,
   Plus,
   Shield,
+  Tag,
   XCircle,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -35,6 +40,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BusinessOfferDialog } from "./business-offer-dialog";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 
 export default function BusinessDetails() {
   const { t } = useLanguage();
@@ -50,6 +56,12 @@ export default function BusinessDetails() {
     : offersRes?.data || null;
   const offer = business?.offer || linkedOffer;
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
+  const [redemptionHistoryOpen, setRedemptionHistoryOpen] = useState(false);
+  const { data: redemptionsData, isLoading: isLoadingRedemptions } =
+    useGetOfferRedemptionsQuery(id as string, { skip: !id });
+  const redemptionsList = redemptionsData?.data?.redemptions || [];
+  const redemptionsTotalCount =
+    redemptionsData?.data?.count ?? offer?.redemptionsCount ?? 0;
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
@@ -301,7 +313,7 @@ export default function BusinessDetails() {
                     {offer.description}
                   </p>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
                     <div className="bg-black/5 rounded-2xl p-4 border border-black/5 backdrop-blur-sm">
                       <p className="text-[10px] font-black text-black/60 uppercase tracking-widest mb-1">
                         {t("business_details.benefit")}
@@ -345,7 +357,28 @@ export default function BusinessDetails() {
                         {offer.redemptionDuration} {t("business_details.mins")}
                       </p>
                     </div>
+                    <div className="bg-purple-900/10 rounded-2xl p-4 border border-purple-900/20 backdrop-blur-sm flex flex-col justify-between">
+                      <div>
+                        <p className="text-[10px] font-black text-purple-950 uppercase tracking-widest mb-1 flex items-center justify-between">
+                          <span>{t("business_details.discounts_redeemed") || "Redeemed"}</span>
+                          <Tag size={12} className="text-purple-700" />
+                        </p>
+                        <p className="text-lg font-black text-purple-950">
+                          {redemptionsTotalCount}
+                          {offer.totalRedemptionLimit ? ` / ${offer.totalRedemptionLimit}` : ""}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setRedemptionHistoryOpen(true)}
+                        className="text-[11px] font-extrabold text-purple-900 hover:text-purple-700 underline text-left mt-2 flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>{t("business_details.view_redemptions") || "View Details"}</span>
+                        <ExternalLink size={10} />
+                      </button>
+                    </div>
                   </div>
+
 
                   {offer.redemptionRules?.length > 0 && (
                     <div className="mt-8 pt-8 border-t border-black/10">
@@ -477,8 +510,28 @@ export default function BusinessDetails() {
                     })}
                   </span>
                 </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-slate-500 font-bold">
+                    <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+                      <Tag size={20} />
+                    </div>
+                    {t("business_details.discounts_redeemed") || "Discounts Redeemed"}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRedemptionHistoryOpen(true)}
+                    className="group flex items-center gap-1.5 cursor-pointer"
+                    title={t("business_details.view_redemptions") || "View Details"}
+                  >
+                    <span className="text-2xl font-black text-purple-700 group-hover:underline">
+                      {redemptionsTotalCount}
+                    </span>
+                    <ExternalLink size={13} className="text-purple-400 group-hover:text-purple-600" />
+                  </button>
+                </div>
               </div>
             </motion.div>
+
 
             {/* Contact Information */}
             <motion.div
@@ -610,6 +663,70 @@ export default function BusinessDetails() {
         businessId={business._id}
         existingOffer={offer}
       />
+
+      {/* Redemption History Dialog */}
+      <Dialog open={redemptionHistoryOpen} onOpenChange={setRedemptionHistoryOpen}>
+        <DialogContent className="max-w-md rounded-3xl p-6 bg-white">
+          <DialogHeader className="pb-3 border-b border-gray-100">
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Tag size={18} className="text-purple-600" />
+              {t("business_details.redemption_history") || "Discount Redemption History"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="py-2">
+            <div className="p-4 rounded-2xl bg-purple-50 border border-purple-100 mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-bold text-purple-800 uppercase tracking-wider">
+                  {t("business_details.discounts_redeemed") || "Total Discounts Redeemed"}
+                </p>
+                <p className="text-2xl font-black text-purple-950 mt-0.5">
+                  {redemptionsTotalCount}
+                  {offer?.totalRedemptionLimit ? ` / ${offer.totalRedemptionLimit}` : ""}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700">
+                <CheckCircle2 size={20} />
+              </div>
+            </div>
+
+            {isLoadingRedemptions ? (
+              <div className="py-8 text-center text-xs text-gray-400">Loading redemptions...</div>
+            ) : !redemptionsList || redemptionsList.length === 0 ? (
+              <div className="py-8 text-center text-xs text-gray-500 font-semibold">
+                {t("business_details.no_redemptions_yet") || "No discounts have been redeemed yet."}
+              </div>
+            ) : (
+              <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+                {redemptionsList.map((item: any, idx: number) => {
+                  const userName = item.user?.name || "App Explorer";
+                  const dateStr = new Date(item.redemptionTime || item.createdAt).toLocaleString();
+                  return (
+                    <div
+                      key={item._id || idx}
+                      className="p-3 rounded-xl border border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-[11px]">
+                          {userName.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900">{userName}</p>
+                          <p className="text-[10px] text-gray-500">{dateStr}</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                        {t("business_details.redeemed") || "Redeemed"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

@@ -14,6 +14,7 @@ import {
   Settings,
   AlertCircle,
   Trash2,
+  Tag,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -293,19 +294,29 @@ export default function MyBusinessPage() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xs font-bold text-slate-500">Subscription:</span>
-                    <Badge
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                        business.hasActiveSubscription
-                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                          : "bg-rose-500/10 text-rose-600 border-rose-500/20"
-                      }`}
-                      variant="outline"
-                    >
-                      {business.hasActiveSubscription ? "Active" : "Inactive / Unpaid"}
-                    </Badge>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-slate-500">Subscription:</span>
+                      <Badge
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                          business.hasActiveSubscription
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                            : "bg-rose-500/10 text-rose-600 border-rose-500/20"
+                        }`}
+                        variant="outline"
+                      >
+                        {business.hasActiveSubscription ? "Active" : "Inactive / Unpaid"}
+                      </Badge>
+                    </div>
+
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs">
+                      <Tag size={11} className="text-purple-600" />
+                      <span>
+                        {business.discountsRedeemed ?? business.offer?.redemptionsCount ?? 0} {t("business_details.discounts_redeemed") || "Discounts Redeemed"}
+                      </span>
+                    </div>
                   </div>
+
 
                   <p className="text-sm text-slate-600 line-clamp-2 mb-4 font-medium leading-relaxed">
                     {business.description}

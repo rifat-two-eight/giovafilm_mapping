@@ -380,8 +380,15 @@
     "instagram": "Instagram",
     "business_hours": "Business Hours",
     "no_hours_listed": "No specific hours listed.",
-    "view_public_page": "View Public Page"
+    "view_public_page": "View Public Page",
+    "discounts_redeemed": "Discounts Redeemed",
+    "view_redemptions": "View Redemption History",
+    "redemption_history": "Discount Redemption History",
+    "no_redemptions_yet": "No discounts have been redeemed yet.",
+    "claims": "claims",
+    "redeemed": "Redeemed"
   },
+
   "footer": {
     "tagline": "Curating the world's most authentic travel experiences through interactive, community-driven digital maps.",
     "platform": "PLATFORM",

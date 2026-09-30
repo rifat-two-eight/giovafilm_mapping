@@ -380,8 +380,15 @@
     "instagram": "Instagram",
     "business_hours": "Horario Comercial",
     "no_hours_listed": "No hay horarios específicos listados.",
-    "view_public_page": "Ver Página Pública"
+    "view_public_page": "Ver Página Pública",
+    "discounts_redeemed": "Descuentos Canjeados",
+    "view_redemptions": "Ver Historial de Canjes",
+    "redemption_history": "Historial de Canjes de Descuentos",
+    "no_redemptions_yet": "Aún no se han canjeado descuentos.",
+    "claims": "canjes",
+    "redeemed": "Canjeado"
   },
+
   "footer": {
     "tagline": "Creando las experiencias de viaje más auténticas del mundo a través de mapas digitales interactivos impulsados por la comunidad.",
     "platform": "PLATAFORMA",
