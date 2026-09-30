@@ -889,77 +889,118 @@ export default function RewardsAdminPage() {
 
             {/* Quick Tier Assignment & Target XP */}
             <div className="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200/80 space-y-3">
-              <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center justify-between">
-                  <span>Assign to Tier / Level</span>
-                  <span className="text-[11px] font-normal text-blue-600">Auto-sets XP requirement</span>
-                </Label>
-                <select
-                  value={
-                    allLevels.find((l: any) => String(l.points ?? l.xp) === String(target))?.level ?? "custom"
-                  }
-                  onChange={(e) => {
-                    const selectedVal = e.target.value;
-                    if (selectedVal !== "custom") {
-                      const found = allLevels.find((l: any) => String(l.level) === selectedVal);
-                      if (found) {
-                        setTarget(String(found.points ?? found.xp ?? 0));
-                      }
-                    }
-                  }}
-                  className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="custom">-- Custom XP Target --</option>
-                  {allLevels.map((lvl: any) => {
-                    const name = getLocalized(lvl.name, language) || lvl.title || lvl.name;
-                    const xp = Number(lvl.points ?? lvl.xp) || 0;
-                    return (
-                      <option key={lvl.level} value={String(lvl.level)}>
-                        Level {lvl.level}: {name} ({xp.toLocaleString()} XP)
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              {(() => {
+                const matchedTier = allLevels.find(
+                  (l: any) => String(l.points ?? l.xp) === String(target)
+                );
+                return (
+                  <>
+                    <div className="space-y-1">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center justify-between">
+                        <span>Assign to Tier / Level</span>
+                        {matchedTier ? (
+                          <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                            <CheckCircle2 size={13} />
+                            Requirement: {(Number(matchedTier.points ?? matchedTier.xp) || 0).toLocaleString()} XP
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-amber-600">
+                            Custom XP Requirement
+                          </span>
+                        )}
+                      </Label>
+                      <select
+                        value={matchedTier ? String(matchedTier.level) : "custom"}
+                        onChange={(e) => {
+                          const selectedVal = e.target.value;
+                          if (selectedVal !== "custom") {
+                            const found = allLevels.find((l: any) => String(l.level) === selectedVal);
+                            if (found) {
+                              setTarget(String(found.points ?? found.xp ?? 0));
+                            }
+                          } else {
+                            setTarget("");
+                          }
+                        }}
+                        className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      >
+                        {allLevels.map((lvl: any) => {
+                          const name = getLocalized(lvl.name, language) || lvl.title || lvl.name;
+                          const xp = Number(lvl.points ?? lvl.xp) || 0;
+                          return (
+                            <option key={lvl.level} value={String(lvl.level)}>
+                              Level {lvl.level}: {name} ({xp.toLocaleString()} XP)
+                            </option>
+                          );
+                        })}
+                        <option value="custom">-- Custom XP Target --</option>
+                      </select>
+                    </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {/* Target XP threshold */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                    {t("rewards_admin.points_target") || "XP Points Required"}
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="500"
-                    value={target}
-                    onChange={(e) => setTarget(e.target.value)}
-                    className="rounded-xl h-11 font-bold text-amber-900 bg-white"
-                    required
-                  />
-                </div>
+                    {!matchedTier ? (
+                      <div className="grid grid-cols-2 gap-3 animate-in fade-in duration-200">
+                        {/* Custom Target XP threshold */}
+                        <div className="space-y-1">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-amber-700">
+                            {t("rewards_admin.points_target") || "Custom XP Points Required"}
+                          </Label>
+                          <Input
+                            type="number"
+                            placeholder="e.g. 500"
+                            value={target}
+                            onChange={(e) => setTarget(e.target.value)}
+                            className="rounded-xl h-11 font-bold text-amber-900 bg-white border-amber-200"
+                            required
+                          />
+                        </div>
 
-                {/* Map reference */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                    {t("rewards_admin.attach_map_optional") || "Attach Map (Optional)"}
-                  </Label>
-                  <select
-                    value={mapId}
-                    onChange={(e) => setMapId(e.target.value)}
-                    className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  >
-                    <option value="" className="text-gray-900 bg-white">
-                      {isMapType ? "User Chooses Any Map" : "No Specific Map"}
-                    </option>
-                    {maps.map((map: any) => (
-                      <option key={map._id} value={map._id} className="text-gray-900 bg-white">
-                        {map.name || map.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                        {/* Map reference */}
+                        <div className="space-y-1">
+                          <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                            {t("rewards_admin.attach_map_optional") || "Attach Map (Optional)"}
+                          </Label>
+                          <select
+                            value={mapId}
+                            onChange={(e) => setMapId(e.target.value)}
+                            className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                          >
+                            <option value="" className="text-gray-900 bg-white">
+                              {isMapType ? "User Chooses Any Map" : "No Specific Map"}
+                            </option>
+                            {maps.map((map: any) => (
+                              <option key={map._id} value={map._id} className="text-gray-900 bg-white">
+                                {map.name || map.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                          {t("rewards_admin.attach_map_optional") || "Attach Map (Optional)"}
+                        </Label>
+                        <select
+                          value={mapId}
+                          onChange={(e) => setMapId(e.target.value)}
+                          className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        >
+                          <option value="" className="text-gray-900 bg-white">
+                            {isMapType ? "User Chooses Any Map" : "No Specific Map"}
+                          </option>
+                          {maps.map((map: any) => (
+                            <option key={map._id} value={map._id} className="text-gray-900 bg-white">
+                              {map.name || map.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
+
 
             {/* File uploads section */}
             <div className="grid grid-cols-2 gap-4 pt-1">
