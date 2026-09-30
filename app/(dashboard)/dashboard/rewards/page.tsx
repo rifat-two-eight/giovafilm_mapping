@@ -10,72 +10,124 @@ import {
   useUpdateAwardConfigMutation,
   useCreateAwardConfigMutation,
   useDeleteAwardConfigMutation,
+  useGetLevelConfigsQuery,
+  useCreateLevelConfigMutation,
+  useUpdateLevelConfigMutation,
+  useDeleteLevelConfigMutation,
 } from "@/redux/features/award/awardApi";
 import { getImageUrl, getLocalized } from "@/lib/utils";
-import { Edit, Image as ImageIcon, Plus, Upload, X, MapPin, FileText, Trash2, Award, Percent, FileCode, Gift } from "lucide-react";
+import {
+  Edit,
+  Image as ImageIcon,
+  Plus,
+  Upload,
+  X,
+  MapPin,
+  FileText,
+  Trash2,
+  Award,
+  Percent,
+  FileCode,
+  Gift,
+  Layers,
+  CheckCircle2,
+  ChevronRight,
+} from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-const LEVEL_THRESHOLDS = [
-  { level: 0, title: "Explorador", xp: 0 },
-  { level: 1, title: "Aventurero", xp: 100 },
-  { level: 2, title: "Tlacuilo", xp: 200 },
-  { level: 3, title: "Expedicionario", xp: 400 },
-  { level: 4, title: "Viajero", xp: 700 },
-  { level: 5, title: "Chasqui", xp: 1300 },
-  { level: 6, title: "Cronista", xp: 2200 },
-  { level: 7, title: "Baquiano", xp: 3500 },
-  { level: 8, title: "Cartógrafo", xp: 5500 },
-  { level: 9, title: "Maestro Ruta", xp: 8500 },
-  { level: 10, title: "Leyenda", xp: 13000 },
-  { level: 11, title: "Gran Leyenda", xp: 20000 },
-  { level: 12, title: "Mítico", xp: 30000 },
-  { level: 13, title: "Inmortal", xp: 45000 },
-  { level: 14, title: "Supremo", xp: 65000 },
+const DEFAULT_LEVEL_THRESHOLDS = [
+  { level: 0, title: "Explorador", name: "Explorador", xp: 0, points: 0, reviews: 0 },
+  { level: 1, title: "Aventurero", name: "Aventurero", xp: 100, points: 100, reviews: 6 },
+  { level: 2, title: "Tlacuilo", name: "Tlacuilo", xp: 200, points: 200, reviews: 13 },
+  { level: 3, title: "Expedicionario", name: "Expedicionario", xp: 400, points: 400, reviews: 26 },
+  { level: 4, title: "Viajero", name: "Viajero", xp: 700, points: 700, reviews: 46 },
+  { level: 5, title: "Chasqui", name: "Chasqui", xp: 1300, points: 1300, reviews: 86 },
+  { level: 6, title: "Cronista", name: "Cronista", xp: 2200, points: 2200, reviews: 146 },
+  { level: 7, title: "Baquiano", name: "Baquiano", xp: 3500, points: 3500, reviews: 233 },
+  { level: 8, title: "Cartógrafo", name: "Cartógrafo", xp: 5500, points: 5500, reviews: 366 },
+  { level: 9, title: "Maestro Ruta", name: "Maestro Ruta", xp: 8500, points: 8500, reviews: 566 },
+  { level: 10, title: "Leyenda", name: "Leyenda", xp: 13000, points: 13000, reviews: 866 },
+  { level: 11, title: "Gran Leyenda", name: "Gran Leyenda", xp: 20000, points: 20000, reviews: 1333 },
+  { level: 12, title: "Mítico", name: "Mítico", xp: 30000, points: 30000, reviews: 2000 },
+  { level: 13, title: "Inmortal", name: "Inmortal", xp: 45000, points: 45000, reviews: 3000 },
+  { level: 14, title: "Supremo", name: "Supremo", xp: 65000, points: 65000, reviews: 4333 },
 ];
 
-function getLevelInfo(targetXp: number) {
-  const exact = LEVEL_THRESHOLDS.find((l) => l.xp === targetXp);
+function getLevelInfoFromList(targetXp: number, levels: any[]) {
+  const sorted = [...levels].sort(
+    (a, b) => (Number(a.points ?? a.xp) || 0) - (Number(b.points ?? b.xp) || 0)
+  );
+  const exact = sorted.find((l) => (Number(l.points ?? l.xp) || 0) === targetXp);
   if (exact) return exact;
-  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-    if (targetXp >= LEVEL_THRESHOLDS[i].xp) {
-      return LEVEL_THRESHOLDS[i];
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (targetXp >= (Number(sorted[i].points ?? sorted[i].xp) || 0)) {
+      return sorted[i];
     }
   }
-  return { level: 0, title: "Explorador", xp: 0 };
+  return sorted[0] || { level: 0, title: "Explorador", name: "Explorador", xp: 0, points: 0, reviews: 0 };
 }
 
 export default function RewardsAdminPage() {
   const { t, language } = useLanguage();
+  const [activeTab, setActiveTab] = useState<"rewards" | "tiers">("rewards");
+
+  // API Queries
   const { data: configsRes, isLoading: isLoadingConfigs } = useGetAwardConfigsQuery();
+  const { data: levelsRes, isLoading: isLoadingLevels } = useGetLevelConfigsQuery();
   const { data: mapsRes } = useGetMapsQuery({ limit: 100 });
+
+  // Reward mutations
   const [updateAwardConfig, { isLoading: isUpdating }] = useUpdateAwardConfigMutation();
   const [createAwardConfig, { isLoading: isCreating }] = useCreateAwardConfigMutation();
   const [deleteAwardConfig] = useDeleteAwardConfigMutation();
 
+  // Level / Tier mutations
+  const [createLevelConfig, { isLoading: isCreatingLevel }] = useCreateLevelConfigMutation();
+  const [updateLevelConfig, { isLoading: isUpdatingLevel }] = useUpdateLevelConfigMutation();
+  const [deleteLevelConfig] = useDeleteLevelConfigMutation();
+
   const configs = configsRes?.data || [];
   const maps = mapsRes?.data || [];
 
+  // Active tiers list (DB or fallback)
+  const allLevels = useMemo(() => {
+    if (levelsRes?.data && Array.isArray(levelsRes.data) && levelsRes.data.length > 0) {
+      return [...levelsRes.data].sort((a, b) => Number(a.level) - Number(b.level));
+    }
+    return DEFAULT_LEVEL_THRESHOLDS;
+  }, [levelsRes?.data]);
+
+  // Reward modal & filter states
   const [open, setOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [levelFilter, setLevelFilter] = useState<string>("all");
 
+  // Tier modal states
+  const [tierModalOpen, setTierModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<any>(null);
+  const [isTierCreateMode, setIsTierCreateMode] = useState(false);
+  const [tierLevel, setTierLevel] = useState<number>(0);
+  const [tierName, setTierName] = useState<string>("");
+  const [tierPoints, setTierPoints] = useState<number>(0);
+  const [tierReviews, setTierReviews] = useState<number>(0);
+  const [tierDescription, setTierDescription] = useState<string>("");
+
   const sortedAndFilteredConfigs = useMemo(() => {
     const list = [...configs];
-    // Sort strictly by target XP ascending so rewards are ordered by level
     list.sort((a, b) => (Number(a.target) || 0) - (Number(b.target) || 0));
 
     if (levelFilter === "all") return list;
     return list.filter((r) => {
-      const info = getLevelInfo(Number(r.target) || 0);
+      const info = getLevelInfoFromList(Number(r.target) || 0, allLevels);
       return String(info.level) === levelFilter;
     });
-  }, [configs, levelFilter]);
+  }, [configs, levelFilter, allLevels]);
 
-  // Form states
+  // Form states for Reward
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [target, setTarget] = useState("");
@@ -83,18 +135,21 @@ export default function RewardsAdminPage() {
   const [type, setType] = useState("PDF Itinerary");
   const [discountPercentage, setDiscountPercentage] = useState("");
 
-  // File upload states
+  // File upload states for Reward
   const coverInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
-  const handleOpenCreate = () => {
+  // ----------------------------------------------------
+  // Reward Handlers
+  // ----------------------------------------------------
+  const handleOpenCreateReward = () => {
     setSelectedReward(null);
     setTitle("");
     setDescription("");
-    setTarget("500");
+    setTarget("100");
     setMapId("");
     setType("PDF Itinerary");
     setDiscountPercentage("");
@@ -105,7 +160,7 @@ export default function RewardsAdminPage() {
     setOpen(true);
   };
 
-  const handleOpenEdit = (reward: any) => {
+  const handleOpenEditReward = (reward: any) => {
     setSelectedReward(reward);
     setTitle(getLocalized(reward.title, language) || "");
     setDescription(getLocalized(reward.description, language) || "");
@@ -120,27 +175,27 @@ export default function RewardsAdminPage() {
     setOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    appAlert.fire({
-      title: t("common.are_you_sure"),
-      text: t("rewards_admin.delete_confirm") || "You won't be able to revert this reward deletion!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await deleteAwardConfig(id).unwrap();
-          toast.success(t("rewards_admin.deleted_successfully") || "Reward deleted successfully");
-        } catch (error: any) {
-          toast.error(
-            error?.data?.message || error?.message || "Failed to delete reward",
-          );
-          console.error("Failed to delete reward:", error);
+  const handleDeleteReward = async (id: string) => {
+    appAlert
+      .fire({
+        title: t("common.are_you_sure") || "Are you sure?",
+        text: t("rewards_admin.delete_confirm") || "You won't be able to revert this reward deletion!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await deleteAwardConfig(id).unwrap();
+            toast.success(t("rewards_admin.deleted_successfully") || "Reward deleted successfully");
+          } catch (error: any) {
+            toast.error(error?.data?.message || error?.message || "Failed to delete reward");
+            console.error("Failed to delete reward:", error);
+          }
         }
-      }
-    });
+      });
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +213,7 @@ export default function RewardsAdminPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitReward = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
@@ -167,10 +222,11 @@ export default function RewardsAdminPage() {
         title,
         description,
         target: Number(target) || 0,
-        mapId: (type === "Free Map" || mapId) ? (mapId || null) : null,
-        discountPercentage: (type === "Exclusive Discount" || type === "Permanent Discount")
-          ? (Number(discountPercentage) || 0)
-          : undefined,
+        mapId: type === "Free Map" || mapId ? mapId || null : null,
+        discountPercentage:
+          type === "Exclusive Discount" || type === "Permanent Discount"
+            ? Number(discountPercentage) || 0
+            : undefined,
       };
 
       if (!isCreateMode && selectedReward) {
@@ -189,19 +245,107 @@ export default function RewardsAdminPage() {
 
       if (isCreateMode) {
         await createAwardConfig(formData).unwrap();
-        toast.success(t("rewards_admin.created_success") || "Reward created successfully");
+        toast.success(t("rewards_admin.created_successfully") || "Reward created successfully");
       } else {
-        if (!selectedReward) return;
-        await updateAwardConfig({ id: selectedReward._id, data: formData }).unwrap();
-        toast.success(t("rewards_admin.updated_success") || "Reward updated successfully");
+        await updateAwardConfig({
+          id: selectedReward._id,
+          data: formData,
+        }).unwrap();
+        toast.success(t("rewards_admin.updated_successfully") || "Reward updated successfully");
       }
+
       setOpen(false);
     } catch (error: any) {
-      toast.error(error?.data?.message || t("rewards_admin.failed_save") || "Failed to save reward");
-      console.error(error);
+      toast.error(error?.data?.message || error?.message || "Failed to save reward");
+      console.error("Failed to save reward:", error);
     }
   };
 
+  // ----------------------------------------------------
+  // Tier / Level Handlers
+  // ----------------------------------------------------
+  const handleOpenCreateTier = () => {
+    setSelectedTier(null);
+    const maxLevel = allLevels.length > 0 ? Math.max(...allLevels.map((l: any) => Number(l.level) || 0)) : -1;
+    setTierLevel(maxLevel + 1);
+    setTierName("");
+    setTierPoints(maxLevel >= 0 ? (allLevels[allLevels.length - 1].points || allLevels[allLevels.length - 1].xp || 0) + 15000 : 0);
+    setTierReviews(maxLevel >= 0 ? (allLevels[allLevels.length - 1].reviews || 0) + 500 : 0);
+    setTierDescription("");
+    setIsTierCreateMode(true);
+    setTierModalOpen(true);
+  };
+
+  const handleOpenEditTier = (tier: any) => {
+    setSelectedTier(tier);
+    setTierLevel(Number(tier.level) || 0);
+    setTierName(getLocalized(tier.name, language) || tier.title || tier.name || "");
+    setTierPoints(Number(tier.points ?? tier.xp) || 0);
+    setTierReviews(Number(tier.reviews) || 0);
+    setTierDescription(getLocalized(tier.description, language) || "");
+    setIsTierCreateMode(false);
+    setTierModalOpen(true);
+  };
+
+  const handleDeleteTier = async (tier: any) => {
+    if (!tier._id) {
+      toast.error(t("rewards_admin.cannot_delete_default") || "Default initial tier cannot be deleted.");
+      return;
+    }
+
+    appAlert
+      .fire({
+        title: t("common.are_you_sure") || "Are you sure?",
+        text: `Delete Level ${tier.level} (${getLocalized(tier.name, language) || tier.title || tier.name})? This may affect users progressing to this tier!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: t("common.yes_delete_it") || "Yes, delete it!",
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await deleteLevelConfig(tier._id).unwrap();
+            toast.success(t("rewards_admin.tier_deleted") || "Level tier deleted successfully");
+          } catch (error: any) {
+            toast.error(error?.data?.message || error?.message || "Failed to delete tier");
+          }
+        }
+      });
+  };
+
+  const handleSubmitTier = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const payload = {
+        level: Number(tierLevel),
+        name: tierName,
+        points: Number(tierPoints) || 0,
+        reviews: Number(tierReviews) || 0,
+        description: tierDescription,
+      };
+
+      if (isTierCreateMode) {
+        await createLevelConfig(payload).unwrap();
+        toast.success(t("rewards_admin.tier_created") || `Level ${tierLevel} (${tierName}) created successfully!`);
+      } else if (selectedTier?._id) {
+        await updateLevelConfig({ id: selectedTier._id, data: payload }).unwrap();
+        toast.success(t("rewards_admin.tier_updated") || `Level ${tierLevel} updated successfully!`);
+      } else {
+        // Default tier being edited for the first time
+        await createLevelConfig(payload).unwrap();
+        toast.success(t("rewards_admin.tier_updated") || `Level ${tierLevel} saved to database!`);
+      }
+
+      setTierModalOpen(false);
+    } catch (error: any) {
+      toast.error(error?.data?.message || error?.message || "Failed to save tier/level");
+      console.error("Failed to save level config:", error);
+    }
+  };
+
+  // Helper Badge Renderers
   const getTypeBadge = (rewardType: string) => {
     if (rewardType === "PDF Itinerary" || rewardType === "Gourmet Guide") {
       return (
@@ -242,201 +386,455 @@ export default function RewardsAdminPage() {
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{t("rewards_admin.title") || "Rewards & Badges Management"}</h1>
-          <p className="text-xs text-gray-500 mt-1">{t("rewards_admin.subtitle") || "Configure XP targets, downloadable itineraries, free map unlocks, and achievement badges"}</p>
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
+            {t("rewards_admin.title") || "Rewards & Tiers Management"}
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">
+            {t("rewards_admin.subtitle") ||
+              "Configure gamification levels, progression tiers, unlockable gifts, discounts, and PDF itineraries"}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Level Filter Dropdown */}
-          <select
-            value={levelFilter}
-            onChange={(e) => setLevelFilter(e.target.value)}
-            className="h-10 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          >
-            <option value="all">All Levels (0 - 14)</option>
-            {LEVEL_THRESHOLDS.map((item) => (
-              <option key={item.level} value={String(item.level)}>
-                Level {item.level}: {item.title} ({item.xp.toLocaleString()} XP)
-              </option>
-            ))}
-          </select>
 
-          <Button
-            onClick={handleOpenCreate}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-5 py-2.5 shadow-sm transition-all cursor-pointer"
-          >
-            <Plus size={16} />
-            {t("rewards_admin.add_reward") || "Add New Reward"}
-          </Button>
+        {/* Action Buttons based on Active Tab */}
+        <div className="flex items-center gap-3">
+          {activeTab === "rewards" ? (
+            <>
+              {/* Level Filter Dropdown */}
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="h-10 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              >
+                <option value="all">All Levels ({allLevels.length} Tiers)</option>
+                {allLevels.map((item: any) => {
+                  const name = getLocalized(item.name, language) || item.title || item.name;
+                  const xp = Number(item.points ?? item.xp) || 0;
+                  return (
+                    <option key={item.level} value={String(item.level)}>
+                      Level {item.level}: {name} ({xp.toLocaleString()} XP)
+                    </option>
+                  );
+                })}
+              </select>
+
+              <Button
+                onClick={handleOpenCreateReward}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-5 py-2.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Plus size={16} />
+                {t("rewards_admin.add_reward") || "Add New Reward"}
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={handleOpenCreateTier}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-5 py-2.5 shadow-sm transition-all cursor-pointer"
+            >
+              <Plus size={16} />
+              {t("rewards_admin.add_tier") || "Add New Tier / Level"}
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Grid List Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/80 text-[11px] uppercase font-bold text-gray-500 tracking-wider">
-                <th className="px-6 py-4 text-left">Level & Rank</th>
-                <th className="px-6 py-4 text-left">{t("rewards_admin.cover") || "Icon"}</th>
-                <th className="px-6 py-4 text-left">{t("rewards_admin.reward_name") || "Reward & Description"}</th>
-                <th className="px-6 py-4 text-left">{t("rewards_admin.reward_type") || "Category / Type"}</th>
-                <th className="px-6 py-4 text-left">{t("rewards_admin.points_target") || "XP Target"}</th>
-                <th className="px-6 py-4 text-left">{t("rewards_admin.attached_map_file") || "Attachments & Details"}</th>
-                <th className="px-6 py-4 text-right">{t("rewards_admin.actions") || "Actions"}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoadingConfigs ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      {t("rewards_admin.loading_configs") || "Loading reward configurations..."}
-                    </div>
-                  </td>
+      {/* Modern Tabs Navigation */}
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-3 mb-6">
+        <button
+          onClick={() => setActiveTab("rewards")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+            activeTab === "rewards"
+              ? "bg-blue-600 text-white shadow-sm shadow-blue-500/25"
+              : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+          }`}
+        >
+          <Gift size={15} />
+          <span>{t("rewards_admin.rewards_tab") || "Rewards Catalog"}</span>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+              activeTab === "rewards" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {configs.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("tiers")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+            activeTab === "tiers"
+              ? "bg-blue-600 text-white shadow-sm shadow-blue-500/25"
+              : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+          }`}
+        >
+          <Award size={15} />
+          <span>{t("rewards_admin.tiers_tab") || "Tiers & Progression Levels"}</span>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+              activeTab === "tiers" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {allLevels.length}
+          </span>
+        </button>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* TAB 1: REWARDS CATALOG */}
+      {/* ========================================================================= */}
+      {activeTab === "rewards" && (
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50/80 text-[11px] uppercase font-bold text-gray-500 tracking-wider">
+                  <th className="px-6 py-4 text-left">Level & Rank</th>
+                  <th className="px-6 py-4 text-left">{t("rewards_admin.cover") || "Icon"}</th>
+                  <th className="px-6 py-4 text-left">
+                    {t("rewards_admin.reward_name") || "Reward & Description"}
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    {t("rewards_admin.reward_type") || "Category / Type"}
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    {t("rewards_admin.points_target") || "XP Target"}
+                  </th>
+                  <th className="px-6 py-4 text-left">
+                    {t("rewards_admin.attached_map_file") || "Attachments & Details"}
+                  </th>
+                  <th className="px-6 py-4 text-right">
+                    {t("rewards_admin.actions") || "Actions"}
+                  </th>
                 </tr>
-              ) : sortedAndFilteredConfigs.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500 font-medium text-sm">
-                    {t("rewards_admin.no_rewards") || "No rewards found. Click 'Add New Reward' to create one."}
-                  </td>
-                </tr>
-              ) : (
-                sortedAndFilteredConfigs.map((reward: any) => {
-                  const levelInfo = getLevelInfo(Number(reward.target) || 0);
-                  return (
-                    <tr key={reward._id} className="hover:bg-gray-50/60 transition-colors">
-                      {/* Level Badge */}
-                      <td className="px-6 py-4">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-blue-50 text-blue-800 border border-blue-200/60 shadow-2xs">
-                          <Award size={13} className="text-blue-600" />
-                          <span>Level {levelInfo.level}</span>
-                        </div>
-                        <div className="text-[11px] font-bold text-gray-500 mt-1">
-                          {levelInfo.title}
-                        </div>
-                      </td>
-
-                      {/* Cover photo */}
-                      <td className="px-6 py-4">
-                        {reward.coverPhoto ? (
-                          <img
-                            src={getImageUrl(reward.coverPhoto)}
-                            alt={getLocalized(reward.title, language)}
-                            className="w-12 h-12 object-cover rounded-xl border border-gray-200 shadow-2xs"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400 border border-gray-200">
-                            <ImageIcon size={20} />
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {isLoadingConfigs ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        {t("rewards_admin.loading_configs") || "Loading reward configurations..."}
+                      </div>
+                    </td>
+                  </tr>
+                ) : sortedAndFilteredConfigs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 font-medium text-sm">
+                      {t("rewards_admin.no_rewards") || "No rewards found. Click 'Add New Reward' to create one."}
+                    </td>
+                  </tr>
+                ) : (
+                  sortedAndFilteredConfigs.map((reward: any) => {
+                    const levelInfo = getLevelInfoFromList(Number(reward.target) || 0, allLevels);
+                    const levelTitle = getLocalized(levelInfo.name, language) || levelInfo.title || levelInfo.name;
+                    return (
+                      <tr key={reward._id} className="hover:bg-gray-50/60 transition-colors">
+                        {/* Level Badge */}
+                        <td className="px-6 py-4">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-blue-50 text-blue-800 border border-blue-200/60 shadow-2xs">
+                            <Award size={13} className="text-blue-600" />
+                            <span>Level {levelInfo.level}</span>
                           </div>
-                        )}
-                      </td>
-
-                      {/* Title & Description */}
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-gray-900 text-sm">{getLocalized(reward.title, language)}</div>
-                        <div className="text-xs text-gray-500 line-clamp-2 max-w-md mt-0.5 font-normal leading-relaxed">
-                          {getLocalized(reward.description, language)}
-                        </div>
-                      </td>
-
-                      {/* Type Badge */}
-                      <td className="px-6 py-4">
-                        {getTypeBadge(reward.type)}
-                      </td>
-
-                      {/* Points target */}
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/50 inline-block">
-                          {reward.target?.toLocaleString()} XP
-                        </div>
-                        {reward.discountPercentage !== undefined && (
-                          <div className="text-xs text-purple-700 font-bold mt-1">
-                            Discount: {reward.discountPercentage}%
+                          <div className="text-[11px] font-bold text-gray-500 mt-1">
+                            {levelTitle}
                           </div>
-                        )}
-                      </td>
+                        </td>
 
-                      {/* Attached elements */}
-                      <td className="px-6 py-4 text-xs space-y-1">
-                        {reward.mapId && (
-                          <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
-                            <MapPin size={13} />
-                            <span>Map: {reward.mapId?.name || reward.mapId?.title}</span>
-                          </div>
-                        )}
-                        {reward.fileUrl && (
-                          <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
-                            <FileText size={13} />
-                            <span className="truncate max-w-[160px]">PDF: {reward.fileUrl.split("/").pop()}</span>
-                          </div>
-                        )}
-                        {!reward.mapId && !reward.fileUrl && (
-                          <span className="text-gray-400 italic">No attachments required</span>
-                        )}
-                      </td>
+                        {/* Cover photo */}
+                        <td className="px-6 py-4">
+                          {reward.coverPhoto ? (
+                            <img
+                              src={getImageUrl(reward.coverPhoto)}
+                              alt={getLocalized(reward.title, language)}
+                              className="w-12 h-12 object-cover rounded-xl border border-gray-200 shadow-2xs"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400 border border-gray-200">
+                              <ImageIcon size={20} />
+                            </div>
+                          )}
+                        </td>
 
-                      {/* Actions */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleOpenEdit(reward)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
-                          >
-                            <Edit size={14} /> {t("common.edit") || "Edit"}
-                          </button>
-                          <button
-                            onClick={() => handleDelete(reward._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider cursor-pointer"
-                          >
-                            <Trash2 size={14} /> {t("common.delete") || "Delete"}
-                          </button>
+                        {/* Title & Description */}
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-gray-900 text-sm">
+                            {getLocalized(reward.title, language)}
+                          </div>
+                          <div className="text-xs text-gray-500 line-clamp-2 max-w-md mt-0.5 font-normal leading-relaxed">
+                            {getLocalized(reward.description, language)}
+                          </div>
+                        </td>
+
+                        {/* Type Badge */}
+                        <td className="px-6 py-4">{getTypeBadge(reward.type)}</td>
+
+                        {/* Points target */}
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/50 inline-block">
+                            {reward.target?.toLocaleString()} XP
+                          </div>
+                          {reward.discountPercentage !== undefined && (
+                            <div className="text-xs text-purple-700 font-bold mt-1">
+                              Discount: {reward.discountPercentage}%
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Attached elements */}
+                        <td className="px-6 py-4 text-xs space-y-1">
+                          {reward.mapId && (
+                            <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
+                              <MapPin size={13} />
+                              <span>Map: {reward.mapId?.name || reward.mapId?.title}</span>
+                            </div>
+                          )}
+                          {reward.fileUrl && (
+                            <div className="flex items-center gap-1.5 text-emerald-600 font-semibold truncate max-w-[200px]">
+                              <FileText size={13} />
+                              <a
+                                href={getImageUrl(reward.fileUrl)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hover:underline truncate"
+                              >
+                                {reward.fileUrl.split("/").pop()}
+                              </a>
+                            </div>
+                          )}
+                          {!reward.mapId && !reward.fileUrl && (
+                            <span className="text-gray-400 italic">None</span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenEditReward(reward)}
+                              className="h-9 w-9 p-0 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer"
+                              title="Edit Reward"
+                            >
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteReward(reward._id)}
+                              className="h-9 w-9 p-0 rounded-xl text-gray-600 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                              title="Delete Reward"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 2: TIERS & PROGRESSION LEVELS */}
+      {/* ========================================================================= */}
+      {activeTab === "tiers" && (
+        <div className="space-y-4">
+          {/* Info Card */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/70 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-blue-900 text-sm flex items-center gap-2">
+                <Award size={16} className="text-blue-600" />
+                Gamification Tiers & Milestones
+              </h3>
+              <p className="text-xs text-blue-700/80 mt-1 max-w-2xl leading-relaxed">
+                Users automatically level up by collecting XP points from reviews, photos, and visits. You can add new tiers or edit existing thresholds here.
+              </p>
+            </div>
+            <Button
+              onClick={handleOpenCreateTier}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl px-4 py-2 cursor-pointer shadow-sm flex items-center gap-2 self-start sm:self-auto shrink-0"
+            >
+              <Plus size={15} />
+              Add Tier / Level
+            </Button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50/80 text-[11px] uppercase font-bold text-gray-500 tracking-wider">
+                    <th className="px-6 py-4 text-left">Level #</th>
+                    <th className="px-6 py-4 text-left">Rank & Tier Name</th>
+                    <th className="px-6 py-4 text-left">Minimum XP Required</th>
+                    <th className="px-6 py-4 text-left">Required Approved Reviews</th>
+                    <th className="px-6 py-4 text-left">Attached Rewards</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {isLoadingLevels ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                          Loading tiers & levels...
                         </div>
                       </td>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  ) : (
+                    allLevels.map((lvl: any) => {
+                      const tierDisplayName = getLocalized(lvl.name, language) || lvl.title || lvl.name;
+                      const xpRequired = Number(lvl.points ?? lvl.xp) || 0;
+                      const reviewsRequired = Number(lvl.reviews) || 0;
 
-      {/* Edit/Create Dialog */}
+                      // Count rewards assigned to this level
+                      const attachedRewards = configs.filter((c: any) => {
+                        const info = getLevelInfoFromList(Number(c.target) || 0, allLevels);
+                        return info.level === lvl.level;
+                      });
+
+                      return (
+                        <tr key={lvl.level} className="hover:bg-gray-50/60 transition-colors">
+                          {/* Level Number */}
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl font-black text-xs bg-slate-900 text-white shadow-2xs">
+                              {lvl.level}
+                            </span>
+                          </td>
+
+                          {/* Tier Name */}
+                          <td className="px-6 py-4">
+                            <div className="font-extrabold text-gray-900 text-sm flex items-center gap-2">
+                              <span>{tierDisplayName}</span>
+                              {lvl.level >= 10 && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                                  Elite
+                                </span>
+                              )}
+                            </div>
+                            {lvl.description && (
+                              <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                                {getLocalized(lvl.description, language)}
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Points / XP */}
+                          <td className="px-6 py-4">
+                            <span className="font-bold text-xs text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
+                              {xpRequired.toLocaleString()} XP
+                            </span>
+                          </td>
+
+                          {/* Reviews Required */}
+                          <td className="px-6 py-4">
+                            <span className="font-semibold text-xs text-gray-700 bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200">
+                              {reviewsRequired} reviews
+                            </span>
+                          </td>
+
+                          {/* Attached Rewards Count */}
+                          <td className="px-6 py-4">
+                            {attachedRewards.length > 0 ? (
+                              <button
+                                onClick={() => {
+                                  setLevelFilter(String(lvl.level));
+                                  setActiveTab("rewards");
+                                }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-200"
+                              >
+                                <Gift size={12} />
+                                <span>{attachedRewards.length} reward{attachedRewards.length > 1 ? "s" : ""}</span>
+                                <ChevronRight size={12} />
+                              </button>
+                            ) : (
+                              <span className="text-xs text-gray-400 italic">No rewards set</span>
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenEditTier(lvl)}
+                                className="h-9 px-3 rounded-xl text-xs font-bold text-blue-600 hover:bg-blue-50 cursor-pointer flex items-center gap-1"
+                              >
+                                <Edit size={14} />
+                                <span>Edit</span>
+                              </Button>
+
+                              {lvl._id && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteTier(lvl)}
+                                  className="h-9 w-9 p-0 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                                  title="Delete Tier"
+                                >
+                                  <Trash2 size={15} />
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 1: ADD / EDIT REWARD */}
+      {/* ========================================================================= */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xl rounded-3xl p-6 border-gray-100 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-gray-900">
-              {isCreateMode ? (t("rewards_admin.add_new_reward") || "Add New Reward") : `${t("rewards_admin.edit_reward") || "Edit Reward"}: ${selectedReward?.type}`}
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 bg-white">
+          <DialogHeader className="pb-3 border-b border-gray-100">
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Gift size={20} className="text-blue-600" />
+              {isCreateMode
+                ? t("rewards_admin.add_new_reward") || "Add New Reward"
+                : t("rewards_admin.edit_reward") || "Edit Reward"}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 pt-3">
-            {/* Reward Type */}
+          <form onSubmit={handleSubmitReward} className="space-y-4 pt-2">
+            {/* Category / Type */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.reward_type") || "Reward Type / Category"}</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                {t("rewards_admin.reward_category") || "Reward Category / Type"}
+              </Label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                required
               >
-                <optgroup label="Digital Downloads & Itineraries">
-                  <option value="PDF Itinerary">PDF Travel Itinerary</option>
-                  <option value="Gourmet Guide">Gourmet Guide (PDF)</option>
+                <optgroup label="Content & Downloadables">
+                  <option value="PDF Itinerary">PDF Itinerary</option>
+                  <option value="Gourmet Guide">Gourmet Guide</option>
                 </optgroup>
-                <optgroup label="Map Unlocks & Discounts">
+                <optgroup label="Map Perks & Unlocks">
                   <option value="Free Map">Free Map Unlock</option>
-                  <option value="Exclusive Discount">Exclusive Discount (%)</option>
-                  <option value="Permanent Discount">Permanent Discount (%)</option>
+                  <option value="Exclusive Discount">Exclusive Discount (Level Specific)</option>
+                  <option value="Permanent Discount">Permanent Map Discount</option>
                 </optgroup>
-                <optgroup label="Achievement Badges">
+                <optgroup label="Gamification & Status">
                   <option value="Top Reviewer">Top Reviewer Badge</option>
-                  <option value="Trail Master">Trail Master Badge</option>
-                  <option value="History Buff">History Buff Badge</option>
-                  <option value="Legendary Explorer">Legendary Explorer Badge</option>
+                  <option value="Trail Master">Trail Master Perk</option>
+                  <option value="History Buff">History Buff Perk</option>
+                  <option value="Legendary Explorer">Legendary Explorer Status</option>
                 </optgroup>
               </select>
             </div>
@@ -444,7 +842,9 @@ export default function RewardsAdminPage() {
             {/* Discount Percentage field (Shown ONLY for Discount Types) */}
             {isDiscountType && (
               <div className="space-y-1 animate-in fade-in duration-200">
-                <Label className="text-xs font-bold uppercase tracking-wider text-purple-700">{t("rewards_admin.discount_percentage") || "Discount Percentage (%)"}</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-purple-700">
+                  {t("rewards_admin.discount_percentage") || "Discount Percentage (%)"}
+                </Label>
                 <Input
                   type="number"
                   placeholder="e.g. 15"
@@ -460,7 +860,9 @@ export default function RewardsAdminPage() {
 
             {/* Title */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.reward_title") || "Reward Title"}</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                {t("rewards_admin.reward_title") || "Reward Title"}
+              </Label>
               <Input
                 placeholder="e.g. San Juan Heritage Tour PDF Itinerary"
                 value={title}
@@ -472,7 +874,9 @@ export default function RewardsAdminPage() {
 
             {/* Description */}
             <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.description") || "Description"}</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                {t("rewards_admin.description") || "Description"}
+              </Label>
               <textarea
                 rows={3}
                 placeholder="Describe what the user gets when unlocking this reward..."
@@ -483,45 +887,87 @@ export default function RewardsAdminPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* Target XP threshold */}
+            {/* Quick Tier Assignment & Target XP */}
+            <div className="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-200/80 space-y-3">
               <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.points_target") || "XP Points Required"}</Label>
-                <Input
-                  type="number"
-                  placeholder="500"
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  className="rounded-xl h-11 font-bold text-amber-900 bg-amber-50/20"
-                  required
-                />
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center justify-between">
+                  <span>Assign to Tier / Level</span>
+                  <span className="text-[11px] font-normal text-blue-600">Auto-sets XP requirement</span>
+                </Label>
+                <select
+                  value={
+                    allLevels.find((l: any) => String(l.points ?? l.xp) === String(target))?.level ?? "custom"
+                  }
+                  onChange={(e) => {
+                    const selectedVal = e.target.value;
+                    if (selectedVal !== "custom") {
+                      const found = allLevels.find((l: any) => String(l.level) === selectedVal);
+                      if (found) {
+                        setTarget(String(found.points ?? found.xp ?? 0));
+                      }
+                    }
+                  }}
+                  className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="custom">-- Custom XP Target --</option>
+                  {allLevels.map((lvl: any) => {
+                    const name = getLocalized(lvl.name, language) || lvl.title || lvl.name;
+                    const xp = Number(lvl.points ?? lvl.xp) || 0;
+                    return (
+                      <option key={lvl.level} value={String(lvl.level)}>
+                        Level {lvl.level}: {name} ({xp.toLocaleString()} XP)
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
 
-              {/* Map reference (Shown for Free Map or as optional) */}
-              <div className="space-y-1">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.attach_map_optional") || "Attach Specific Map (Optional)"}</Label>
-                <select
-                  value={mapId}
-                  onChange={(e) => setMapId(e.target.value)}
-                  className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="" className="text-gray-900 bg-white">
-                    {isMapType ? "User Chooses Any Map" : "No Specific Map Attached"}
-                  </option>
-                  {maps.map((map: any) => (
-                    <option key={map._id} value={map._id} className="text-gray-900 bg-white">
-                      {map.name || map.title}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Target XP threshold */}
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {t("rewards_admin.points_target") || "XP Points Required"}
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="500"
+                    value={target}
+                    onChange={(e) => setTarget(e.target.value)}
+                    className="rounded-xl h-11 font-bold text-amber-900 bg-white"
+                    required
+                  />
+                </div>
+
+                {/* Map reference */}
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {t("rewards_admin.attach_map_optional") || "Attach Map (Optional)"}
+                  </Label>
+                  <select
+                    value={mapId}
+                    onChange={(e) => setMapId(e.target.value)}
+                    className="w-full h-11 px-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  >
+                    <option value="" className="text-gray-900 bg-white">
+                      {isMapType ? "User Chooses Any Map" : "No Specific Map"}
                     </option>
-                  ))}
-                </select>
+                    {maps.map((map: any) => (
+                      <option key={map._id} value={map._id} className="text-gray-900 bg-white">
+                        {map.name || map.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
             {/* File uploads section */}
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-2 gap-4 pt-1">
               {/* Cover Image / Badge Icon Upload */}
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.cover_photo") || "Icon / Badge Image"}</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  {t("rewards_admin.cover_photo") || "Icon / Badge Image"}
+                </Label>
                 <div
                   onClick={() => coverInputRef.current?.click()}
                   className="border-2 border-dashed border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50"
@@ -535,7 +981,9 @@ export default function RewardsAdminPage() {
                   ) : (
                     <>
                       <ImageIcon size={22} className="text-gray-400" />
-                      <span className="text-[11px] font-bold text-gray-500">{t("rewards_admin.click_to_upload") || "Click to upload image"}</span>
+                      <span className="text-[11px] font-bold text-gray-500">
+                        {t("rewards_admin.click_to_upload") || "Click to upload image"}
+                      </span>
                     </>
                   )}
                   <input
@@ -548,9 +996,11 @@ export default function RewardsAdminPage() {
                 </div>
               </div>
 
-              {/* PDF Document Upload (Shown for PDF Types or when a document is attached) */}
+              {/* PDF Document Upload */}
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("rewards_admin.downloadable_pdf") || "Downloadable PDF (Optional)"}</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  {t("rewards_admin.downloadable_pdf") || "Downloadable PDF"}
+                </Label>
                 <div
                   onClick={() => pdfInputRef.current?.click()}
                   className="relative border-2 border-dashed border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50/50 h-[102px]"
@@ -580,7 +1030,9 @@ export default function RewardsAdminPage() {
                   ) : (
                     <>
                       <Upload size={22} className="text-gray-400" />
-                      <span className="text-[11px] font-bold text-gray-500">{t("rewards_admin.click_to_upload_pdf") || "Upload PDF File"}</span>
+                      <span className="text-[11px] font-bold text-gray-500">
+                        {t("rewards_admin.click_to_upload_pdf") || "Upload PDF File"}
+                      </span>
                     </>
                   )}
                   <input
@@ -609,7 +1061,126 @@ export default function RewardsAdminPage() {
                 disabled={isCreating || isUpdating}
                 className="h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm cursor-pointer"
               >
-                {isCreating || isUpdating ? (t("profile.saving") || "Saving...") : (t("profile.save_changes") || "Save Reward")}
+                {isCreating || isUpdating
+                  ? t("profile.saving") || "Saving..."
+                  : t("profile.save_changes") || "Save Reward"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: ADD / EDIT TIER / LEVEL */}
+      {/* ========================================================================= */}
+      <Dialog open={tierModalOpen} onOpenChange={setTierModalOpen}>
+        <DialogContent className="max-w-md rounded-3xl p-6 bg-white">
+          <DialogHeader className="pb-3 border-b border-gray-100">
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Award size={20} className="text-emerald-600" />
+              {isTierCreateMode
+                ? "Add New Gamification Tier / Level"
+                : `Edit Tier (Level ${tierLevel})`}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmitTier} className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Level Number */}
+              <div className="space-y-1">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Level Number
+                </Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={tierLevel}
+                  onChange={(e) => setTierLevel(Number(e.target.value))}
+                  disabled={!isTierCreateMode}
+                  className="rounded-xl h-11 font-extrabold text-gray-900 bg-gray-50/50"
+                  required
+                />
+              </div>
+
+              {/* Tier Name */}
+              <div className="space-y-1">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Tier / Rank Name
+                </Label>
+                <Input
+                  placeholder="e.g. Gran Maestro"
+                  value={tierName}
+                  onChange={(e) => setTierName(e.target.value)}
+                  className="rounded-xl h-11 font-semibold"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Min XP Required */}
+              <div className="space-y-1">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Required XP Points
+                </Label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 5000"
+                  value={tierPoints}
+                  onChange={(e) => setTierPoints(Number(e.target.value))}
+                  className="rounded-xl h-11 font-bold text-amber-800 bg-amber-50/30 border-amber-200"
+                  required
+                />
+              </div>
+
+              {/* Min Reviews Required */}
+              <div className="space-y-1">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Required Approved Reviews
+                </Label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 100"
+                  value={tierReviews}
+                  onChange={(e) => setTierReviews(Number(e.target.value))}
+                  className="rounded-xl h-11 font-bold text-blue-900 bg-blue-50/30 border-blue-200"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-1">
+              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Description (Optional)
+              </Label>
+              <textarea
+                rows={2}
+                placeholder="Brief description of this achievement level..."
+                value={tierDescription}
+                onChange={(e) => setTierDescription(e.target.value)}
+                className="w-full text-sm p-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Dialog Footer Actions */}
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setTierModalOpen(false)}
+                className="h-11 px-5 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer"
+              >
+                {t("common.cancel") || "Cancel"}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isCreatingLevel || isUpdatingLevel}
+                className="h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm cursor-pointer"
+              >
+                {isCreatingLevel || isUpdatingLevel ? "Saving..." : "Save Tier"}
               </Button>
             </div>
           </form>

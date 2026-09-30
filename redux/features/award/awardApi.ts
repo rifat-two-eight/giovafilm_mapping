@@ -52,6 +52,36 @@ export const awardApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Award"],
     }),
+    getLevelConfigs: builder.query<any, void>({
+      query: () => ({
+        url: "/awards/levels",
+        method: "GET",
+      }),
+      providesTags: ["Award"],
+    }),
+    createLevelConfig: builder.mutation({
+      query: (data) => ({
+        url: "/awards/levels",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Award"],
+    }),
+    updateLevelConfig: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/awards/levels/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Award"],
+    }),
+    deleteLevelConfig: builder.mutation({
+      query: (id) => ({
+        url: `/awards/levels/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Award"],
+    }),
   }),
 });
 
@@ -62,4 +92,9 @@ export const {
   useUpdateAwardConfigMutation,
   useCreateAwardConfigMutation,
   useDeleteAwardConfigMutation,
+  useGetLevelConfigsQuery,
+  useCreateLevelConfigMutation,
+  useUpdateLevelConfigMutation,
+  useDeleteLevelConfigMutation,
 } = awardApi;
+
