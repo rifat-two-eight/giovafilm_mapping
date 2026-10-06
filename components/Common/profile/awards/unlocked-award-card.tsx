@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Check } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface UnlockedAwardProps {
@@ -22,9 +21,6 @@ export function UnlockedAwardCard({
   onClick,
 }: UnlockedAwardProps) {
   const { language } = useLanguage();
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const hasLongDesc = !!(description && description.length > 70);
 
   return (
     <Card
@@ -51,37 +47,6 @@ export function UnlockedAwardCard({
           <h3 className="font-extrabold text-xs sm:text-sm md:text-base text-slate-900 leading-snug group-hover:text-amber-600 transition-colors line-clamp-2">
             {title}
           </h3>
-          {description && (
-            <div className="mt-1">
-              <p
-                className={`text-[11px] sm:text-xs text-slate-500 leading-relaxed ${
-                  isExpanded ? "whitespace-pre-line" : "line-clamp-2"
-                }`}
-              >
-                {description}
-              </p>
-              {hasLongDesc && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                  }}
-                  className="text-[10px] sm:text-[11px] font-bold text-amber-600 hover:text-amber-700 mt-0.5 inline-flex items-center gap-0.5 cursor-pointer select-none"
-                >
-                  {isExpanded ? (
-                    <>
-                      {language === "es" ? "Ver menos" : "See less"} <ChevronUp size={11} />
-                    </>
-                  ) : (
-                    <>
-                      {language === "es" ? "Ver más" : "See more"} <ChevronDown size={11} />
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="pt-1.5 mt-auto space-y-2">
@@ -96,14 +61,28 @@ export function UnlockedAwardCard({
             </div>
           </div>
 
-          {children || (
+          {children ? (
+            <div className="space-y-1.5 pt-1">
+              {children}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick?.();
+                }}
+                className="w-full text-center text-[10px] sm:text-[11px] font-bold text-amber-700 hover:text-amber-800 hover:underline cursor-pointer py-0.5"
+              >
+                {language === "es" ? "Ver más detalles" : "View more details"}
+              </button>
+            </div>
+          ) : (
             <div className="pt-1.5">
               <Button
                 type="button"
                 onClick={onClick}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl border-none shadow-sm shadow-amber-200/50 cursor-pointer"
               >
-                {language === "es" ? "Ver detalles" : "View Details"}
+                {language === "es" ? "Ver más detalles" : "View more details"}
               </Button>
             </div>
           )}

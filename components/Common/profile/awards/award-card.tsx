@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { LucideIcon, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { LucideIcon, Lock } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface AwardCardProps {
@@ -29,9 +28,6 @@ export function AwardCard({
   onClick,
 }: AwardCardProps) {
   const { language } = useLanguage();
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const hasLongDesc = !!(description && description.length > 70);
 
   return (
     <Card
@@ -68,39 +64,6 @@ export function AwardCard({
           <h3 className="font-extrabold text-xs sm:text-sm md:text-base text-slate-900 leading-snug group-hover:text-amber-600 transition-colors line-clamp-2">
             {title}
           </h3>
-
-          {/* Truncated / Symmetrical Description */}
-          {description && (
-            <div className="mt-1">
-              <p
-                className={`text-[11px] sm:text-xs text-slate-500 leading-relaxed ${
-                  isExpanded ? "whitespace-pre-line" : "line-clamp-2"
-                }`}
-              >
-                {description}
-              </p>
-              {hasLongDesc && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(!isExpanded);
-                  }}
-                  className="text-[10px] sm:text-[11px] font-bold text-amber-600 hover:text-amber-700 mt-0.5 inline-flex items-center gap-0.5 cursor-pointer select-none"
-                >
-                  {isExpanded ? (
-                    <>
-                      {language === "es" ? "Ver menos" : "See less"} <ChevronUp size={11} />
-                    </>
-                  ) : (
-                    <>
-                      {language === "es" ? "Ver más" : "See more"} <ChevronDown size={11} />
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="w-full pt-1.5 mt-auto space-y-2">
@@ -125,7 +88,7 @@ export function AwardCard({
             className="w-full border-slate-200 hover:border-amber-400 text-slate-700 hover:text-amber-700 bg-slate-50 hover:bg-amber-50/50 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider h-10 sm:h-11 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition-all"
           >
             <Lock className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" />
-            {language === "es" ? "Ver detalles" : "View Details"}
+            {language === "es" ? "Ver más detalles" : "View more details"}
           </Button>
         </div>
       </CardFooter>
