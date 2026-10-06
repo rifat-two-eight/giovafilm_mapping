@@ -255,6 +255,8 @@
     "fully_claimed_msg": "Todos los canjes para esta oferta ya han sido reclamados.",
     "already_used": "YA UTILIZADA",
     "already_used_msg": "Ya has canjeado esta oferta.",
+    "used_today": "YA UTILIZADA HOY",
+    "used_today_msg": "Ya has utilizado este descuento hoy. Estará disponible nuevamente a las",
     "all_redemptions_used": "Has usado todos tus canjes para esta oferta.",
     "location_not_specified": "Ubicación no especificada",
     "information": "Información",

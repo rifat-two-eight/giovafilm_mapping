@@ -44,7 +44,8 @@ export function BusinessOfferDialog({
   const [validUntil, setValidUntil] = useState("");
   const [noExpiration, setNoExpiration] = useState(false);
   const [maxRedemptions, setMaxRedemptions] = useState("");
-  const [redemptionDuration, setRedemptionDuration] = useState("");
+  const [redemptionFrequency, setRedemptionFrequency] = useState("daily");
+  const [redemptionDuration, setRedemptionDuration] = useState("1440");
   const [redemptionRules, setRedemptionRules] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -85,10 +86,24 @@ export function BusinessOfferDialog({
           ? String(existingOffer.maxRedemptions)
           : "",
       );
+      const initialFreq =
+        existingOffer.redemptionFrequency ||
+        (Number(existingOffer.redemptionDuration) === 1440
+          ? "daily"
+          : Number(existingOffer.redemptionDuration) === 10080
+            ? "weekly"
+            : Number(existingOffer.redemptionDuration) === 43200
+              ? "monthly"
+              : Number(existingOffer.redemptionDuration) >= 525600
+                ? "once"
+                : existingOffer.redemptionDuration
+                  ? "custom"
+                  : "daily");
+      setRedemptionFrequency(initialFreq);
       setRedemptionDuration(
         existingOffer.redemptionDuration != null
           ? String(existingOffer.redemptionDuration)
-          : "",
+          : "1440",
       );
       setRedemptionRules(
         Array.isArray(existingOffer.redemptionRules)
@@ -111,7 +126,8 @@ export function BusinessOfferDialog({
       setValidUntil("");
       setNoExpiration(false);
       setMaxRedemptions("");
-      setRedemptionDuration("");
+      setRedemptionFrequency("daily");
+      setRedemptionDuration("1440");
       setRedemptionRules("");
       setPreview(null);
       setPhotoFile(null);
@@ -157,8 +173,14 @@ export function BusinessOfferDialog({
         return;
       }
     }
-    if (!redemptionDuration || Number(redemptionDuration) <= 0) {
-      toast.error(t("offers.duration_minutes_req"));
+    let finalDuration = Number(redemptionDuration) || 0;
+    if (redemptionFrequency === "daily" && (!finalDuration || finalDuration <= 0)) finalDuration = 1440;
+    else if (redemptionFrequency === "weekly" && (!finalDuration || finalDuration <= 0)) finalDuration = 10080;
+    else if (redemptionFrequency === "monthly" && (!finalDuration || finalDuration <= 0)) finalDuration = 43200;
+    else if (redemptionFrequency === "once" && (!finalDuration || finalDuration <= 0)) finalDuration = 525600;
+
+    if (redemptionFrequency === "custom" && (!finalDuration || finalDuration <= 0)) {
+      toast.error(t("offers.duration_minutes_req") || "Please enter a valid duration in minutes");
       return;
     }
     if (!maxRedemptions || Number(maxRedemptions) < 0) {
@@ -194,7 +216,8 @@ export function BusinessOfferDialog({
           : null,
       noExpiration,
       maxRedemptions: Number(maxRedemptions) || 0,
-      redemptionDuration: Number(redemptionDuration) || 0,
+      redemptionFrequency,
+      redemptionDuration: finalDuration,
       redemptionRules: redemptionRules
         .split("\n")
         .map((rule) => rule.trim())
@@ -430,9 +453,10 @@ export function BusinessOfferDialog({
               <select
                 id="offer-frequency"
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                defaultValue="daily"
+                value={redemptionFrequency}
                 onChange={(e) => {
                   const val = e.target.value;
+                  setRedemptionFrequency(val);
                   if (val === "daily") setRedemptionDuration("1440");
                   else if (val === "weekly") setRedemptionDuration("10080");
                   else if (val === "monthly") setRedemptionDuration("43200");
@@ -443,17 +467,46 @@ export function BusinessOfferDialog({
                 <option value="weekly">Weekly (Once per 7 days)</option>
                 <option value="monthly">Monthly (Once per 30 days)</option>
                 <option value="once">{t("offers.one_time_only")}</option>
-                <option value="custom">Custom Duration (Minutes)</option>
+                <option value="custom">Custom Duration</option>
               </select>
-              <Input
-                id="offer-duration"
-                type="number"
-                min={0}
-                value={redemptionDuration}
-                onChange={(e) => setRedemptionDuration(e.target.value)}
-                placeholder="Duration in minutes (e.g., 1440)"
-                className="mt-1 text-xs"
-              />
+
+              {redemptionFrequency === "daily" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 24 hours
+                </p>
+              )}
+              {redemptionFrequency === "weekly" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 7 days
+                </p>
+              )}
+              {redemptionFrequency === "monthly" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 30 days
+                </p>
+              )}
+              {redemptionFrequency === "once" && (
+                <p className="mt-1.5 text-xs text-amber-600 font-medium">
+                  Each customer can only redeem this offer once
+                </p>
+              )}
+
+              {redemptionFrequency === "custom" && (
+                <div className="mt-2">
+                  <Label htmlFor="offer-duration" className="text-xs text-gray-600">
+                    Duration in minutes
+                  </Label>
+                  <Input
+                    id="offer-duration"
+                    type="number"
+                    min={1}
+                    value={redemptionDuration}
+                    onChange={(e) => setRedemptionDuration(e.target.value)}
+                    placeholder="e.g., 1440 for 24 hours"
+                    className="mt-1 text-xs"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

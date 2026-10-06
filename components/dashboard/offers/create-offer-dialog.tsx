@@ -42,6 +42,7 @@ interface FormData {
   noExpiration: boolean;
   maxRedemptions: string;
   totalRedemptionLimit?: string;
+  redemptionFrequency: string;
   redemptionDuration: string;
   buttonLabel: string;
   status: string;
@@ -154,7 +155,21 @@ export function CreateOfferDialog({
         maxRedemptions: initialData.maxRedemptions?.toString() || "",
         totalRedemptionLimit:
           initialData.totalRedemptionLimit?.toString() || "",
-        redemptionDuration: initialData.redemptionDuration?.toString() || "",
+        redemptionFrequency:
+          initialData.redemptionFrequency ||
+          (Number(initialData.redemptionDuration) === 1440
+            ? "daily"
+            : Number(initialData.redemptionDuration) === 10080
+              ? "weekly"
+              : Number(initialData.redemptionDuration) === 43200
+                ? "monthly"
+                : Number(initialData.redemptionDuration) >= 525600
+                  ? "once"
+                  : initialData.redemptionDuration
+                    ? "custom"
+                    : "daily"),
+        redemptionDuration:
+          initialData.redemptionDuration?.toString() || "1440",
         buttonLabel: initialData.buttonLabel || "Redeem Offer",
         status: initialData.status || "Active",
       });
@@ -181,7 +196,8 @@ export function CreateOfferDialog({
         noExpiration: false,
         maxRedemptions: "",
         totalRedemptionLimit: "",
-        redemptionDuration: "",
+        redemptionFrequency: "daily",
+        redemptionDuration: "1440",
         buttonLabel: "Redeem Offer",
         status: "Active",
       });
@@ -244,7 +260,16 @@ export function CreateOfferDialog({
         noExpiration: data.noExpiration,
         maxRedemptions: Number(data.maxRedemptions) || 0,
         totalRedemptionLimit: Number(data.totalRedemptionLimit) || null,
-        redemptionDuration: Number(data.redemptionDuration) || 0,
+        redemptionFrequency: data.redemptionFrequency || "daily",
+        redemptionDuration:
+          Number(data.redemptionDuration) ||
+          (data.redemptionFrequency === "weekly"
+            ? 10080
+            : data.redemptionFrequency === "monthly"
+              ? 43200
+              : data.redemptionFrequency === "once"
+                ? 525600
+                : 1440),
         redemptionRules: rules,
         buttonLabel: data.buttonLabel,
         status: data.status || "Active",
@@ -546,9 +571,10 @@ export function CreateOfferDialog({
               <select
                 id="redemptionFrequency"
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                defaultValue="daily"
+                {...register("redemptionFrequency")}
                 onChange={(e) => {
                   const val = e.target.value;
+                  setValue("redemptionFrequency", val);
                   if (val === "daily") setValue("redemptionDuration", "1440");
                   else if (val === "weekly") setValue("redemptionDuration", "10080");
                   else if (val === "monthly") setValue("redemptionDuration", "43200");
@@ -561,18 +587,45 @@ export function CreateOfferDialog({
                 <option value="once">{t("offers_admin.freq_once")}</option>
                 <option value="custom">{t("offers_admin.freq_custom")}</option>
               </select>
-              <div className="mt-1.5">
-                <Input
-                  id="redemptionDuration"
-                  type="number"
-                  min={0}
-                  placeholder={t("offers_admin.duration_placeholder")}
-                  className="text-xs"
-                  {...register("redemptionDuration", {
-                    required: "Duration is required",
-                  })}
-                />
-              </div>
+
+              {(watch("redemptionFrequency") || "daily") === "daily" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 24 hours
+                </p>
+              )}
+              {watch("redemptionFrequency") === "weekly" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 7 days
+                </p>
+              )}
+              {watch("redemptionFrequency") === "monthly" && (
+                <p className="mt-1.5 text-xs text-blue-600 font-medium">
+                  Customers can redeem this offer once every 30 days
+                </p>
+              )}
+              {watch("redemptionFrequency") === "once" && (
+                <p className="mt-1.5 text-xs text-amber-600 font-medium">
+                  Each customer can only redeem this offer once
+                </p>
+              )}
+
+              {watch("redemptionFrequency") === "custom" && (
+                <div className="mt-2">
+                  <Label htmlFor="redemptionDuration" className="text-xs text-gray-600">
+                    Duration in minutes
+                  </Label>
+                  <Input
+                    id="redemptionDuration"
+                    type="number"
+                    min={1}
+                    placeholder="e.g., 1440 for 24 hours"
+                    className="mt-1 text-xs"
+                    {...register("redemptionDuration", {
+                      required: "Duration is required",
+                    })}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

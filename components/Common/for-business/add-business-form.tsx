@@ -346,7 +346,17 @@ export function AddBusinessForm() {
                   : null,
               noExpiration: step4InputValues.offerNoExpiration,
               maxRedemptions: Number(step4InputValues.offerMaxRedemptions) || 0,
-              redemptionDuration: Number(step4InputValues.offerDuration) || 0,
+              redemptionFrequency:
+                Number(step4InputValues.offerDuration) === 1440
+                  ? "daily"
+                  : Number(step4InputValues.offerDuration) === 10080
+                    ? "weekly"
+                    : Number(step4InputValues.offerDuration) === 43200
+                      ? "monthly"
+                      : Number(step4InputValues.offerDuration) >= 525600
+                        ? "once"
+                        : "daily",
+              redemptionDuration: Number(step4InputValues.offerDuration) || 1440,
               redemptionRules: step4InputValues.offerRedemptionRules
                 ? [step4InputValues.offerRedemptionRules]
                 : [],

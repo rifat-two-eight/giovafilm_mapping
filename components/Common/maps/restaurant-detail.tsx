@@ -88,13 +88,20 @@ export default function RestaurantDetail() {
         return;
       }
 
-      const totalSeconds = Math.floor(distance / 1000)
-      const minutes = Math.floor(totalSeconds / 60)
-      const seconds = totalSeconds % 60
- 
-      setTimeLeft(
-        `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-      );
+      const totalSeconds = Math.max(0, Math.floor(distance / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      if (hours > 0) {
+        setTimeLeft(
+          `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+        );
+      } else {
+        setTimeLeft(
+          `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+        );
+      }
     }, 1000);
  
     return () => clearInterval(timer);
@@ -201,6 +208,37 @@ export default function RestaurantDetail() {
     );
   }
 
+  const getOfferBadgeInfo = (off: any) => {
+    const type = off?.discountType;
+    if (type === "Percentage") {
+      return { value: `${off?.discountValue ?? 0}%`, label: t("offer.discount") || "DISCOUNT" };
+    }
+    if (type === "Flat") {
+      return { value: `$${off?.discountValue ?? 0}`, label: t("offer.discount") || "OFF" };
+    }
+    if (type === "Fixed Price") {
+      return { value: `$${off?.discountValue ?? 0}`, label: "SPECIAL" };
+    }
+    if (type === "BOGO") {
+      return { value: "BOGO", label: off?.bogoSecondType === "free" ? "BUY 1 GET 1" : "50% OFF 2ND" };
+    }
+    if (type === "Free item") {
+      return { value: "FREE", label: "GIFT ITEM" };
+    }
+    return { value: "OFFER", label: t("offer.redeem_now") || "REDEEM NOW" };
+  };
+
+  const offerBadge = getOfferBadgeInfo(offer);
+
+  const getFrequencyLabel = (off: any) => {
+    const freq = off?.redemptionFrequency;
+    const dur = off?.redemptionDuration;
+    if (freq === "weekly" || dur === 10080) return t("offers_admin.freq_weekly") || "Weekly (Once per 7 days)";
+    if (freq === "monthly" || dur === 43200) return t("offers_admin.freq_monthly") || "Monthly (Once per 30 days)";
+    if (freq === "once" || dur >= 525600) return t("offers_admin.freq_once") || "One-Time Only";
+    return t("offers_admin.freq_daily") || "Daily (Once per 24 hours)";
+  };
+
   // maxRedemptions is per user; totalRedemptionLimit caps everyone together
   const redemptionsLeft =
     typeof offer.maxRedemptions === "number" && offer.maxRedemptions > 0
@@ -242,6 +280,24 @@ export default function RestaurantDetail() {
       };
     }
     if (redemptionsLeft === 0) {
+      if (offer.isRecurring && offer.nextAvailableAt) {
+        const nextDate = new Date(offer.nextAvailableAt);
+        const isDaily =
+          offer.redemptionFrequency === "daily" ||
+          offer.redemptionDuration === 1440;
+        const timeStr = !isNaN(nextDate.getTime())
+          ? isDaily
+            ? nextDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : `${nextDate.toLocaleDateString()} ${nextDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+          : "";
+        return {
+          label: isDaily ? (t("offer.used_today") || "USED TODAY") : (t("offer.already_used") || "ALREADY USED"),
+          message: timeStr
+            ? `${isDaily ? (t("offer.used_today_msg") || "You have used your daily discount today. It will be available again at") : "You have used this discount. It will be available again on"} ${timeStr}.`
+            : (t("offer.used_today") || "USED TODAY"),
+        };
+      }
+
       return {
         label: t("offer.already_used"),
         message:
@@ -443,20 +499,22 @@ export default function RestaurantDetail() {
                         ) : (
                           <>
                             <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                              {isTimerActive
-                                ? timeLeft
-                                : (offer?.redemptionDuration ?? 0)}{" "}
-                              {!isTimerActive && (
-                                <span className="text-base">{t("offer.min")}</span>
-                              )}
+                              {isTimerActive ? timeLeft : offerBadge.value}
                             </div>
                             <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wide">
-                              {isTimerActive ? t("offer.time_left") : t("offer.redeem_now")}
+                              {isTimerActive ? t("offer.time_left") : offerBadge.label}
                             </div>
                           </>
                         )}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Frequency Badge */}
+                  <div className="flex justify-center -mt-1 mb-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 shadow-xs">
+                      🔄 {getFrequencyLabel(offer)}
+                    </span>
                   </div>
 
                   {/* Instructions */}
@@ -676,15 +734,21 @@ export default function RestaurantDetail() {
                     ) : (
                       <>
                         <div className="text-xl font-black text-gray-900 leading-none tracking-tight">
-                          {isTimerActive ? timeLeft : (offer?.redemptionDuration ?? 0)}
-                          {!isTimerActive && <span className="text-xs font-semibold ml-0.5">{t("offer.min")}</span>}
+                          {isTimerActive ? timeLeft : offerBadge.value}
                         </div>
                         <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                          {isTimerActive ? t("offer.time_left") : t("offer.timer")}
+                          {isTimerActive ? t("offer.time_left") : offerBadge.label}
                         </div>
                       </>
                     )}
                   </div>
+                </div>
+
+                {/* Frequency Badge */}
+                <div className="flex justify-center -mt-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                    🔄 {getFrequencyLabel(offer)}
+                  </span>
                 </div>
 
                 {/* Message / Instruction */}

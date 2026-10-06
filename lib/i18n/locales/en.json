@@ -255,6 +255,8 @@
     "fully_claimed_msg": "Every redemption for this offer has already been claimed.",
     "already_used": "ALREADY USED",
     "already_used_msg": "You have already redeemed this offer.",
+    "used_today": "USED TODAY",
+    "used_today_msg": "You have used your daily discount today. It will be available again at",
     "all_redemptions_used": "You have used all your redemptions for this offer.",
     "location_not_specified": "Location not specified",
     "information": "Information",
