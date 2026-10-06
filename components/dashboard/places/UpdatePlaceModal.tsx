@@ -115,16 +115,15 @@ export function UpdatePlaceModal({
   return (
     // Backdrop
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={() => onOpenChange(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
     >
       {/* Modal Box */}
       <div
-        className="relative max-w-7xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl"
+        className="relative w-full max-w-5xl h-[85vh] max-h-[780px] min-h-[580px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
           <h2 className="text-2xl font-black uppercase tracking-tight">
             {t("places_admin.update_place") || "Update Place"}
           </h2>
@@ -138,13 +137,13 @@ export function UpdatePlaceModal({
 
         {/* Content */}
         {isLoadingPlace ? (
-          <div className="p-8 space-y-6">
+          <div className="p-8 space-y-6 flex-1 overflow-y-auto">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-20 w-full" />
           </div>
         ) : place ? (
-          <div className="w-full">
+          <div className="w-full flex-1 flex flex-col overflow-hidden">
             <PlaceFormContent
               categories={categories}
               isSaving={isUpdating}

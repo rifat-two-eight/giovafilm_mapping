@@ -53,7 +53,7 @@ export function MapLocationPicker({
   return (
     <div className="w-full h-full min-h-[400px] relative rounded-lg overflow-hidden border border-gray-200">
       <APIProvider
-        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}
+        apiKey={(process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "").trim()}
       >
         <Map
           defaultCenter={defaultPosition}
@@ -64,10 +64,10 @@ export function MapLocationPicker({
           gestureHandling={"greedy"}
           disableDefaultUI={false}
           streetViewControl={false}
-          mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
+          mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_PLACES_ID || "DEMO_MAP_ID"}
           onClick={handleMapClick}
           style={{ width: "100%", height: "100%" }}
-          clickableIcons={false}
+          clickableIcons={true}
         >
           {!initialLocation && (
             <GeolocationOnLoad

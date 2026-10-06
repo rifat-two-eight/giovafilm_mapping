@@ -32,11 +32,12 @@ import { useGetPublicPlacesBusinessQuery } from "@/redux/features/public/publicA
 import {
   AdvancedMarker,
   APIProvider,
+  InfoWindow,
   Map,
   useMap,
   useMapsLibrary,
 } from "@vis.gl/react-google-maps";
-import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff, Search, X } from "lucide-react";
+import { ChevronRight, Map as MapIcon, Plus, Eye, EyeOff, Search, X, ExternalLink, MapPin, Star, Phone, Globe } from "lucide-react";
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { appAlert } from "@/lib/app-alert";
@@ -79,6 +80,9 @@ function resolveCategoryColor(category?: any): string {
   }
   return "#3B82F6";
 }
+
+// Libraries required by Google Maps components
+const GOOGLE_MAP_LIBRARIES: ("places" | "geocoding" | "marker")[] = ["places", "geocoding", "marker"];
 
 // ─── Inner component: pans to user's location once on mount ───────────────────
 // Must live inside <APIProvider> so useMap() works.
@@ -175,6 +179,322 @@ function MapPanner({
       map.panTo(position);
     }
   }, [map, position]);
+  return null;
+}
+
+function GooglePoiPreviewCard({
+  poi,
+}: {
+  poi: {
+    placeId: string;
+    name: string;
+    address: string;
+    position: { lat: number; lng: number };
+    phone?: string;
+    website?: string;
+    rating?: number;
+    userRatingsTotal?: number;
+    googleUrl?: string;
+    category?: string;
+    photos?: string[];
+  };
+}) {
+  const [selectedPhotoIdx, setSelectedPhotoIdx] = useState(0);
+  const photos = poi.photos || [];
+
+  return (
+    <div className="min-w-[280px] max-w-[340px] text-gray-800 font-sans p-0.5">
+      {/* Photos Carousel / Banner */}
+      {photos.length > 0 && (
+        <div className="mb-2.5 space-y-1.5">
+          <div className="relative w-full h-36 rounded-xl overflow-hidden bg-gray-100 shadow-xs border border-gray-100">
+            <img
+              src={photos[selectedPhotoIdx]}
+              alt={poi.name}
+              className="w-full h-full object-cover transition-opacity duration-200"
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+            {/* Google external link button on image */}
+            {poi.googleUrl && (
+              <a
+                href={poi.googleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 text-white backdrop-blur-md transition-all shadow-sm"
+                title="View on Google Maps"
+              >
+                <ExternalLink size={13} />
+              </a>
+            )}
+            {/* Multi-photo indicator badge */}
+            {photos.length > 1 && (
+              <span className="absolute bottom-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 text-white backdrop-blur-md shadow-xs">
+                {selectedPhotoIdx + 1} / {photos.length}
+              </span>
+            )}
+          </div>
+
+          {/* Thumbnail Strip (if multiple photos) */}
+          {photos.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+              {photos.map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setSelectedPhotoIdx(idx)}
+                  className={`relative shrink-0 w-11 h-9 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedPhotoIdx === idx
+                      ? "border-blue-600 scale-105 shadow-xs"
+                      : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={p} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Header: Title + Link (if no photos) */}
+      <div className="flex items-start justify-between gap-2 pr-2">
+        <h3 className="text-sm font-black text-gray-900 leading-snug tracking-tight">
+          {poi.name}
+        </h3>
+        {photos.length === 0 && poi.googleUrl && (
+          <a
+            href={poi.googleUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors shrink-0"
+            title="View on Google Maps"
+          >
+            <ExternalLink size={13} />
+          </a>
+        )}
+      </div>
+
+      {/* Address */}
+      {poi.address && (
+        <div className="flex items-start gap-1.5 mt-1 text-gray-500">
+          <MapPin size={13} className="shrink-0 mt-0.5 text-gray-400" />
+          <p className="text-xs leading-relaxed line-clamp-2">
+            {poi.address}
+          </p>
+        </div>
+      )}
+
+      {/* Badges: Rating & Category */}
+      {(poi.rating || poi.category) && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {poi.rating && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+              <Star size={11} className="fill-amber-500 text-amber-500" />
+              <span>{poi.rating}</span>
+              {poi.userRatingsTotal && (
+                <span className="text-amber-600/80 font-medium">({poi.userRatingsTotal})</span>
+              )}
+            </span>
+          )}
+          {poi.category && (
+            <span className="text-[11px] font-medium text-gray-600 bg-gray-100 border border-gray-200/60 px-2 py-0.5 rounded-md capitalize">
+              {poi.category}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Contact info: Phone & Website */}
+      {(poi.phone || poi.website) && (
+        <div className="mt-2.5 pt-2 border-t border-gray-100 flex flex-wrap items-center gap-3 text-xs text-gray-600">
+          {poi.phone && (
+            <a
+              href={`tel:${poi.phone}`}
+              className="inline-flex items-center gap-1 hover:text-blue-600 transition-colors"
+            >
+              <Phone size={12} className="text-gray-400" />
+              <span>{poi.phone}</span>
+            </a>
+          )}
+          {poi.website && (
+            <a
+              href={poi.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline truncate max-w-[150px]"
+            >
+              <Globe size={12} />
+              <span className="truncate">{poi.website.replace(/^https?:\/\/(www\.)?/, "")}</span>
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MapPlacesHandler({
+  isAddingMarker,
+  selectedMapId,
+  onSelectCoordinates,
+  onSelectGooglePlace,
+  setActivePoi,
+}: {
+  isAddingMarker: boolean;
+  selectedMapId: string | null;
+  onSelectCoordinates: (pos: { lat: number; lng: number }) => void;
+  onSelectGooglePlace: (data: {
+    name: string;
+    address: string;
+    pos: { lat: number; lng: number };
+    phone?: string;
+    website?: string;
+  }) => void;
+  setActivePoi: (poi: any) => void;
+}) {
+  const map = useMap();
+  const placesLib = useMapsLibrary("places");
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const listener = map.addListener("click", (e: any) => {
+      const placeId = e.placeId;
+      const lat = e.latLng?.lat() ?? 0;
+      const lng = e.latLng?.lng() ?? 0;
+
+      if (placeId) {
+        // Prevent Google's default un-actionable infowindow
+        if (typeof e.stop === "function") {
+          e.stop();
+        }
+
+        // If in explicit "Drop Pin / Add Place" mode: directly select and open form
+        if (isAddingMarker) {
+          if (!selectedMapId) {
+            toast.error(t("places_admin.select_map_first") || "Please select a map first!");
+            return;
+          }
+
+          if (placesLib) {
+            try {
+              const service = new placesLib.PlacesService(map);
+              service.getDetails(
+                {
+                  placeId,
+                  fields: [
+                    "name",
+                    "formatted_address",
+                    "geometry",
+                    "formatted_phone_number",
+                    "website",
+                  ],
+                },
+                (result, status) => {
+                  if (String(status) === "OK" && result) {
+                    const pLat = result.geometry?.location?.lat() ?? lat;
+                    const pLng = result.geometry?.location?.lng() ?? lng;
+                    onSelectGooglePlace({
+                      name: result.name || "",
+                      address: result.formatted_address || "",
+                      pos: { lat: pLat, lng: pLng },
+                      phone: result.formatted_phone_number || "",
+                      website: result.website || "",
+                    });
+                    return;
+                  }
+                  onSelectCoordinates({ lat, lng });
+                }
+              );
+              return;
+            } catch (err) {
+              console.warn("Failed to get Google Place details:", err);
+            }
+          }
+
+          onSelectCoordinates({ lat, lng });
+          return;
+        }
+
+        // Otherwise (normal view mode): Fetch place details and show interactive preview card
+        if (placesLib) {
+          try {
+            const service = new placesLib.PlacesService(map);
+            service.getDetails(
+              {
+                placeId,
+                fields: [
+                  "name",
+                  "formatted_address",
+                  "geometry",
+                  "formatted_phone_number",
+                  "website",
+                  "rating",
+                  "user_ratings_total",
+                  "url",
+                  "types",
+                  "photos",
+                ],
+              },
+              (result, status) => {
+                if (String(status) === "OK" && result) {
+                  const pLat = result.geometry?.location?.lat() ?? lat;
+                  const pLng = result.geometry?.location?.lng() ?? lng;
+                  const photos = Array.isArray(result.photos)
+                    ? result.photos
+                        .slice(0, 5)
+                        .map((p: any) =>
+                          typeof p.getUrl === "function"
+                            ? p.getUrl({ maxWidth: 640, maxHeight: 400 })
+                            : ""
+                        )
+                        .filter(Boolean)
+                    : [];
+
+                  setActivePoi({
+                    placeId,
+                    name: result.name || "",
+                    address: result.formatted_address || "",
+                    position: { lat: pLat, lng: pLng },
+                    phone: result.formatted_phone_number || "",
+                    website: result.website || "",
+                    rating: result.rating,
+                    userRatingsTotal: result.user_ratings_total,
+                    photos,
+                    googleUrl:
+                      result.url ||
+                      `https://www.google.com/maps/place/?q=place_id:${placeId}`,
+                    category: result.types?.[0]?.replace(/_/g, " "),
+                  });
+                  return;
+                }
+              }
+            );
+          } catch (err) {
+            console.warn("Failed to get Google Place details:", err);
+          }
+        }
+      } else {
+        // Clicked on blank ground: dismiss any active preview card
+        setActivePoi(null);
+        if (!isAddingMarker) return;
+        if (!selectedMapId) {
+          toast.error(t("places_admin.select_map_first") || "Please select a map first!");
+          return;
+        }
+        onSelectCoordinates({ lat, lng });
+      }
+    });
+
+    return () => {
+      google.maps.event.removeListener(listener);
+    };
+  }, [map, placesLib, isAddingMarker, selectedMapId, onSelectCoordinates, onSelectGooglePlace, setActivePoi, t]);
+
   return null;
 }
 
@@ -607,6 +927,7 @@ export default function AddPlacePage() {
     lng: number;
   } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
+  const [activePoi, setActivePoi] = useState<any | null>(null);
   const [draggedPositions, setDraggedPositions] = useState<
     Record<string, { lat: number; lng: number }>
   >({});
@@ -735,29 +1056,53 @@ export default function AddPlacePage() {
     }
   };
 
-  const handleMapClick = (e: any) => {
-    if (!isAddingMarker) return;
-    if (!selectedMapId) {
-      toast.error(t("places_admin.select_map_first") || "Please select a map first!");
-      setIsAddingMarker(false);
-      return;
-    }
-    const newLat = e.detail.latLng.lat;
-    const newLng = e.detail.latLng.lng;
-
-    setDraggedPositions({}); // Clear any previous unsaved dragged position
-    setTempMarker({ lat: newLat, lng: newLng });
+  const handleSelectCoordinates = useCallback((pos: { lat: number; lng: number }) => {
+    setActivePoi(null);
+    setDraggedPositions({});
+    setTempMarker(pos);
     setSelectedPlace({
-      position: { lat: newLat, lng: newLng },
+      position: pos,
       isNew: true,
       address: "",
     });
-    updateAddressFromCoords(newLat, newLng);
+    updateAddressFromCoords(pos.lat, pos.lng);
     setFormData({ name: "", description: "" });
     setIsAddingMarker(false);
-  };
+  }, []);
+
+  const handleSelectGooglePlace = useCallback(
+    (data: {
+      name: string;
+      address: string;
+      pos: { lat: number; lng: number };
+      phone?: string;
+      website?: string;
+    }) => {
+      setActivePoi(null);
+      setDraggedPositions({});
+      setTempMarker(data.pos);
+      setSelectedPlace({
+        name: data.name,
+        address: data.address,
+        phone: data.phone || "",
+        website: data.website || "",
+        position: data.pos,
+        isNew: true,
+      });
+      setFormData({ name: data.name, description: "" });
+      setIsAddingMarker(false);
+      toast.success(
+        data.name
+          ? `${t("places_admin.location_selected") || "Selected"}: ${data.name}`
+          : (t("places_admin.location_selected") || "Location selected!")
+      );
+    },
+    [t]
+  );
+
 
   const handleSelectPlace = async (place: any) => {
+    setActivePoi(null);
     const placeId = place._id || place.id;
     setDraggedPositions((prev) => (prev[placeId] ? { [placeId]: prev[placeId] } : {}));
     const serverPosition = {
@@ -950,7 +1295,10 @@ export default function AddPlacePage() {
   const activeCategory = findCategoryById(selectedCategoryId || undefined);
 
   return (
-    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY as string}>
+    <APIProvider
+      apiKey={(process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "").trim()}
+      libraries={GOOGLE_MAP_LIBRARIES}
+    >
       <div className="flex h-[85vh] w-full bg-white overflow-hidden font-sans rounded-2xl">
         {/* Sidebar */}
         <div className="w-80 flex flex-col border-r border-gray-200 bg-white z-20 shadow-sm">
@@ -1311,8 +1659,8 @@ export default function AddPlacePage() {
               gestureHandling={"greedy"}
               disableDefaultUI={false}
               streetViewControl={false}
-              mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID as string}
-              onClick={handleMapClick}
+              mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_PLACES_ID || "DEMO_MAP_ID"}
+              clickableIcons={true}
               style={{ cursor: isAddingMarker ? "crosshair" : "grab" }}
             >
               {/* Pans to user's geolocation once on mount */}
@@ -1324,6 +1672,15 @@ export default function AddPlacePage() {
               <CountryPanner selectedMap={selectedMap} language={language} />
 
               <MapPanner position={selectedPlace?.position} />
+
+              {/* Map click and Google POI place selection handler */}
+              <MapPlacesHandler
+                isAddingMarker={isAddingMarker}
+                selectedMapId={selectedMapId}
+                onSelectCoordinates={handleSelectCoordinates}
+                onSelectGooglePlace={handleSelectGooglePlace}
+                setActivePoi={setActivePoi}
+              />
 
               {/* ── Saved markers with Viewport & Idle Optimization (60fps zoom) ── */}
               <SavedMarkersLayer
@@ -1394,6 +1751,17 @@ export default function AddPlacePage() {
                 </AdvancedMarker>
               )}
 
+              {/* ── Google POI Preview InfoWindow with Photos & Details ── */}
+              {activePoi && (
+                <InfoWindow
+                  position={activePoi.position}
+                  onCloseClick={() => setActivePoi(null)}
+                  pixelOffset={[0, -8]}
+                >
+                  <GooglePoiPreviewCard key={activePoi.placeId} poi={activePoi} />
+                </InfoWindow>
+              )}
+
             </Map>
           </div>
         </div>
@@ -1402,24 +1770,13 @@ export default function AddPlacePage() {
         {selectedPlace && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200"
-            onClick={() => {
-              if (isCreating || isUpdating) {
-                toast.warning(t("places.upload_in_progress"));
-                return;
-              }
-              setDraggedPositions({});
-              if (selectedPlace.isNew) {
-                setTempMarker(null);
-              }
-              setSelectedPlace(null);
-            }}
           >
             <div
-              className="relative w-full max-w-6xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-y-auto flex flex-col"
+              className="relative w-full max-w-5xl h-[85vh] max-h-[780px] min-h-[580px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b bg-white sticky top-0 z-20">
+              <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0 z-20">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
                     {selectedPlace.isNew
@@ -1458,7 +1815,10 @@ export default function AddPlacePage() {
 
               {/* Place Form Content */}
               <PlaceFormContent
-                key={selectedPlace._id || "new-place"}
+                key={
+                  selectedPlace._id ||
+                  `new-${selectedPlace.position?.lat}-${selectedPlace.position?.lng}-${selectedPlace.name || ""}`
+                }
                 categories={categories}
                 onSave={handleSavePlace}
                 isSaving={isCreating || isUpdating}

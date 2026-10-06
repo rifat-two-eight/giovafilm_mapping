@@ -573,9 +573,9 @@ export const PlaceFormContent = ({
   }, [isBusinessOrRestaurant, activeTab]);
 
   return (
-    <div className="w-full bg-white flex flex-col font-arial">
+    <div className="w-full h-full flex-1 flex flex-col overflow-hidden font-arial">
       {/* Navigation Header */}
-      <div className="relative bg-gray-50/50 border-b border-gray-200/80 px-4 flex items-center h-14">
+      <div className="relative bg-gray-50/50 border-b border-gray-200/80 px-4 flex items-center h-14 shrink-0">
         {/* Left Arrow & Fade */}
         {showLeftArrow && (
           <div className="absolute left-0 top-0 bottom-0 flex items-center pl-1 z-20 bg-gradient-to-r from-gray-50 via-gray-50/90 to-transparent pr-8">
@@ -674,7 +674,7 @@ export const PlaceFormContent = ({
       </div>
 
       {/* Content Body */}
-      <div className="flex-1 overflow-y-auto max-h-[450px] p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {activeTab === 0 && (
           <div className="space-y-5 animate-in slide-in-from-bottom-2 duration-300">
             <div className="grid grid-cols-2 gap-4">
