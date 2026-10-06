@@ -386,7 +386,16 @@
     "redemption_history": "Discount Redemption History",
     "no_redemptions_yet": "No discounts have been redeemed yet.",
     "claims": "claims",
-    "redeemed": "Redeemed"
+    "redeemed": "Redeemed",
+    "filter_by_period": "Filter by Period",
+    "period_all_time": "All Time",
+    "period_today": "Today",
+    "period_this_week": "This Week",
+    "period_this_month": "This Month",
+    "period_last_month": "Last Month",
+    "performance_overview": "Performance Overview",
+    "active_businesses": "Active Businesses",
+    "views": "Views"
   },
 
   "footer": {

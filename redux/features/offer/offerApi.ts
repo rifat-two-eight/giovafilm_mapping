@@ -25,7 +25,11 @@ const offerApi = baseApi.injectEndpoints({
       providesTags: ["Offer"],
     }),
     getOfferRedemptions: builder.query({
-      query: (id) => `/offer/by-place-or-business/${id}/redemptions`,
+      query: (arg) => {
+        const id = typeof arg === "string" ? arg : arg?.id;
+        const timeFilter = typeof arg === "object" ? arg?.timeFilter : "";
+        return `/offer/by-place-or-business/${id}/redemptions${timeFilter ? `?timeFilter=${timeFilter}` : ""}`;
+      },
       providesTags: ["Offer"],
     }),
     createOffer: builder.mutation({

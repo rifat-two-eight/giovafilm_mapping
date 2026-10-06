@@ -15,6 +15,11 @@ import {
   AlertCircle,
   Trash2,
   Tag,
+  Calendar,
+  TrendingUp,
+  BarChart3,
+  CheckCircle2,
+  Filter,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,8 +44,20 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 export default function MyBusinessPage() {
   const { t } = useLanguage();
   const router = useRouter();
-  const { data: response, isLoading } = useGetMyBusinessesQuery();
+  const [timeFilter, setTimeFilter] = useState<string>("all_time");
+
+  const { data: response, isLoading, isFetching } = useGetMyBusinessesQuery({
+    timeFilter: timeFilter === "all_time" ? "" : timeFilter,
+  });
   const businesses = response?.data || [];
+  const stats = response?.meta?.stats || {
+    totalBusinesses: businesses.length,
+    totalViews: 0,
+    totalDiscountsRedeemed: 0,
+    activeBusinesses: businesses.filter(
+      (b: any) => b.hasActiveSubscription && b.status === "Approved"
+    ).length,
+  };
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
@@ -127,7 +144,7 @@ export default function MyBusinessPage() {
     <div className="min-h-screen bg-slate-50/50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
               My <span className="text-primary">Businesses</span>
@@ -138,12 +155,109 @@ export default function MyBusinessPage() {
           </div>
 
           <Link href="/for-business">
-            <Button className="rounded-xl px-6 h-12 bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 gap-2">
+            <Button className="rounded-xl px-6 h-12 bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 gap-2 cursor-pointer">
               <Plus size={20} strokeWidth={3} />
               Add New Business
             </Button>
           </Link>
         </div>
+
+        {businesses.length > 0 && (
+          <div className="mb-10 space-y-6">
+            {/* Filter Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
+                <Filter size={18} className="text-primary" />
+                <span>{t("business_details.filter_by_period") || "Filter statistics by time period"}:</span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {[
+                  { id: "all_time", label: t("business_details.period_all_time") || "All Time" },
+                  { id: "today", label: t("business_details.period_today") || "Today" },
+                  { id: "this_week", label: t("business_details.period_this_week") || "This Week" },
+                  { id: "this_month", label: t("business_details.period_this_month") || "This Month" },
+                  { id: "last_month", label: t("business_details.period_last_month") || "Last Month" },
+                ].map((tab) => {
+                  const isActive = timeFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setTimeFilter(tab.id)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                        isActive
+                          ? "bg-primary text-white shadow-sm shadow-primary/30"
+                          : "bg-slate-100 hover:bg-slate-200/70 text-slate-600"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Performance Overview KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+              >
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    {t("business_details.total_views") || "Total Views"}
+                  </p>
+                  <p className="text-2xl font-black text-slate-900">
+                    {stats.totalViews ?? 0}
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Eye size={22} />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+              >
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    {t("business_details.discounts_redeemed") || "Discounts Redeemed"}
+                  </p>
+                  <p className="text-2xl font-black text-purple-700">
+                    {stats.totalDiscountsRedeemed ?? 0}
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <Tag size={22} />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+              >
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    {t("business_details.active_businesses") || "Active Businesses"}
+                  </p>
+                  <p className="text-2xl font-black text-emerald-600">
+                    {stats.activeBusinesses ?? 0} / {businesses.length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <CheckCircle2 size={22} />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        )}
 
         {businesses.length === 0 ? (
           <motion.div
@@ -309,10 +423,17 @@ export default function MyBusinessPage() {
                       </Badge>
                     </div>
 
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs">
+                      <Eye size={11} className="text-blue-600" />
+                      <span>
+                        {business.viewCount ?? 0} {t("business_details.views") || "Views"}
+                      </span>
+                    </div>
+
                     <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs">
                       <Tag size={11} className="text-purple-600" />
                       <span>
-                        {business.discountsRedeemed ?? business.offer?.redemptionsCount ?? 0} {t("business_details.discounts_redeemed") || "Discounts Redeemed"}
+                        {business.discountsRedeemed ?? business.offer?.redemptionsCount ?? 0} {t("business_details.redeemed") || "Redeemed"}
                       </span>
                     </div>
                   </div>

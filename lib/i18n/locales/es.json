@@ -386,7 +386,16 @@
     "redemption_history": "Historial de Canjes de Descuentos",
     "no_redemptions_yet": "Aún no se han canjeado descuentos.",
     "claims": "canjes",
-    "redeemed": "Canjeado"
+    "redeemed": "Canjeado",
+    "filter_by_period": "Filtrar por período",
+    "period_all_time": "Todo el tiempo",
+    "period_today": "Hoy",
+    "period_this_week": "Esta semana",
+    "period_this_month": "Este mes",
+    "period_last_month": "Mes anterior",
+    "performance_overview": "Resumen de rendimiento",
+    "active_businesses": "Negocios activos",
+    "views": "Vistas"
   },
 
   "footer": {

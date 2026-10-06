@@ -90,14 +90,14 @@ export function AwardDetailModal({
   const handleDownloadPdf = async () => {
     if (!fileUrl || isDownloading) return;
     setIsDownloading(true);
+    const configId = award.config?._id || award.configId;
+    const downloadTarget = configId
+      ? getImageUrl(`/api/v1/awards/configs/${configId}/download`)
+      : fileUrl;
     try {
-      await downloadFileWithCustomName(fileUrl, downloadFileName);
+      await downloadFileWithCustomName(downloadTarget, downloadFileName);
     } catch {
-      toast.error(
-        language === "es"
-          ? "Error al descargar el archivo."
-          : "Failed to download file."
-      );
+      window.open(fileUrl, "_blank");
     } finally {
       setIsDownloading(false);
     }

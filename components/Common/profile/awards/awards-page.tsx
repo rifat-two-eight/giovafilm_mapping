@@ -86,10 +86,18 @@ export default function AwardsPage() {
       award.config?.originalFileName ||
       award.originalFileName ||
       `${(title || "Itinerario").replace(/[<>:"/\\|?*]/g, "_").trim()}.pdf`;
+
+    const configId = award.config?._id || award.configId;
+    const downloadTarget = configId
+      ? getImageUrl(`/api/v1/awards/configs/${configId}/download`)
+      : getImageUrl(award.config.fileUrl);
+
     try {
-      await downloadFileWithCustomName(getImageUrl(award.config.fileUrl), downloadFileName);
+      await downloadFileWithCustomName(downloadTarget, downloadFileName);
     } catch {
-      // ignore
+      if (award.config?.fileUrl) {
+        window.open(getImageUrl(award.config.fileUrl), "_blank");
+      }
     } finally {
       setDownloadingAwardId(null);
     }

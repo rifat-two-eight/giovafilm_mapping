@@ -71,11 +71,25 @@ const businessApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Business"],
     }),
-    getMyBusinesses: builder.query<any, void>({
-      query: () => ({
-        url: "/business/my-business",
-        method: "GET",
-      }),
+    getMyBusinesses: builder.query<any, { timeFilter?: string } | void>({
+      query: (params) => {
+        const timeFilter = params?.timeFilter;
+        return {
+          url: `/business/my-business${timeFilter ? `?timeFilter=${timeFilter}` : ""}`,
+          method: "GET",
+        };
+      },
+      providesTags: ["Business"],
+    }),
+    getBusinessStats: builder.query<any, { id: string; timeFilter?: string } | string>({
+      query: (arg) => {
+        const id = typeof arg === "string" ? arg : arg.id;
+        const timeFilter = typeof arg === "object" ? arg.timeFilter : "";
+        return {
+          url: `/business/${id}/stats${timeFilter ? `?timeFilter=${timeFilter}` : ""}`,
+          method: "GET",
+        };
+      },
       providesTags: ["Business"],
     }),
   }),
@@ -90,4 +104,5 @@ export const {
   useUpdateBusinessMutation,
   useDeleteBusinessMutation,
   useGetMyBusinessesQuery,
+  useGetBusinessStatsQuery,
 } = businessApi;

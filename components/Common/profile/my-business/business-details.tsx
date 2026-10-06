@@ -7,7 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { formatOfferDiscountLabel } from "@/lib/offer-label";
 import { NoImage } from "@/lib/others/others";
 import { getImageUrl, convertTo12Hour } from "@/lib/utils";
-import { useGetSingleBusinessQuery } from "@/redux/features/business/businessApi";
+import {
+  useGetSingleBusinessQuery,
+  useGetBusinessStatsQuery,
+} from "@/redux/features/business/businessApi";
 import {
   useGetOffersByPlaceOrBusinessIdQuery,
   useGetOfferRedemptionsQuery,
@@ -22,6 +25,7 @@ import {
   Clock,
   ExternalLink,
   Eye,
+  Filter,
   Globe,
   Info,
   Instagram,
@@ -57,11 +61,31 @@ export default function BusinessDetails() {
   const offer = business?.offer || linkedOffer;
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
   const [redemptionHistoryOpen, setRedemptionHistoryOpen] = useState(false);
+  const [statsTimeFilter, setStatsTimeFilter] = useState<string>("all_time");
+
+  const { data: statsRes } = useGetBusinessStatsQuery(
+    {
+      id: id as string,
+      timeFilter: statsTimeFilter === "all_time" ? "" : statsTimeFilter,
+    },
+    { skip: !id }
+  );
+
   const { data: redemptionsData, isLoading: isLoadingRedemptions } =
-    useGetOfferRedemptionsQuery(id as string, { skip: !id });
+    useGetOfferRedemptionsQuery(
+      {
+        id: id as string,
+        timeFilter: statsTimeFilter === "all_time" ? "" : statsTimeFilter,
+      },
+      { skip: !id }
+    );
+  const currentViewCount = statsRes?.data?.viewCount ?? business?.viewCount ?? 0;
   const redemptionsList = redemptionsData?.data?.redemptions || [];
   const redemptionsTotalCount =
-    redemptionsData?.data?.count ?? offer?.redemptionsCount ?? 0;
+    statsRes?.data?.totalOfferRedemptions ??
+    redemptionsData?.data?.count ??
+    offer?.redemptionsCount ??
+    0;
 
   const [createPayment, { isLoading: isPaymentLoading }] =
     useCreateCheckoutSessionMutation();
@@ -480,9 +504,24 @@ export default function BusinessDetails() {
               animate={{ opacity: 1, x: 0 }}
               className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm"
             >
-              <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-widest">
-                {t("business_details.analytics")}
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                  <Filter size={16} className="text-primary" />
+                  {t("business_details.analytics")}
+                </h3>
+                <select
+                  value={statsTimeFilter}
+                  onChange={(e) => setStatsTimeFilter(e.target.value)}
+                  className="h-9 px-3 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+                >
+                  <option value="all_time">{t("business_details.period_all_time") || "All Time"}</option>
+                  <option value="today">{t("business_details.period_today") || "Today"}</option>
+                  <option value="this_week">{t("business_details.period_this_week") || "This Week"}</option>
+                  <option value="this_month">{t("business_details.period_this_month") || "This Month"}</option>
+                  <option value="last_month">{t("business_details.period_last_month") || "Last Month"}</option>
+                </select>
+              </div>
+
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 text-slate-500 font-bold">
@@ -492,7 +531,7 @@ export default function BusinessDetails() {
                     {t("business_details.total_views")}
                   </div>
                   <span className="text-2xl font-black text-slate-900">
-                    {business.viewCount || 0}
+                    {currentViewCount}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

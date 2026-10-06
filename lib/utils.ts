@@ -215,7 +215,8 @@ function getFileOrigin() {
       const base = `${url.origin}${path}`;
 
       // Don't use a leftover LAN IP when the site is on a public host
-      if (pageHost && isLocalHostname(url.hostname) && !isLocalHostname(url.hostname.split(":")[0])) {
+      const pageHostname = pageHost.split(":")[0];
+      if (pageHost && !isLocalHostname(pageHostname) && isLocalHostname(url.hostname)) {
         continue;
       }
 
@@ -620,7 +621,10 @@ export async function downloadFileWithCustomName(
   }
 
   try {
-    const res = await fetch(url, { mode: "cors" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, { mode: "cors", signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
