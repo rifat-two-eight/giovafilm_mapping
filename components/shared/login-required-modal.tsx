@@ -199,7 +199,11 @@ export function LoginRequiredProvider({
         return;
       }
       if (!isPublicPath(pathname)) {
-        router.push("/catalog");
+        if (typeof window !== "undefined" && window.history.length > 1) {
+          router.back();
+        } else {
+          router.push("/");
+        }
       }
     }
   };

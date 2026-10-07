@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Tag } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { AuthLink } from "@/components/shared/auth-link";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -38,7 +38,7 @@ function DealCard({ deal }: { deal: DealItem }) {
   const [imgSrc, setImgSrc] = useState(deal.image);
 
   return (
-    <Link href={deal.href} className="block h-full">
+    <AuthLink href={deal.href} className="block h-full">
       <Card className="bg-white border border-gray-100/90 rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col group cursor-pointer p-0">
         {/* Business Image Container */}
         <div className="relative w-full h-44 sm:h-48 overflow-hidden bg-gray-100">
@@ -73,7 +73,7 @@ function DealCard({ deal }: { deal: DealItem }) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </AuthLink>
   );
 }
 

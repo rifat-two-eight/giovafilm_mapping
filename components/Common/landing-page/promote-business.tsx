@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { AuthLink } from "@/components/shared/auth-link";
 import { motion } from "motion/react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { Target, Tag, BarChart3 } from "lucide-react";
@@ -119,11 +119,11 @@ export default function PromoteBusiness() {
             whileTap={{ scale: 0.97 }}
             className="inline-block w-full sm:w-auto relative z-10"
           >
-            <Link href={"/for-business"} className="block w-full sm:w-auto">
+            <AuthLink href={"/for-business"} className="block w-full sm:w-auto">
               <Button className="w-full sm:w-auto bg-black hover:bg-gray-900 text-white font-bold px-8 sm:px-10 h-12 sm:h-13 rounded-xl cursor-pointer text-sm sm:text-base shadow-lg">
                 {t("landing.add_business")}
               </Button>
-            </Link>
+            </AuthLink>
           </motion.div>
         </motion.div>
       </div>
