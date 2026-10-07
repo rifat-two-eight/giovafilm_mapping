@@ -42,7 +42,7 @@ import logo from "@/public/logo.png";
 import Link from "next/link";
 import { AuthLink } from "@/components/shared/auth-link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NoImage } from "@/lib/others/others";
 import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
@@ -93,6 +93,22 @@ export default function Header() {
   const { t, language } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const past = window.scrollY > 120;
+      if (!past && headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
+      }
+      setScrolled(past);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinks = [
     { name: t("nav.map"), href: "/maps" },
@@ -245,8 +261,22 @@ export default function Header() {
   };
 
   return (
-    <div>
-      <header className="border-b border-gray-100 relative">
+    <div style={scrolled && headerHeight ? { height: headerHeight } : undefined}>
+      <header
+        ref={headerRef}
+        className={`isolate border-b ${
+          scrolled
+            ? "fixed top-0 inset-x-0 z-40 border-gray-200/60 shadow-sm animate-in slide-in-from-top duration-300"
+            : "relative border-gray-100"
+        }`}
+      >
+        {/* Background layer (separate so backdrop-filter doesn't trap fixed children) */}
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 -z-10 transition-all duration-300 ${
+            scrolled ? "bg-white/70 backdrop-blur-md" : "bg-white"
+          }`}
+        />
         <nav className="flex items-center justify-between px-3 sm:px-6 py-3.5 sm:py-4 max-w-360 mx-auto gap-2 sm:gap-4">
           {/* Logo */}
           <div className="shrink-0">
