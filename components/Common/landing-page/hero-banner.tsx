@@ -78,14 +78,15 @@ export default function HeroBanner() {
           >
             {t("landing.hero_tagline")}
           </motion.p>
-          
+
           <motion.h1
             className="text-5xl md:text-7xl font-black tracking-tight text-gray-900 leading-14 md:leading-20 mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            {t("landing.hero_title_1")} <br className="hidden xl:block" />
+            {t("landing.hero_title_1")}{" "}
+            <br className="hidden xl:block" />
             <span className="text-[#FFC107]">{t("landing.hero_title_2")}</span>
           </motion.h1>
 
@@ -107,7 +108,7 @@ export default function HeroBanner() {
             <Link href={"/places"} onClick={handleExplorePlaces}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button className="bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-lg px-10 h-14 text-base shadow-lg shadow-yellow-500/20 cursor-pointer">
-                  {t("landing.explore_places")}
+                  {t("landing.hero_btn_1", t("landing.explore_places"))}
                 </Button>
               </motion.div>
             </Link>
@@ -117,7 +118,7 @@ export default function HeroBanner() {
                   variant="outline"
                   className="bg-white hover:bg-gray-50 text-black font-bold rounded-lg px-10 h-14 text-base border-none shadow-xl shadow-black/5 cursor-pointer"
                 >
-                  {t("landing.browse_catalog")}
+                  {t("landing.hero_btn_2", t("landing.browse_catalog"))}
                 </Button>
               </motion.div>
             </Link>
@@ -150,8 +151,10 @@ export default function HeroBanner() {
               ))}
             </div>
             <p className="text-sm font-medium text-gray-500">
-              {t("landing.joined_by")}{" "}
-              <span className="text-black font-bold">10k+ {t("landing.explorers_this_month")}</span>
+              {t("landing.trust_prefix", t("landing.joined_by"))}{" "}
+              <span className="text-black font-bold">
+                {t("landing.trust_highlight", t("landing.explorers_this_month"))}
+              </span>
             </p>
           </motion.div>
         </motion.div>
@@ -165,8 +168,8 @@ export default function HeroBanner() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <Image
-              src={require("@/public/hero-banner.png")}
-              alt="Tokyo Street"
+              src={require("@/public/landing/banner.png")}
+              alt="Puerto Rico"
               width={500}
               height={400}
               className="w-full h-auto object-cover aspect-4/3"
@@ -176,20 +179,22 @@ export default function HeroBanner() {
 
           {/* Floating Card */}
           <motion.div
-            className="absolute -bottom-6 left-4 bg-white font-inter p-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-70"
+            className="absolute -bottom-6 left-4 bg-white font-inter p-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-64 max-w-sm"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5 }}
             whileHover={{ y: -5, scale: 1.02 }}
           >
-            <div className="w-12 h-12 bg-[#FFC107] rounded-lg flex items-center justify-center text-black">
+            <div className="w-12 h-12 bg-[#FFC107] rounded-lg flex items-center justify-center text-black shrink-0">
               <Zap size={24} fill="currentColor" />
             </div>
             <div>
               <h4 className="font-black text-gray-900 leading-tight">
-                {t("landing.tokyo_guide")}
+                {t("landing.floating_card_title", t("landing.tokyo_guide"))}
               </h4>
-              <p className="text-sm text-[#6B7280]">{t("landing.gems_added")}</p>
+              {t("landing.floating_card_desc") ? (
+                <p className="text-sm text-[#6B7280]">{t("landing.floating_card_desc")}</p>
+              ) : null}
             </div>
           </motion.div>
         </div>
