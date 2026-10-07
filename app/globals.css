@@ -146,6 +146,7 @@ Link {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -156,13 +157,16 @@ Link {
     transform: translateY(-46px) scale(0.72);
     opacity: 0.45;
   }
+
   58% {
     transform: translateY(5px) scale(1.08);
     opacity: 1;
   }
+
   78% {
     transform: translateY(-7px) scale(0.97);
   }
+
   100% {
     transform: translateY(0) scale(1);
   }
@@ -172,12 +176,15 @@ Link {
   0% {
     transform: translateY(0) scale(1);
   }
+
   40% {
     transform: translateY(-34px) scale(1.12);
   }
+
   70% {
     transform: translateY(4px) scale(0.94);
   }
+
   100% {
     transform: translateY(0) scale(1);
   }
@@ -188,6 +195,7 @@ Link {
     transform: scale(0.35);
     opacity: 0.55;
   }
+
   100% {
     transform: scale(3.2);
     opacity: 0;

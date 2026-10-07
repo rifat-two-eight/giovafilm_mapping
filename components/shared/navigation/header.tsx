@@ -152,8 +152,8 @@ export default function Header() {
   const isAdminOrEditor = ["super_admin", "admin", "map_editor"].includes(user?.role || "");
   const visibleMenuItems = isAdminOrEditor
     ? menuItems.filter((item) =>
-        ["/profile/favorite-places", "/profile/contributions-reviews", "/profile/awards"].includes(item.href)
-      )
+      ["/profile/favorite-places", "/profile/contributions-reviews", "/profile/awards"].includes(item.href)
+    )
     : menuItems;
   const [logoutApi] = useLogoutMutation();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -263,94 +263,94 @@ export default function Header() {
 
           {/* Search Bar - Desktop — hidden on Places/Offers (page has its own) */}
           {!hideHeaderSearch && (
-          <div className="hidden md:block flex-1 max-w-2xl mx-4">
-            <div className="relative group">
-              <button
-                type="button"
-                onClick={submitHeaderSearch}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"
-                aria-label="Search"
-              >
-                <Search className="size-5" />
-              </button>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    submitHeaderSearch();
-                  }
-                }}
-                placeholder={t("search.placeholder_full")}
-                className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-              />
+            <div className="hidden md:block flex-1 max-w-2xl mx-4">
+              <div className="relative group">
+                <button
+                  type="button"
+                  onClick={submitHeaderSearch}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="size-5" />
+                </button>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      submitHeaderSearch();
+                    }
+                  }}
+                  placeholder={t("search.placeholder_full")}
+                  className="w-full bg-[#F5F5F5] border-none rounded-full py-3.5 pl-12 pr-6 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                />
 
-              {/* Search Results Dropdown */}
-              {searchTerm && (
-                <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                  {isSearchPending ? (
-                    <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                      {t("search.searching")}
-                    </div>
-                  ) : places.length > 0 ? (
-                    <div className="max-h-60 overflow-y-auto">
-                      {places.map((place: any) => (
-                        <Link
-                          key={place._id}
-                          href={getPlaceSearchHref(place, onMapsPage)}
-                          onClick={() => {
-                            if (onMapsPage) {
-                              const mapName =
-                                (typeof place.map === "object" &&
-                                  (place.map?.name || place.map?.country)) ||
-                                place.country;
-                              if (mapName) {
-                                localStorage.setItem(
-                                  "selectedCountryFilter",
-                                  String(mapName),
-                                );
+                {/* Search Results Dropdown */}
+                {searchTerm && (
+                  <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+                    {isSearchPending ? (
+                      <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                        {t("search.searching")}
+                      </div>
+                    ) : places.length > 0 ? (
+                      <div className="max-h-60 overflow-y-auto">
+                        {places.map((place: any) => (
+                          <Link
+                            key={place._id}
+                            href={getPlaceSearchHref(place, onMapsPage)}
+                            onClick={() => {
+                              if (onMapsPage) {
+                                const mapName =
+                                  (typeof place.map === "object" &&
+                                    (place.map?.name || place.map?.country)) ||
+                                  place.country;
+                                if (mapName) {
+                                  localStorage.setItem(
+                                    "selectedCountryFilter",
+                                    String(mapName),
+                                  );
+                                }
                               }
-                            }
-                            setSearchTerm("");
-                          }}
-                          className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
-                        >
-                          <div className="size-10 rounded-lg overflow-hidden shrink-0">
-                            {place.media?.[0] ? (
-                              <img
-                                src={getImageUrl(place.media[0])}
-                                alt={place.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <Map className="size-4 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-gray-900">
-                              {getLocalized(place.name, language)}
-                            </h4>
-                            <p className="text-xs text-gray-500 truncate">
-                              {place.address}
-                            </p>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 text-center text-sm text-gray-500">
-                      {t("search.no_results")}
-                    </div>
-                  )}
-                </div>
-              )}
+                              setSearchTerm("");
+                            }}
+                            className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                          >
+                            <div className="size-10 rounded-lg overflow-hidden shrink-0">
+                              {place.media?.[0] ? (
+                                <img
+                                  src={getImageUrl(place.media[0])}
+                                  alt={place.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                  <Map className="size-4 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-900">
+                                {getLocalized(place.name, language)}
+                              </h4>
+                              <p className="text-xs text-gray-500 truncate">
+                                {place.address}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        {t("search.no_results")}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           )}
 
           {/* Desktop Nav Links */}
@@ -715,11 +715,10 @@ export default function Header() {
 
         {/* Mobile & Tablet Search Header Drawer */}
         <div
-          className={`fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out z-50 lg:hidden border-b border-gray-200/80 ${
-            isSearchOpen
+          className={`fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out z-50 lg:hidden border-b border-gray-200/80 ${isSearchOpen
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 -translate-y-8 pointer-events-none"
-          }`}
+            }`}
         >
           <div className="p-4 sm:p-5 max-w-2xl mx-auto">
             <div className="flex justify-between items-center mb-3">
