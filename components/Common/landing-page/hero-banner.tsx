@@ -80,7 +80,7 @@ export default function HeroBanner() {
           </motion.p>
 
           <motion.h1
-            className="text-2.5xl sm:text-5xl lg:text-7xl font-black tracking-tight text-gray-900 leading-[1.18] sm:leading-tight lg:leading-20 mb-3.5 sm:mb-5"
+            className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight text-gray-900 leading-[1.18] sm:leading-tight lg:leading-20 mb-3.5 sm:mb-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
