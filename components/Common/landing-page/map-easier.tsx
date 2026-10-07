@@ -47,9 +47,9 @@ export default function MapEasier() {
   ];
 
   return (
-    <section className="relative py-24 overflow-hidden font-inter">
-      {/* Background Shape */}
-      <div className="absolute inset-0 bg-primary/20 rounded-tr-[200px] z-0" />
+    <section className="relative py-16 md:py-24 overflow-hidden font-inter">
+      {/* Background Shape: full cover on mobile, curved on md+ */}
+      <div className="absolute inset-0 bg-primary/20 rounded-none md:rounded-tr-[200px] z-0" />
 
       <div className="relative z-10 max-w-360 mx-auto px-4 md:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
         {/* LEFT SIDE: Heading & Horizontal Cards */}
