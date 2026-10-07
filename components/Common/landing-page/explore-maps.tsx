@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Filter, Eye, Heart, Navigation } from "lucide-react";
+import { Star, TrendingUp, Compass, Trophy } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -24,19 +24,19 @@ export default function ExploreMaps() {
 
   const features = [
     {
-      icon: Filter,
+      icon: Star,
       text: t("landing.interactive_f1"),
     },
     {
-      icon: Eye,
+      icon: TrendingUp,
       text: t("landing.interactive_f2"),
     },
     {
-      icon: Heart,
+      icon: Compass,
       text: t("landing.interactive_f3"),
     },
     {
-      icon: Navigation,
+      icon: Trophy,
       text: t("landing.interactive_f4"),
     },
   ];
@@ -56,7 +56,7 @@ export default function ExploreMaps() {
           <div className="rounded-2xl overflow-hidden w-full h-full relative min-h-[350px]">
             <Image
               src={require("@/public/map-img.jpg")}
-              alt="Interactive Map"
+              alt={t("landing.interactive_title")}
               fill
               className="object-cover"
             />
