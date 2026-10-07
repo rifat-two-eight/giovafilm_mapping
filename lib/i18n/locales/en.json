@@ -643,9 +643,9 @@
     "interactive_f3": "Unlock special itineraries only for explorers of a certain level.",
     "interactive_f4": "Reach the highest levels and win maps of other countries completely free.",
     "start_title": "Start Exploring Today",
-    "start_desc": "Don't settle for tourist traps. Get the map that locals use and experience the city like never before.",
-    "browse_maps": "Browse Maps",
-    "no_sub": "No subscription required."
+    "start_desc": "Turn your free days into an adventure. Get the map locals use and experience the country like never before.",
+    "browse_maps": "Activate Map",
+    "no_sub": "One-time payment per map · no subscription required."
   },
   "contact_form": {
     "name": "Name",

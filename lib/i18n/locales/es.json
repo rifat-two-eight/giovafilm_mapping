@@ -642,10 +642,10 @@
     "interactive_f2": "Sube de nivel mientras más exploras tu mapa.",
     "interactive_f3": "Desbloquea itinerarios especiales solo para exploradores de cierto nivel.",
     "interactive_f4": "Alcanza los niveles más altos y gana mapas de otros países completamente gratis.",
-    "start_title": "Comienza a Explorar Hoy",
-    "start_desc": "No te conformes con trampas para turistas. Obtén el mapa que usan los locales y vive la ciudad como nunca antes.",
-    "browse_maps": "Explorar Mapas",
-    "no_sub": "No se requiere suscripción."
+    "start_title": "Empieza a Explorar Hoy",
+    "start_desc": "Convierte tus días libres en una aventura. Consigue el mapa que usan los locales y vive el país como nunca antes.",
+    "browse_maps": "Activar Mapa",
+    "no_sub": "Pago único por mapa · sin necesidad de suscripción."
   },
   "contact_form": {
     "name": "Nombre",
