@@ -106,9 +106,9 @@ export function Features() {
             whileInView="show"
             viewport={{ once: true, margin: "-50px" }}
           >
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <motion.div
-                key={feature.title}
+                key={index}
                 className="flex items-start gap-4"
                 variants={itemVariants}
               >
@@ -146,8 +146,8 @@ export function Features() {
               transition={{ duration: 0.3 }}
             >
               <Image
-                src="https://picsum.photos/seed/night-city/600/600"
-                alt="Night City"
+                src={require("@/public/landing/La Playita - Cabo Rojo.png")}
+                alt="La Playita - Cabo Rojo"
                 width={500}
                 height={500}
                 className="w-full h-full object-cover aspect-square"
@@ -161,8 +161,8 @@ export function Features() {
               transition={{ duration: 0.3 }}
             >
               <Image
-                src="https://picsum.photos/seed/coffee/600/600"
-                alt="Coffee"
+                src={require("@/public/landing/Cascada Barrio Perchgas - Morovis.png")}
+                alt="Cascada Barrio Perchas - Morovis"
                 width={500}
                 height={500}
                 className="w-full h-full object-cover aspect-square"
@@ -178,8 +178,8 @@ export function Features() {
               transition={{ duration: 0.3 }}
             >
               <Image
-                src="https://picsum.photos/seed/alley/600/800"
-                alt="Alley"
+                src={require("@/public/landing/Piscinas Naturales de Culebrita.png")}
+                alt="Piscinas Naturales de Culebrita"
                 width={500}
                 height={500}
                 className="w-full h-full object-cover aspect-3/4"
@@ -193,8 +193,8 @@ export function Features() {
               transition={{ duration: 0.3 }}
             >
               <Image
-                src="https://picsum.photos/seed/interior/600/600"
-                alt="Interior"
+                src={require("@/public/landing/Cueva de Punta Borinquen.png")}
+                alt="Cueva de Punta Borinquen"
                 width={500}
                 height={500}
                 className="w-full h-full object-cover aspect-square"
