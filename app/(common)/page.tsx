@@ -6,7 +6,7 @@ import { Features } from "@/components/Common/landing-page/features";
 import HeroBanner from "@/components/Common/landing-page/hero-banner";
 import HowItWorks from "@/components/Common/landing-page/how-it-works";
 import MapCollection from "@/components/Common/landing-page/map-collection";
-import PersonalizedExperience from "@/components/Common/landing-page/personalized-experience";
+import MapEasier from "@/components/Common/landing-page/map-easier";
 import PromoteBusiness from "@/components/Common/landing-page/promote-business";
 import StartExploring from "@/components/Common/landing-page/start-exploring";
 import { useEffect, useState } from "react";
@@ -117,7 +117,7 @@ export default function HomePage() {
       <PromoteBusiness />
       <DealsSection />
       <MapCollection />
-      <PersonalizedExperience />
+      <MapEasier />
       <StartExploring />
     </div>
   );

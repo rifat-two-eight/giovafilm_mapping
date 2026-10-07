@@ -41,11 +41,11 @@ export default function PersonalizedExperience() {
   ];
 
   return (
-    <section className="relative py-24 overflow-hidden">
+    <section className="relative py-24 overflow-hidden font-inter">
       {/* Background Shape */}
       <div className="absolute inset-0 bg-primary/20 rounded-tr-[200px] z-0" />
 
-      <div className="relative max-w-360 mx-auto px-4 md:px-6 flex flex-col lg:flex-row items-center justify-between gap-10 ">
+      <div className="relative max-w-360 mx-auto px-4 md:px-6 flex flex-col lg:flex-row items-center justify-between gap-10">
         {/* LEFT SIDE */}
         <div className="space-y-8 w-full lg:w-1/2">
           <motion.h2
@@ -72,7 +72,7 @@ export default function PersonalizedExperience() {
                 whileHover={{ x: 6, scale: 1.01 }}
                 className="w-full"
               >
-                <Card className="rounded-xl shadow-none bg-white py-0 cursor-pointer border border-gray-100/50 hover:shadow-md transition-shadow">
+                <Card className="rounded-xl shadow-xs bg-white py-0 cursor-pointer border border-gray-100/50 hover:shadow-md transition-shadow">
                   <CardContent className="flex items-start gap-4 p-6">
                     <div className="w-9 h-9 rounded-md flex items-center justify-center bg-yellow-50">
                       {feature.icon}
