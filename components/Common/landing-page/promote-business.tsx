@@ -39,11 +39,11 @@ export default function PromoteBusiness() {
   ];
 
   return (
-    <section className="py-20 bg-gray-100 overflow-hidden">
+    <section className="py-16 sm:py-20 lg:py-24 bg-gray-100 overflow-hidden font-inter">
       <div className="max-w-360 mx-auto px-4 md:px-6">
         {/* Yellow Container */}
         <motion.div
-          className="bg-primary rounded-[48px] p-10 md:py-16 px-8 text-center font-inter"
+          className="bg-primary rounded-3xl sm:rounded-[48px] p-6 sm:p-10 md:py-16 text-center"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -51,7 +51,7 @@ export default function PromoteBusiness() {
         >
           {/* Heading */}
           <motion.h2
-            className="text-4xl font-bold mb-4"
+            className="text-3xl sm:text-4xl lg:text-4.5xl font-bold mb-3 sm:mb-4 text-gray-900 tracking-tight leading-tight"
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -61,7 +61,7 @@ export default function PromoteBusiness() {
           </motion.h2>
 
           <motion.p
-            className="text-gray-800 max-w-2xl mx-auto mb-9 md:mb-12"
+            className="text-gray-800 text-sm sm:text-base max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -72,7 +72,7 @@ export default function PromoteBusiness() {
 
           {/* Feature Cards */}
           <motion.div
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 max-w-4xl mx-auto"
+            className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8 sm:mb-12 max-w-4xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             whileInView="show"
@@ -82,15 +82,17 @@ export default function PromoteBusiness() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                whileHover={{ y: -6, scale: 1.02 }}
+                whileHover={{ y: -6, scale: 1.01 }}
                 className="h-full"
               >
-                <Card className="bg-yellow-200/40 border-none rounded-2xl shadow-none h-full cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <h3 className="font-semibold text-gray-900 mb-2">
+                <Card className="bg-yellow-200/40 border-none rounded-2xl shadow-none h-full cursor-default">
+                  <CardContent className="p-5 sm:p-6 text-center">
+                    <h3 className="font-bold text-base text-gray-900 mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-gray-800">{feature.description}</p>
+                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">
+                      {feature.description}
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -105,10 +107,10 @@ export default function PromoteBusiness() {
             transition={{ duration: 0.5, delay: 0.5 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-block"
+            className="inline-block w-full sm:w-auto"
           >
-            <Link href={"/for-business"}>
-              <Button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 rounded-xl cursor-pointer">
+            <Link href={"/for-business"} className="block w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-black hover:bg-gray-900 text-white font-bold px-8 py-5 sm:py-6 rounded-xl cursor-pointer text-base">
                 {t("landing.add_business")}
               </Button>
             </Link>

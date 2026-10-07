@@ -39,9 +39,9 @@ function DealCard({ deal }: { deal: DealItem }) {
 
   return (
     <Link href={deal.href} className="block h-full">
-      <Card className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col group cursor-pointer p-0">
+      <Card className="bg-white border border-gray-100/90 rounded-2xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col group cursor-pointer p-0">
         {/* Business Image Container */}
-        <div className="relative w-full h-48 overflow-hidden bg-gray-100">
+        <div className="relative w-full h-44 sm:h-48 overflow-hidden bg-gray-100">
           <Image
             src={imgSrc}
             alt={deal.name}
@@ -55,19 +55,19 @@ function DealCard({ deal }: { deal: DealItem }) {
             }}
           />
           {/* Discount Badge */}
-          <div className="absolute top-3 right-3 bg-[#FFC107] text-black font-extrabold text-xs px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 uppercase tracking-wide">
-            <Tag className="w-3.5 h-3.5" />
+          <div className="absolute top-3 right-3 bg-[#FFC107] text-black font-extrabold text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-md flex items-center gap-1.5 uppercase tracking-wide">
+            <Tag className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
             <span>{deal.badge}</span>
           </div>
         </div>
 
         {/* Card Content */}
-        <CardContent className="p-5 text-left flex-1 flex flex-col justify-between">
+        <CardContent className="p-4 sm:p-5 text-left flex-1 flex flex-col justify-between">
           <div>
-            <h3 className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1 mb-1.5">
+            <h3 className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1 mb-1 sm:mb-1.5">
               {deal.name}
             </h3>
-            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed">
               {deal.description}
             </p>
           </div>
@@ -118,12 +118,10 @@ export default function DealsSection() {
   ];
 
   const deals: DealItem[] = defaultDeals.map((deal) => {
-    // 1. Try to find the real matching offer from the database
     const matchedOffer = allOffers.find((o) =>
       deal.searchMatch.test(o.place?.name || o.business?.name || o.title || "")
     );
 
-    // 2. Extract the actual photo uploaded to the map/offer
     const apiImage = matchedOffer
       ? getImageUrl(
           matchedOffer.photo ||
@@ -147,28 +145,28 @@ export default function DealsSection() {
   });
 
   return (
-    <section className="py-20 bg-gray-50 overflow-hidden font-inter">
-      <div className="max-w-360 mx-auto px-4 md:px-6 text-center space-y-12">
+    <section className="py-16 sm:py-20 lg:py-24 bg-gray-50/70 overflow-hidden font-inter">
+      <div className="max-w-360 mx-auto px-4 md:px-6 text-center space-y-8 sm:space-y-12">
         {/* Heading */}
         <motion.div
-          className="space-y-3"
+          className="space-y-2 sm:space-y-3"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+          <h2 className="text-3xl sm:text-4xl lg:text-4.5xl font-bold text-gray-900 tracking-tight leading-tight">
             {t("landing.deals_title")}
           </h2>
 
-          <p className="text-gray-500 max-w-2xl mx-auto text-base">
+          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
             {t("landing.deals_subtitle")}
           </p>
         </motion.div>
 
-        {/* Cards */}
+        {/* Cards Grid */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="show"
@@ -178,7 +176,7 @@ export default function DealsSection() {
             <motion.div
               key={deal.id || index}
               variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.02 }}
+              whileHover={{ y: -6, scale: 1.01 }}
               className="h-full"
             >
               <DealCard deal={deal} />

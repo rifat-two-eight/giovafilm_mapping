@@ -10,9 +10,9 @@ export default function StartExploring() {
   const { t } = useLanguage();
 
   return (
-    <section className="w-full flex justify-center px-6 py-16 overflow-hidden">
+    <section className="w-full flex justify-center px-4 sm:px-6 py-16 sm:py-20 lg:py-24 overflow-hidden font-inter">
       <motion.div
-        className="relative w-full max-w-360 mx-auto px-4 md:px-6 rounded-3xl overflow-hidden"
+        className="relative w-full max-w-360 mx-auto rounded-2xl sm:rounded-3xl overflow-hidden"
         style={{
           backgroundImage: `url(${bgImg.src})`,
           backgroundSize: "cover",
@@ -23,13 +23,13 @@ export default function StartExploring() {
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/70" />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/75" />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center py-20 px-6 text-white">
+        <div className="relative z-10 flex flex-col items-center text-center py-14 sm:py-20 px-6 sm:px-10 text-white">
           <motion.h2
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 tracking-tight leading-tight"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -39,7 +39,7 @@ export default function StartExploring() {
           </motion.h2>
 
           <motion.p
-            className="max-w-xl text-gray-200 mb-8"
+            className="max-w-xl text-gray-200 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -49,24 +49,25 @@ export default function StartExploring() {
           </motion.p>
 
           <motion.div
-            className="flex flex-col md:flex-row items-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Link href={"/catalog"}>
+            <Link href={"/catalog"} className="w-full sm:w-auto">
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full"
               >
-                <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-5 rounded-xl cursor-pointer">
+                <Button className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-8 py-5 sm:py-6 rounded-xl cursor-pointer text-base shadow-lg">
                   {t("landing.browse_maps")}
                 </Button>
               </motion.div>
             </Link>
 
-            <span className="text-sm text-gray-300">
+            <span className="text-xs sm:text-sm text-gray-300 font-medium">
               {t("landing.no_sub")}
             </span>
           </motion.div>

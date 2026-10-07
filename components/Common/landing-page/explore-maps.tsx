@@ -42,46 +42,47 @@ export default function ExploreMaps() {
   ];
 
   return (
-    <section className="bg-[#0f0f0f] text-white py-24 overflow-hidden">
-      <div className="max-w-360 mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-16 items-center">
-        {/* Map Image */}
+    <section className="bg-[#0f0f0f] text-white py-16 sm:py-20 lg:py-24 overflow-hidden font-inter">
+      <div className="max-w-360 mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        {/* Map Image Container */}
         <motion.div
-          className="w-full md:w-135 md:h-135 relative rounded-3xl p-4 bg-blue-900/30"
-          initial={{ opacity: 0, scale: 0.9 }}
+          className="w-full max-w-lg mx-auto lg:max-w-none relative rounded-3xl p-3 sm:p-4 bg-blue-900/30 border border-blue-500/20"
+          initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
         >
-          <div className="rounded-2xl overflow-hidden w-full h-full relative min-h-[350px]">
+          <div className="rounded-2xl overflow-hidden w-full h-72 sm:h-96 md:h-115 relative">
             <Image
-              src={require("@/public/map-img.jpg")}
+              src="/map-img.jpg"
               alt={t("landing.interactive_title")}
               fill
               className="object-cover"
+              priority
             />
           </div>
         </motion.div>
 
         {/* Content */}
         <motion.div
-          className="space-y-6"
-          initial={{ opacity: 0, x: 40 }}
+          className="space-y-4 sm:space-y-6"
+          initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <h2 className="text-4xl font-inter font-bold">
+          <h2 className="text-3xl sm:text-4xl lg:text-4.5xl font-bold tracking-tight leading-tight">
             {t("landing.interactive_title")}
           </h2>
 
-          <p className="text-base font-inter text-gray-400 leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
             {t("landing.interactive_desc")}
           </p>
 
-          {/* Features */}
+          {/* Features List */}
           <motion.div
-            className="space-y-4 pt-4"
+            className="space-y-3.5 pt-2 sm:pt-4"
             variants={listVariants}
             initial="hidden"
             whileInView="show"
@@ -95,8 +96,12 @@ export default function ExploreMaps() {
                   className="flex items-start gap-3"
                   variants={itemVariants}
                 >
-                  <Icon className="text-yellow-400 w-5 h-5 mt-1" />
-                  <p className="text-gray-300 text-sm">{feature.text}</p>
+                  <div className="w-8 h-8 rounded-lg bg-yellow-400/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Icon className="text-yellow-400 w-4 h-4" />
+                  </div>
+                  <p className="text-gray-300 text-xs sm:text-sm leading-relaxed font-medium">
+                    {feature.text}
+                  </p>
                 </motion.div>
               );
             })}

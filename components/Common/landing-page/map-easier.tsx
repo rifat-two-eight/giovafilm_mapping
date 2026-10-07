@@ -47,7 +47,7 @@ export default function MapEasier() {
   ];
 
   return (
-    <section className="relative py-20 lg:py-28 overflow-hidden font-inter">
+    <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden font-inter">
       {/* Background Shape */}
       <div className="absolute inset-0 bg-primary/20 rounded-none md:rounded-tr-[200px] z-0" />
 

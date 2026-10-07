@@ -19,7 +19,7 @@ export default function MapCollection() {
   const mapsData = mapsRes?.data || [];
 
   return (
-    <section className="max-w-360 mx-auto px-4 md:px-6 py-12 md:py-16 space-y-8 md:space-y-10 overflow-hidden font-inter">
+    <section className="max-w-360 mx-auto px-4 md:px-6 py-16 sm:py-20 lg:py-24 space-y-8 sm:space-y-10 overflow-hidden font-inter">
       {/* Header */}
       <motion.div
         className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
@@ -29,10 +29,10 @@ export default function MapCollection() {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-4.5xl font-bold text-gray-900 tracking-tight leading-tight">
             {t("landing.collection_title")}
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base mt-1.5 max-w-xl">
+          <p className="text-gray-500 text-sm sm:text-base mt-1.5 max-w-xl leading-relaxed">
             {t("landing.collection_subtitle")}
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function MapCollection() {
                   className="pl-3 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
                 >
                   <Link href={`/catalog/${map._id}`} className="block h-full">
-                    <div className="relative rounded-3xl overflow-hidden group cursor-pointer h-full border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                    <div className="relative rounded-3xl overflow-hidden group cursor-pointer h-full border border-gray-100 shadow-xs hover:shadow-xl transition-all duration-300">
                       {/* Image */}
                       <img
                         src={getImageUrl(map.images?.[0])}

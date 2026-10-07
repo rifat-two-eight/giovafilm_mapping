@@ -9,13 +9,13 @@ const containerVariants = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.15,
     },
   },
 } as const;
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 30 },
   show: {
     opacity: 1,
     y: 0,
@@ -49,11 +49,11 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="py-16 bg-white overflow-hidden">
+    <section className="py-16 sm:py-20 lg:py-24 bg-white overflow-hidden font-inter">
       <div className="max-w-360 mx-auto px-4 md:px-6">
         {/* Section Title */}
         <motion.h2
-          className="text-4xl font-bold text-center text-gray-900 mb-8"
+          className="text-3xl sm:text-4xl lg:text-4.5xl font-bold text-center text-gray-900 mb-8 sm:mb-12 tracking-tight leading-tight"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -64,28 +64,28 @@ export default function HowItWorks() {
 
         {/* Cards */}
         <motion.div
-          className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3"
           variants={containerVariants}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-50px" }}
         >
           {steps.map((step, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              whileHover={{ y: -8 }}
+              whileHover={{ y: -6 }}
               className="h-full"
             >
-              <Card className="border-gray-100 shadow-none hover:shadow-lg transition-shadow duration-300 rounded-2xl py-2 h-full">
-                <CardContent className="flex flex-col items-center text-center p-10 space-y-4">
+              <Card className="border-gray-100/90 shadow-none hover:shadow-lg transition-all duration-300 rounded-2xl py-1 sm:py-2 h-full">
+                <CardContent className="flex flex-col items-center text-center p-6 sm:p-8 md:p-10 space-y-3.5 sm:space-y-4">
                   {/* Icon */}
-                  <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-yellow-100">
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-yellow-100/80 shrink-0">
                     {step.icon}
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     {step.title}
                   </h3>
 
