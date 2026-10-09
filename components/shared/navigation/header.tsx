@@ -43,6 +43,7 @@ import Link from "next/link";
 import { AuthLink } from "@/components/shared/auth-link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { NoImage } from "@/lib/others/others";
 import { Progress } from "@/components/ui/progress";
 import ProfileUpdateModal from "@/components/Common/profile/profile-update-modal";
@@ -95,7 +96,23 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when mobile menu or search drawer is open
+  useEffect(() => {
+    if (isMenuOpen || isSearchOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isMenuOpen, isSearchOpen]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -267,7 +284,7 @@ export default function Header() {
         className={`isolate border-b ${
           scrolled
             ? "fixed top-0 inset-x-0 z-40 border-gray-200/60 shadow-sm animate-in slide-in-from-top duration-300"
-            : "relative border-gray-100"
+            : "relative z-30 border-gray-100"
         }`}
       >
         {/* Background layer (separate so backdrop-filter doesn't trap fixed children) */}
@@ -734,240 +751,268 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile & Tablet Search Backdrop — keeps map visible underneath with soft blur */}
-        {isSearchOpen && (
-          <div
-            className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-50 lg:hidden transition-opacity duration-300 animate-in fade-in"
-            onClick={closeMenus}
-            aria-hidden="true"
-          />
-        )}
+      </header>
 
-        {/* Mobile & Tablet Search Header Drawer */}
-        <div
-          className={`fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out z-50 lg:hidden border-b border-gray-200/80 ${isSearchOpen
-              ? "opacity-100 translate-y-0 pointer-events-auto"
-              : "opacity-0 -translate-y-8 pointer-events-none"
-            }`}
-        >
-          <div className="p-4 sm:p-5 max-w-2xl mx-auto">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("nav.map")}</span>
-              <button
-                type="button"
+      {/* Portaled Mobile Overlays & Drawers (prevents trapping inside header stacking context/transforms) */}
+      {mounted &&
+        createPortal(
+          <>
+            {/* Mobile & Tablet Search Backdrop — keeps map visible underneath with soft blur */}
+            {isSearchOpen && (
+              <div
+                className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-[90] lg:hidden transition-opacity duration-300 animate-in fade-in"
                 onClick={closeMenus}
-                className="p-1.5 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
-                aria-label="Close search"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={submitHeaderSearch}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
-                aria-label="Search"
-              >
-                <Search className="size-5" />
-              </button>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    submitHeaderSearch();
-                  }
-                }}
-                placeholder={t("search.placeholder_full")}
-                className="w-full bg-[#F5F5F5] border border-gray-200/70 rounded-full py-3 pl-12 pr-10 text-sm focus:bg-white focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner"
-                autoFocus
+                aria-hidden="true"
               />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
+            )}
 
-              {/* Search Results Dropdown Mobile */}
-              {searchTerm && (
-                <div className="mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-[60vh] overflow-y-auto">
-                  {/* Direct search on map action (perfect for municipalities) */}
+            {/* Mobile & Tablet Search Header Drawer */}
+            <div
+              className={`fixed top-0 inset-x-0 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 ease-out z-[95] lg:hidden border-b border-gray-200/80 ${
+                isSearchOpen
+                  ? "opacity-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 -translate-y-8 pointer-events-none"
+              }`}
+            >
+              <div className="p-4 sm:p-5 max-w-2xl mx-auto">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {t("nav.map")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={closeMenus}
+                    className="p-1.5 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
+                    aria-label="Close search"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
+                <div className="relative">
                   <button
                     type="button"
                     onClick={submitHeaderSearch}
-                    className="w-full flex items-center gap-3 p-3.5 text-left text-sm font-bold text-amber-700 bg-amber-50/80 hover:bg-amber-100/80 border-b border-amber-100 transition-colors"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+                    aria-label="Search"
                   >
-                    <Search className="size-4 shrink-0 text-amber-600" />
-                    <span>Search &ldquo;{searchTerm}&rdquo; on map</span>
+                    <Search className="size-5" />
                   </button>
-
-                  {isSearchPending ? (
-                    <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-                      {t("search.searching")}
-                    </div>
-                  ) : places.length > 0 ? (
-                    <div>
-                      {places.map((place: any) => (
-                        <Link
-                          key={place._id}
-                          href={getPlaceSearchHref(place, onMapsPage)}
-                          onClick={() => {
-                            if (onMapsPage) {
-                              const mapName =
-                                (typeof place.map === "object" &&
-                                  (place.map?.name || place.map?.country)) ||
-                                place.country;
-                              if (mapName) {
-                                localStorage.setItem(
-                                  "selectedCountryFilter",
-                                  String(mapName),
-                                );
-                              }
-                            }
-                            setSearchTerm("");
-                            closeMenus();
-                          }}
-                          className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
-                        >
-                          <div className="size-10 rounded-lg overflow-hidden shrink-0">
-                            {place.media?.[0] ? (
-                              <img
-                                src={getImageUrl(place.media[0])}
-                                alt={place.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <Map className="size-4 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-semibold text-gray-900 truncate">
-                              {getLocalized(place.name, language)}
-                            </h4>
-                            <p className="text-xs text-gray-500 truncate">
-                              {place.address}
-                            </p>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 text-center text-xs text-gray-500">
-                      Press enter or tap &ldquo;Search &lsquo;{searchTerm}&rsquo; on map&rdquo; to filter all matching spots.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile & Tablet Menu Slide-in */}
-        <div
-          className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 lg:hidden ${isMenuOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-        >
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">{t("nav.menu")}</h2>
-              <div className="flex items-center gap-2">
-                <LanguageSwitcher />
-                <button
-                  onClick={closeMenus}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <X className="size-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="">
-              {navLinks.map((link, index) => {
-                const isActive = pathname === link.href;
-
-                return (
-                  <AuthLink
-                    key={index}
-                    href={link.href}
-                    onClick={closeMenus}
-                    className={`block px-4 py-2 font-semibold text-black font-inter transition-colors rounded-lg ${isActive ? "bg-primary" : "hover:bg-gray-100"
-                      }`}
-                  >
-                    {link.name}
-                  </AuthLink>
-                );
-              })}
-            </div>
-
-            {/* User Menu Items in Hamburger (Mobile) */}
-            {isAuthenticated && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-500 mb-3 px-4">
-                  {t("nav.profile")}
-                </h3>
-
-                <div className="space-y-1">
-                  {isAdminOrEditor && (
-                    <Link
-                      href={"/dashboard"}
-                      onClick={closeMenus}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-semibold"
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        submitHeaderSearch();
+                      }
+                    }}
+                    placeholder={t("search.placeholder_full")}
+                    className="w-full bg-[#F5F5F5] border border-gray-200/70 rounded-full py-3 pl-12 pr-10 text-sm focus:bg-white focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner"
+                    autoFocus
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
                     >
-                      <Grid2x2 className="size-5" />
-                      Dashboard
-                    </Link>
+                      <X className="size-4" />
+                    </button>
                   )}
-                  <div className="space-y-1">
-                    {visibleMenuItems.map((item, index) => {
-                      const Icon = item.icon;
 
-                      return (
-                        <Link
-                          key={index}
-                          href={item.href}
-                          onClick={closeMenus}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Icon className="size-5" />
-                          <span>{item.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  {/* Search Results Dropdown Mobile */}
+                  {searchTerm && (
+                    <div className="mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-[60vh] overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={submitHeaderSearch}
+                        className="w-full flex items-center gap-3 p-3.5 text-left text-sm font-bold text-amber-700 bg-amber-50/80 hover:bg-amber-100/80 border-b border-amber-100 transition-colors"
+                      >
+                        <Search className="size-4 shrink-0 text-amber-600" />
+                        <span>Search &ldquo;{searchTerm}&rdquo; on map</span>
+                      </button>
 
-                  {/* ✅ Logout in hamburger menu */}
-                  <button
-                    onClick={() => handleLogout()}
-                    className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4"
-                  >
-                    <Map className="size-5" />
-                    <span>{t("nav.logout")}</span>
-                  </button>
+                      {isSearchPending ? (
+                        <div className="p-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                          {t("search.searching")}
+                        </div>
+                      ) : places.length > 0 ? (
+                        <div>
+                          {places.map((place: any) => (
+                            <Link
+                              key={place._id}
+                              href={getPlaceSearchHref(place, onMapsPage)}
+                              onClick={() => {
+                                if (onMapsPage) {
+                                  const mapName =
+                                    (typeof place.map === "object" &&
+                                      (place.map?.name || place.map?.country)) ||
+                                    place.country;
+                                  if (mapName) {
+                                    localStorage.setItem(
+                                      "selectedCountryFilter",
+                                      String(mapName)
+                                    );
+                                  }
+                                }
+                                setSearchTerm("");
+                                closeMenus();
+                              }}
+                              className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                            >
+                              <div className="size-10 rounded-lg overflow-hidden shrink-0">
+                                {place.media?.[0] ? (
+                                  <img
+                                    src={getImageUrl(place.media[0])}
+                                    alt={place.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <Map className="size-4 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-sm font-semibold text-gray-900 truncate">
+                                  {getLocalized(place.name, language)}
+                                </h4>
+                                <p className="text-xs text-gray-500 truncate">
+                                  {place.address}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-xs text-gray-500">
+                          Press enter or tap &ldquo;Search &lsquo;{searchTerm}&rsquo; on map&rdquo; to filter all matching spots.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Overlay */}
-        {(isMenuOpen || isSearchOpen) && (
-          <div
-            className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 lg:hidden"
-            onClick={closeMenus}
-          />
+            {/* Mobile Menu Backdrop */}
+            {isMenuOpen && (
+              <div
+                className="fixed inset-0 bg-black/50 z-[90] lg:hidden transition-opacity duration-300 animate-in fade-in"
+                onClick={closeMenus}
+                aria-hidden="true"
+              />
+            )}
+
+            {/* Mobile & Tablet Menu Slide-in */}
+            <div
+              className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[100] lg:hidden ${
+                isMenuOpen
+                  ? "translate-x-0 pointer-events-auto"
+                  : "translate-x-full pointer-events-none"
+              }`}
+            >
+              <div className="p-6 h-full flex flex-col overflow-y-auto">
+                <div className="flex justify-between items-center mb-5 shrink-0">
+                  <h2 className="text-lg font-bold text-gray-900">{t("nav.menu")}</h2>
+                  <div className="flex items-center gap-2">
+                    <LanguageSwitcher />
+                    <button
+                      type="button"
+                      onClick={closeMenus}
+                      className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
+                      aria-label="Close menu"
+                    >
+                      <X className="size-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="space-y-1">
+                  {navLinks.map((link, index) => {
+                    const isActive = pathname === link.href;
+
+                    return (
+                      <AuthLink
+                        key={index}
+                        href={link.href}
+                        onClick={closeMenus}
+                        className={`block px-4 py-2.5 font-semibold text-black font-inter transition-colors rounded-xl ${
+                          isActive ? "bg-primary" : "hover:bg-gray-100"
+                        }`}
+                      >
+                        {link.name}
+                      </AuthLink>
+                    );
+                  })}
+                </div>
+
+                {/* User Menu Items in Hamburger (Mobile) */}
+                {isAuthenticated ? (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-500 mb-3 px-4">
+                      {t("nav.profile")}
+                    </h3>
+
+                    <div className="space-y-1">
+                      {isAdminOrEditor && (
+                        <Link
+                          href={"/dashboard"}
+                          onClick={closeMenus}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors font-semibold"
+                        >
+                          <Grid2x2 className="size-5" />
+                          Dashboard
+                        </Link>
+                      )}
+                      <div className="space-y-1">
+                        {visibleMenuItems.map((item, index) => {
+                          const Icon = item.icon;
+
+                          return (
+                            <Link
+                              key={index}
+                              href={item.href}
+                              onClick={closeMenus}
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Icon className="size-5" />
+                              <span>{item.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+
+                      {/* ✅ Logout in hamburger menu */}
+                      <button
+                        type="button"
+                        onClick={() => handleLogout()}
+                        className="w-full flex items-center gap-3 px-4 py-3 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors text-left mt-4 font-semibold"
+                      >
+                        <Map className="size-5" />
+                        <span>{t("nav.logout")}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-auto pt-6 border-t border-gray-200">
+                    <Link
+                      href="/login"
+                      onClick={closeMenus}
+                      className="block w-full text-center bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold font-public-sans rounded-xl py-3 text-sm transition-colors shadow-none"
+                    >
+                      {t("nav.login")}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>,
+          document.body
         )}
-      </header>
 
       <ProfileUpdateModal
         data={user}
