@@ -259,22 +259,30 @@ export default function Header() {
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    if (!isMenuOpen) {
+    const next = !isMenuOpen;
+    setIsMenuOpen(next);
+    if (next) {
       setIsSearchOpen(false);
+      setIsMobileProfileMenuOpen(false);
+      setIsProfileMenuOpen(false);
     }
   };
 
   const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-    if (!isSearchOpen) {
+    const next = !isSearchOpen;
+    setIsSearchOpen(next);
+    if (next) {
       setIsMenuOpen(false);
+      setIsMobileProfileMenuOpen(false);
+      setIsProfileMenuOpen(false);
     }
   };
 
   const closeMenus = () => {
     setIsMenuOpen(false);
     setIsSearchOpen(false);
+    setIsMobileProfileMenuOpen(false);
+    setIsProfileMenuOpen(false);
   };
 
   return (
@@ -587,7 +595,13 @@ export default function Header() {
             {isAuthenticated ? (
               <DropdownMenu
                 open={isMobileProfileMenuOpen}
-                onOpenChange={setIsMobileProfileMenuOpen}
+                onOpenChange={(open) => {
+                  setIsMobileProfileMenuOpen(open);
+                  if (open) {
+                    setIsMenuOpen(false);
+                    setIsSearchOpen(false);
+                  }
+                }}
               >
                 <DropdownMenuTrigger asChild>
                   <button
